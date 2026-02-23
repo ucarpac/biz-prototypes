@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>価格表示A - 将来予測グラフ中心</title>
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --back-white: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      background: var(--back-white);
+      min-height: 100vh;
+      max-width: 375px;
+      margin: 0 auto;
+    }
+    .header {
+      background: var(--dark-blue);
+      color: var(--white);
+      padding: 16px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .result-card {
+      background: var(--white);
+      margin: 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .car-info {
+      padding: 16px;
+      border-bottom: 1px solid #F2F2F2;
+    }
+    .car-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--dark-blue);
+    }
+    .car-detail {
+      font-size: 12px;
+      color: var(--text-gray);
+      margin-top: 4px;
+    }
+    .price-section {
+      padding: 24px 16px;
+      text-align: center;
+    }
+    .price-label {
+      font-size: 12px;
+      color: var(--text-gray);
+    }
+    .price-value {
+      font-size: 40px;
+      font-weight: bold;
+      color: var(--pink);
+      margin: 8px 0;
+    }
+    .price-value span {
+      font-size: 18px;
+    }
+    .trust-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #E8F5E9;
+      color: #2E7D32;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+    .graph-section {
+      padding: 16px;
+      background: var(--back-gray);
+    }
+    .graph-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--dark-blue);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .graph-container {
+      background: var(--white);
+      border-radius: 8px;
+      padding: 16px;
+      height: 180px;
+      position: relative;
+    }
+    .graph-svg {
+      width: 100%;
+      height: 100%;
+    }
+    .graph-line {
+      fill: none;
+      stroke: var(--pink);
+      stroke-width: 3;
+    }
+    .graph-area {
+      fill: url(#pinkGradient);
+    }
+    .graph-dot {
+      fill: var(--pink);
+    }
+    .graph-label {
+      font-size: 10px;
+      fill: var(--text-gray);
+    }
+    .insight-box {
+      margin: 16px;
+      padding: 16px;
+      background: linear-gradient(135deg, #FFF3F8, #FFE8F3);
+      border-radius: 12px;
+      border-left: 4px solid var(--pink);
+    }
+    .insight-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--dark-blue);
+      margin-bottom: 8px;
+    }
+    .insight-text {
+      font-size: 13px;
+      color: var(--text-black);
+      line-height: 1.6;
+    }
+    .insight-highlight {
+      color: var(--pink);
+      font-weight: bold;
+    }
+    .action-section {
+      padding: 16px;
+    }
+    .action-subtitle {
+      font-size: 12px;
+      color: var(--text-gray);
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .btn-primary {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      background: var(--gradient-primary);
+      border: none;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--dark-blue);
+      text-align: center;
+      text-decoration: none;
+      margin-bottom: 12px;
+    }
+    .btn-secondary {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: var(--white);
+      border: 2px solid var(--back-gray);
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--text-black);
+      text-align: center;
+      text-decoration: none;
+    }
+    .no-pressure {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-gray);
+      margin-top: 12px;
+    }
+    .no-pressure svg {
+      width: 14px;
+      height: 14px;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+  </style>
+</head>
+<body>
+  <script src="../auth.js"></script>
+
+  <div class="header">AI査定結果</div>
+
+  <div class="result-card">
+    <div class="car-info">
+      <div class="car-name">トヨタ プリウス</div>
+      <div class="car-detail">2020年式 / 3.5万km / Sグレード</div>
+    </div>
+    <div class="price-section">
+      <div class="price-label">現在の推定価格</div>
+      <div class="price-value">185<span>万円</span></div>
+      <div class="trust-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+        </svg>
+        8,000社のデータで算出
+      </div>
+    </div>
+  </div>
+
+  <div class="graph-section">
+    <div class="graph-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--pink)">
+        <path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/>
+      </svg>
+      今後の相場予測
+    </div>
+    <div class="graph-container">
+      <svg class="graph-svg" viewBox="0 0 300 140">
+        <defs>
+          <linearGradient id="pinkGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#F84CA2;stop-opacity:0.3" />
+            <stop offset="100%" style="stop-color:#F84CA2;stop-opacity:0" />
+          </linearGradient>
+        </defs>
+        <!-- X軸ラベル -->
+        <text x="30" y="135" class="graph-label">今月</text>
+        <text x="95" y="135" class="graph-label">3ヶ月後</text>
+        <text x="165" y="135" class="graph-label">6ヶ月後</text>
+        <text x="235" y="135" class="graph-label">1年後</text>
+        <!-- Y軸ラベル -->
+        <text x="5" y="25" class="graph-label">200万</text>
+        <text x="5" y="65" class="graph-label">180万</text>
+        <text x="5" y="105" class="graph-label">160万</text>
+        <!-- グリッド線 -->
+        <line x1="30" y1="20" x2="280" y2="20" stroke="#E0E0E0" stroke-dasharray="4"/>
+        <line x1="30" y1="60" x2="280" y2="60" stroke="#E0E0E0" stroke-dasharray="4"/>
+        <line x1="30" y1="100" x2="280" y2="100" stroke="#E0E0E0" stroke-dasharray="4"/>
+        <!-- エリア -->
+        <path class="graph-area" d="M30,45 L110,55 L190,70 L270,90 L270,120 L30,120 Z"/>
+        <!-- ライン -->
+        <path class="graph-line" d="M30,45 L110,55 L190,70 L270,90"/>
+        <!-- ドット -->
+        <circle class="graph-dot" cx="30" cy="45" r="6"/>
+        <circle cx="110" cy="55" r="4" fill="#fff" stroke="var(--pink)" stroke-width="2"/>
+        <circle cx="190" cy="70" r="4" fill="#fff" stroke="var(--pink)" stroke-width="2"/>
+        <circle cx="270" cy="90" r="4" fill="#fff" stroke="var(--pink)" stroke-width="2"/>
+        <!-- 価格ラベル -->
+        <text x="30" y="35" font-size="11" fill="var(--pink)" font-weight="bold">185万</text>
+        <text x="190" y="60" font-size="10" fill="var(--text-gray)">約175万</text>
+        <text x="255" y="80" font-size="10" fill="var(--text-gray)">約165万</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="insight-box">
+    <div class="insight-title">あなたの車の場合</div>
+    <div class="insight-text">
+      半年後には約<span class="insight-highlight">10万円</span>下がる見込みです。<br>
+      「いつ売るか」の参考にしてください。<br>
+      <span style="font-size:11px;color:var(--text-gray)">※市場動向により変動します</span>
+    </div>
+  </div>
+
+  <div class="action-section">
+    <div class="action-subtitle">売却をお考えの方は</div>
+    <a href="#" class="btn-primary">売却の相談をする</a>
+    <a href="#" class="btn-secondary">売却予定日を登録して相場を追いかける</a>
+    <div class="no-pressure">
+      <svg viewBox="0 0 24 24" fill="var(--text-gray)">
+        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+      </svg>
+      個人情報なし・電話なし
+    </div>
+  </div>
+
+</body>
+</html>

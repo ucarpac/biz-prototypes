@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>価格表示B - シンプルワンプライス</title>
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --back-white: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      background: var(--back-white);
+      min-height: 100vh;
+      max-width: 375px;
+      margin: 0 auto;
+    }
+    .header {
+      background: var(--dark-blue);
+      color: var(--white);
+      padding: 16px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .hero-section {
+      background: linear-gradient(180deg, var(--dark-blue) 0%, #2a3a8a 100%);
+      padding: 32px 20px;
+      text-align: center;
+      color: var(--white);
+    }
+    .car-name {
+      font-size: 14px;
+      opacity: 0.8;
+      margin-bottom: 8px;
+    }
+    .price-prefix {
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .price-main {
+      font-size: 56px;
+      font-weight: bold;
+      line-height: 1;
+    }
+    .price-main span {
+      font-size: 24px;
+    }
+    .price-note {
+      font-size: 12px;
+      opacity: 0.7;
+      margin-top: 12px;
+    }
+    .badges {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255,255,255,0.15);
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+    }
+    .badge svg {
+      width: 14px;
+      height: 14px;
+    }
+    .content {
+      padding: 20px 16px;
+    }
+    .section-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--dark-blue);
+      margin-bottom: 12px;
+    }
+    .reason-list {
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .reason-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px;
+      border-bottom: 1px solid #F2F2F2;
+    }
+    .reason-item:last-child {
+      border-bottom: none;
+    }
+    .reason-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #FFF3F8, #FFE8F3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .reason-icon svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--pink);
+    }
+    .reason-text {
+      flex: 1;
+    }
+    .reason-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--dark-blue);
+      margin-bottom: 4px;
+    }
+    .reason-desc {
+      font-size: 12px;
+      color: var(--text-gray);
+      line-height: 1.5;
+    }
+    .compare-section {
+      margin-top: 20px;
+    }
+    .compare-box {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .compare-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #F2F2F2;
+    }
+    .compare-row:last-child {
+      border-bottom: none;
+    }
+    .compare-label {
+      font-size: 13px;
+      color: var(--text-gray);
+    }
+    .compare-value {
+      font-size: 15px;
+      font-weight: bold;
+      color: var(--text-black);
+    }
+    .compare-value.highlight {
+      color: var(--pink);
+    }
+    .action-section {
+      padding: 20px 16px;
+      background: var(--white);
+      border-top: 1px solid #F2F2F2;
+    }
+    .btn-primary {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      background: var(--gradient-primary);
+      border: none;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--dark-blue);
+      text-align: center;
+      text-decoration: none;
+      margin-bottom: 12px;
+    }
+    .btn-outline {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: transparent;
+      border: 2px solid var(--dark-blue);
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--dark-blue);
+      text-align: center;
+      text-decoration: none;
+    }
+    .footer-note {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-gray);
+      margin-top: 16px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <script src="../auth.js"></script>
+
+  <div class="header">AI査定結果</div>
+
+  <div class="hero-section">
+    <div class="car-name">トヨタ プリウス 2020年式</div>
+    <div class="price-prefix">あなたの愛車の価格</div>
+    <div class="price-main">185<span>万円</span></div>
+    <div class="price-note">2024年2月現在の推定価格</div>
+    <div class="badges">
+      <div class="badge">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+        </svg>
+        個人情報なし
+      </div>
+      <div class="badge">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+        </svg>
+        電話は1社のみ
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="section-title">この価格の根拠</div>
+    <div class="reason-list">
+      <div class="reason-item">
+        <div class="reason-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+          </svg>
+        </div>
+        <div class="reason-text">
+          <div class="reason-title">8,000社のデータで算出</div>
+          <div class="reason-desc">全国の加盟店の実績データをAIが分析</div>
+        </div>
+      </div>
+      <div class="reason-item">
+        <div class="reason-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
+          </svg>
+        </div>
+        <div class="reason-text">
+          <div class="reason-title">同条件車の直近取引を参照</div>
+          <div class="reason-desc">過去3ヶ月の実際の売却価格と比較</div>
+        </div>
+      </div>
+      <div class="reason-item">
+        <div class="reason-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+          </svg>
+        </div>
+        <div class="reason-text">
+          <div class="reason-title">市場動向を反映</div>
+          <div class="reason-desc">季節変動・需要予測を加味した現在価格</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="compare-section">
+      <div class="section-title">参考情報</div>
+      <div class="compare-box">
+        <div class="compare-row">
+          <span class="compare-label">同車種の平均売却価格</span>
+          <span class="compare-value">172万円</span>
+        </div>
+        <div class="compare-row">
+          <span class="compare-label">あなたの車との差</span>
+          <span class="compare-value highlight">+13万円</span>
+        </div>
+        <div class="compare-row">
+          <span class="compare-label">走行距離の評価</span>
+          <span class="compare-value">良好（3.5万km）</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-section">
+    <a href="#" class="btn-primary">この価格で売却相談する</a>
+    <a href="#" class="btn-outline">将来の価格予測を見る</a>
+    <div class="footer-note">
+      売却相談をしても、売る義務はありません。<br>
+      まずは詳しい査定額をご確認ください。
+    </div>
+  </div>
+
+</body>
+</html>

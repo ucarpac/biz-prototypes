@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プッシュ通知復帰画面</title>
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --back-white: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      background: var(--back-white);
+      min-height: 100vh;
+      max-width: 375px;
+      margin: 0 auto;
+    }
+    .header {
+      background: var(--white);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid #F2F2F2;
+    }
+    .back-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .back-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--text-black);
+    }
+    .header-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--dark-blue);
+    }
+    .alert-banner {
+      background: linear-gradient(135deg, #FFF3F8, #FFE8F3);
+      margin: 16px;
+      padding: 16px;
+      border-radius: 12px;
+      border-left: 4px solid var(--pink);
+    }
+    .alert-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .alert-icon {
+      width: 24px;
+      height: 24px;
+      fill: var(--pink);
+    }
+    .alert-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--dark-blue);
+    }
+    .alert-text {
+      font-size: 13px;
+      color: var(--text-black);
+      line-height: 1.6;
+    }
+    .price-comparison {
+      margin: 16px;
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .comparison-header {
+      background: var(--dark-blue);
+      color: var(--white);
+      padding: 16px;
+      text-align: center;
+    }
+    .car-name {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+    .comparison-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-top: 4px;
+    }
+    .comparison-body {
+      padding: 20px;
+    }
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+    }
+    .price-row:first-child {
+      border-bottom: 1px dashed #E0E0E0;
+    }
+    .price-label {
+      font-size: 13px;
+      color: var(--text-gray);
+    }
+    .price-value {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--text-black);
+    }
+    .price-value.old {
+      color: var(--text-gray);
+      text-decoration: line-through;
+    }
+    .price-value.new {
+      color: var(--pink);
+    }
+    .diff-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #FFEBEE;
+      color: #C62828;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: bold;
+      margin-top: 16px;
+    }
+    .diff-badge svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+    .insight-section {
+      margin: 16px;
+    }
+    .insight-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--dark-blue);
+      margin-bottom: 12px;
+    }
+    .insight-card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .insight-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #F2F2F2;
+    }
+    .insight-item:last-child {
+      border-bottom: none;
+    }
+    .insight-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--back-gray);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .insight-icon svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--text-gray);
+    }
+    .insight-content {
+      flex: 1;
+    }
+    .insight-heading {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--dark-blue);
+      margin-bottom: 4px;
+    }
+    .insight-desc {
+      font-size: 12px;
+      color: var(--text-gray);
+      line-height: 1.5;
+    }
+    .action-section {
+      padding: 20px 16px;
+      background: var(--white);
+      border-top: 1px solid #F2F2F2;
+      margin-top: 16px;
+    }
+    .btn-primary {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      background: var(--gradient-primary);
+      border: none;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--dark-blue);
+      text-align: center;
+      text-decoration: none;
+      margin-bottom: 12px;
+    }
+    .btn-secondary {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: var(--white);
+      border: 2px solid var(--back-gray);
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--text-black);
+      text-align: center;
+      text-decoration: none;
+    }
+    .footer-note {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-gray);
+      margin-top: 16px;
+    }
+    .timeline {
+      margin: 16px;
+      padding: 16px;
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .timeline-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--dark-blue);
+      margin-bottom: 16px;
+    }
+    .timeline-item {
+      display: flex;
+      gap: 12px;
+      position: relative;
+      padding-bottom: 16px;
+    }
+    .timeline-item:last-child {
+      padding-bottom: 0;
+    }
+    .timeline-item:not(:last-child)::before {
+      content: '';
+      position: absolute;
+      left: 9px;
+      top: 24px;
+      width: 2px;
+      height: calc(100% - 8px);
+      background: #E0E0E0;
+    }
+    .timeline-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--back-gray);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+    .timeline-dot.active {
+      background: var(--pink);
+    }
+    .timeline-content {
+      flex: 1;
+    }
+    .timeline-date {
+      font-size: 11px;
+      color: var(--text-gray);
+    }
+    .timeline-text {
+      font-size: 13px;
+      color: var(--text-black);
+      margin-top: 2px;
+    }
+    .timeline-text strong {
+      color: var(--pink);
+    }
+  </style>
+</head>
+<body>
+  <script src="../auth.js"></script>
+
+  <div class="header">
+    <a href="#" class="back-btn">
+      <svg viewBox="0 0 24 24">
+        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+      </svg>
+    </a>
+    <div class="header-title">相場変動のお知らせ</div>
+  </div>
+
+  <div class="alert-banner">
+    <div class="alert-header">
+      <svg class="alert-icon" viewBox="0 0 24 24">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+      </svg>
+      <div class="alert-title">相場が下がりました</div>
+    </div>
+    <div class="alert-text">
+      プリウスの市場価格が先週から下落しています。<br>
+      売却タイミングの参考にしてください。
+    </div>
+  </div>
+
+  <div class="price-comparison">
+    <div class="comparison-header">
+      <div class="car-name">トヨタ プリウス 2020年式</div>
+      <div class="comparison-title">推定価格の変化</div>
+    </div>
+    <div class="comparison-body">
+      <div class="price-row">
+        <span class="price-label">1週間前</span>
+        <span class="price-value old">188万円</span>
+      </div>
+      <div class="price-row">
+        <span class="price-label">現在</span>
+        <span class="price-value new">185万円</span>
+      </div>
+      <div style="text-align: center;">
+        <div class="diff-badge">
+          <svg viewBox="0 0 24 24">
+            <path d="M16 18l2.29-2.29-4.88-4.88-4 4L2 7.41 3.41 6l6 6 4-4 6.3 6.29L22 12v6z"/>
+          </svg>
+          -3万円（-1.6%）
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="timeline">
+    <div class="timeline-title">最近の相場推移</div>
+    <div class="timeline-item">
+      <div class="timeline-dot active"></div>
+      <div class="timeline-content">
+        <div class="timeline-date">今日</div>
+        <div class="timeline-text"><strong>185万円</strong>（-3万円）</div>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-date">1週間前</div>
+        <div class="timeline-text">188万円</div>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-date">2週間前</div>
+        <div class="timeline-text">190万円</div>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div class="timeline-date">1ヶ月前</div>
+        <div class="timeline-text">195万円</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="insight-section">
+    <div class="insight-title">下落の理由</div>
+    <div class="insight-card">
+      <div class="insight-item">
+        <div class="insight-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+          </svg>
+        </div>
+        <div class="insight-content">
+          <div class="insight-heading">新型車の発表</div>
+          <div class="insight-desc">新型プリウスの発表により、現行モデルの相場が下落傾向にあります</div>
+        </div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+          </svg>
+        </div>
+        <div class="insight-content">
+          <div class="insight-heading">季節要因</div>
+          <div class="insight-desc">2-3月は決算期で在庫調整のため、買取価格が下がりやすい時期です</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-section">
+    <a href="#" class="btn-primary">今の価格で売却相談する</a>
+    <a href="#" class="btn-secondary">もう少し様子を見る</a>
+    <div class="footer-note">
+      相談しても売却の義務はありません
+    </div>
+  </div>
+
+</body>
+</html>
