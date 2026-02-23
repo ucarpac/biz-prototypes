@@ -1,0 +1,193 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CVR案C | 売却タイミング分岐</title>
+  <style>
+    :root {
+      --pink:#f84ca2;
+      --navy:#1c2663;
+      --text:#2f3550;
+      --muted:#737a96;
+      --line:#dbe3f1;
+      --grad:linear-gradient(90deg,#1ddcff,#4db4ff);
+      --bg:#f6f8fd;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      background:var(--bg);
+      font-family:"Hiragino Sans","Noto Sans JP",sans-serif;
+      color:var(--text);
+      min-height:100vh;
+    }
+    .phone {
+      width:min(100%,420px);
+      margin:0 auto;
+      min-height:100vh;
+      background:#fff;
+      border-left:1px solid var(--line);
+      border-right:1px solid var(--line);
+    }
+    .hero {
+      background:linear-gradient(140deg,#1b2560,#2f4a9f);
+      color:#fff;
+      padding:20px 16px;
+    }
+    .hero h1 { font-size:19px; line-height:1.4; }
+    .hero p { font-size:12px; margin-top:7px; opacity:.9; }
+
+    .card {
+      margin:13px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:14px;
+      background:#fff;
+    }
+    .car { font-size:12px; color:var(--muted); margin-bottom:6px; }
+    .price { font-size:34px; color:var(--pink); font-weight:800; }
+
+    .steps { margin-top:6px; }
+    .steps .item {
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+      margin-top:10px;
+      cursor:pointer;
+      transition:.2s;
+    }
+    .steps .item.active {
+      border-color:#9ab4ff;
+      background:#f2f6ff;
+      box-shadow:0 6px 12px rgba(90,120,200,.12);
+    }
+    .item h2 { font-size:14px; color:var(--navy); margin-bottom:4px; }
+    .item p { font-size:12px; color:var(--muted); line-height:1.6; }
+
+    .decision {
+      margin:13px;
+      border-radius:14px;
+      border:1px dashed #bdcbea;
+      padding:14px;
+      background:#f9fbff;
+    }
+    .decision .title {
+      font-size:13px;
+      color:var(--navy);
+      font-weight:800;
+      margin-bottom:8px;
+    }
+    .decision .body {
+      font-size:12px;
+      line-height:1.7;
+      color:#4b5677;
+    }
+
+    .cta-zone {
+      position:sticky;
+      bottom:0;
+      background:#fff;
+      border-top:1px solid var(--line);
+      padding:12px 13px 16px;
+    }
+    .btn {
+      width:100%;
+      padding:14px;
+      border-radius:30px;
+      border:none;
+      font-size:15px;
+      font-weight:800;
+      color:var(--navy);
+      background:var(--grad);
+    }
+    .btn.secondary {
+      margin-top:8px;
+      background:#fff;
+      border:1px solid var(--line);
+      color:#475170;
+      font-size:13px;
+      font-weight:700;
+      padding:12px;
+    }
+  </style>
+</head>
+<body>
+  <script src="../auth.js"></script>
+  <main class="phone">
+    <header class="hero">
+      <h1>売却タイミングに合わせて、
+        次のアクションを提案します</h1>
+      <p>今売る人も、様子見の人も離脱させない分岐型UI</p>
+    </header>
+
+    <section class="card">
+      <div class="car">ホンダ ヴェゼル / 2019年式 / 4.2万km</div>
+      <div class="price">171万円</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px;">予測: 3ヶ月後 -4.2万円</div>
+    </section>
+
+    <section class="card steps" id="timingOptions">
+      <div class="item active" data-mode="now">
+        <h2>2週間以内に売りたい</h2>
+        <p>最短導線で査定依頼を完了し、価格優位なうちに入札準備。</p>
+      </div>
+      <div class="item" data-mode="later">
+        <h2>1〜3ヶ月後に検討したい</h2>
+        <p>売却予定を登録して、相場が動いたら通知でお知らせ。</p>
+      </div>
+      <div class="item" data-mode="hold">
+        <h2>まだ決められない</h2>
+        <p>価格だけ保存。営業連絡なしで、次回は1タップで再開。</p>
+      </div>
+    </section>
+
+    <section class="decision">
+      <div class="title">提案アクション</div>
+      <div class="body" id="decisionText">
+        いま進める場合、査定依頼完了まで平均1分30秒。電話窓口は1社に集約されます。
+      </div>
+    </section>
+
+    <section class="cta-zone">
+      <button class="btn" id="primaryBtn">査定依頼を完了する</button>
+      <button class="btn secondary" id="secondaryBtn">売却予定を登録して通知を受け取る</button>
+    </section>
+  </main>
+
+  <script>
+    const options = document.querySelectorAll('#timingOptions .item');
+    const decisionText = document.getElementById('decisionText');
+    const primaryBtn = document.getElementById('primaryBtn');
+    const secondaryBtn = document.getElementById('secondaryBtn');
+
+    const copyMap = {
+      now: {
+        text: 'いま進める場合、査定依頼完了まで平均1分30秒。電話窓口は1社に集約されます。',
+        primary: '査定依頼を完了する',
+        secondary: '入力内容を保存して後で再開'
+      },
+      later: {
+        text: '予定日を入れると、価格変動と売り時の通知を配信。次回は入力を省略できます。',
+        primary: '売却予定を登録する',
+        secondary: '価格だけ保存する'
+      },
+      hold: {
+        text: 'まだ決めない場合は価格保存のみ。連絡を最小化し、再開時は1タップで続行できます。',
+        primary: '価格を保存する',
+        secondary: '判断材料をあとで見る'
+      }
+    };
+
+    options.forEach((el) => {
+      el.addEventListener('click', () => {
+        options.forEach((x) => x.classList.remove('active'));
+        el.classList.add('active');
+        const mode = el.dataset.mode;
+        decisionText.textContent = copyMap[mode].text;
+        primaryBtn.textContent = copyMap[mode].primary;
+        secondaryBtn.textContent = copyMap[mode].secondary;
+      });
+    });
+  </script>
+</body>
+</html>

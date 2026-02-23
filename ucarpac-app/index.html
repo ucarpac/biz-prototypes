@@ -3,375 +3,297 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>プロトタイプ一覧 - UcarPAC App</title>
+  <title>???????? - UcarPAC App</title>
   <style>
     :root {
-      --pink: #F84CA2;
-      --dark-blue: #1c2663;
-      --cyan-start: #1ddcff;
-      --cyan-end: #4db4ff;
+      --pink:#f84ca2;
+      --navy:#1c2663;
+      --cyan1:#1ddcff;
+      --cyan2:#4db4ff;
+      --bg:#f5f8fd;
+      --line:#dce4f2;
+      --text:#2f3550;
+      --muted:#6c728a;
+      --card:#ffffff;
     }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { box-sizing:border-box; margin:0; padding:0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
-      background: #f5f5f5;
-      min-height: 100vh;
-      padding: 40px 20px;
+      font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;
+      background:linear-gradient(180deg,#ecf3ff 0%, var(--bg) 42%);
+      color:var(--text);
+      min-height:100vh;
+      padding:30px 16px 44px;
     }
-
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
+    .container { max-width:1040px; margin:0 auto; }
+    h1 { font-size:30px; color:var(--navy); margin-bottom:8px; }
+    .subtitle { color:var(--muted); font-size:14px; margin-bottom:14px; }
+    .focus {
+      display:inline-block;
+      background:linear-gradient(120deg,var(--cyan1),var(--cyan2));
+      color:#fff;
+      font-size:13px;
+      font-weight:800;
+      border-radius:999px;
+      padding:7px 14px;
+      margin-bottom:20px;
     }
-
-    h1 {
-      font-size: 28px;
-      color: var(--dark-blue);
-      margin-bottom: 8px;
-    }
-
-    .subtitle {
-      font-size: 14px;
-      color: #666;
-      margin-bottom: 32px;
-    }
-
-    .focus-label {
-      display: inline-block;
-      background: linear-gradient(135deg, var(--cyan-start), var(--cyan-end));
-      color: white;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 24px;
-    }
-
     .section-title {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--dark-blue);
-      margin: 32px 0 16px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid var(--pink);
+      margin:22px 0 12px;
+      font-size:18px;
+      color:var(--navy);
+      border-bottom:2px solid #f2cde2;
+      padding-bottom:8px;
     }
-
-    .expert-box {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 24px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-
-    .expert-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 16px;
-    }
-
-    .expert-item {
-      padding: 12px;
-      background: #f9f9f9;
-      border-radius: 8px;
-    }
-
-    .expert-name {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--pink);
-      margin-bottom: 6px;
-    }
-
-    .expert-point {
-      font-size: 12px;
-      color: #666;
-      line-height: 1.5;
-    }
-
     .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+      gap:14px;
     }
-
     .card {
-      background: white;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      transition: transform 0.2s, box-shadow 0.2s;
+      display:block;
+      text-decoration:none;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      overflow:hidden;
+      box-shadow:0 8px 22px rgba(20,45,82,.08);
+      transition:transform .2s, box-shadow .2s;
     }
-
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    .card:hover { transform:translateY(-3px); box-shadow:0 12px 26px rgba(20,45,82,.14); }
+    .preview {
+      height:92px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:28px;
+      color:#fff;
+      background:linear-gradient(145deg,#25367f,#3f57b2);
     }
-
-    .card-preview {
-      height: 140px;
-      background: linear-gradient(135deg, var(--dark-blue), #2a3a7d);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 36px;
-    }
-
-    .card-preview.new {
-      background: linear-gradient(135deg, var(--pink), #ff6bb3);
-    }
-
-    .card-content {
-      padding: 16px;
-    }
-
-    .card-number {
-      display: inline-block;
-      background: var(--pink);
-      color: white;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      text-align: center;
-      line-height: 24px;
-      font-size: 12px;
-      font-weight: 700;
-      margin-right: 8px;
-    }
-
-    .card-title {
-      display: inline;
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--dark-blue);
-    }
-
-    .card-desc {
-      font-size: 13px;
-      color: #666;
-      margin-top: 8px;
-      line-height: 1.5;
-    }
-
-    .card-link {
-      display: block;
-      text-decoration: none;
-      color: inherit;
-    }
-
-    .card-tags {
-      margin-top: 12px;
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
+    .content { padding:12px; }
+    .title { font-size:15px; font-weight:800; color:var(--navy); margin-bottom:6px; }
+    .desc { font-size:12px; color:var(--muted); line-height:1.6; min-height:56px; }
+    .tags { margin-top:9px; display:flex; gap:6px; flex-wrap:wrap; }
     .tag {
-      background: #f0f0f0;
-      color: #666;
-      padding: 3px 8px;
-      border-radius: 10px;
-      font-size: 10px;
+      font-size:10px;
+      border-radius:999px;
+      padding:3px 8px;
+      background:#eef4ff;
+      color:#3b4f88;
+      border:1px solid #d7e3ff;
+      font-weight:700;
     }
-
-    .tag.primary {
-      background: #EEF6FF;
-      color: var(--dark-blue);
+    .note {
+      margin-top:18px;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:13px;
+      font-size:13px;
+      color:#4f5876;
+      line-height:1.7;
     }
-
-    .tag.new {
-      background: #FFF0F5;
-      color: var(--pink);
-    }
-
-    .meta {
-      margin-top: 40px;
-      padding: 20px;
-      background: white;
-      border-radius: 12px;
-    }
-
-    .meta-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--dark-blue);
-      margin-bottom: 12px;
-    }
-
-    .meta-list {
-      font-size: 13px;
-      color: #666;
-      line-height: 1.8;
-    }
+    .note strong { color:var(--navy); }
   </style>
 </head>
 <body>
   <script src="../auth.js"></script>
   <div class="container">
-    <h1>UcarPAC App プロトタイプ</h1>
-    <p class="subtitle">生成日時: 2026-02-23</p>
+    <h1>UcarPAC App ??????</h1>
+    <p class="subtitle">????: 2026-02-24?overnight batch?</p>
+    <div class="focus">???: ???? ? ??????CV ???????</div>
 
-    <div class="focus-label">切り口: 価格表示 × リテンション（戻ってきてもらう）</div>
+<h2 class="section-title">???2026-02-24 ????</h2>
+<div class="grid">
+<a href="05-single-cta-focus.html" class="card">
+  <div class="preview">??</div>
+  <div class="content">
+    <div class="title">05 ??CTA??</div>
+    <div class="desc">????????CTA?1?????????????1??????</div>
+    <div class="tags"><span class="tag">NEW CVR</span></div>
+  </div>
+</a>
+<a href="06-compare-anxiety-off.html" class="card">
+  <div class="preview">??</div>
+  <div class="content">
+    <div class="title">06 ?????????</div>
+    <div class="desc">????????????????????????????????</div>
+    <div class="tags"><span class="tag">NEW ??</span></div>
+  </div>
+</a>
+<a href="07-timing-branch-flow.html" class="card">
+  <div class="preview">??</div>
+  <div class="content">
+    <div class="title">07 ?????????</div>
+    <div class="desc">???/?????/????????????</div>
+    <div class="tags"><span class="tag">NEW ??</span></div>
+  </div>
+</a>
+<a href="08-trust-checklist-flow.html" class="card">
+  <div class="preview">?</div>
+  <div class="content">
+    <div class="title">08 ?????????</div>
+    <div class="desc">???????3?????????????????</div>
+    <div class="tags"><span class="tag">NEW ??</span></div>
+  </div>
+</a>
+</div>
 
-    <div class="section-title">専門家レビュー統合</div>
-    <div class="expert-box">
-      <div class="expert-grid">
-        <div class="expert-item">
-          <div class="expert-name">マーケ視点</div>
-          <div class="expert-point">ワンプライス表示、段階的CTA、期間限定セールはNG</div>
-        </div>
-        <div class="expert-item">
-          <div class="expert-name">UX視点</div>
-          <div class="expert-point">概算→AI査定の2段階は維持、売却予定日で再訪ループ</div>
-        </div>
-        <div class="expert-item">
-          <div class="expert-name">ユーザー代弁</div>
-          <div class="expert-point">「相場を見る」等ソフトな表現、"未来の値段を見守る"</div>
-        </div>
-      </div>
-    </div>
+<h2 class="section-title">??????2026-02-24 ?? / 10?????</h2>
+<div class="grid">
+<a href="09-urgency-countdown.html" class="card">
+  <div class="preview">?</div>
+  <div class="content">
+    <div class="title">09 ????????????</div>
+    <div class="desc">???????????????????????</div>
+    <div class="tags"><span class="tag">?? ???</span></div>
+  </div>
+</a>
+<a href="10-price-defense-proof.html" class="card">
+  <div class="preview">??</div>
+  <div class="content">
+    <div class="title">10 ????????</div>
+    <div class="desc">????????????????????????</div>
+    <div class="tags"><span class="tag">?? ??</span></div>
+  </div>
+</a>
+<a href="11-one-tap-minimal.html" class="card">
+  <div class="preview">?</div>
+  <div class="content">
+    <div class="title">11 ?????????</div>
+    <div class="desc">????????????????????</div>
+    <div class="tags"><span class="tag">?? ??</span></div>
+  </div>
+</a>
+<a href="12-concierge-mode.html" class="card">
+  <div class="preview">??</div>
+  <div class="content">
+    <div class="title">12 ???????????</div>
+    <div class="desc">????????????????????</div>
+    <div class="tags"><span class="tag">?? ??</span></div>
+  </div>
+</a>
+<a href="13-compare-fee-clarity.html" class="card">
+  <div class="preview">??</div>
+  <div class="content">
+    <div class="title">13 ???????????</div>
+    <div class="desc">???????????????????</div>
+    <div class="tags"><span class="tag">?? ??</span></div>
+  </div>
+</a>
+<a href="14-sell-timing-simulator.html" class="card">
+  <div class="preview">??</div>
+  <div class="content">
+    <div class="title">14 ??????????????</div>
+    <div class="desc">?????????????????????</div>
+    <div class="tags"><span class="tag">?? ??</span></div>
+  </div>
+</a>
+<a href="15-family-share-mode.html" class="card">
+  <div class="preview">????????</div>
+  <div class="content">
+    <div class="title">15 ??????????</div>
+    <div class="desc">??????????????????</div>
+    <div class="tags"><span class="tag">?? ??</span></div>
+  </div>
+</a>
+<a href="16-risk-free-preview.html" class="card">
+  <div class="preview">???</div>
+  <div class="content">
+    <div class="title">16 ???????????</div>
+    <div class="desc">??????????????????</div>
+    <div class="tags"><span class="tag">?? ??</span></div>
+  </div>
+</a>
+<a href="17-auction-progress-confidence.html" class="card">
+  <div class="preview">??</div>
+  <div class="content">
+    <div class="title">17 ?????????????</div>
+    <div class="desc">?????????????????????</div>
+    <div class="tags"><span class="tag">?? ??</span></div>
+  </div>
+</a>
+<a href="18-recovery-reengage.html" class="card">
+  <div class="preview">??</div>
+  <div class="content">
+    <div class="title">18 ?????????</div>
+    <div class="desc">???????????????3???</div>
+    <div class="tags"><span class="tag">?? ???</span></div>
+  </div>
+</a>
+</div>
 
-    <div class="section-title">新規（マルチ専門家レビュー版）</div>
-    <div class="grid">
-      <a href="01-price-graph.html" class="card-link">
-        <div class="card">
-          <div class="card-preview new">📈</div>
-          <div class="card-content">
-            <span class="card-number">1</span>
-            <h2 class="card-title">将来予測グラフ中心</h2>
-            <p class="card-desc">
-              グラフを大きく表示し「いつ売るか」の判断材料を提供。
-              アプリを残しておく理由を作る。
-            </p>
-            <div class="card-tags">
-              <span class="tag new">NEW</span>
-              <span class="tag primary">リテンション</span>
-            </div>
-          </div>
-        </div>
-      </a>
+<h2 class="section-title">???????</h2>
+<div class="grid">
+<a href="01-price-graph.html" class="card">
+  <div class="preview">??</div>
+  <div class="content">
+    <div class="title">01 ?????????</div>
+    <div class="desc">????????????????</div>
+    <div class="tags"><span class="tag">??</span></div>
+  </div>
+</a>
+<a href="02-simple-price.html" class="card">
+  <div class="preview">??</div>
+  <div class="content">
+    <div class="title">02 ??????????</div>
+    <div class="desc">?????????????????</div>
+    <div class="tags"><span class="tag">??</span></div>
+  </div>
+</a>
+<a href="03-dashboard.html" class="card">
+  <div class="preview">??</div>
+  <div class="content">
+    <div class="title">03 ????????</div>
+    <div class="desc">?????????????????</div>
+    <div class="tags"><span class="tag">??</span></div>
+  </div>
+</a>
+<a href="04-push-return.html" class="card">
+  <div class="preview">??</div>
+  <div class="content">
+    <div class="title">04 ??????</div>
+    <div class="desc">????????????????</div>
+    <div class="tags"><span class="tag">??</span></div>
+  </div>
+</a>
+<a href="01-price-forecast.html" class="card">
+  <div class="preview">??</div>
+  <div class="content">
+    <div class="title">? 01 ????</div>
+    <div class="desc">????????????</div>
+    <div class="tags"><span class="tag">??</span></div>
+  </div>
+</a>
+<a href="02-reminder-setting.html" class="card">
+  <div class="preview">?</div>
+  <div class="content">
+    <div class="title">? 02 ???????</div>
+    <div class="desc">???????????????</div>
+    <div class="tags"><span class="tag">??</span></div>
+  </div>
+</a>
+<a href="03-single-price.html" class="card">
+  <div class="preview">???</div>
+  <div class="content">
+    <div class="title">? 03 ??????</div>
+    <div class="desc">???????????????</div>
+    <div class="tags"><span class="tag">??</span></div>
+  </div>
+</a>
+<a href="home.html" class="card">
+  <div class="preview">??</div>
+  <div class="content">
+    <div class="title">home</div>
+    <div class="desc">?????????????</div>
+    <div class="tags"><span class="tag">???</span></div>
+  </div>
+</a>
+</div>
 
-      <a href="02-simple-price.html" class="card-link">
-        <div class="card">
-          <div class="card-preview new">💰</div>
-          <div class="card-content">
-            <span class="card-number">2</span>
-            <h2 class="card-title">シンプルワンプライス</h2>
-            <p class="card-desc">
-              価格をドーンと大きく表示。8,000社のデータで算出した根拠を示し信頼感を醸成。
-            </p>
-            <div class="card-tags">
-              <span class="tag new">NEW</span>
-              <span class="tag primary">価格表示</span>
-            </div>
-          </div>
-        </div>
-      </a>
-
-      <a href="03-dashboard.html" class="card-link">
-        <div class="card">
-          <div class="card-preview new">🏠</div>
-          <div class="card-content">
-            <span class="card-number">3</span>
-            <h2 class="card-title">ダッシュボード（相場追跡）</h2>
-            <p class="card-desc">
-              売却予定日を登録して相場を追いかける。毎月の価格変動を通知し再訪を促す。
-            </p>
-            <div class="card-tags">
-              <span class="tag new">NEW</span>
-              <span class="tag primary">リテンション</span>
-            </div>
-          </div>
-        </div>
-      </a>
-
-      <a href="04-push-return.html" class="card-link">
-        <div class="card">
-          <div class="card-preview new">🔔</div>
-          <div class="card-content">
-            <span class="card-number">4</span>
-            <h2 class="card-title">プッシュ通知復帰画面</h2>
-            <p class="card-desc">
-              「相場が下がりました」通知から戻った時の画面。下落理由を説明し売却を検討させる。
-            </p>
-            <div class="card-tags">
-              <span class="tag new">NEW</span>
-              <span class="tag primary">通知</span>
-            </div>
-          </div>
-        </div>
-      </a>
-    </div>
-
-    <div class="section-title">以前のプロトタイプ</div>
-    <div class="grid">
-      <a href="01-price-forecast.html" class="card-link">
-        <div class="card">
-          <div class="card-preview">📈</div>
-          <div class="card-content">
-            <span class="card-number">1</span>
-            <h2 class="card-title">将来予測グラフ強調</h2>
-            <p class="card-desc">
-              AI査定結果画面で将来予測を大きく表示。
-              「今が売り時」を視覚的に訴求。
-            </p>
-            <div class="card-tags">
-              <span class="tag">旧版</span>
-            </div>
-          </div>
-        </div>
-      </a>
-
-      <a href="02-reminder-setting.html" class="card-link">
-        <div class="card">
-          <div class="card-preview">🔔</div>
-          <div class="card-content">
-            <span class="card-number">2</span>
-            <h2 class="card-title">リマインド設定</h2>
-            <p class="card-desc">
-              「売り時お知らせ」機能で再訪を促進。
-              1ヶ月/3ヶ月/6ヶ月後の通知設定。
-            </p>
-            <div class="card-tags">
-              <span class="tag">旧版</span>
-            </div>
-          </div>
-        </div>
-      </a>
-
-      <a href="03-single-price.html" class="card-link">
-        <div class="card">
-          <div class="card-preview">💰</div>
-          <div class="card-content">
-            <span class="card-number">3</span>
-            <h2 class="card-title">ワンプライス表示</h2>
-            <p class="card-desc">
-              幅広レンジではなく、一点の価格を大きく表示。
-            </p>
-            <div class="card-tags">
-              <span class="tag">旧版</span>
-            </div>
-          </div>
-        </div>
-      </a>
-    </div>
-
-    <div class="meta">
-      <div class="meta-title">検討ポイント</div>
-      <div class="meta-list">
-        ・マルチ専門家レビューで削除率低減を意識した設計に<br>
-        ・CTAは「申し込み」ではなく「相場を見る」「試しに計算」<br>
-        ・将来予測グラフは競合にない独自機能 → 差別化の武器<br>
-        ・売却予定日登録で「売る時期」まで繋ぎ止める<br>
-        ・個人情報不要を早めに明示して安心感を与える
-      </div>
+    <div class="note">
+      <strong>????</strong><br>
+      ???4??????????????????????????????KPI???????CV?
+      ?????????????????????????????
     </div>
   </div>
 </body>
