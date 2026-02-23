@@ -14,58 +14,31 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Get changed files
-        id: changed
-        run: |
-          CHANGED=$(git diff --name-only HEAD~1 HEAD | grep -E '\.(html|css|js)$' | head -5 | tr '\n' ', ' | sed 's/,$//')
-          echo "files=$CHANGED" >> $GITHUB_OUTPUT
-
-      - name: Get commit info
-        id: commit
-        run: |
-          echo "message=$(git log -1 --pretty=%s)" >> $GITHUB_OUTPUT
-          echo "author=$(git log -1 --pretty=%an)" >> $GITHUB_OUTPUT
 
       - name: Send Slack notification
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
         run: |
-          # Build message with Python for safe JSON escaping
           MESSAGE=$(python3 << 'PYEOF'
           import json
           import os
 
-          commit_msg = """${{ steps.commit.outputs.message }}"""
-          author = """${{ steps.commit.outputs.author }}"""
-          files = """${{ steps.changed.outputs.files }}"""
           url = "https://ucarpac.github.io/biz-prototypes/ucarpac-app/"
-          commit_url = "${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"
 
           blocks = [
               {
                   "type": "header",
-                  "text": {"type": "plain_text", "text": ":art: Prototype Updated", "emoji": True}
+                  "text": {"type": "plain_text", "text": ":art: プロトタイプが更新されました", "emoji": True}
               },
               {
                   "type": "section",
-                  "fields": [
-                      {"type": "mrkdwn", "text": f"*Commit:*\n{commit_msg}"},
-                      {"type": "mrkdwn", "text": f"*Author:*\n{author}"}
-                  ]
-              },
-              {
-                  "type": "section",
-                  "text": {"type": "mrkdwn", "text": f"*Changed:*\n{files}"}
+                  "text": {"type": "mrkdwn", "text": ":key: *Password:* `ucarpac2026`"}
               },
               {
                   "type": "actions",
                   "elements": [
-                      {"type": "button", "text": {"type": "plain_text", "text": "View Prototypes"}, "url": url},
-                      {"type": "button", "text": {"type": "plain_text", "text": "View Commit"}, "url": commit_url}
+                      {"type": "button", "text": {"type": "plain_text", "text": "プロトタイプを見る"}, "url": url, "style": "primary"}
                   ]
               }
           ]
@@ -75,8 +48,7 @@ jobs:
           PYEOF
           )
 
-          # Send via Slack API
           curl -s -X POST "https://slack.com/api/chat.postMessage" \
             -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
-            -H "Content-Type: application/json" \
+            -H "Content-Type: application/json; charset=utf-8" \
             -d "$MESSAGE"
