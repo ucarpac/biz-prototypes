@@ -30,62 +30,53 @@ jobs:
           echo "author=$(git log -1 --pretty=%an)" >> $GITHUB_OUTPUT
 
       - name: Send Slack notification
-        uses: slackapi/slack-github-action@v1.25.0
-        with:
-          payload: |
-            {
-              "blocks": [
-                {
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+        run: |
+          # Build message with Python for safe JSON escaping
+          MESSAGE=$(python3 << 'PYEOF'
+          import json
+          import os
+
+          commit_msg = """${{ steps.commit.outputs.message }}"""
+          author = """${{ steps.commit.outputs.author }}"""
+          files = """${{ steps.changed.outputs.files }}"""
+          url = "https://ucarpac.github.io/biz-prototypes/ucarpac-app/"
+          commit_url = "${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"
+
+          blocks = [
+              {
                   "type": "header",
-                  "text": {
-                    "type": "plain_text",
-                    "text": "Prototype Updated",
-                    "emoji": true
-                  }
-                },
-                {
+                  "text": {"type": "plain_text", "text": ":art: Prototype Updated", "emoji": True}
+              },
+              {
                   "type": "section",
                   "fields": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Commit:*\n${{ steps.commit.outputs.message }}"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "*Author:*\n${{ steps.commit.outputs.author }}"
-                    }
+                      {"type": "mrkdwn", "text": f"*Commit:*\n{commit_msg}"},
+                      {"type": "mrkdwn", "text": f"*Author:*\n{author}"}
                   ]
-                },
-                {
+              },
+              {
                   "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*Changed files:*\n${{ steps.changed.outputs.files }}"
-                  }
-                },
-                {
+                  "text": {"type": "mrkdwn", "text": f"*Changed:*\n{files}"}
+              },
+              {
                   "type": "actions",
                   "elements": [
-                    {
-                      "type": "button",
-                      "text": {
-                        "type": "plain_text",
-                        "text": "View Prototypes"
-                      },
-                      "url": "https://ucarpac.github.io/biz-prototypes/ucarpac-app/"
-                    },
-                    {
-                      "type": "button",
-                      "text": {
-                        "type": "plain_text",
-                        "text": "View Commit"
-                      },
-                      "url": "${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"
-                    }
+                      {"type": "button", "text": {"type": "plain_text", "text": "View Prototypes"}, "url": url},
+                      {"type": "button", "text": {"type": "plain_text", "text": "View Commit"}, "url": commit_url}
                   ]
-                }
-              ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+              }
+          ]
+
+          payload = {"channel": os.environ["SLACK_CHANNEL_ID"], "blocks": blocks}
+          print(json.dumps(payload))
+          PYEOF
+          )
+
+          # Send via Slack API
+          curl -s -X POST "https://slack.com/api/chat.postMessage" \
+            -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$MESSAGE"
