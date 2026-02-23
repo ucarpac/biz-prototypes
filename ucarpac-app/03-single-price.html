@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>パターン3: ワンプライス表示 - UcarPAC App</title>
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --cyan-start: #1ddcff;
+      --cyan-end: #4db4ff;
+      --white: #FFFFFF;
+      --bg-light: #F5F5F5;
+      --text-muted: #666666;
+      --border: #E0E0E0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      background: var(--bg-light);
+      min-height: 100vh;
+      max-width: 375px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: var(--white);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .back-btn {
+      font-size: 24px;
+      color: var(--dark-blue);
+      text-decoration: none;
+      margin-right: 16px;
+    }
+
+    .header-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--dark-blue);
+    }
+
+    .content {
+      padding: 20px;
+    }
+
+    /* 車両情報 */
+    .car-card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .car-image {
+      width: 80px;
+      height: 60px;
+      background: linear-gradient(135deg, #e0e0e0, #f5f5f5);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .car-info {
+      flex: 1;
+    }
+
+    .car-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--dark-blue);
+      margin-bottom: 4px;
+    }
+
+    .car-detail {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* メイン価格カード - ワンプライス強調 */
+    .price-card {
+      background: linear-gradient(135deg, var(--dark-blue) 0%, #2a3a7d 100%);
+      border-radius: 20px;
+      padding: 32px 24px;
+      margin-bottom: 16px;
+      text-align: center;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .price-card::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(29, 220, 255, 0.1) 0%, transparent 70%);
+    }
+
+    .price-label {
+      font-size: 14px;
+      opacity: 0.8;
+      margin-bottom: 8px;
+    }
+
+    .price-badge {
+      display: inline-block;
+      background: var(--pink);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .price-main {
+      font-size: 56px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 8px;
+      position: relative;
+    }
+
+    .price-main span {
+      font-size: 24px;
+      font-weight: 500;
+    }
+
+    .price-sub {
+      font-size: 13px;
+      opacity: 0.7;
+    }
+
+    /* 信頼性インジケーター */
+    .trust-indicators {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .trust-item {
+      flex: 1;
+      background: var(--white);
+      border-radius: 12px;
+      padding: 16px 12px;
+      text-align: center;
+    }
+
+    .trust-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--dark-blue);
+      margin-bottom: 4px;
+    }
+
+    .trust-value.highlight {
+      color: var(--pink);
+    }
+
+    .trust-label {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* 比較セクション */
+    .comparison-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .comparison-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--dark-blue);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .comparison-row {
+      display: flex;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .comparison-row:last-child {
+      border-bottom: none;
+    }
+
+    .comparison-label {
+      flex: 1;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .comparison-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--dark-blue);
+    }
+
+    .comparison-value.ucarpac {
+      color: var(--pink);
+    }
+
+    .comparison-diff {
+      font-size: 12px;
+      color: #4CAF50;
+      margin-left: 8px;
+    }
+
+    /* 注意書き */
+    .disclaimer {
+      background: #FFF8E1;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .disclaimer-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #F57C00;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .disclaimer-text {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    /* 次のステップ */
+    .next-step {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .step-number {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--cyan-start), var(--cyan-end));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .step-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--dark-blue);
+    }
+
+    .step-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-left: 40px;
+    }
+
+    /* CTA */
+    .cta-section {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 375px;
+      background: var(--white);
+      padding: 16px 20px;
+      box-shadow: 0 -4px 16px rgba(0,0,0,0.1);
+    }
+
+    .cta-btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, var(--cyan-start), var(--cyan-end));
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+
+    .cta-sub {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .bottom-spacer {
+      height: 100px;
+    }
+
+    .annotation {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #333;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <div class="annotation">パターン3: ワンプライス表示</div>
+
+  <header class="header">
+    <a href="#" class="back-btn">&lt;</a>
+    <h1 class="header-title">査定結果</h1>
+  </header>
+
+  <main class="content">
+    <div class="car-card">
+      <div class="car-image">🚗</div>
+      <div class="car-info">
+        <div class="car-name">トヨタ プリウス</div>
+        <div class="car-detail">2020年式 / 35,000km / ホワイト</div>
+      </div>
+    </div>
+
+    <div class="price-card">
+      <div class="price-label">UcarPACの査定価格</div>
+      <div class="price-badge">8,000社が競う最高額</div>
+      <div class="price-main">170<span>万円</span></div>
+      <div class="price-sub">※実際の売却価格はオークション結果により変動します</div>
+    </div>
+
+    <div class="trust-indicators">
+      <div class="trust-item">
+        <div class="trust-value">8,000</div>
+        <div class="trust-label">入札業者数</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-value highlight">1社</div>
+        <div class="trust-label">電話対応</div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-value">0円</div>
+        <div class="trust-label">手数料</div>
+      </div>
+    </div>
+
+    <div class="comparison-card">
+      <div class="comparison-title">
+        <span>📊</span>
+        他の売却方法との比較
+      </div>
+      <div class="comparison-row">
+        <div class="comparison-label">ディーラー下取り</div>
+        <div class="comparison-value">150万円</div>
+      </div>
+      <div class="comparison-row">
+        <div class="comparison-label">一括査定（平均）</div>
+        <div class="comparison-value">160万円</div>
+      </div>
+      <div class="comparison-row">
+        <div class="comparison-label">UcarPAC</div>
+        <div class="comparison-value ucarpac">170万円</div>
+        <span class="comparison-diff">+10〜20万円</span>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      <div class="disclaimer-title">
+        <span>💡</span>
+        この価格について
+      </div>
+      <div class="disclaimer-text">
+        この価格はAIによる予測値です。実際の売却価格は、オークションでの入札結果によって決まります。
+        過去のデータでは、95%のケースで予測価格の±5%以内で売却されています。
+      </div>
+    </div>
+
+    <div class="next-step">
+      <div class="step-header">
+        <div class="step-number">→</div>
+        <div class="step-title">次のステップ</div>
+      </div>
+      <div class="step-desc">
+        売却をご希望の場合は、査定員が1回だけ実車を確認します。
+        その後、8,000社が参加するオークションに出品されます。
+      </div>
+    </div>
+
+    <div class="bottom-spacer"></div>
+  </main>
+
+  <div class="cta-section">
+    <button class="cta-btn">売却相談を始める</button>
+    <div class="cta-sub">電話対応は1社のみ・手数料無料</div>
+  </div>
+</body>
+</html>

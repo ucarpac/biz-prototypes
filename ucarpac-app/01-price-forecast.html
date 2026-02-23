@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>パターン1: 将来予測グラフ強調 - UcarPAC App</title>
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --cyan-start: #1ddcff;
+      --cyan-end: #4db4ff;
+      --white: #FFFFFF;
+      --bg-light: #F5F5F5;
+      --text-muted: #666666;
+      --border: #E0E0E0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      background: var(--bg-light);
+      min-height: 100vh;
+      max-width: 375px;
+      margin: 0 auto;
+    }
+
+    /* ヘッダー */
+    .header {
+      background: var(--white);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .back-btn {
+      font-size: 24px;
+      color: var(--dark-blue);
+      text-decoration: none;
+      margin-right: 16px;
+    }
+
+    .header-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--dark-blue);
+    }
+
+    /* メインコンテンツ */
+    .content {
+      padding: 20px;
+    }
+
+    /* 車両情報 */
+    .car-info {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .car-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--dark-blue);
+      margin-bottom: 4px;
+    }
+
+    .car-detail {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* AI査定結果カード */
+    .result-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .result-label {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ai-badge {
+      background: linear-gradient(135deg, var(--cyan-start), var(--cyan-end));
+      color: white;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+
+    .price-main {
+      font-size: 42px;
+      font-weight: 800;
+      color: var(--dark-blue);
+      margin-bottom: 4px;
+    }
+
+    .price-main span {
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    .price-range {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .confidence {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .confidence-bar {
+      flex: 1;
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .confidence-fill {
+      width: 85%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan-start), var(--cyan-end));
+      border-radius: 3px;
+    }
+
+    /* 将来予測セクション - 強調 */
+    .forecast-section {
+      background: linear-gradient(135deg, #1c2663 0%, #2a3a7d 100%);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+      color: white;
+    }
+
+    .forecast-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .forecast-title {
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .forecast-badge {
+      background: var(--pink);
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 10px;
+    }
+
+    /* グラフエリア */
+    .graph-container {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .graph-svg {
+      width: 100%;
+      height: 120px;
+    }
+
+    .graph-line {
+      fill: none;
+      stroke: var(--cyan-start);
+      stroke-width: 3;
+      stroke-linecap: round;
+    }
+
+    .graph-area {
+      fill: url(#gradient);
+      opacity: 0.3;
+    }
+
+    .graph-dot {
+      fill: var(--cyan-start);
+    }
+
+    .graph-dot-current {
+      fill: var(--pink);
+      stroke: white;
+      stroke-width: 2;
+    }
+
+    /* 予測値リスト */
+    .forecast-list {
+      display: flex;
+      gap: 8px;
+    }
+
+    .forecast-item {
+      flex: 1;
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .forecast-item.current {
+      background: var(--pink);
+    }
+
+    .forecast-item.recommended {
+      background: linear-gradient(135deg, var(--cyan-start), var(--cyan-end));
+      position: relative;
+    }
+
+    .forecast-item.recommended::before {
+      content: "売り時";
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #FFD700;
+      color: #333;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 8px;
+    }
+
+    .forecast-period {
+      font-size: 11px;
+      opacity: 0.8;
+      margin-bottom: 4px;
+    }
+
+    .forecast-price {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .forecast-diff {
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .diff-down {
+      color: #ff6b6b;
+    }
+
+    /* インサイト */
+    .insight-card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border-left: 4px solid var(--pink);
+    }
+
+    .insight-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--dark-blue);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .insight-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .highlight {
+      color: var(--pink);
+      font-weight: 700;
+    }
+
+    /* CTAボタン */
+    .cta-section {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 375px;
+      background: var(--white);
+      padding: 16px 20px;
+      box-shadow: 0 -4px 16px rgba(0,0,0,0.1);
+    }
+
+    .cta-btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, var(--cyan-start), var(--cyan-end));
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+
+    .cta-sub {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* スペーサー */
+    .bottom-spacer {
+      height: 100px;
+    }
+
+    /* アノテーション */
+    .annotation {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #333;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <div class="annotation">パターン1: 将来予測強調</div>
+
+  <header class="header">
+    <a href="#" class="back-btn">&lt;</a>
+    <h1 class="header-title">AI査定結果</h1>
+  </header>
+
+  <main class="content">
+    <div class="car-info">
+      <div class="car-name">トヨタ プリウス</div>
+      <div class="car-detail">2020年式 / 35,000km / ホワイト</div>
+    </div>
+
+    <div class="result-card">
+      <div class="result-label">
+        <span class="ai-badge">AI査定</span>
+        現在の査定額
+      </div>
+      <div class="price-main">170<span>万円</span></div>
+      <div class="price-range">165〜175万円の範囲</div>
+      <div class="confidence">
+        <span>精度</span>
+        <div class="confidence-bar">
+          <div class="confidence-fill"></div>
+        </div>
+        <span>85%</span>
+      </div>
+    </div>
+
+    <div class="forecast-section">
+      <div class="forecast-header">
+        <div class="forecast-title">
+          将来の価格予測
+          <span class="forecast-badge">UcarPAC限定</span>
+        </div>
+      </div>
+
+      <div class="graph-container">
+        <svg class="graph-svg" viewBox="0 0 300 120">
+          <defs>
+            <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#1ddcff;stop-opacity:0.5" />
+              <stop offset="100%" style="stop-color:#1ddcff;stop-opacity:0" />
+            </linearGradient>
+          </defs>
+          <path class="graph-area" d="M30,30 L100,35 L170,50 L240,75 L270,90 L270,110 L30,110 Z" />
+          <path class="graph-line" d="M30,30 L100,35 L170,50 L240,75 L270,90" />
+          <circle class="graph-dot" cx="30" cy="30" r="4" />
+          <circle class="graph-dot-current" cx="100" cy="35" r="8" />
+          <circle class="graph-dot" cx="170" cy="50" r="4" />
+          <circle class="graph-dot" cx="240" cy="75" r="4" />
+          <circle class="graph-dot" cx="270" cy="90" r="4" />
+          <!-- ラベル -->
+          <text x="30" y="115" fill="rgba(255,255,255,0.6)" font-size="10" text-anchor="middle">1月</text>
+          <text x="100" y="115" fill="white" font-size="10" text-anchor="middle" font-weight="bold">今</text>
+          <text x="170" y="115" fill="rgba(255,255,255,0.6)" font-size="10" text-anchor="middle">3月</text>
+          <text x="240" y="115" fill="rgba(255,255,255,0.6)" font-size="10" text-anchor="middle">6月</text>
+          <text x="270" y="115" fill="rgba(255,255,255,0.6)" font-size="10" text-anchor="middle">9月</text>
+        </svg>
+      </div>
+
+      <div class="forecast-list">
+        <div class="forecast-item current">
+          <div class="forecast-period">現在</div>
+          <div class="forecast-price">170万</div>
+        </div>
+        <div class="forecast-item recommended">
+          <div class="forecast-period">1ヶ月後</div>
+          <div class="forecast-price">168万</div>
+          <div class="forecast-diff diff-down">-2万</div>
+        </div>
+        <div class="forecast-item">
+          <div class="forecast-period">3ヶ月後</div>
+          <div class="forecast-price">160万</div>
+          <div class="forecast-diff diff-down">-10万</div>
+        </div>
+        <div class="forecast-item">
+          <div class="forecast-period">6ヶ月後</div>
+          <div class="forecast-price">145万</div>
+          <div class="forecast-diff diff-down">-25万</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-card">
+      <div class="insight-title">
+        <span>💡</span>
+        AIからのアドバイス
+      </div>
+      <div class="insight-text">
+        プリウスは<span class="highlight">3月に需要がピーク</span>を迎えます。
+        <span class="highlight">今から1ヶ月以内</span>に売却すると、
+        6ヶ月後と比べて<span class="highlight">約25万円高く</span>売れる可能性があります。
+      </div>
+    </div>
+
+    <div class="bottom-spacer"></div>
+  </main>
+
+  <div class="cta-section">
+    <button class="cta-btn">売却相談を始める</button>
+    <div class="cta-sub">8,000社が競うオークションで最高額</div>
+  </div>
+</body>
+</html>

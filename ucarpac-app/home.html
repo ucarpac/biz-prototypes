@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UcarPAC App - ホーム</title>
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* ブランドカラー */
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+
+      /* テキスト */
+      --text-black: #404040;
+      --text-gray: #737373;
+      --text-disabled: #B3B3B3;
+
+      /* 背景 */
+      --back-white: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --back-blue: #091355;
+      --back-light-pink: #ffd8e8;
+
+      /* セマンティック */
+      --error: #EB4646;
+      --ruled-line: #F2F2F2;
+
+      /* グラデーション */
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+      --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
+
+      /* フォント */
+      --font-sans: 'Hiragino Sans', 'Noto Sans JP', system-ui, sans-serif;
+      --font-number: 'Righteous', sans-serif;
+
+      /* スペーシング */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+
+      /* ボーダーラディウス */
+      --radius-sm: 5px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-chip: 22px;
+      --radius-button: 30px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--back-white);
+      color: var(--text-black);
+      max-width: 375px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* ヘッダー */
+    .header {
+      background: var(--back-blue);
+      padding: var(--space-4) var(--space-4);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-logo {
+      color: var(--white);
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .header-logo span {
+      color: var(--pink);
+    }
+
+    .header-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 14px;
+    }
+
+    /* AI査定CTAセクション */
+    .hero-section {
+      background: linear-gradient(180deg, var(--back-blue) 0%, var(--back-blue) 60%, var(--back-white) 100%);
+      padding: var(--space-6) var(--space-4) var(--space-8);
+    }
+
+    .ai-cta-card {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      padding: var(--space-6);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      text-align: center;
+    }
+
+    .ai-badge {
+      display: inline-block;
+      background: var(--back-light-pink);
+      color: var(--pink);
+      font-size: 12px;
+      font-weight: bold;
+      padding: 4px 12px;
+      border-radius: 12px;
+      margin-bottom: var(--space-3);
+    }
+
+    .ai-cta-title {
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--dark-blue);
+      line-height: 1.4;
+      margin-bottom: var(--space-2);
+    }
+
+    .ai-cta-title .highlight {
+      color: var(--pink);
+    }
+
+    .ai-cta-subtitle {
+      font-size: 14px;
+      color: var(--text-gray);
+      margin-bottom: var(--space-5);
+    }
+
+    .ai-cta-button {
+      display: block;
+      width: 100%;
+      background: var(--gradient-primary);
+      border: none;
+      border-radius: var(--radius-button);
+      padding: 14px 24px;
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--dark-blue);
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .ai-cta-button:hover {
+      opacity: 0.9;
+    }
+
+    .ai-cta-note {
+      font-size: 12px;
+      color: var(--text-gray);
+      margin-top: var(--space-3);
+    }
+
+    .ai-cta-note .free {
+      color: var(--pink);
+      font-weight: bold;
+    }
+
+    /* セクションタイトル */
+    .section-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--dark-blue);
+      padding: var(--space-4) var(--space-4) var(--space-2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .section-link {
+      font-size: 12px;
+      color: #4099FF;
+      text-decoration: none;
+    }
+
+    /* 車両カード */
+    .car-list {
+      padding: 0 var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .car-card {
+      background: var(--white);
+      border-radius: 13px;
+      padding: var(--space-4);
+      box-shadow: 0 0 8px rgba(0,0,0,0.11);
+      display: flex;
+      gap: var(--space-4);
+    }
+
+    .car-image {
+      width: 100px;
+      height: 75px;
+      border-radius: var(--radius-md);
+      background: var(--back-gray);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-gray);
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .car-info {
+      flex: 1;
+    }
+
+    .car-name {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--dark-blue);
+      margin-bottom: var(--space-1);
+    }
+
+    .car-details {
+      font-size: 12px;
+      color: var(--text-gray);
+      margin-bottom: var(--space-2);
+    }
+
+    .car-estimate {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .car-estimate-label {
+      font-size: 10px;
+      color: var(--text-gray);
+    }
+
+    .car-estimate-value {
+      font-family: var(--font-number);
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--pink);
+    }
+
+    .car-estimate-unit {
+      font-size: 12px;
+      color: var(--dark-blue);
+    }
+
+    /* 出費サマリー */
+    .expense-section {
+      padding: var(--space-4);
+    }
+
+    .expense-card {
+      background: var(--white);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      box-shadow: 0 0 8px rgba(0,0,0,0.11);
+    }
+
+    .expense-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-4);
+    }
+
+    .expense-month {
+      font-size: 14px;
+      color: var(--text-gray);
+    }
+
+    .expense-total {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .expense-total-value {
+      font-family: var(--font-number);
+      font-size: 28px;
+      font-weight: bold;
+      color: var(--dark-blue);
+    }
+
+    .expense-total-unit {
+      font-size: 14px;
+      color: var(--dark-blue);
+    }
+
+    .expense-breakdown {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-2);
+    }
+
+    .expense-item {
+      flex: 1;
+      text-align: center;
+      padding: var(--space-3);
+      background: var(--back-white);
+      border-radius: var(--radius-sm);
+    }
+
+    .expense-item-icon {
+      font-size: 20px;
+      margin-bottom: var(--space-1);
+    }
+
+    .expense-item-label {
+      font-size: 10px;
+      color: var(--text-gray);
+      margin-bottom: var(--space-1);
+    }
+
+    .expense-item-value {
+      font-family: var(--font-number);
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--dark-blue);
+    }
+
+    /* 追加ボタン */
+    .add-car-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      width: calc(100% - 32px);
+      margin: var(--space-4) auto;
+      padding: 12px;
+      background: #CACEE2;
+      border: 1px solid #40BFFF;
+      border-radius: var(--radius-chip);
+      color: var(--text-black);
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .add-car-button:hover {
+      opacity: 0.9;
+    }
+
+    /* ボトムナビ */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 375px;
+      background: var(--white);
+      border-top: 1px solid var(--ruled-line);
+      display: flex;
+      justify-content: space-around;
+      padding: var(--space-2) 0 var(--space-3);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      text-decoration: none;
+      color: var(--text-gray);
+      font-size: 10px;
+    }
+
+    .nav-item.active {
+      color: var(--pink);
+    }
+
+    .nav-icon {
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-logo">Ucar<span>PAC</span></div>
+    <div class="header-icon">👤</div>
+  </header>
+
+  <!-- AI査定CTAセクション -->
+  <section class="hero-section">
+    <div class="ai-cta-card">
+      <span class="ai-badge">✨ AI査定</span>
+      <h1 class="ai-cta-title">
+        あなたの愛車、<br>
+        <span class="highlight">今いくら？</span>
+      </h1>
+      <p class="ai-cta-subtitle">AIが現在の相場と将来予測を算出</p>
+      <a href="#" class="ai-cta-button">無料でAI査定する</a>
+      <p class="ai-cta-note"><span class="free">個人情報不要</span>で今すぐチェック</p>
+    </div>
+  </section>
+
+  <!-- 登録車両一覧 -->
+  <div class="section-title">
+    マイカー
+    <a href="#" class="section-link">すべて見る ›</a>
+  </div>
+
+  <div class="car-list">
+    <div class="car-card">
+      <div class="car-image">🚗 画像</div>
+      <div class="car-info">
+        <div class="car-name">トヨタ プリウス</div>
+        <div class="car-details">2020年式 / 35,000km</div>
+        <div class="car-estimate">
+          <span class="car-estimate-label">AI査定額</span>
+          <span class="car-estimate-value">178</span>
+          <span class="car-estimate-unit">万円</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="car-card">
+      <div class="car-image">🚙 画像</div>
+      <div class="car-info">
+        <div class="car-name">ホンダ フィット</div>
+        <div class="car-details">2019年式 / 42,000km</div>
+        <div class="car-estimate">
+          <span class="car-estimate-label">AI査定額</span>
+          <span class="car-estimate-value">98</span>
+          <span class="car-estimate-unit">万円</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="add-car-button">
+    ＋ 車両を追加する
+  </button>
+
+  <!-- 出費サマリー -->
+  <div class="section-title">
+    今月の出費
+    <a href="#" class="section-link">詳細 ›</a>
+  </div>
+
+  <section class="expense-section">
+    <div class="expense-card">
+      <div class="expense-header">
+        <span class="expense-month">2026年2月</span>
+        <div class="expense-total">
+          <span class="expense-total-value">32,450</span>
+          <span class="expense-total-unit">円</span>
+        </div>
+      </div>
+      <div class="expense-breakdown">
+        <div class="expense-item">
+          <div class="expense-item-icon">⛽</div>
+          <div class="expense-item-label">ガソリン</div>
+          <div class="expense-item-value">¥18,200</div>
+        </div>
+        <div class="expense-item">
+          <div class="expense-item-icon">🅿️</div>
+          <div class="expense-item-label">駐車場</div>
+          <div class="expense-item-value">¥12,000</div>
+        </div>
+        <div class="expense-item">
+          <div class="expense-item-icon">🔧</div>
+          <div class="expense-item-label">メンテ</div>
+          <div class="expense-item-value">¥2,250</div>
+        </div>
+        <div class="expense-item">
+          <div class="expense-item-icon">📋</div>
+          <div class="expense-item-label">その他</div>
+          <div class="expense-item-value">¥0</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ボトムナビゲーション -->
+  <nav class="bottom-nav">
+    <a href="#" class="nav-item active">
+      <span class="nav-icon">🏠</span>
+      <span>ホーム</span>
+    </a>
+    <a href="#" class="nav-item">
+      <span class="nav-icon">🔍</span>
+      <span>AI査定</span>
+    </a>
+    <a href="#" class="nav-item">
+      <span class="nav-icon">💰</span>
+      <span>出費管理</span>
+    </a>
+    <a href="#" class="nav-item">
+      <span class="nav-icon">🔨</span>
+      <span>オークション</span>
+    </a>
+    <a href="#" class="nav-item">
+      <span class="nav-icon">👤</span>
+      <span>マイページ</span>
+    </a>
+  </nav>
+</body>
+</html>
