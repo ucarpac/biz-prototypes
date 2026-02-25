@@ -5,6 +5,13 @@
     "title": "SEOコンテンツ改善（自然検索流入）",
     "kpi": "Organic流入セッション数",
     "kpi_category": "流入",
+    "data_source": {
+      "type": "ga4",
+      "mcp_server": "ga4-main-site",
+      "property_id": "321034768",
+      "metrics": ["sessions", "organicGoogleSearchClicks"],
+      "note": "Search Console連携でクエリ別CTR・順位も参照"
+    },
     "goal": "自然検索からのセッション数を増やす。クエリ順位・CTR改善",
     "expected_impact": 7,
     "novelty": 5,
@@ -27,6 +34,14 @@
     "title": "広告LP→フォーム開始率の改善",
     "kpi": "LP→フォーム開始率",
     "kpi_category": "フォーム開始",
+    "data_source": {
+      "type": "ga4",
+      "mcp_server": "ga4-main-site",
+      "property_id": "321034768",
+      "metrics": ["sessions", "conversions"],
+      "dimensions": ["landingPage", "sessionSource"],
+      "note": "LP別のセッション→フォーム開始イベントを計測"
+    },
     "goal": "広告LPに着地したユーザーのフォーム開始率を向上させる",
     "expected_impact": 8,
     "novelty": 6,
@@ -49,6 +64,14 @@
     "title": "査定フォーム完了率の改善",
     "kpi": "フォーム開始→査定依頼完了率",
     "kpi_category": "フォーム完了",
+    "data_source": {
+      "type": "ga4",
+      "mcp_server": "ga4-main-site",
+      "property_id": "321034768",
+      "metrics": ["conversions", "eventCount"],
+      "dimensions": ["eventName"],
+      "note": "フォームステップごとのイベント（step1, step2, complete等）を計測"
+    },
     "goal": "フォームに入り始めたユーザーの完了率を上げる。離脱ステップの特定と改善",
     "expected_impact": 9,
     "novelty": 5,
@@ -71,6 +94,13 @@
     "title": "信頼性・不安解消の強化",
     "kpi": "フォーム開始→査定依頼完了率",
     "kpi_category": "フォーム完了",
+    "data_source": {
+      "type": "ga4",
+      "mcp_server": "ga4-main-site",
+      "property_id": "321034768",
+      "metrics": ["conversions"],
+      "note": "フォーム完了率の変化で効果測定"
+    },
     "goal": "「本当に大丈夫？」という不安を解消し、フォーム途中離脱を減らす",
     "expected_impact": 7,
     "novelty": 6,
@@ -93,6 +123,13 @@
     "title": "競合差別化の訴求強化",
     "kpi": "LP→フォーム開始率",
     "kpi_category": "フォーム開始",
+    "data_source": {
+      "type": "ga4",
+      "mcp_server": "ga4-main-site",
+      "property_id": "321034768",
+      "metrics": ["sessions", "conversions"],
+      "note": "LP→フォーム開始率で効果測定"
+    },
     "goal": "一括査定サイトとの違いを明確にし、UcarPACを選ぶ理由を作る",
     "expected_impact": 7,
     "novelty": 7,
@@ -115,6 +152,12 @@
     "title": "査定依頼→査定実施率の改善",
     "kpi": "査定依頼完了→査定実施率",
     "kpi_category": "査定実施",
+    "data_source": {
+      "type": "db",
+      "source": "ucarpac DB",
+      "tables": ["assessments", "guests"],
+      "note": "査定申込→査定実施のステータス遷移で計測。GA4では取れないDB指標"
+    },
     "goal": "申込後に査定日を確定し実際に査定を受けてもらう率を上げる",
     "expected_impact": 8,
     "novelty": 7,
@@ -137,6 +180,12 @@
     "title": "オークション→成約率の改善",
     "kpi": "オークション出品→成約率",
     "kpi_category": "成約",
+    "data_source": {
+      "type": "db",
+      "source": "ucarpac DB",
+      "tables": ["items", "orders", "auctions"],
+      "note": "出品→成約のステータス遷移で計測。GA4では取れないDB指標"
+    },
     "goal": "オークションで入札が入った後の成約率を上げる",
     "expected_impact": 9,
     "novelty": 6,
@@ -154,12 +203,20 @@
     ]
   },
   {
-    "id": "app-dl-store-aso",
+    "id": "app-store-pv-to-dl",
     "service": "ucarpac-app",
-    "title": "ストアページ最適化（ASO）",
-    "kpi": "アプリ新規DL数",
+    "title": "ストアPV→DL率の改善（ASO）",
+    "kpi": "ストアPV→DL率（現状17.3%、KPI 25%）",
     "kpi_category": "新規獲得",
-    "goal": "App Store/Google Playのストアページを改善しDL数を増やす",
+    "data_source": {
+      "type": "spreadsheet",
+      "sheet_id": "1Wvoo8dAeYz5uWNT9G4EAjTfsmIDVnPi04sJENAvVWwQ",
+      "sheets": ["実績"],
+      "cells": {"ストアPV": "B4", "新規DL": "C4", "PV→DL率": "D4"},
+      "breakdown": "Android/iPhone別（行19-21）",
+      "note": "App Store Connect / Google Play Consoleからの週2回更新データ"
+    },
+    "goal": "ストア詳細ページの閲覧→DLのCVRを25%目標まで引き上げる",
     "expected_impact": 7,
     "novelty": 6,
     "confidence": 5,
@@ -167,21 +224,29 @@
     "risk": 2,
     "quick_win": 4,
     "strategic_fit": 4,
-    "description": "ストアスクショ改善、説明文最適化、キーワード対策、レビュー促進",
+    "description": "ストアスクショ改善、説明文最適化、キーワード対策、レビュー促進。Android(14.5%) vs iOS(20.1%)の差もポイント",
     "contexts": ["contexts/ucarpac-app.md", "contexts/competitors.md"],
     "prototype_tasks": [
-      {"name": "ストアスクショA", "description": "AI査定機能を全面に出したスクショ"},
-      {"name": "ストアスクショB", "description": "出費管理+将来予測を訴求したスクショ"},
+      {"name": "ストアスクショA", "description": "AI査定機能を全面に出したスクショ（iOS向け）"},
+      {"name": "ストアスクショB", "description": "出費管理+将来予測を訴求したスクショ（Android向け）"},
       {"name": "ストアスクショC", "description": "競合比較「電話0本」を訴求したスクショ"}
     ]
   },
   {
-    "id": "app-onboarding-car-reg",
+    "id": "app-dl-to-application",
     "service": "ucarpac-app",
-    "title": "初回起動→車両登録の完了率改善",
-    "kpi": "初回起動→車両登録完了率",
+    "title": "新規DL→売却申込率の改善",
+    "kpi": "新規DL→申込率（現状2.29%、KPI 1.90%達成済み）",
     "kpi_category": "オンボーディング",
-    "goal": "DL後に車両情報を登録するまでの離脱を減らす",
+    "data_source": {
+      "type": "spreadsheet",
+      "sheet_id": "1Wvoo8dAeYz5uWNT9G4EAjTfsmIDVnPi04sJENAvVWwQ",
+      "sheets": ["実績", "登録申込マスタ"],
+      "cells": {"新規DL": "C4", "申込数": "G4", "新規DL→申込率": "H4"},
+      "breakdown": "Android/iPhone別（行19-21）、1ヶ月以内/以上（列M-N）",
+      "note": "申込までの期間別（1ヶ月以内/1ヶ月以上）の分析が重要"
+    },
+    "goal": "DL後に車両登録→売却申込まで到達する率を上げる",
     "expected_impact": 8,
     "novelty": 6,
     "confidence": 7,
@@ -189,7 +254,7 @@
     "risk": 2,
     "quick_win": 4,
     "strategic_fit": 5,
-    "description": "チュートリアル簡素化、車両登録ステップ削減、価値をすぐ体感させる",
+    "description": "チュートリアル簡素化、車両登録ステップ削減、価値をすぐ体感させる。1ヶ月以内申込率(2.29%)と1ヶ月以上(0.16%)の差が大きい",
     "contexts": ["contexts/ucarpac-app.md"],
     "prototype_tasks": [
       {"name": "オンボA", "description": "車種→年式だけで即AI査定体験（最短2タップ）"},
@@ -198,78 +263,50 @@
     ]
   },
   {
-    "id": "app-ai-to-sell-cvr",
+    "id": "app-application-to-listing",
     "service": "ucarpac-app",
-    "title": "AI査定結果→売却申込のCVR改善",
-    "kpi": "AI査定完了→売却申込率",
+    "title": "申込→出品率の改善",
+    "kpi": "申込→出品率（現状19.51%）",
     "kpi_category": "売却申込",
-    "goal": "AI査定で価格を見た後、実際に売却申込に進む率を上げる",
-    "expected_impact": 9,
+    "data_source": {
+      "type": "spreadsheet",
+      "sheet_id": "1Wvoo8dAeYz5uWNT9G4EAjTfsmIDVnPi04sJENAvVWwQ",
+      "sheets": ["実績", "申込マスタ"],
+      "cells": {"申込数": "O21", "出品数": "Q21", "申込→出品率": "P21"},
+      "breakdown": "Android/iPhone別（行19-20）、ステータス（申込マスタ列V）",
+      "note": "申込マスタにCS架電履歴あり。未査定/お断り/未接続の内訳が重要"
+    },
+    "goal": "売却申込後、実際に査定を受けて出品に至る率を上げる",
+    "expected_impact": 8,
     "novelty": 7,
     "confidence": 6,
     "effort": 5,
     "risk": 3,
     "quick_win": 3,
     "strategic_fit": 5,
-    "description": "査定結果の見せ方、将来予測による売り時訴求、ワンタップ申込導線",
-    "contexts": ["contexts/ucarpac-app.md", "contexts/competitors.md"],
-    "prototype_tasks": [
-      {"name": "査定結果A", "description": "将来予測グラフ大表示+「今が売り時」バッジ"},
-      {"name": "査定結果B", "description": "競合サービスとの差額表示で行動促進"},
-      {"name": "売却導線", "description": "査定結果→ワンタップで売却申込開始"}
-    ]
-  },
-  {
-    "id": "app-expense-retention",
-    "service": "ucarpac-app",
-    "title": "出費管理の月次継続率向上",
-    "kpi": "出費管理の月次入力率",
-    "kpi_category": "リテンション",
-    "goal": "出費管理機能を毎月使い続けてもらい、アプリに戻る理由を作る",
-    "expected_impact": 7,
-    "novelty": 6,
-    "confidence": 6,
-    "effort": 5,
-    "risk": 2,
-    "quick_win": 3,
-    "strategic_fit": 4,
-    "description": "入力フロー簡素化、月次サマリーの価値向上、入力リマインド最適化",
+    "description": "申込後のCS対応・査定予約・出品までのUX改善。架電→査定→出品の歩留まり",
     "contexts": ["contexts/ucarpac-app.md"],
     "prototype_tasks": [
-      {"name": "簡易入力", "description": "3タップで完了する出費入力UI"},
-      {"name": "月次サマリー", "description": "マネーキャンバス風の資産推移グラフ"},
-      {"name": "リマインド", "description": "月末リマインド通知のモック"}
+      {"name": "査定予約UI", "description": "アプリ内で査定日時を自分で選べるUI"},
+      {"name": "進捗トラッカー", "description": "申込→査定→出品のステップをアプリで可視化"},
+      {"name": "セルフ査定強化", "description": "セルフ査定の写真撮影ガイドを分かりやすく"}
     ]
   },
   {
-    "id": "app-push-reopen",
+    "id": "app-listing-to-contract",
     "service": "ucarpac-app",
-    "title": "プッシュ通知→アプリ再起動率の改善",
-    "kpi": "プッシュ通知→アプリ起動率",
-    "kpi_category": "リエンゲージメント",
-    "goal": "プッシュ通知の開封率とアプリ再起動率を上げる",
-    "expected_impact": 7,
-    "novelty": 7,
-    "confidence": 5,
-    "effort": 4,
-    "risk": 3,
-    "quick_win": 4,
-    "strategic_fit": 3,
-    "description": "通知タイミング最適化、通知文言テスト、価格変動通知、車検リマインド",
-    "contexts": ["contexts/ucarpac-app.md"],
-    "prototype_tasks": [
-      {"name": "価格変動通知", "description": "「愛車の価格が5%上昇」通知モック"},
-      {"name": "車検リマインド", "description": "車検3ヶ月前→1ヶ月前の段階通知"},
-      {"name": "通知設定UI", "description": "通知種別ごとのON/OFF設定画面"}
-    ]
-  },
-  {
-    "id": "app-sell-to-contract",
-    "service": "ucarpac-app",
-    "title": "売却申込→成約の歩留まり改善",
-    "kpi": "売却申込→成約率",
+    "title": "出品→成約率の改善",
+    "kpi": "出品→成約率（現状22.50%）",
     "kpi_category": "成約",
-    "goal": "アプリからの売却申込後、実際に成約まで至る率を上げる",
+    "data_source": {
+      "type": "spreadsheet",
+      "sheet_id": "1Wvoo8dAeYz5uWNT9G4EAjTfsmIDVnPi04sJENAvVWwQ",
+      "sheets": ["実績", "取引マスタ"],
+      "cells": {"出品数": "Q21", "成約数": "S21", "出品→成約率": "R21"},
+      "breakdown": "Android/iPhone別（行19-20）",
+      "note": "取引マスタに成約価格・相場価格あり。Android(18.5%) vs iOS(30.8%)の差が大きい"
+    },
+    "goal": "オークション出品後の成約率を上げる。特にAndroidユーザーの改善余地が大きい",
     "expected_impact": 9,
     "novelty": 6,
     "confidence": 5,
@@ -277,34 +314,71 @@
     "risk": 3,
     "quick_win": 2,
     "strategic_fit": 5,
-    "description": "申込後の進捗可視化、入札結果の通知UX改善、売却判断サポート",
+    "description": "入札結果の通知UX、売却判断サポート、相場比較表示。Android成約率が特に低い",
     "contexts": ["contexts/ucarpac-app.md"],
     "prototype_tasks": [
-      {"name": "進捗トラッカー", "description": "申込→査定→出品→入札→成約のステップ表示"},
       {"name": "入札ライブ通知", "description": "入札が入るたびにリアルタイム通知"},
-      {"name": "売却判断画面", "description": "最高額+相場比較+将来予測で判断サポート"}
+      {"name": "売却判断画面", "description": "最高額+相場比較+将来予測で判断サポート"},
+      {"name": "売却完了体験", "description": "成約→引渡しまでのスムーズな体験フロー"}
     ]
   },
   {
-    "id": "app-future-prediction-value",
+    "id": "app-uninstall-prevention",
     "service": "ucarpac-app",
-    "title": "将来予測グラフの活用促進",
-    "kpi": "将来予測閲覧→売却申込率",
-    "kpi_category": "売却申込",
-    "goal": "将来予測機能の価値を高め、売却タイミングの判断材料として活用してもらう",
-    "expected_impact": 7,
-    "novelty": 8,
-    "confidence": 5,
-    "effort": 4,
+    "title": "削除率の低減（リテンション）",
+    "kpi": "削除率（現状49.45%、KPI 48%）",
+    "kpi_category": "リテンション",
+    "data_source": {
+      "type": "spreadsheet",
+      "sheet_id": "1Wvoo8dAeYz5uWNT9G4EAjTfsmIDVnPi04sJENAvVWwQ",
+      "sheets": ["実績"],
+      "cells": {"削除率": "E4", "累計有効DL": "F4"},
+      "breakdown": "Android(71.5%) vs iPhone(27.4%)の差が非常に大きい",
+      "note": "Android削除率71.5%は大きな改善余地。有効DL数=累計DL-累計削除"
+    },
+    "goal": "アプリ削除率を下げて累計有効DL数を増やす。特にAndroidの71.5%を改善",
+    "expected_impact": 8,
+    "novelty": 6,
+    "confidence": 6,
+    "effort": 5,
     "risk": 2,
-    "quick_win": 4,
+    "quick_win": 3,
     "strategic_fit": 5,
-    "description": "予測グラフの見せ方改善、「今売ると○万円得」の訴求、売り時アラート",
+    "description": "初回体験の価値向上、プッシュ通知最適化、出費管理の定着、価格変動通知",
     "contexts": ["contexts/ucarpac-app.md"],
     "prototype_tasks": [
-      {"name": "予測グラフ改善", "description": "シンプルな折れ線+「今ここ」マーカー"},
-      {"name": "売り時訴求", "description": "「今売ると6ヶ月後より○万円高い」カード"},
-      {"name": "売り時アラート設定", "description": "目標価格を設定→達したら通知するUI"}
+      {"name": "初回価値体験", "description": "DL直後に「あなたの車は○万円」をすぐ体感"},
+      {"name": "月次サマリー", "description": "出費管理の月次レポートで継続利用を促進"},
+      {"name": "価格変動通知", "description": "愛車の市場価格変動を月次で通知"}
+    ]
+  },
+  {
+    "id": "app-ad-channel-optimization",
+    "service": "ucarpac-app",
+    "title": "広告チャネル別CPI/CPAの最適化",
+    "kpi": "有効CPI・申込CPI（チャネル別）",
+    "kpi_category": "新規獲得",
+    "data_source": {
+      "type": "spreadsheet",
+      "sheet_id": "1Wvoo8dAeYz5uWNT9G4EAjTfsmIDVnPi04sJENAvVWwQ",
+      "sheets": ["メディア別", "Google広告(今月)", "AppleAds（今月）", "Android/AppsFlyre(今月)", "ios/AppsFlyre(今月)", "TikTok（今月）"],
+      "metrics": ["予算", "実コスト", "平均CPI", "有効CPI", "申込CPI", "DL数", "DL率"],
+      "note": "Google(Android ¥552/iOS ¥667), AppleAds(¥460), TikTok(¥486)のCPI比較"
+    },
+    "goal": "チャネル別のCPI/CPAを最適化し、限られた広告予算で最大DLを獲得",
+    "expected_impact": 7,
+    "novelty": 5,
+    "confidence": 7,
+    "effort": 4,
+    "risk": 2,
+    "quick_win": 5,
+    "strategic_fit": 4,
+    "description": "AppleAds(CPI¥460, 申込CPI¥6,702)がコスパ最良。TikTok(CPI¥486)も有望。Google Android(CPI¥552)は量は多いが有効CPI¥2,325と高い",
+    "contexts": ["contexts/ucarpac-app.md"],
+    "prototype_tasks": [
+      {"name": "チャネル別ダッシュボード", "description": "CPI/CPA/ROAS一覧のHTMLダッシュボード"},
+      {"name": "AppleAds強化提案", "description": "CPI最安のAppleAds予算増額シミュレーション"},
+      {"name": "クリエイティブ案", "description": "DL率が高いチャネル向けの広告クリエイティブ案"}
     ]
   }
 ]
