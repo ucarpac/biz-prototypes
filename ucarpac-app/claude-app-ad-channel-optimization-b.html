@@ -1,0 +1,632 @@
+<!--
+  このプロトタイプの狙い:
+  CPI最安のApple Search Adsへの予算増額シミュレーション。
+  スライダーで予算配分を調整し、DL数・CPI・CPA・ROASの
+  変化をリアルタイムにシミュレーションする。
+  投資対効果を可視化して意思決定を支援する。
+-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apple Ads 予算増額シミュレーション</title>
+<script src="../auth.js"></script>
+<style>
+:root {
+  --pink: #F84CA2;
+  --dark-blue: #1c2663;
+  --white: #FFFFFF;
+  --text-black: #404040;
+  --text-gray: #737373;
+  --text-disabled: #B3B3B3;
+  --back-white: #FAFAFA;
+  --back-gray: #EDF1F4;
+  --back-blue: #091355;
+  --back-light-pink: #ffd8e8;
+  --error: #EB4646;
+  --ruled-line: #F2F2F2;
+  --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+  --font-sans: 'Hiragino Sans', 'Noto Sans JP', system-ui, sans-serif;
+  --font-number: 'Righteous', system-ui, sans-serif;
+  --radius-md: 12px;
+  --radius-chip: 22px;
+  --radius-button: 30px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font-sans);
+  background: var(--back-white);
+  color: var(--text-black);
+  max-width: 375px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #000 0%, #1a1a2e 100%);
+  padding: 48px 20px 24px;
+  color: var(--white);
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.apple-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--white);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+.header h1 { font-size: 18px; font-weight: bold; }
+.header .subtitle { font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 2px; }
+.header-badge {
+  display: inline-block;
+  background: #10b981;
+  color: var(--white);
+  border-radius: var(--radius-chip);
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: bold;
+  margin-top: 12px;
+}
+
+/* Current Status */
+.section { padding: 16px; }
+.section-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--dark-blue);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.current-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.stat-card {
+  background: var(--white);
+  border: 1px solid var(--ruled-line);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  text-align: center;
+}
+.stat-label { font-size: 10px; color: var(--text-gray); font-weight: bold; }
+.stat-value {
+  font-family: var(--font-number);
+  font-size: 22px;
+  font-weight: bold;
+  color: var(--dark-blue);
+  margin-top: 4px;
+}
+.stat-sub { font-size: 10px; color: var(--text-gray); margin-top: 2px; }
+.stat-card.highlight {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border-color: #86efac;
+}
+.stat-card.highlight .stat-value { color: #059669; }
+
+/* Simulation */
+.sim-section {
+  background: var(--white);
+  margin: 0 16px;
+  border-radius: var(--radius-md);
+  padding: 20px 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border: 1px solid var(--ruled-line);
+}
+.sim-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--dark-blue);
+  margin-bottom: 16px;
+}
+
+/* Budget Slider */
+.slider-section { margin-bottom: 20px; }
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.slider-label { font-size: 12px; font-weight: bold; color: var(--text-gray); }
+.slider-value-display {
+  font-family: var(--font-number);
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--dark-blue);
+  text-align: center;
+  margin: 8px 0;
+}
+.slider-value-display .change-amount {
+  font-size: 14px;
+  color: var(--pink);
+  display: block;
+  margin-top: 2px;
+}
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #e5e7eb, #1ddcff, #4db4ff, #F84CA2);
+  outline: none;
+  margin: 8px 0;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--dark-blue);
+  border: 3px solid var(--white);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  cursor: pointer;
+}
+.slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--text-disabled);
+}
+
+/* Allocation Bar */
+.allocation-bar-section { margin: 16px 0; }
+.alloc-title { font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 8px; }
+.alloc-bar {
+  display: flex;
+  height: 28px;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.5s ease;
+}
+.alloc-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: bold;
+  color: var(--white);
+  transition: width 0.5s ease;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.alloc-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  color: var(--text-gray);
+}
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* Projected Results */
+.projected-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 16px;
+}
+.proj-card {
+  background: var(--back-gray);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  text-align: center;
+  position: relative;
+  transition: all 0.3s;
+}
+.proj-card.improved { background: linear-gradient(135deg, #eff6ff, #dbeafe); }
+.proj-card.declined { background: linear-gradient(135deg, #fef2f2, #fecaca); }
+.proj-label { font-size: 10px; color: var(--text-gray); font-weight: bold; }
+.proj-value {
+  font-family: var(--font-number);
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--dark-blue);
+  margin-top: 4px;
+}
+.proj-delta {
+  font-size: 11px;
+  font-weight: bold;
+  margin-top: 2px;
+}
+.proj-delta.positive { color: #059669; }
+.proj-delta.negative { color: var(--error); }
+
+/* Chart Area */
+.chart-area {
+  margin: 16px 0;
+  background: var(--white);
+  border: 1px solid var(--ruled-line);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+.chart-title { font-size: 12px; font-weight: bold; color: var(--dark-blue); margin-bottom: 12px; }
+.bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 140px; }
+.bar-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+}
+.bar {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.5s ease;
+  position: relative;
+  min-width: 20px;
+}
+.bar-current { background: var(--back-gray); border: 1px solid #d1d5db; }
+.bar-projected { background: var(--gradient-primary); }
+.bar-label {
+  font-size: 8px;
+  color: var(--text-gray);
+  margin-top: 6px;
+  text-align: center;
+  line-height: 1.2;
+}
+.bar-value {
+  position: absolute;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-weight: bold;
+  color: var(--dark-blue);
+  white-space: nowrap;
+}
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 12px;
+  font-size: 10px;
+  color: var(--text-gray);
+}
+.chart-legend span { display: flex; align-items: center; gap: 4px; }
+.legend-bar { width: 16px; height: 8px; border-radius: 2px; }
+
+/* Insight Box */
+.insight-box {
+  margin: 16px;
+  background: linear-gradient(135deg, #fdf4ff, #fce7f3);
+  border: 1px solid #f9a8d4;
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+.insight-title {
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--pink);
+  margin-bottom: 8px;
+}
+.insight-list {
+  list-style: none;
+  padding: 0;
+}
+.insight-list li {
+  font-size: 12px;
+  color: var(--text-black);
+  padding: 4px 0;
+  padding-left: 16px;
+  position: relative;
+  line-height: 1.6;
+}
+.insight-list li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--pink);
+  font-weight: bold;
+}
+
+/* Bottom CTA */
+.bottom-cta {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 375px;
+  padding: 12px 16px;
+  background: var(--white);
+  border-top: 1px solid var(--ruled-line);
+  z-index: 10;
+}
+.cta-btn {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: var(--radius-button);
+  background: linear-gradient(90deg, #F84CA2, #F84CA2);
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--white);
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.cta-btn:active { opacity: 0.8; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.fade-in { animation: fadeIn 0.5s ease forwards; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="apple-icon">🍎</div>
+    <div>
+      <h1>Apple Search Ads 強化提案</h1>
+      <div class="subtitle">予算増額シミュレーション</div>
+    </div>
+  </div>
+  <div class="header-badge">✨ CPI最安チャネル — 増額推奨</div>
+</div>
+
+<div class="section">
+  <div class="section-title">📊 現在のパフォーマンス（直近7日間）</div>
+  <div class="current-grid">
+    <div class="stat-card highlight">
+      <div class="stat-label">CPI（最安）</div>
+      <div class="stat-value">¥280</div>
+      <div class="stat-sub">全チャネル平均 ¥385 の 73%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">CPA（申込単価）</div>
+      <div class="stat-value">¥2,800</div>
+      <div class="stat-sub">全チャネル平均 ¥4,120</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">週間DL数</div>
+      <div class="stat-value">1,143</div>
+      <div class="stat-sub">全DLの 61.9%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">ROAS</div>
+      <div class="stat-value">3.2x</div>
+      <div class="stat-sub">投資効率 最高</div>
+    </div>
+  </div>
+</div>
+
+<div class="sim-section">
+  <div class="sim-title">🎛️ 予算配分を調整</div>
+
+  <div class="slider-section">
+    <div class="slider-header">
+      <span class="slider-label">Apple Search Ads 週間予算</span>
+    </div>
+    <div class="slider-value-display">
+      <span id="budgetDisplay">¥320,000</span>
+      <span class="change-amount" id="budgetChange">現状維持</span>
+    </div>
+    <input type="range" id="budgetSlider" min="200000" max="600000" step="10000" value="320000" oninput="updateSimulation()">
+    <div class="slider-ticks">
+      <span>¥200k</span>
+      <span>¥300k</span>
+      <span>¥400k</span>
+      <span>¥500k</span>
+      <span>¥600k</span>
+    </div>
+  </div>
+
+  <div class="allocation-bar-section">
+    <div class="alloc-title">全体予算配分（週 ¥1,150,000 固定）</div>
+    <div class="alloc-bar" id="allocBar"></div>
+    <div class="alloc-legend" id="allocLegend"></div>
+  </div>
+
+  <div class="projected-grid" id="projectedGrid">
+    <!-- Rendered by JS -->
+  </div>
+
+  <div class="chart-area">
+    <div class="chart-title">チャネル別 週間DL数（現状 vs シミュレーション）</div>
+    <div class="bar-chart" id="barChart"></div>
+    <div class="chart-legend">
+      <span><div class="legend-bar" style="background:#d1d5db"></div> 現状</span>
+      <span><div class="legend-bar" style="background:linear-gradient(90deg,#1ddcff,#4db4ff)"></div> シミュレーション</span>
+    </div>
+  </div>
+</div>
+
+<div class="insight-box" id="insightBox">
+  <div class="insight-title">💡 最適化インサイト</div>
+  <ul class="insight-list" id="insightList"></ul>
+</div>
+
+<div class="bottom-cta">
+  <button class="cta-btn" onclick="applyBudget()">この予算配分を適用する</button>
+</div>
+
+<script>
+const TOTAL_BUDGET = 1150000;
+const BASE = {
+  apple: { budget: 320000, cpi: 280, dl: 1143 },
+  google: { budget: 280000, cpi: 420, dl: 667 },
+  line: { budget: 150000, cpi: 380, dl: 395 },
+  meta: { budget: 200000, cpi: 480, dl: 417 },
+  tiktok: { budget: 120000, cpi: 350, dl: 343 },
+  x: { budget: 80000, cpi: 640, dl: 125 }
+};
+
+const channelColors = {
+  apple: '#000', google: '#4285F4', line: '#06C755',
+  meta: '#1877F2', tiktok: '#EE1D52', x: '#555'
+};
+const channelNames = {
+  apple: 'Apple', google: 'Google', line: 'LINE',
+  meta: 'Meta', tiktok: 'TikTok', x: 'X'
+};
+
+function updateSimulation() {
+  const appleBudget = parseInt(document.getElementById('budgetSlider').value);
+  const diff = appleBudget - BASE.apple.budget;
+  const remaining = TOTAL_BUDGET - appleBudget;
+
+  // Redistribute remaining proportionally (excluding Apple)
+  const othersBase = TOTAL_BUDGET - BASE.apple.budget;
+  const scale = remaining / othersBase;
+
+  const sim = {
+    apple: { budget: appleBudget },
+    google: { budget: Math.round(BASE.google.budget * scale) },
+    line: { budget: Math.round(BASE.line.budget * scale) },
+    meta: { budget: Math.round(BASE.meta.budget * scale) },
+    tiktok: { budget: Math.round(BASE.tiktok.budget * scale) },
+    x: { budget: Math.round(BASE.x.budget * scale) }
+  };
+
+  // CPI changes with scale (diminishing returns for Apple)
+  const appleScale = appleBudget / BASE.apple.budget;
+  const appleCpiMultiplier = 1 + (appleScale - 1) * 0.15; // 15% CPI increase per 100% budget increase
+  const appleCpi = Math.round(BASE.apple.cpi * appleCpiMultiplier);
+  const appleDl = Math.round(appleBudget / appleCpi);
+
+  // Other channels: reduced budget = slightly better CPI (less competition pressure)
+  let totalDl = appleDl;
+  const otherDls = {};
+  for (const ch of ['google', 'line', 'meta', 'tiktok', 'x']) {
+    const budgetRatio = sim[ch].budget / BASE[ch].budget;
+    const cpiAdj = BASE[ch].cpi * (1 - (1 - budgetRatio) * 0.05);
+    otherDls[ch] = Math.round(sim[ch].budget / cpiAdj);
+    totalDl += otherDls[ch];
+  }
+
+  const baseTotalDl = Object.values(BASE).reduce((s, v) => s + v.dl, 0);
+  const baseCpa = 4120;
+  const baseAppleCpa = 2800;
+  const simAppleCpa = Math.round(baseAppleCpa * appleCpiMultiplier * 1.05);
+  const avgCpi = Math.round(TOTAL_BUDGET / totalDl);
+  const dlDiff = totalDl - baseTotalDl;
+
+  // Display
+  document.getElementById('budgetDisplay').textContent = `¥${appleBudget.toLocaleString()}`;
+  const changeEl = document.getElementById('budgetChange');
+  if (diff > 0) {
+    changeEl.textContent = `+¥${diff.toLocaleString()} 増額`;
+    changeEl.style.color = '#059669';
+  } else if (diff < 0) {
+    changeEl.textContent = `${(diff).toLocaleString()} 減額`;
+    changeEl.style.color = '#ef4444';
+  } else {
+    changeEl.textContent = '現状維持';
+    changeEl.style.color = 'var(--text-gray)';
+  }
+
+  // Allocation bar
+  const allocBar = document.getElementById('allocBar');
+  const allChannels = { apple: sim.apple.budget, google: sim.google.budget, line: sim.line.budget, meta: sim.meta.budget, tiktok: sim.tiktok.budget, x: sim.x.budget };
+  allocBar.innerHTML = Object.entries(allChannels).map(([ch, b]) => {
+    const pct = (b / TOTAL_BUDGET * 100).toFixed(1);
+    return `<div class="alloc-segment" style="width:${pct}%;background:${channelColors[ch]}">${pct > 8 ? channelNames[ch] : ''}</div>`;
+  }).join('');
+
+  const allocLegend = document.getElementById('allocLegend');
+  allocLegend.innerHTML = Object.entries(allChannels).map(([ch, b]) => {
+    return `<div class="legend-item"><div class="legend-dot" style="background:${channelColors[ch]}"></div>${channelNames[ch]} ¥${(b/1000).toFixed(0)}k</div>`;
+  }).join('');
+
+  // Projected grid
+  const grid = document.getElementById('projectedGrid');
+  const projData = [
+    { label: '予測 総DL数/週', value: totalDl.toLocaleString(), delta: dlDiff, unit: '', improved: dlDiff > 0 },
+    { label: '予測 平均CPI', value: `¥${avgCpi}`, delta: avgCpi - 385, unit: '', improved: avgCpi < 385 },
+    { label: 'Apple CPI', value: `¥${appleCpi}`, delta: appleCpi - 280, unit: '', improved: appleCpi <= 300 },
+    { label: 'Apple DL数', value: appleDl.toLocaleString(), delta: appleDl - BASE.apple.dl, unit: '', improved: appleDl > BASE.apple.dl },
+  ];
+  grid.innerHTML = projData.map(p => {
+    const cls = p.improved ? 'improved' : (p.delta > 0 && p.label.includes('CPI') ? 'declined' : '');
+    const sign = p.delta > 0 ? '+' : '';
+    const deltaClass = p.improved ? 'positive' : 'negative';
+    return `
+      <div class="proj-card ${cls}">
+        <div class="proj-label">${p.label}</div>
+        <div class="proj-value">${p.value}</div>
+        <div class="proj-delta ${deltaClass}">${sign}${p.delta.toLocaleString()}${p.unit}</div>
+      </div>
+    `;
+  }).join('');
+
+  // Bar chart
+  const chart = document.getElementById('barChart');
+  const maxDl = Math.max(appleDl, BASE.apple.dl, ...Object.values(otherDls), ...['google','line','meta','tiktok','x'].map(c => BASE[c].dl));
+  const barData = [
+    { name: 'Apple', current: BASE.apple.dl, projected: appleDl },
+    { name: 'Google', current: BASE.google.dl, projected: otherDls.google },
+    { name: 'LINE', current: BASE.line.dl, projected: otherDls.line },
+    { name: 'Meta', current: BASE.meta.dl, projected: otherDls.meta },
+    { name: 'TikTok', current: BASE.tiktok.dl, projected: otherDls.tiktok },
+    { name: 'X', current: BASE.x.dl, projected: otherDls.x },
+  ];
+  chart.innerHTML = barData.map(b => {
+    const cH = (b.current / maxDl * 110);
+    const pH = (b.projected / maxDl * 110);
+    return `
+      <div class="bar-group">
+        <div style="display:flex;gap:2px;align-items:flex-end;width:100%;height:120px">
+          <div class="bar bar-current" style="height:${cH}px;flex:1"><div class="bar-value">${b.current}</div></div>
+          <div class="bar bar-projected" style="height:${pH}px;flex:1"><div class="bar-value">${b.projected}</div></div>
+        </div>
+        <div class="bar-label">${b.name}</div>
+      </div>
+    `;
+  }).join('');
+
+  // Insights
+  const insights = [];
+  if (appleBudget > 400000) {
+    insights.push(`Apple Search Adsの予算を¥${(appleBudget/1000).toFixed(0)}kに増額すると、CPIが¥${appleCpi}に上昇する見込みです（限界効用逓減）`);
+  }
+  if (dlDiff > 0) {
+    insights.push(`全体DL数が週${dlDiff}件増加（${(dlDiff/baseTotalDl*100).toFixed(1)}%改善）の見込みです`);
+  }
+  if (avgCpi < 385) {
+    insights.push(`平均CPIが¥${385-avgCpi}低下し、同一予算でより多くのDLを獲得できます`);
+  }
+  if (appleBudget >= 450000) {
+    insights.push('Apple Search Adsの入札競争が激化する可能性があります。キーワード戦略の見直しを推奨します');
+  }
+  if (sim.x.budget < 50000) {
+    insights.push('X広告の予算が大幅減。ブランディング効果の低下に注意してください');
+  }
+  insights.push(`推奨: Apple Search Ads ¥${(appleBudget <= 450000 ? appleBudget : 450000).toLocaleString()} が最適ポイントです`);
+
+  document.getElementById('insightList').innerHTML = insights.map(i => `<li>${i}</li>`).join('');
+}
+
+function applyBudget() {
+  const val = parseInt(document.getElementById('budgetSlider').value);
+  alert(`Apple Search Ads の週間予算を ¥${val.toLocaleString()} に設定します。\n\n管理画面での反映を進めてください。`);
+}
+
+// Initialize
+updateSimulation();
+</script>
+
+</body>
+</html>

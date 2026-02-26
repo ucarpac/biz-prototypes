@@ -1,0 +1,621 @@
+<!--
+  このプロトタイプの狙い:
+  広告チャネル別CPI/CPA/ROASの一覧ダッシュボード。
+  各チャネル（Apple Search Ads, Google UAC, Meta, TikTok, LINE, X）の
+  パフォーマンスを可視化し、予算配分の意思決定を支援する。
+  チャネル間の比較、トレンド表示、アラート機能を搭載。
+-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>チャネル別ダッシュボード - CPI/CPA/ROAS</title>
+<script src="../auth.js"></script>
+<style>
+:root {
+  --pink: #F84CA2;
+  --dark-blue: #1c2663;
+  --white: #FFFFFF;
+  --text-black: #404040;
+  --text-gray: #737373;
+  --text-disabled: #B3B3B3;
+  --back-white: #FAFAFA;
+  --back-gray: #EDF1F4;
+  --back-blue: #091355;
+  --error: #EB4646;
+  --ruled-line: #F2F2F2;
+  --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+  --font-sans: 'Hiragino Sans', 'Noto Sans JP', system-ui, sans-serif;
+  --font-number: 'Righteous', system-ui, sans-serif;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --radius-md: 12px;
+  --radius-chip: 22px;
+  --radius-button: 30px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font-sans);
+  background: var(--back-white);
+  color: var(--text-black);
+  max-width: 375px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+/* Header */
+.header {
+  background: linear-gradient(135deg, var(--back-blue) 0%, #1d2e93 100%);
+  padding: 48px 20px 20px;
+  color: var(--white);
+}
+.header h1 { font-size: 18px; font-weight: bold; line-height: 27px; }
+.header .subtitle { font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 4px; }
+.date-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  border-radius: var(--radius-chip);
+  padding: 4px 12px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.9);
+  margin-top: 8px;
+}
+
+/* Summary Cards */
+.summary-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  padding: 12px 16px;
+  margin-top: -16px;
+}
+.summary-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 12px 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  text-align: center;
+}
+.summary-card .label { font-size: 10px; color: var(--text-gray); font-weight: bold; }
+.summary-card .value {
+  font-family: var(--font-number);
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--dark-blue);
+  margin-top: 4px;
+}
+.summary-card .change {
+  font-size: 10px;
+  margin-top: 2px;
+  font-weight: bold;
+}
+.change.up { color: var(--error); }
+.change.down { color: #10b981; }
+
+/* Period Tabs */
+.period-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  overflow-x: auto;
+}
+.period-tab {
+  border: 1px solid var(--ruled-line);
+  background: var(--white);
+  border-radius: var(--radius-chip);
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--text-gray);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.period-tab.active {
+  background: var(--dark-blue);
+  color: var(--white);
+  border-color: var(--dark-blue);
+}
+
+/* Channel Cards */
+.channels { padding: 8px 16px 16px; }
+.channel-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid var(--ruled-line);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.channel-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+.channel-card.expanded { border-color: var(--dark-blue); }
+.channel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.channel-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.channel-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--white);
+}
+.channel-title { font-size: 14px; font-weight: bold; }
+.channel-budget {
+  font-size: 11px;
+  color: var(--text-gray);
+  background: var(--back-gray);
+  border-radius: var(--radius-chip);
+  padding: 2px 8px;
+}
+.channel-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+.metric {
+  text-align: center;
+}
+.metric .m-label { font-size: 9px; color: var(--text-gray); font-weight: bold; }
+.metric .m-value {
+  font-family: var(--font-number);
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--dark-blue);
+  margin-top: 2px;
+}
+.metric .m-change { font-size: 9px; font-weight: bold; margin-top: 1px; }
+
+/* Efficiency Bar */
+.efficiency-bar-wrap { margin-top: 12px; }
+.efficiency-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-gray);
+  margin-bottom: 4px;
+}
+.efficiency-bar {
+  height: 6px;
+  background: var(--back-gray);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.efficiency-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s ease;
+}
+
+/* Detail Panel */
+.channel-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.channel-card.expanded .channel-detail {
+  max-height: 300px;
+}
+.detail-content {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ruled-line);
+}
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 12px;
+}
+.detail-row .dl { color: var(--text-gray); }
+.detail-row .dv { font-weight: bold; color: var(--dark-blue); }
+
+/* Alert */
+.alert-bar {
+  margin: 0 16px 12px;
+  background: #FFF5F5;
+  border: 1px solid #FECACA;
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.alert-icon { font-size: 16px; flex-shrink: 0; }
+.alert-text { font-size: 11px; color: var(--error); line-height: 1.6; }
+.alert-text strong { font-size: 12px; }
+
+/* Ranking */
+.ranking-section {
+  padding: 8px 16px 24px;
+}
+.ranking-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--dark-blue);
+  margin-bottom: 12px;
+}
+.ranking-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+.ranking-table th {
+  background: var(--back-gray);
+  padding: 8px 6px;
+  text-align: center;
+  font-weight: bold;
+  color: var(--text-gray);
+  font-size: 10px;
+}
+.ranking-table td {
+  padding: 8px 6px;
+  text-align: center;
+  border-bottom: 1px solid var(--ruled-line);
+}
+.ranking-table tr:first-child td { font-weight: bold; color: var(--dark-blue); }
+.rank-badge {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 18px;
+  text-align: center;
+  color: var(--white);
+}
+.rank-1 { background: #F59E0B; }
+.rank-2 { background: #9CA3AF; }
+.rank-3 { background: #B45309; }
+.rank-other { background: var(--text-disabled); }
+
+/* Bottom CTA */
+.bottom-cta {
+  position: sticky;
+  bottom: 0;
+  padding: 12px 16px;
+  background: var(--white);
+  border-top: 1px solid var(--ruled-line);
+}
+.cta-button {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: var(--radius-button);
+  background: var(--gradient-primary);
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--dark-blue);
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.cta-button:active { opacity: 0.8; }
+
+/* Animation */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate { animation: fadeInUp 0.4s ease forwards; }
+.delay-1 { animation-delay: 0.1s; opacity: 0; }
+.delay-2 { animation-delay: 0.2s; opacity: 0; }
+.delay-3 { animation-delay: 0.3s; opacity: 0; }
+.delay-4 { animation-delay: 0.4s; opacity: 0; }
+.delay-5 { animation-delay: 0.5s; opacity: 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>広告チャネル別パフォーマンス</h1>
+  <div class="subtitle">CPI / CPA / ROAS 一覧ダッシュボード</div>
+  <div class="date-badge">📊 2026年2月26日 更新</div>
+</div>
+
+<div class="summary-row">
+  <div class="summary-card animate delay-1">
+    <div class="label">平均CPI</div>
+    <div class="value">¥385</div>
+    <div class="change down">▼ 8% 前週比</div>
+  </div>
+  <div class="summary-card animate delay-2">
+    <div class="label">平均CPA</div>
+    <div class="value">¥4,120</div>
+    <div class="change down">▼ 5% 前週比</div>
+  </div>
+  <div class="summary-card animate delay-3">
+    <div class="label">総DL数</div>
+    <div class="value">1,847</div>
+    <div class="change down">▲ 12% 前週比</div>
+  </div>
+</div>
+
+<div class="period-tabs">
+  <button class="period-tab active" onclick="setPeriod(this)">今週</button>
+  <button class="period-tab" onclick="setPeriod(this)">先週</button>
+  <button class="period-tab" onclick="setPeriod(this)">今月</button>
+  <button class="period-tab" onclick="setPeriod(this)">先月</button>
+  <button class="period-tab" onclick="setPeriod(this)">3ヶ月</button>
+</div>
+
+<div class="alert-bar animate delay-2">
+  <span class="alert-icon">⚠️</span>
+  <div class="alert-text">
+    <strong>X広告のCPIが前週比+32%上昇</strong><br>
+    クリエイティブ疲弊の可能性。差し替え検討を推奨します。
+  </div>
+</div>
+
+<div class="channels" id="channelList">
+  <!-- Channels will be rendered by JS -->
+</div>
+
+<div class="ranking-section">
+  <div class="ranking-title">チャネル効率ランキング</div>
+  <table class="ranking-table" id="rankingTable">
+    <thead>
+      <tr>
+        <th>順位</th>
+        <th>チャネル</th>
+        <th>CPI</th>
+        <th>DL→申込率</th>
+        <th>CPA</th>
+        <th>推奨</th>
+      </tr>
+    </thead>
+    <tbody id="rankingBody"></tbody>
+  </table>
+</div>
+
+<div class="bottom-cta">
+  <button class="cta-button" onclick="showRecommendation()">予算再配分シミュレーション →</button>
+</div>
+
+<script>
+const channels = [
+  {
+    name: 'Apple Search Ads',
+    icon: '🍎',
+    color: '#000000',
+    budget: '¥320,000',
+    cpi: 280, cpiChange: -12,
+    cpa: 2800, cpaChange: -8,
+    roas: 3.2, roasChange: 15,
+    dl: 1143, dlChange: 18,
+    cvr: 10.0,
+    efficiency: 92,
+    effColor: '#10b981',
+    details: {
+      'インプレッション': '45,230',
+      'タップ数': '8,120',
+      'タップ率 (TTR)': '18.0%',
+      'インストール率': '62.3%',
+      'DL→AI査定率': '34.2%',
+      'AI査定→申込率': '29.3%',
+      'キーワード上位': '車 査定, 車 売却, 愛車 価格',
+    }
+  },
+  {
+    name: 'Google UAC',
+    icon: 'G',
+    color: '#4285F4',
+    budget: '¥280,000',
+    cpi: 420, cpiChange: -5,
+    cpa: 4200, cpaChange: -3,
+    roas: 2.1, roasChange: 8,
+    dl: 667, dlChange: 10,
+    cvr: 10.0,
+    efficiency: 72,
+    effColor: '#3b82f6',
+    details: {
+      'インプレッション': '128,500',
+      'クリック数': '4,820',
+      'CTR': '3.8%',
+      'インストール率': '13.8%',
+      'DL→AI査定率': '28.1%',
+      'AI査定→申込率': '25.6%',
+      '配信面': 'Search 40%, YouTube 35%, Display 25%',
+    }
+  },
+  {
+    name: 'LINE広告',
+    icon: 'L',
+    color: '#06C755',
+    budget: '¥150,000',
+    cpi: 380, cpiChange: -3,
+    cpa: 3800, cpaChange: -6,
+    roas: 2.4, roasChange: 10,
+    dl: 395, dlChange: 8,
+    cvr: 10.0,
+    efficiency: 78,
+    effColor: '#06C755',
+    details: {
+      'インプレッション': '82,100',
+      'クリック数': '3,280',
+      'CTR': '4.0%',
+      'インストール率': '12.0%',
+      'DL→AI査定率': '30.5%',
+      'AI査定→申込率': '26.8%',
+      'ターゲット': '30-50代男性, 自動車関心層',
+    }
+  },
+  {
+    name: 'Meta Ads',
+    icon: 'M',
+    color: '#1877F2',
+    budget: '¥200,000',
+    cpi: 480, cpiChange: +5,
+    cpa: 5200, cpaChange: +2,
+    roas: 1.7, roasChange: -4,
+    dl: 417, dlChange: 3,
+    cvr: 9.2,
+    efficiency: 58,
+    effColor: '#f59e0b',
+    details: {
+      'インプレッション': '95,400',
+      'クリック数': '3,050',
+      'CTR': '3.2%',
+      'インストール率': '13.7%',
+      'DL→AI査定率': '25.8%',
+      'AI査定→申込率': '21.3%',
+      '配信面': 'Reels 45%, Feed 30%, Stories 25%',
+    }
+  },
+  {
+    name: 'TikTok Ads',
+    icon: 'T',
+    color: '#000000',
+    budget: '¥120,000',
+    cpi: 350, cpiChange: -15,
+    cpa: 4800, cpaChange: -10,
+    roas: 1.5, roasChange: 5,
+    dl: 343, dlChange: 22,
+    cvr: 7.3,
+    efficiency: 55,
+    effColor: '#f59e0b',
+    details: {
+      'インプレッション': '210,000',
+      'クリック数': '6,300',
+      'CTR': '3.0%',
+      'インストール率': '5.4%',
+      'DL→AI査定率': '18.2%',
+      'AI査定→申込率': '15.8%',
+      'トップクリエイティブ': 'UGC風「AI査定やってみた」',
+    }
+  },
+  {
+    name: 'X (Twitter) Ads',
+    icon: '𝕏',
+    color: '#000000',
+    budget: '¥80,000',
+    cpi: 640, cpiChange: +32,
+    cpa: 7500, cpaChange: +18,
+    roas: 0.9, roasChange: -22,
+    dl: 125, dlChange: -8,
+    cvr: 8.5,
+    efficiency: 28,
+    effColor: '#ef4444',
+    details: {
+      'インプレッション': '52,000',
+      'クリック数': '1,560',
+      'CTR': '3.0%',
+      'インストール率': '8.0%',
+      'DL→AI査定率': '22.4%',
+      'AI査定→申込率': '19.1%',
+      '課題': 'クリエイティブ疲弊（同一素材3週間運用）',
+    }
+  }
+];
+
+function renderChannels() {
+  const container = document.getElementById('channelList');
+  container.innerHTML = channels.map((ch, i) => `
+    <div class="channel-card animate delay-${Math.min(i+1, 5)}" onclick="toggleDetail(this)" id="ch-${i}">
+      <div class="channel-header">
+        <div class="channel-name">
+          <div class="channel-icon" style="background:${ch.color}">${ch.icon}</div>
+          <div>
+            <div class="channel-title">${ch.name}</div>
+          </div>
+        </div>
+        <div class="channel-budget">${ch.budget}/週</div>
+      </div>
+      <div class="channel-metrics">
+        <div class="metric">
+          <div class="m-label">CPI</div>
+          <div class="m-value">¥${ch.cpi.toLocaleString()}</div>
+          <div class="m-change ${ch.cpiChange <= 0 ? 'down' : 'up'}">${ch.cpiChange <= 0 ? '▼' : '▲'} ${Math.abs(ch.cpiChange)}%</div>
+        </div>
+        <div class="metric">
+          <div class="m-label">CPA</div>
+          <div class="m-value">¥${ch.cpa.toLocaleString()}</div>
+          <div class="m-change ${ch.cpaChange <= 0 ? 'down' : 'up'}">${ch.cpaChange <= 0 ? '▼' : '▲'} ${Math.abs(ch.cpaChange)}%</div>
+        </div>
+        <div class="metric">
+          <div class="m-label">ROAS</div>
+          <div class="m-value">${ch.roas}x</div>
+          <div class="m-change ${ch.roasChange >= 0 ? 'down' : 'up'}">${ch.roasChange >= 0 ? '▲' : '▼'} ${Math.abs(ch.roasChange)}%</div>
+        </div>
+        <div class="metric">
+          <div class="m-label">DL数</div>
+          <div class="m-value">${ch.dl.toLocaleString()}</div>
+          <div class="m-change ${ch.dlChange >= 0 ? 'down' : 'up'}">${ch.dlChange >= 0 ? '▲' : '▼'} ${Math.abs(ch.dlChange)}%</div>
+        </div>
+      </div>
+      <div class="efficiency-bar-wrap">
+        <div class="efficiency-label">
+          <span>効率スコア</span>
+          <span style="font-weight:bold;color:${ch.effColor}">${ch.efficiency}%</span>
+        </div>
+        <div class="efficiency-bar">
+          <div class="efficiency-fill" style="width:${ch.efficiency}%;background:${ch.effColor}"></div>
+        </div>
+      </div>
+      <div class="channel-detail">
+        <div class="detail-content">
+          ${Object.entries(ch.details).map(([k,v]) => `
+            <div class="detail-row">
+              <span class="dl">${k}</span>
+              <span class="dv">${v}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderRanking() {
+  const sorted = [...channels].sort((a, b) => a.cpi - b.cpi);
+  const body = document.getElementById('rankingBody');
+  body.innerHTML = sorted.map((ch, i) => {
+    const rankClass = i < 3 ? `rank-${i+1}` : 'rank-other';
+    const recommend = ch.efficiency >= 70 ? '🟢 増額' : ch.efficiency >= 50 ? '🟡 維持' : '🔴 見直し';
+    return `
+      <tr>
+        <td><span class="rank-badge ${rankClass}">${i+1}</span></td>
+        <td style="text-align:left;font-weight:bold">${ch.name}</td>
+        <td>¥${ch.cpi.toLocaleString()}</td>
+        <td>${ch.cvr}%</td>
+        <td>¥${ch.cpa.toLocaleString()}</td>
+        <td>${recommend}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function toggleDetail(card) {
+  card.classList.toggle('expanded');
+}
+
+function setPeriod(el) {
+  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function showRecommendation() {
+  alert('予算再配分シミュレーション画面へ遷移します\n\n推奨:\n1. Apple Search Ads: +¥80,000 増額\n2. X Ads: -¥50,000 減額\n3. TikTok: +¥30,000 増額（UGC効果）');
+}
+
+renderChannels();
+renderRanking();
+</script>
+
+</body>
+</html>

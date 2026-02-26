@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>競合ウォッチ - UcarPAC</title>
+<style>
+:root { --bg:#f8fafc; --card:#fff; --border:#e2e8f0; --text:#1e293b; --muted:#64748b; --primary:#1a5cd8; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:"Noto Sans JP",-apple-system,sans-serif; background:var(--bg); color:var(--text); padding:24px; }
+h1 { font-size:1.5rem; margin-bottom:4px; }
+h2 { font-size:1.15rem; margin:24px 0 12px; color:#334155; }
+.meta { color:var(--muted); font-size:0.85rem; margin-bottom:20px; }
+.meta a { color:var(--primary); font-weight:600; text-decoration:none; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
+.card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; position:relative; }
+.card h3 { font-size:1rem; margin-bottom:4px; }
+.cat-badge { position:absolute; top:12px; right:12px; color:#fff; font-size:0.7rem; padding:2px 8px; border-radius:999px; font-weight:600; }
+.chart-container { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:20px; }
+canvas { width:100%!important; height:200px!important; }
+table { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--border); border-radius:10px; overflow:hidden; font-size:0.85rem; margin-bottom:16px; }
+th, td { padding:8px 10px; border-bottom:1px solid var(--border); text-align:left; }
+th { background:#f1f5f9; font-weight:700; }
+tr:last-child td { border-bottom:none; }
+.section { margin-top:24px; }
+.ai-analysis { background:linear-gradient(135deg,#eef2ff,#faf5ff); border:1px solid #c7d2fe; border-radius:12px; padding:16px; }
+.ai-analysis h3 { color:#4338ca; margin-bottom:8px; }
+#ai-content { white-space:pre-wrap; font-size:0.85rem; line-height:1.6; color:#334155; }
+</style>
+</head>
+<body>
+<script src="../../auth.js"></script>
+<h1>競合ウォッチ</h1>
+<p class="meta">最終収集: 2026-02-26T12:44:42
+  | <a href="../auto-kpi/">KPIレポート</a>
+  | <a href="../../ucarpac-app/">Appプロトタイプ</a>
+  | <a href="../../ucarpac-web/">Webプロトタイプ</a></p>
+
+<h2>App Store / Play Store 評価</h2>
+<div class="grid">
+        <div class="card">
+          <span class="cat-badge" style="background:#1a5cd8">自社</span>
+          <h3>ユーカーパック</h3>
+          
+            <div style="margin-top:8px;padding-top:8px;border-top:1px solid #e5e7eb">
+              <div style="display:flex;gap:16px;font-size:0.85rem">
+                <div>iOS: <b>2.72727</b>⭐ (11件) / v1.2.12</div>
+                
+              </div>
+            </div>
+          <div style="margin-top:6px;background:#f0f9ff;padding:6px 8px;border-radius:6px;font-size:0.75rem;color:#334155">最新更新: ・カメラ不具合等の軽微な修正...</div>
+        </div>
+        <div class="card">
+          <span class="cat-badge" style="background:#dc2626">直接競合</span>
+          <h3>MOTA車買取</h3>
+          <div style="margin-top:8px;color:#9ca3af;font-size:0.8rem">アプリなし</div>
+          
+        </div>
+        <div class="card">
+          <span class="cat-badge" style="background:#dc2626">直接競合</span>
+          <h3>セルカ</h3>
+          <div style="margin-top:8px;color:#9ca3af;font-size:0.8rem">アプリなし</div>
+          
+        </div>
+        <div class="card">
+          <span class="cat-badge" style="background:#dc2626">直接競合</span>
+          <h3>楽天Car買取</h3>
+          <div style="margin-top:8px;color:#9ca3af;font-size:0.8rem">アプリなし</div>
+          
+        </div>
+        <div class="card">
+          <span class="cat-badge" style="background:#dc2626">直接競合</span>
+          <h3>ソコカラ</h3>
+          <div style="margin-top:8px;color:#9ca3af;font-size:0.8rem">アプリなし</div>
+          
+        </div>
+        <div class="card">
+          <span class="cat-badge" style="background:#f59e0b">間接競合</span>
+          <h3>ズバット車買取比較</h3>
+          <div style="margin-top:8px;color:#9ca3af;font-size:0.8rem">アプリなし</div>
+          
+        </div>
+        <div class="card">
+          <span class="cat-badge" style="background:#6b7280">参考</span>
+          <h3>グーネット</h3>
+          <div style="margin-top:8px;color:#9ca3af;font-size:0.8rem">アプリなし</div>
+          
+        </div>
+        <div class="card">
+          <span class="cat-badge" style="background:#6b7280">参考</span>
+          <h3>カーセンサー</h3>
+          <div style="margin-top:8px;color:#9ca3af;font-size:0.8rem">アプリなし</div>
+          
+        </div></div>
+
+<div class="section">
+<h2>UcarPAC iOS 評価推移</h2>
+<div class="chart-container">
+  <canvas id="ratingChart"></canvas>
+</div>
+</div>
+
+<div class="section">
+<h2>機能比較</h2>
+<table><thead><tr><th>機能</th><th>UcarPAC</th><th>MOTA</th><th>セルカ</th><th>楽天Car</th><th>ソコカラ</th><th>ズバット</th></tr></thead><tbody><tr><td>AI査定</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td></tr><tr><td>将来予測</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td></tr><tr><td>出費管理</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td></tr><tr><td>オークション形式</td><td>✅</td><td>△事前入札</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr><tr><td>入札業者数</td><td>8,000社</td><td>数百社</td><td>8,000社</td><td>2,000社</td><td>非公開</td><td>最大10社</td></tr><tr><td>電話1社のみ</td><td>✅</td><td>❌（3社）</td><td>✅</td><td>△</td><td>△</td><td>❌</td></tr><tr><td>個人情報不要査定</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td></tr><tr><td>手数料</td><td>無料</td><td>無料</td><td>無料</td><td>22,000円</td><td>無料</td><td>無料</td></tr><tr><td>アプリ</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td></tr></tbody></table>
+</div>
+
+<div class="section" id="ai-section">
+<h2>AI分析レポート</h2>
+<div class="ai-analysis">
+  <h3>最新の競合動向分析</h3>
+  <div id="ai-content"><!-- AI分析結果はClaude/Codexで別途生成・挿入 --></div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+const data = [{"date": "2026-02-26", "rating": 2.72727, "count": 11}];
+if (data.length > 1) {
+  const ctx = document.getElementById('ratingChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map(d => d.date),
+      datasets: [{
+        label: 'iOS評価',
+        data: data.map(d => d.rating),
+        borderColor: '#1a5cd8',
+        backgroundColor: 'rgba(26,92,216,0.1)',
+        fill: true,
+        tension: 0.3,
+      }]
+    },
+    options: {
+      scales: {
+        y: { min: 3.0, max: 5.0 },
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+} else {
+  document.getElementById('ratingChart').parentElement.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:20px">データ蓄積中...（2日目以降にグラフ表示）</p>';
+}
+</script>
+</body>
+</html>

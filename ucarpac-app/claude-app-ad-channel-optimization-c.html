@@ -1,0 +1,755 @@
+<!--
+  このプロトタイプの狙い:
+  DL率が高いチャネル向けの広告クリエイティブ案。
+  チャネル特性に最適化した広告クリエイティブのモックアップを表示し、
+  A/Bテスト計画と訴求軸の比較を可視化する。
+  Apple Search Ads、TikTok、Meta Reels向けの3パターンを提案。
+-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>広告クリエイティブ案 - チャネル最適化</title>
+<script src="../auth.js"></script>
+<style>
+:root {
+  --pink: #F84CA2;
+  --dark-blue: #1c2663;
+  --white: #FFFFFF;
+  --text-black: #404040;
+  --text-gray: #737373;
+  --text-disabled: #B3B3B3;
+  --back-white: #FAFAFA;
+  --back-gray: #EDF1F4;
+  --back-blue: #091355;
+  --back-light-pink: #ffd8e8;
+  --error: #EB4646;
+  --ruled-line: #F2F2F2;
+  --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+  --font-sans: 'Hiragino Sans', 'Noto Sans JP', system-ui, sans-serif;
+  --font-number: 'Righteous', system-ui, sans-serif;
+  --radius-md: 12px;
+  --radius-chip: 22px;
+  --radius-button: 30px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font-sans);
+  background: var(--back-white);
+  color: var(--text-black);
+  max-width: 375px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding-bottom: 20px;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, var(--pink) 0%, #e91e8c 100%);
+  padding: 48px 20px 20px;
+  color: var(--white);
+}
+.header h1 { font-size: 18px; font-weight: bold; }
+.header .subtitle { font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 4px; }
+
+/* Channel Tabs */
+.channel-tabs {
+  display: flex;
+  gap: 0;
+  background: var(--white);
+  border-bottom: 1px solid var(--ruled-line);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.ch-tab {
+  flex: 1;
+  padding: 12px 8px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--text-gray);
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+}
+.ch-tab.active {
+  color: var(--dark-blue);
+  border-bottom-color: var(--pink);
+}
+.ch-tab .tab-icon { font-size: 18px; display: block; margin-bottom: 2px; }
+
+/* Tab Panels */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* Creative Card */
+.creative-section { padding: 16px; }
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.section-title { font-size: 14px; font-weight: bold; color: var(--dark-blue); }
+.ab-badge {
+  background: var(--gradient-primary);
+  color: var(--dark-blue);
+  font-size: 10px;
+  font-weight: bold;
+  padding: 3px 10px;
+  border-radius: var(--radius-chip);
+}
+
+.creative-card {
+  background: var(--white);
+  border: 1px solid var(--ruled-line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: all 0.2s;
+}
+.creative-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+
+/* App Store Ad Mockup */
+.asa-mockup {
+  background: var(--white);
+  padding: 16px;
+  border-bottom: 1px solid var(--ruled-line);
+}
+.asa-top { font-size: 10px; color: #007AFF; margin-bottom: 8px; }
+.asa-app-row { display: flex; gap: 12px; align-items: center; }
+.asa-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--back-blue), #1d2e93);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: var(--white);
+  flex-shrink: 0;
+}
+.asa-info { flex: 1; }
+.asa-name { font-size: 14px; font-weight: bold; color: var(--text-black); }
+.asa-desc { font-size: 11px; color: var(--text-gray); margin-top: 2px; line-height: 1.4; }
+.asa-get-btn {
+  background: #007AFF;
+  color: var(--white);
+  border: none;
+  border-radius: 14px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+.asa-screenshots {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.asa-screenshot {
+  width: 100px;
+  height: 178px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  text-align: center;
+}
+.ss-text {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--white);
+  line-height: 1.4;
+}
+.ss-number {
+  font-family: var(--font-number);
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--white);
+  margin: 4px 0;
+}
+.ss-sub { font-size: 9px; color: rgba(255,255,255,0.8); }
+
+/* TikTok Mockup */
+.tiktok-mockup {
+  background: #000;
+  padding: 16px;
+  position: relative;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.tt-video-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.3);
+  font-size: 40px;
+}
+.tt-overlay {
+  position: relative;
+  z-index: 2;
+}
+.tt-username { color: var(--white); font-size: 14px; font-weight: bold; margin-bottom: 6px; }
+.tt-caption { color: var(--white); font-size: 12px; line-height: 1.5; margin-bottom: 8px; }
+.tt-hashtags { color: #69C9D0; font-size: 11px; font-weight: bold; }
+.tt-sidebar {
+  position: absolute;
+  right: 12px;
+  bottom: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  z-index: 2;
+}
+.tt-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.tt-action-icon { font-size: 24px; }
+.tt-action-count { color: var(--white); font-size: 10px; }
+.tt-cta-banner {
+  background: var(--pink);
+  color: var(--white);
+  text-align: center;
+  padding: 8px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+/* Reels Mockup */
+.reels-mockup {
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  padding: 16px;
+  min-height: 280px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.reels-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  text-align: center;
+  width: 80%;
+}
+.reels-number {
+  font-family: var(--font-number);
+  font-size: 48px;
+  font-weight: bold;
+  color: var(--white);
+  text-shadow: 0 2px 20px rgba(248,76,162,0.5);
+}
+.reels-unit { font-size: 18px; color: var(--white); font-weight: bold; }
+.reels-caption {
+  font-size: 14px;
+  color: rgba(255,255,255,0.9);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+.reels-bottom { position: relative; z-index: 2; }
+.reels-user { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.reels-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+.reels-username { color: var(--white); font-size: 12px; font-weight: bold; }
+.reels-text { color: var(--white); font-size: 11px; line-height: 1.5; }
+.reels-cta-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 8px;
+  background: var(--gradient-primary);
+  border: none;
+  border-radius: var(--radius-button);
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--dark-blue);
+  cursor: pointer;
+}
+
+/* Creative Spec */
+.spec { padding: 12px 16px; }
+.spec-title { font-size: 11px; font-weight: bold; color: var(--dark-blue); margin-bottom: 8px; }
+.spec-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.spec-item { font-size: 10px; }
+.spec-label { color: var(--text-gray); }
+.spec-value { font-weight: bold; color: var(--dark-blue); }
+
+/* Persuasion Axes */
+.persuasion-section { padding: 0 16px 16px; }
+.persuasion-title { font-size: 14px; font-weight: bold; color: var(--dark-blue); margin-bottom: 12px; }
+.axis-card {
+  background: var(--white);
+  border: 1px solid var(--ruled-line);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 8px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.axis-rank {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--white);
+  flex-shrink: 0;
+}
+.axis-content { flex: 1; }
+.axis-name { font-size: 13px; font-weight: bold; color: var(--dark-blue); }
+.axis-desc { font-size: 11px; color: var(--text-gray); margin-top: 2px; line-height: 1.5; }
+.axis-bar {
+  height: 4px;
+  background: var(--back-gray);
+  border-radius: 2px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+.axis-fill { height: 100%; border-radius: 2px; }
+.axis-score { font-size: 10px; color: var(--text-gray); margin-top: 3px; }
+
+/* AB Test Plan */
+.abtest-section { padding: 0 16px 16px; }
+.abtest-card {
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border: 1px solid #93c5fd;
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+.abtest-title { font-size: 13px; font-weight: bold; color: var(--dark-blue); margin-bottom: 8px; }
+.abtest-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 11px;
+  border-bottom: 1px solid rgba(147,197,253,0.3);
+}
+.abtest-row:last-child { border-bottom: none; }
+.abtest-label { color: var(--text-gray); }
+.abtest-value { font-weight: bold; color: var(--dark-blue); }
+
+/* Variant Toggle */
+.variant-toggle {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  margin-bottom: 4px;
+}
+.variant-btn {
+  flex: 1;
+  padding: 8px;
+  border: 2px solid var(--ruled-line);
+  border-radius: var(--radius-chip);
+  background: var(--white);
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--text-gray);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+.variant-btn.active {
+  border-color: var(--pink);
+  color: var(--pink);
+  background: rgba(248,76,162,0.05);
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.slide-in { animation: slideIn 0.4s ease forwards; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>広告クリエイティブ提案</h1>
+  <div class="subtitle">チャネル特性に最適化した訴求案 × A/Bテスト計画</div>
+</div>
+
+<div class="channel-tabs">
+  <button class="ch-tab active" data-tab="apple" onclick="switchTab('apple', this)">
+    <span class="tab-icon">🍎</span>Apple Ads
+  </button>
+  <button class="ch-tab" data-tab="tiktok" onclick="switchTab('tiktok', this)">
+    <span class="tab-icon">🎵</span>TikTok
+  </button>
+  <button class="ch-tab" data-tab="meta" onclick="switchTab('meta', this)">
+    <span class="tab-icon">📸</span>Meta Reels
+  </button>
+</div>
+
+<!-- Apple Search Ads Tab -->
+<div class="tab-content active" id="tab-apple">
+  <div class="creative-section">
+    <div class="section-header">
+      <div class="section-title">Apple Search Ads クリエイティブ</div>
+      <div class="ab-badge">A/B テスト</div>
+    </div>
+
+    <div class="variant-toggle">
+      <button class="variant-btn active" onclick="switchVariant('apple', 'a', this)">案A: 無料査定訴求</button>
+      <button class="variant-btn" onclick="switchVariant('apple', 'b', this)">案B: 競合比較訴求</button>
+    </div>
+
+    <!-- Variant A -->
+    <div class="creative-card variant-panel apple-a">
+      <div class="asa-mockup">
+        <div class="asa-top">広告</div>
+        <div class="asa-app-row">
+          <div class="asa-icon">🚗</div>
+          <div class="asa-info">
+            <div class="asa-name">UcarPAC - AI愛車査定</div>
+            <div class="asa-desc">個人情報なし・¥0でAI査定。今すぐ愛車の価値がわかる</div>
+          </div>
+          <button class="asa-get-btn">入手</button>
+        </div>
+        <div class="asa-screenshots">
+          <div class="asa-screenshot" style="background:linear-gradient(135deg,#091355,#1d2e93)">
+            <div class="ss-text">¥0で</div>
+            <div class="ss-text">愛車の相場が</div>
+            <div class="ss-text">わかる</div>
+          </div>
+          <div class="asa-screenshot" style="background:linear-gradient(135deg,#F84CA2,#e91e8c)">
+            <div class="ss-text">AIが予測</div>
+            <div class="ss-number">185</div>
+            <div class="ss-sub">万円（予測価格）</div>
+          </div>
+          <div class="asa-screenshot" style="background:linear-gradient(135deg,#1ddcff,#4db4ff)">
+            <div class="ss-number">8,000</div>
+            <div class="ss-text">社が競う</div>
+            <div class="ss-text">最高額売却</div>
+          </div>
+        </div>
+      </div>
+      <div class="spec">
+        <div class="spec-title">クリエイティブスペック</div>
+        <div class="spec-grid">
+          <div class="spec-item"><span class="spec-label">訴求軸: </span><span class="spec-value">無料・手軽さ</span></div>
+          <div class="spec-item"><span class="spec-label">CTA: </span><span class="spec-value">入手（デフォルト）</span></div>
+          <div class="spec-item"><span class="spec-label">ターゲット: </span><span class="spec-value">車 査定 検索者</span></div>
+          <div class="spec-item"><span class="spec-label">予測CTR: </span><span class="spec-value">18〜22%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Variant B -->
+    <div class="creative-card variant-panel apple-b" style="display:none">
+      <div class="asa-mockup">
+        <div class="asa-top">広告</div>
+        <div class="asa-app-row">
+          <div class="asa-icon">🚗</div>
+          <div class="asa-info">
+            <div class="asa-name">UcarPAC - AI愛車査定</div>
+            <div class="asa-desc">電話は1社だけ。8,000社が競うオークションで最高額売却</div>
+          </div>
+          <button class="asa-get-btn">入手</button>
+        </div>
+        <div class="asa-screenshots">
+          <div class="asa-screenshot" style="background:linear-gradient(135deg,#091355,#1d2e93)">
+            <div class="ss-text">電話は</div>
+            <div class="ss-number">1</div>
+            <div class="ss-text">社だけ</div>
+          </div>
+          <div class="asa-screenshot" style="background:linear-gradient(135deg,#F84CA2,#e91e8c)">
+            <div class="ss-text">一括査定より</div>
+            <div class="ss-number">+38</div>
+            <div class="ss-sub">万円 高く売れた例</div>
+          </div>
+          <div class="asa-screenshot" style="background:linear-gradient(135deg,#1ddcff,#4db4ff)">
+            <div class="ss-text">個人情報なし</div>
+            <div class="ss-text">AI査定で</div>
+            <div class="ss-text">相場チェック</div>
+          </div>
+        </div>
+      </div>
+      <div class="spec">
+        <div class="spec-title">クリエイティブスペック</div>
+        <div class="spec-grid">
+          <div class="spec-item"><span class="spec-label">訴求軸: </span><span class="spec-value">競合比較・安心</span></div>
+          <div class="spec-item"><span class="spec-label">CTA: </span><span class="spec-value">入手（デフォルト）</span></div>
+          <div class="spec-item"><span class="spec-label">ターゲット: </span><span class="spec-value">一括査定 検索者</span></div>
+          <div class="spec-item"><span class="spec-label">予測CTR: </span><span class="spec-value">15〜20%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="abtest-section">
+    <div class="abtest-card">
+      <div class="abtest-title">📋 A/Bテスト計画（Apple Search Ads）</div>
+      <div class="abtest-row"><span class="abtest-label">テスト期間</span><span class="abtest-value">2週間（3/1〜3/14）</span></div>
+      <div class="abtest-row"><span class="abtest-label">配分</span><span class="abtest-value">50:50</span></div>
+      <div class="abtest-row"><span class="abtest-label">主要KPI</span><span class="abtest-value">TTR（タップ率）/ CPI</span></div>
+      <div class="abtest-row"><span class="abtest-label">副次KPI</span><span class="abtest-value">DL→AI査定率</span></div>
+      <div class="abtest-row"><span class="abtest-label">最小検出効果</span><span class="abtest-value">CTR ±2%</span></div>
+      <div class="abtest-row"><span class="abtest-label">必要サンプル</span><span class="abtest-value">各群 5,000 imp</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- TikTok Tab -->
+<div class="tab-content" id="tab-tiktok">
+  <div class="creative-section">
+    <div class="section-header">
+      <div class="section-title">TikTok クリエイティブ</div>
+      <div class="ab-badge">UGC風</div>
+    </div>
+
+    <div class="variant-toggle">
+      <button class="variant-btn active" onclick="switchVariant('tiktok', 'a', this)">案A: AI査定体験</button>
+      <button class="variant-btn" onclick="switchVariant('tiktok', 'b', this)">案B: 驚き価格訴求</button>
+    </div>
+
+    <div class="creative-card variant-panel tiktok-a">
+      <div class="tiktok-mockup">
+        <div class="tt-video-placeholder">▶</div>
+        <div class="tt-sidebar">
+          <div class="tt-action"><span class="tt-action-icon">❤️</span><span class="tt-action-count">12.5K</span></div>
+          <div class="tt-action"><span class="tt-action-icon">💬</span><span class="tt-action-count">832</span></div>
+          <div class="tt-action"><span class="tt-action-icon">↗️</span><span class="tt-action-count">2.1K</span></div>
+        </div>
+        <div class="tt-overlay">
+          <div class="tt-username">@ucarpac_official</div>
+          <div class="tt-caption">個人情報ナシで愛車の値段がわかるの知ってた？🚗<br>AI査定マジで一瞬で出る…😳</div>
+          <div class="tt-hashtags">#車査定 #AI査定 #愛車の価値 #UcarPAC #個人情報不要</div>
+        </div>
+      </div>
+      <div class="tt-cta-banner">📲 無料でAI査定してみる</div>
+      <div class="spec">
+        <div class="spec-title">クリエイティブスペック</div>
+        <div class="spec-grid">
+          <div class="spec-item"><span class="spec-label">形式: </span><span class="spec-value">UGC風縦型動画 15秒</span></div>
+          <div class="spec-item"><span class="spec-label">訴求: </span><span class="spec-value">体験・驚き</span></div>
+          <div class="spec-item"><span class="spec-label">ターゲット: </span><span class="spec-value">25-40代 車保有者</span></div>
+          <div class="spec-item"><span class="spec-label">予測CPI: </span><span class="spec-value">¥280〜350</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="creative-card variant-panel tiktok-b" style="display:none">
+      <div class="tiktok-mockup">
+        <div class="tt-video-placeholder">▶</div>
+        <div class="tt-sidebar">
+          <div class="tt-action"><span class="tt-action-icon">❤️</span><span class="tt-action-count">8.3K</span></div>
+          <div class="tt-action"><span class="tt-action-icon">💬</span><span class="tt-action-count">1.2K</span></div>
+          <div class="tt-action"><span class="tt-action-icon">↗️</span><span class="tt-action-count">3.5K</span></div>
+        </div>
+        <div class="tt-overlay">
+          <div class="tt-username">@car_lover_taro</div>
+          <div class="tt-caption">10年落ちの車を査定してもらったら…<br>まさかの185万円！？一括査定より38万も高かった😭</div>
+          <div class="tt-hashtags">#車売る #最高額 #びっくり #UcarPAC #8000社</div>
+        </div>
+      </div>
+      <div class="tt-cta-banner">🎯 8,000社が競る最高額オークション</div>
+      <div class="spec">
+        <div class="spec-title">クリエイティブスペック</div>
+        <div class="spec-grid">
+          <div class="spec-item"><span class="spec-label">形式: </span><span class="spec-value">体験談風縦型動画 20秒</span></div>
+          <div class="spec-item"><span class="spec-label">訴求: </span><span class="spec-value">価格驚き・比較</span></div>
+          <div class="spec-item"><span class="spec-label">ターゲット: </span><span class="spec-value">30-50代 売却検討者</span></div>
+          <div class="spec-item"><span class="spec-label">予測CPI: </span><span class="spec-value">¥320〜400</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="abtest-section">
+    <div class="abtest-card">
+      <div class="abtest-title">📋 A/Bテスト計画（TikTok）</div>
+      <div class="abtest-row"><span class="abtest-label">テスト期間</span><span class="abtest-value">1週間（3/1〜3/7）</span></div>
+      <div class="abtest-row"><span class="abtest-label">配分</span><span class="abtest-value">50:50</span></div>
+      <div class="abtest-row"><span class="abtest-label">主要KPI</span><span class="abtest-value">CPI / 完視聴率</span></div>
+      <div class="abtest-row"><span class="abtest-label">副次KPI</span><span class="abtest-value">DL→AI査定開始率</span></div>
+      <div class="abtest-row"><span class="abtest-label">日予算</span><span class="abtest-value">¥15,000/案</span></div>
+      <div class="abtest-row"><span class="abtest-label">クリエイティブ寿命</span><span class="abtest-value">7〜10日（疲弊注意）</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Meta Reels Tab -->
+<div class="tab-content" id="tab-meta">
+  <div class="creative-section">
+    <div class="section-header">
+      <div class="section-title">Meta Reels クリエイティブ</div>
+      <div class="ab-badge">Advantage+</div>
+    </div>
+
+    <div class="variant-toggle">
+      <button class="variant-btn active" onclick="switchVariant('meta', 'a', this)">案A: 資産価値訴求</button>
+      <button class="variant-btn" onclick="switchVariant('meta', 'b', this)">案B: 手軽さ訴求</button>
+    </div>
+
+    <div class="creative-card variant-panel meta-a">
+      <div class="reels-mockup">
+        <div class="reels-center">
+          <div class="reels-caption">あなたの愛車、今</div>
+          <div class="reels-number">185<span class="reels-unit">万円</span></div>
+          <div class="reels-caption">3ヶ月後には<strong style="color:#F84CA2">-12万円</strong>の予測</div>
+        </div>
+        <div class="reels-bottom">
+          <div class="reels-user">
+            <div class="reels-avatar">🚗</div>
+            <div class="reels-username">ucarpac_official</div>
+          </div>
+          <div class="reels-text">AIが愛車の未来の価値を予測🔮 個人情報なしで今すぐチェック</div>
+          <button class="reels-cta-btn">無料でAI査定する →</button>
+        </div>
+      </div>
+      <div class="spec">
+        <div class="spec-title">クリエイティブスペック</div>
+        <div class="spec-grid">
+          <div class="spec-item"><span class="spec-label">形式: </span><span class="spec-value">Reels動画 15秒</span></div>
+          <div class="spec-item"><span class="spec-label">訴求: </span><span class="spec-value">資産価値・将来予測</span></div>
+          <div class="spec-item"><span class="spec-label">ターゲット: </span><span class="spec-value">30-55代 車保有者</span></div>
+          <div class="spec-item"><span class="spec-label">予測CPI: </span><span class="spec-value">¥380〜480</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="creative-card variant-panel meta-b" style="display:none">
+      <div class="reels-mockup">
+        <div class="reels-center">
+          <div class="reels-caption">たった30秒で</div>
+          <div class="reels-number">¥0</div>
+          <div class="reels-caption">愛車の相場がわかる<br><span style="font-size:12px;color:rgba(255,255,255,0.7)">個人情報・営業電話 一切なし</span></div>
+        </div>
+        <div class="reels-bottom">
+          <div class="reels-user">
+            <div class="reels-avatar">🚗</div>
+            <div class="reels-username">ucarpac_official</div>
+          </div>
+          <div class="reels-text">「査定 = 電話ラッシュ」はもう古い。UcarPACなら個人情報なしでAI査定📱</div>
+          <button class="reels-cta-btn">30秒で相場チェック →</button>
+        </div>
+      </div>
+      <div class="spec">
+        <div class="spec-title">クリエイティブスペック</div>
+        <div class="spec-grid">
+          <div class="spec-item"><span class="spec-label">形式: </span><span class="spec-value">Reels動画 10秒</span></div>
+          <div class="spec-item"><span class="spec-label">訴求: </span><span class="spec-value">手軽さ・不安解消</span></div>
+          <div class="spec-item"><span class="spec-label">ターゲット: </span><span class="spec-value">25-45代 初回査定者</span></div>
+          <div class="spec-item"><span class="spec-label">予測CPI: </span><span class="spec-value">¥350〜450</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="abtest-section">
+    <div class="abtest-card">
+      <div class="abtest-title">📋 A/Bテスト計画（Meta Reels）</div>
+      <div class="abtest-row"><span class="abtest-label">テスト期間</span><span class="abtest-value">10日間（3/1〜3/10）</span></div>
+      <div class="abtest-row"><span class="abtest-label">配分</span><span class="abtest-value">Advantage+ 自動最適化</span></div>
+      <div class="abtest-row"><span class="abtest-label">主要KPI</span><span class="abtest-value">CPI / Hook率（3秒視聴）</span></div>
+      <div class="abtest-row"><span class="abtest-label">副次KPI</span><span class="abtest-value">DL→AI査定開始率</span></div>
+      <div class="abtest-row"><span class="abtest-label">日予算</span><span class="abtest-value">¥25,000（自動配分）</span></div>
+      <div class="abtest-row"><span class="abtest-label">最適化目標</span><span class="abtest-value">アプリインストール</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Persuasion Axes (共通) -->
+<div class="persuasion-section">
+  <div class="persuasion-title">訴求軸の効果予測</div>
+
+  <div class="axis-card">
+    <div class="axis-rank" style="background:#F59E0B">1</div>
+    <div class="axis-content">
+      <div class="axis-name">「個人情報不要・¥0で査定」</div>
+      <div class="axis-desc">心理的ハードルを最も下げる訴求。全チャネルで有効。</div>
+      <div class="axis-bar"><div class="axis-fill" style="width:92%;background:var(--pink)"></div></div>
+      <div class="axis-score">予測効果: 92/100</div>
+    </div>
+  </div>
+
+  <div class="axis-card">
+    <div class="axis-rank" style="background:#9CA3AF">2</div>
+    <div class="axis-content">
+      <div class="axis-name">「電話1社だけ・8,000社が競う」</div>
+      <div class="axis-desc">一括査定経験者への差別化。Apple Adsで特に有効。</div>
+      <div class="axis-bar"><div class="axis-fill" style="width:85%;background:var(--gradient-primary)"></div></div>
+      <div class="axis-score">予測効果: 85/100</div>
+    </div>
+  </div>
+
+  <div class="axis-card">
+    <div class="axis-rank" style="background:#B45309">3</div>
+    <div class="axis-content">
+      <div class="axis-name">「AI予測で売り時がわかる」</div>
+      <div class="axis-desc">将来売却検討者のリテンション訴求。Meta/TikTokで有効。</div>
+      <div class="axis-bar"><div class="axis-fill" style="width:78%;background:#3b82f6"></div></div>
+      <div class="axis-score">予測効果: 78/100</div>
+    </div>
+  </div>
+
+  <div class="axis-card">
+    <div class="axis-rank" style="background:var(--text-disabled)">4</div>
+    <div class="axis-content">
+      <div class="axis-name">「一括査定より+38万円高く売れた」</div>
+      <div class="axis-desc">価格メリット実績訴求。TikTok体験談で特に有効。</div>
+      <div class="axis-bar"><div class="axis-fill" style="width:71%;background:#10b981"></div></div>
+      <div class="axis-score">予測効果: 71/100</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(tabName, el) {
+  document.querySelectorAll('.ch-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-' + tabName).classList.add('active');
+}
+
+function switchVariant(channel, variant, el) {
+  // Toggle buttons
+  el.parentElement.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+
+  // Toggle panels
+  const section = el.closest('.tab-content');
+  section.querySelectorAll(`.${channel}-a, .${channel}-b`).forEach(p => p.style.display = 'none');
+  section.querySelector(`.${channel}-${variant}`).style.display = 'block';
+}
+</script>
+
+</body>
+</html>
