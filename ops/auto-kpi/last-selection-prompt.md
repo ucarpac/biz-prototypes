@@ -1,6 +1,6 @@
 $deep-research-max
-目的: ストアPV→DL率の改善（ASO） の検証材料を更新（2026-02-26時点）
-成果物: prototypes/ops/auto-kpi/research-2026-02-26.md
+目的: ストアPV→DL率の改善（ASO） の検証材料を更新（2026-03-01時点）
+成果物: prototypes/ops/auto-kpi/research-2026-03-01.md
 条件: 主要主張に出典URLと日付を付ける
 
 /overnight-work

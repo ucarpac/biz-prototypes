@@ -1,9 +1,10 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>UcarPAC App Store Screenshot B</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ストアスクショB - 出費管理×将来予測</title>
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --pink: #F84CA2;
@@ -14,130 +15,99 @@
       --back-white: #FAFAFA;
       --back-gray: #EDF1F4;
       --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
-      --radius-md: 12px;
-      --radius-lg: 16px;
-      --shadow: rgba(0,0,0,0.11);
-      --font-sans: 'Hiragino Sans', 'Noto Sans JP', system-ui, sans-serif;
     }
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: #111;
-      font-family: var(--font-sans);
-      display: grid;
-      place-items: center;
-      min-height: 100vh;
+    body { margin:0; font-family:'Noto Sans JP', sans-serif; background: var(--back-gray); color: var(--text-black); }
+    .screen { max-width: 420px; margin: 0 auto; padding: 16px; }
+    .header {
+      background: #fff; border-radius: 16px; padding: 16px; display:flex; justify-content:space-between; align-items:center;
     }
-    .frame {
-      width: 375px;
-      height: 812px;
-      background: var(--back-white);
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
-    }
-    .top {
-      padding: 26px 20px 10px;
-      background: linear-gradient(180deg, #ffffff 0%, #f5f8ff 100%);
-    }
-    .top h1 {
-      margin: 0;
-      font-size: 26px;
-      color: var(--dark-blue);
-      line-height: 1.25;
-      font-weight: 700;
-    }
-    .top p {
-      margin: 6px 0 0;
-      font-size: 14px;
-      color: var(--text-gray);
-    }
-    .pill {
-      display: inline-block;
-      margin-top: 12px;
-      background: #e9f7ff;
-      color: #2c77ff;
-      padding: 6px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-    }
+    .header h1 { font-size: 20px; margin:0; color: var(--dark-blue); }
+    .badge { background: #fff0f6; color: var(--pink); padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight:700; }
     .card {
-      margin: 16px 20px 0;
-      padding: 16px;
-      background: white;
-      border-radius: var(--radius-lg);
-      box-shadow: 0 6px 20px var(--shadow);
+      margin-top: 12px; background:#fff; border-radius: 13px; padding: 14px; box-shadow: 0 8px 20px rgba(0,0,0,0.08);
     }
-    .card h2 {
-      margin: 0 0 8px;
-      font-size: 16px;
-      color: var(--dark-blue);
+    .chart {
+      height: 120px; border-radius: 12px; background: linear-gradient(180deg, #e7f7ff, #ffffff); position: relative; overflow: hidden;
     }
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+    .chart .bar { position:absolute; bottom:12px; width:18px; border-radius:6px; background: var(--gradient-primary); }
+    .expense {
+      display:flex; justify-content:space-between; align-items:center; padding: 8px 0; border-bottom:1px dashed #eee;
     }
-    .tile {
-      background: var(--back-gray);
-      border-radius: var(--radius-md);
-      padding: 10px;
-      font-size: 12px;
-      color: var(--text-gray);
+    .expense:last-child { border-bottom:none; }
+    .toggle {
+      display:flex; background:#f6f6f6; padding:6px; border-radius: 999px; gap:6px; margin-top: 10px;
     }
-    .tile strong { color: var(--dark-blue); }
-    .graph {
-      height: 140px;
-      background: linear-gradient(180deg, #e8f4ff, #ffffff);
-      border-radius: var(--radius-md);
-      margin-top: 12px;
-      position: relative;
-      overflow: hidden;
-    }
-    .graph svg { position: absolute; inset: 12px; }
-    .cta {
-      margin: 18px 20px 0;
-      padding: 14px 18px;
-      background: var(--gradient-primary);
-      color: var(--dark-blue);
-      border-radius: 30px;
-      text-align: center;
-      font-weight: 700;
-      font-size: 14px;
-    }
-    .footer {
-      margin-top: 14px;
-      text-align: center;
-      color: var(--text-gray);
-      font-size: 12px;
-    }
+    .toggle button { flex:1; border:none; padding:8px; border-radius: 999px; font-weight:700; cursor:pointer; }
+    .toggle .active { background: var(--dark-blue); color:#fff; }
+    .cta { margin-top: 12px; display:flex; gap:10px; }
+    .cta button { flex:1; padding: 12px; border-radius: 30px; font-weight:700; border:none; cursor:pointer; }
+    .cta .primary { background: var(--gradient-primary); color: var(--dark-blue); }
+    .cta .pink { background: var(--pink); color: #fff; }
   </style>
 </head>
 <body>
-  <div class="frame">
-    <div class="top">
-      <span class="pill">Android向け</span>
-      <h1>出費管理 + 将来予測で<br>“今売るべき”がわかる</h1>
-      <p>維持費と相場の両方を見える化</p>
+  <script src="../auth.js"></script>
+  <!-- このプロトタイプの狙い: 出費管理×将来予測の“資産管理アプリ感”で、DLしたくなる価値を即伝える -->
+  <div class="screen">
+    <div class="header">
+      <div>
+        <h1>出費も相場も、これ1つ。</h1>
+        <div style="font-size:12px;color:#777;">愛車の価値が毎月見える</div>
+      </div>
+      <div class="badge">AI予測つき</div>
     </div>
+
     <div class="card">
-      <h2>今月の維持費サマリー</h2>
-      <div class="grid">
-        <div class="tile"><strong>ガソリン</strong><br>12,800円</div>
-        <div class="tile"><strong>保険</strong><br>6,200円</div>
-        <div class="tile"><strong>整備</strong><br>9,400円</div>
-        <div class="tile"><strong>合計</strong><br>28,400円</div>
+      <div style="font-weight:700;color:var(--dark-blue);">将来価値の推移</div>
+      <div class="chart" id="chart">
+        <div class="bar" style="left:24px;height:60px"></div>
+        <div class="bar" style="left:60px;height:78px"></div>
+        <div class="bar" style="left:96px;height:92px"></div>
+        <div class="bar" style="left:132px;height:80px"></div>
+        <div class="bar" style="left:168px;height:110px"></div>
       </div>
-      <div class="graph">
-        <svg viewBox="0 0 300 110" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M5 90 C50 70, 80 60, 120 62 C160 64, 200 50, 240 40 C260 32, 280 28, 295 20" stroke="#1ddcff" stroke-width="4" fill="none" />
-        </svg>
+      <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:#777;">
+        <span>2月</span><span>6月</span>
       </div>
-      <div style="font-size:12px;color:var(--text-gray);margin-top:8px;">3ヶ月後の予測: +12万円</div>
     </div>
-    <div class="cta">売り時をAIでチェック</div>
-    <div class="footer">個人情報なしで相場チェック</div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-weight:700;color:var(--dark-blue);">今月の出費</div>
+        <div style="font-family:'Righteous',sans-serif;color:var(--pink);font-size:22px;">¥23,480</div>
+      </div>
+      <div class="expense"><span>ガソリン</span><strong>¥6,200</strong></div>
+      <div class="expense"><span>保険</span><strong>¥9,800</strong></div>
+      <div class="expense"><span>洗車</span><strong>¥1,300</strong></div>
+      <div class="expense"><span>駐車場</span><strong>¥6,180</strong></div>
+      <div class="toggle">
+        <button class="active" data-mode="month">月次</button>
+        <button data-mode="year">年次</button>
+      </div>
+    </div>
+
+    <div class="cta">
+      <button class="primary">出費を記録</button>
+      <button class="pink">AI査定を見る</button>
+    </div>
   </div>
+  <script>
+    const toggleButtons = document.querySelectorAll('.toggle button');
+    const total = document.querySelector('.card .expense').parentElement.querySelector('div strong');
+    const headerValue = document.querySelector('.card .expense').parentElement.querySelector('div strong');
+    const priceText = document.querySelector('.card .expense').parentElement.previousElementSibling?.querySelector('.righteous');
+    const totalPrice = document.querySelector('.card .expense').parentElement.previousElementSibling?.querySelector('div');
+
+    toggleButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        toggleButtons.forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        const isYear = btn.dataset.mode === 'year';
+        const value = isYear ? '¥285,600' : '¥23,480';
+        document.querySelector('.card .expense').parentElement.querySelector('div strong').textContent = value;
+      });
+    });
+  </script>
 </body>
 </html>
