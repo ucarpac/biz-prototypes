@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <script src="../../auth.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>車買取業界 競合分析レポート | 2026-03-02</title>
+  <style>
+    :root {
+      --bg: #f6f8f7;
+      --card: #ffffff;
+      --ink: #11202b;
+      --sub: #4a5b66;
+      --line: #d6e0e4;
+      --brand: #f84ca2;
+      --accent: #12b0d8;
+      --good: #1f9d66;
+      --warn: #e16a2a;
+      --risk: #d13f4d;
+      --p0: #d13f4d;
+      --p1: #e16a2a;
+      --p2: #3a7bd5;
+      --shadow: 0 10px 30px rgba(8, 24, 32, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Hiragino Sans", "Yu Gothic", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(18, 176, 216, 0.12), transparent 35%),
+        radial-gradient(circle at 90% 15%, rgba(248, 76, 162, 0.12), transparent 30%),
+        var(--bg);
+      line-height: 1.5;
+    }
+
+    .wrap {
+      width: min(1160px, 94%);
+      margin: 24px auto 56px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #0f2733 0%, #183f53 45%, #216581 100%);
+      color: #f3fbff;
+      border-radius: 18px;
+      padding: 22px 22px 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.3rem, 3.4vw, 2rem);
+      letter-spacing: .02em;
+    }
+
+    .meta {
+      font-size: 0.9rem;
+      color: #c9e8f3;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+      margin-top: 14px;
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .kpi {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+      min-height: 96px;
+    }
+
+    .kpi .label {
+      color: var(--sub);
+      font-size: .82rem;
+      margin-bottom: 6px;
+    }
+
+    .kpi .value {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: .01em;
+    }
+
+    .kpi .sub {
+      color: var(--sub);
+      font-size: .82rem;
+      margin-top: 4px;
+    }
+
+    section {
+      margin-top: 18px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.08rem;
+    }
+
+    .summary-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--ink);
+    }
+
+    .summary-list li + li { margin-top: 6px; }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .filter-btn {
+      border: 1px solid var(--line);
+      background: #f7fbfd;
+      color: #184055;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: .82rem;
+      cursor: pointer;
+    }
+
+    .filter-btn.active {
+      background: #0f4259;
+      border-color: #0f4259;
+      color: #fff;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 840px;
+      font-size: .9rem;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      padding: 10px;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f1f7fa;
+      color: #1c4558;
+      font-weight: 700;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .tag {
+      display: inline-block;
+      border-radius: 999px;
+      font-size: .75rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      letter-spacing: .02em;
+    }
+
+    .tag.self { background: #ffd7eb; color: #962052; }
+    .tag.direct { background: #d7efff; color: #134c77; }
+    .tag.indirect { background: #ffe9c9; color: #8c4f00; }
+    .tag.reference { background: #e8ecef; color: #465662; }
+
+    .news-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .news {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fbfeff;
+    }
+
+    .news .date { color: var(--sub); font-size: .8rem; }
+    .news .title { font-weight: 700; margin: 6px 0; }
+    .impact-list {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .impact-list li + li { margin-top: 6px; }
+
+    .impact-good { color: var(--good); font-weight: 700; }
+    .impact-warn { color: var(--warn); font-weight: 700; }
+    .impact-risk { color: var(--risk); font-weight: 700; }
+
+    .actions {
+      display: grid;
+      gap: 10px;
+    }
+
+    .action {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fff;
+    }
+
+    .action-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .pri {
+      color: #fff;
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 2px 7px;
+      font-size: .78rem;
+      min-width: 36px;
+      text-align: center;
+    }
+
+    .pri.p0 { background: var(--p0); }
+    .pri.p1 { background: var(--p1); }
+    .pri.p2 { background: var(--p2); }
+
+    .footnote {
+      margin-top: 14px;
+      color: var(--sub);
+      font-size: .8rem;
+    }
+
+    .quad {
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background:
+        linear-gradient(to right, transparent 49.7%, #cfdce3 49.8%, #cfdce3 50.2%, transparent 50.3%),
+        linear-gradient(to bottom, transparent 49.7%, #cfdce3 49.8%, #cfdce3 50.2%, transparent 50.3%),
+        linear-gradient(145deg, #f9fdff, #f0f8fc);
+      height: 300px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quad .axis {
+      position: absolute;
+      font-size: .75rem;
+      color: #4f6773;
+      font-weight: 700;
+      background: rgba(255,255,255,.88);
+      padding: 2px 6px;
+      border-radius: 6px;
+      border: 1px solid #d7e4ea;
+    }
+
+    .axis.top { top: 8px; left: 50%; transform: translateX(-50%); }
+    .axis.bottom { bottom: 8px; left: 50%; transform: translateX(-50%); }
+    .axis.left { left: 8px; top: 50%; transform: translateY(-50%); }
+    .axis.right { right: 8px; top: 50%; transform: translateY(-50%); }
+
+    .dot {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 3px rgba(255,255,255,.9);
+    }
+
+    .dot.ucarpac { background: var(--brand); }
+    .dot.direct { background: #1ea4ce; }
+    .dot.indirect { background: #f39c35; }
+
+    .dot-label {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      font-size: .78rem;
+      font-weight: 700;
+      color: #133444;
+      white-space: nowrap;
+      background: rgba(255,255,255,.92);
+      border: 1px solid #d5e3ea;
+      border-radius: 6px;
+      padding: 1px 6px;
+    }
+
+    @media (max-width: 920px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .news-cards { grid-template-columns: 1fr; }
+      .quad { height: 250px; }
+    }
+
+    @media (max-width: 560px) {
+      .grid { grid-template-columns: 1fr; }
+      section { padding: 14px; }
+      .hero { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <h1>車買取業界 競合分析レポート（UcarPAC基準）</h1>
+      <div class="meta">
+        <span>収集日時: <strong id="collectedAt">-</strong></span>
+        <span>対象: 8サービス</span>
+        <span>観測範囲: App Store / Play Store メタデータ</span>
+      </div>
+      <div class="grid">
+        <div class="kpi">
+          <div class="label">UcarPAC iOS評価</div>
+          <div class="value" id="iosRating">-</div>
+          <div class="sub" id="iosRatingCount">-</div>
+        </div>
+        <div class="kpi">
+          <div class="label">直接競合数</div>
+          <div class="value" id="directCount">-</div>
+          <div class="sub">MOTA / セルカ / 楽天Car / ソコカラ</div>
+        </div>
+        <div class="kpi">
+          <div class="label">観測データ充足率</div>
+          <div class="value" id="coverageRate">-</div>
+          <div class="sub">iOS or Play 情報が存在する割合</div>
+        </div>
+        <div class="kpi">
+          <div class="label">最重要差別化</div>
+          <div class="value">AI査定 + 将来予測</div>
+          <div class="sub">競合比較でユニーク</div>
+        </div>
+      </div>
+    </header>
+
+    <section>
+      <h2>エグゼクティブサマリー</h2>
+      <ul class="summary-list">
+        <li>今回のスナップショット（2026-03-02時点）では、ストア更新情報が確認できたのはUcarPACのみ。競合は未取得または未観測。</li>
+        <li>機能軸では「AI査定」「将来予測」「出費管理」「個人情報不要査定」は依然としてUcarPACの独自領域。</li>
+        <li>一方で、UcarPAC iOS評価は <strong>2.73 / 5（11件）</strong> と母数・評価ともに弱く、獲得転換と継続率に直接影響するリスクが高い。</li>
+        <li>短期は「評価改善」と「独自価値訴求の一貫化」、中期は「価格変動トラッキング体験の磨き込み」が優先。</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>競合ポジションマップ</h2>
+      <div class="quad" aria-label="競合ポジション">
+        <div class="axis top">オークション形式</div>
+        <div class="axis bottom">固定買取 / 一括査定</div>
+        <div class="axis left">一括査定（複数社電話）</div>
+        <div class="axis right">AI査定・資産管理</div>
+
+        <div class="dot direct" style="left: 64%; top: 48%;"></div>
+        <div class="dot-label" style="left: 64%; top: 44%;">MOTA</div>
+
+        <div class="dot direct" style="left: 42%; top: 31%;"></div>
+        <div class="dot-label" style="left: 42%; top: 27%;">セルカ</div>
+
+        <div class="dot direct" style="left: 56%; top: 36%;"></div>
+        <div class="dot-label" style="left: 56%; top: 32%;">楽天Car</div>
+
+        <div class="dot direct" style="left: 53%; top: 58%;"></div>
+        <div class="dot-label" style="left: 53%; top: 54%;">ソコカラ</div>
+
+        <div class="dot indirect" style="left: 34%; top: 67%;"></div>
+        <div class="dot-label" style="left: 34%; top: 63%;">ズバット</div>
+
+        <div class="dot ucarpac" style="left: 74%; top: 26%;"></div>
+        <div class="dot-label" style="left: 74%; top: 22%;">UcarPAC</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>競合一覧（データ観測付き）</h2>
+      <div class="filters">
+        <button class="filter-btn active" data-filter="all">すべて</button>
+        <button class="filter-btn" data-filter="self">自社</button>
+        <button class="filter-btn" data-filter="direct">直接競合</button>
+        <button class="filter-btn" data-filter="indirect">間接競合</button>
+        <button class="filter-btn" data-filter="reference">参考</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>サービス</th>
+              <th>区分</th>
+              <th>ストア観測</th>
+              <th>主な競争軸</th>
+              <th>UcarPACとの差</th>
+            </tr>
+          </thead>
+          <tbody id="competitorBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>競合ニュースサマリー（収集データ起点）</h2>
+      <div class="news-cards">
+        <article class="news">
+          <div class="date">2026-02-13（UcarPAC iOS更新）</div>
+          <div class="title">v1.2.12: カメラ不具合など軽微修正</div>
+          <div>機能追加より安定性修正が中心。査定フロー体験の毀損要因を抑えるフェーズ。</div>
+        </article>
+        <article class="news">
+          <div class="date">2026-03-02（観測時点）</div>
+          <div class="title">主要競合のストア更新は未観測</div>
+          <div>MOTA/セルカ/楽天Car/ソコカラ/ズバットにアプリ更新情報なし（または取得不可）。Web主導継続の可能性。</div>
+        </article>
+        <article class="news">
+          <div class="date">2026-03-02（データ品質）</div>
+          <div class="title">競合データ欠損が多くモニタリング拡張が必要</div>
+          <div>競争の変化検知には、ストア以外に公式サイト更新・広告訴求・指名検索トレンドの定点観測追加が必要。</div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>UcarPACへの影響</h2>
+      <ul class="impact-list">
+        <li><span class="impact-good">機会:</span> 競合アプリの可視更新が弱い間に、「アプリだからできる価値（価格推移・通知・出費管理）」を明確化できる。</li>
+        <li><span class="impact-risk">リスク:</span> iOS評価2.73はCVRと継続率のボトルネック。集客投資の効率低下に直結。</li>
+        <li><span class="impact-warn">注意点:</span> 競合の情報欠損が大きく、実際のWeb施策・提携拡大を見落とす恐れ。分析基盤の補完が必要。</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>推奨アクション（優先度付き）</h2>
+      <div class="actions">
+        <div class="action">
+          <div class="action-head">
+            <span class="pri p0">P0</span>
+            <strong>査定体験とレビュー改善の短期スプリント（2週間）</strong>
+          </div>
+          <div>カメラ導線・入力完了率・クラッシュ要因を重点修正し、レビュー依頼導線を最適化。目標: iOS評価 <strong>2.73 → 3.5+</strong>、レビュー母数11→50。</div>
+        </div>
+        <div class="action">
+          <div class="action-head">
+            <span class="pri p0">P0</span>
+            <strong>ファーストビュー訴求の統一（AI査定 / 個人情報不要 / 電話1社）</strong>
+          </div>
+          <div>LP・アプリ内オンボーディング・広告クリエイティブで同一メッセージを徹底。競合との差異認知を最短化。</div>
+        </div>
+        <div class="action">
+          <div class="action-head">
+            <span class="pri p1">P1</span>
+            <strong>価格変動トラッキングUIの実装強化（資産管理ベンチマーク反映）</strong>
+          </div>
+          <div>3か月/6か月予測・維持費推移・売り時シミュレーションを時系列で統合表示し、継続利用理由を作る。</div>
+        </div>
+        <div class="action">
+          <div class="action-head">
+            <span class="pri p1">P1</span>
+            <strong>競合モニタリング拡張（週次）</strong>
+          </div>
+          <div>ストア情報に加えて公式サイト更新、訴求コピー、広告出稿、SEO順位を同一ダッシュボード化。</div>
+        </div>
+        <div class="action">
+          <div class="action-head">
+            <span class="pri p2">P2</span>
+            <strong>将来の共有機能検討（家族単位の車資産管理）</strong>
+          </div>
+          <div>TimeTree型の共有体験を参考に、車検・保険更新・売却判断の共同管理を設計検証。</div>
+        </div>
+      </div>
+      <div class="footnote">
+        注記: 本レポートのニュースは提供データ（収集時刻: 2026-03-02T03:33:33）に基づく。競合の未観測項目は「更新なし」ではなく「情報欠損」の可能性を含む。
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const reportData = {
+      collected_at: "2026-03-02T03:33:33",
+      results: [
+        { id: "ucarpac", name: "ユーカーパック", category: "self", ios: { rating: 2.72727, rating_count: 11, version: "1.2.12", release_notes: "・カメラ不具合等の軽微な修正", updated: "2026-02-13T02:22:51Z", price: "無料" }, play: null },
+        { id: "mota", name: "MOTA車買取", category: "direct", ios: null, play: null },
+        { id: "sellca", name: "セルカ", category: "direct", ios: null, play: null },
+        { id: "rakuten-car", name: "楽天Car買取", category: "direct", ios: null, play: null },
+        { id: "sococara", name: "ソコカラ", category: "direct", ios: null, play: null },
+        { id: "zubatto", name: "ズバット車買取比較", category: "indirect", ios: null, play: null },
+        { id: "goo-net", name: "グーネット", category: "reference", ios: null, play: null },
+        { id: "carsensor", name: "カーセンサー", category: "reference", ios: null, play: null }
+      ]
+    };
+
+    const axisInfo = {
+      ucarpac: { key: "AI査定・将来予測・出費管理", diff: "独自機能が集中。アプリ体験あり" },
+      mota: { key: "事前入札・上位3社連絡", diff: "UcarPACは電話1社 + AI査定" },
+      sellca: { key: "8,000社オークション・海外販路", diff: "UcarPACはAI査定/出費管理を上乗せ" },
+      "rakuten-car": { key: "楽天経済圏・2,000社入札", diff: "UcarPACは手数料無料・8,000社訴求" },
+      sococara: { key: "不動車対応・海外販路", diff: "UcarPACはアプリと予測体験で差別化" },
+      zubatto: { key: "最大10社一括査定", diff: "UcarPACは電話負荷が低いオークション導線" },
+      "goo-net": { key: "中古車検索メイン", diff: "直接競合ではなく参考枠" },
+      carsensor: { key: "中古車検索メイン", diff: "直接競合ではなく参考枠" }
+    };
+
+    const categoryJa = {
+      self: "自社",
+      direct: "直接競合",
+      indirect: "間接競合",
+      reference: "参考"
+    };
+
+    const categoryTag = {
+      self: "self",
+      direct: "direct",
+      indirect: "indirect",
+      reference: "reference"
+    };
+
+    const fmt = new Intl.DateTimeFormat("ja-JP", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+
+    const collected = new Date(reportData.collected_at);
+    document.getElementById("collectedAt").textContent = fmt.format(collected);
+
+    const directCount = reportData.results.filter(x => x.category === "direct").length;
+    const availableCount = reportData.results.filter(x => x.ios || x.play).length;
+    const coverage = ((availableCount / reportData.results.length) * 100).toFixed(1);
+
+    const ucarpac = reportData.results.find(x => x.id === "ucarpac");
+    document.getElementById("iosRating").textContent = `${(ucarpac.ios?.rating || 0).toFixed(2)} / 5`;
+    document.getElementById("iosRatingCount").textContent = `レビュー ${ucarpac.ios?.rating_count ?? 0}件`;
+    document.getElementById("directCount").textContent = `${directCount}社`;
+    document.getElementById("coverageRate").textContent = `${coverage}%`;
+
+    const body = document.getElementById("competitorBody");
+    function renderRows(filter = "all") {
+      body.innerHTML = "";
+      reportData.results
+        .filter(item => filter === "all" || item.category === filter)
+        .forEach(item => {
+          const row = document.createElement("tr");
+          row.setAttribute("data-category", item.category);
+
+          const store = item.ios || item.play
+            ? `あり${item.ios ? `（iOS v${item.ios.version}）` : ""}${item.play ? "（Play）" : ""}`
+            : "未観測 / 取得不可";
+
+          row.innerHTML = `
+            <td>${item.name}</td>
+            <td><span class="tag ${categoryTag[item.category]}">${categoryJa[item.category]}</span></td>
+            <td>${store}</td>
+            <td>${axisInfo[item.id]?.key || "-"}</td>
+            <td>${axisInfo[item.id]?.diff || "-"}</td>
+          `;
+          body.appendChild(row);
+        });
+    }
+
+    renderRows();
+
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        renderRows(btn.dataset.filter);
+      });
+    });
+  </script>
+</body>
+</html>

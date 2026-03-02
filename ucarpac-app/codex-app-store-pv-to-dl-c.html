@@ -1,115 +1,1015 @@
 <!DOCTYPE html>
+<!-- C案: ゲーミフィケーション・インタラクティブアプローチ。スワイプ、診断フロー、ステップ進行などの操作体験重視。マイクロアニメーション -->
 <html lang="ja">
+<script src="../auth.js"></script>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ストアスクショC - 競合比較「電話0本」</title>
-  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+  <title>UcarPAC Store Screenshot Prototype</title>
   <style>
     :root {
-      --pink: #F84CA2;
+      --pink: #f84ca2;
       --dark-blue: #1c2663;
-      --white: #FFFFFF;
+      --white: #ffffff;
       --text-black: #404040;
       --text-gray: #737373;
-      --back-white: #FAFAFA;
-      --back-gray: #EDF1F4;
+      --text-disabled: #b3b3b3;
+      --text-placeholder: rgba(28, 38, 99, 0.3);
+      --text-under-blue: #0056ba;
+      --button-gray: #cacee2;
+      --button-link1: #4099ff;
+      --button-link2: #40bfff;
+      --back-white: #fafafa;
+      --light-gray: #fafafa;
+      --back-gray: #edf1f4;
+      --back-gray2: #e6e6e6;
+      --back-blue: #091355;
+      --back-dark-blue: #0a1348;
+      --back-light-pink: #ffd8e8;
+      --back-light-blue: #6fc2ff;
+      --error: #eb4646;
+      --shadow: rgba(0, 0, 0, 0.11);
+      --ruled-line: #f2f2f2;
+      --border-gray: #7c7c7c;
       --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+      --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
+      --gradient-disabled: linear-gradient(90deg, #e5e5e5, #e5e5e5);
+      --font-sans: "Noto Sans JP", "Hiragino Sans", system-ui, sans-serif;
+      --font-number: "Righteous", "Noto Sans JP", sans-serif;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --radius-sm: 5px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-card: 13px;
+      --radius-chip: 22px;
+      --radius-button: 30px;
     }
-    * { box-sizing: border-box; }
-    body { margin:0; font-family:'Noto Sans JP', sans-serif; background: var(--back-white); color: var(--text-black); }
-    .screen { max-width: 420px; margin: 0 auto; padding: 16px; }
-    .hero {
-      background: var(--back-blue); color: #fff; border-radius: 16px; padding: 18px; position: relative; overflow: hidden;
+
+    * {
+      box-sizing: border-box;
     }
-    .hero h1 { margin:0 0 6px; font-size: 22px; }
-    .hero p { margin:0 0 12px; font-size: 12px; color: #cbd5ff; }
-    .ribbon {
-      position: absolute; top: 12px; right: -30px; background: var(--pink); color: #fff; font-weight:700; padding: 6px 50px; transform: rotate(20deg); font-size: 12px;
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(248, 76, 162, 0.22), transparent 36%),
+        radial-gradient(circle at 84% 18%, rgba(77, 180, 255, 0.28), transparent 42%),
+        linear-gradient(180deg, #eef6ff 0%, #f9fbff 100%);
+      color: var(--text-black);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 20px 12px;
     }
-    .compare {
-      margin-top: 12px; background:#fff; border-radius: 13px; padding: 12px; box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+
+    .phone-shell {
+      width: min(100%, 375px);
+      background: var(--back-white);
+      border: 1px solid #dbe3ef;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 16px 38px rgba(28, 38, 99, 0.18);
+      position: relative;
     }
-    .row { display:flex; justify-content:space-between; align-items:center; padding: 8px 0; border-bottom:1px dashed #eee; }
-    .row:last-child { border-bottom:none; }
-    .pill { padding: 4px 8px; border-radius: 999px; font-size: 11px; background: #f3f4f6; }
-    .pill.ok { background: #e6f7ff; color: #1d4ed8; font-weight:700; }
-    .pill.bad { background: #ffe5e5; color: #b91c1c; font-weight:700; }
-    .cta { margin-top: 12px; display:flex; gap:10px; }
-    .cta button { flex:1; padding: 12px; border-radius: 30px; font-weight:700; border:none; cursor:pointer; }
-    .cta .primary { background: var(--gradient-primary); color: var(--dark-blue); }
-    .cta .pink { background: var(--pink); color: #fff; }
-    .toggle {
-      display:flex; gap:8px; margin-top: 10px; font-size: 12px;
+
+    .header {
+      background: linear-gradient(145deg, #ffffff 0%, #eef6ff 100%);
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--ruled-line);
     }
-    .toggle span { padding:6px 10px; border-radius: 999px; border:1px solid #e5e7eb; cursor:pointer; }
-    .toggle .active { background: var(--dark-blue); color:#fff; border-color: var(--dark-blue); }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .title {
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 700;
+      color: var(--dark-blue);
+      margin: 0;
+    }
+
+    .date-badge {
+      background: var(--back-light-pink);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+      color: var(--dark-blue);
+      white-space: nowrap;
+    }
+
+    .kpi-strip {
+      background: var(--back-blue);
+      color: var(--white);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      box-shadow: 0 4px 12px rgba(9, 19, 85, 0.26);
+    }
+
+    .kpi-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+
+    .kpi-head strong {
+      font-size: 14px;
+      line-height: 21px;
+      letter-spacing: 0.02em;
+    }
+
+    .kpi-head span {
+      font-family: var(--font-number);
+      font-size: 20px;
+      line-height: 30px;
+      color: #79deff;
+    }
+
+    .kpi-meter {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .kpi-fill {
+      width: 69.2%;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--gradient-primary);
+      position: relative;
+      transition: width 0.45s ease;
+    }
+
+    .kpi-fill::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 35%, rgba(255, 255, 255, 0.55) 50%, transparent 65%);
+      animation: shimmer 2s infinite linear;
+    }
+
+    .carousel-wrap {
+      padding: 14px 12px 8px;
+    }
+
+    .carousel {
+      overflow: hidden;
+      border-radius: var(--radius-lg);
+      background: #ffffff;
+      border: 1px solid #dbe6f6;
+    }
+
+    .track {
+      display: flex;
+      width: 300%;
+      transition: transform 0.35s ease;
+      touch-action: pan-y;
+    }
+
+    .slide {
+      width: 100%;
+      min-height: 410px;
+      padding: 14px;
+      background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 100%);
+    }
+
+    .slide-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 8px;
+    }
+
+    .platform {
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .platform.ios {
+      background: #eff3ff;
+      color: #2a3d96;
+    }
+
+    .platform.android {
+      background: #e9fff3;
+      color: #14663a;
+    }
+
+    .platform.all {
+      background: #f4ecff;
+      color: #5f3096;
+    }
+
+    .pulse {
+      animation: pulse 1.8s infinite ease-in-out;
+    }
+
+    .badge {
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+      color: var(--dark-blue);
+      background: var(--back-light-pink);
+    }
+
+    .slide h2 {
+      margin: 0 0 8px;
+      color: var(--dark-blue);
+      font-size: 22px;
+      line-height: 33px;
+      font-weight: 700;
+    }
+
+    .slide p {
+      margin: 0 0 12px;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 400;
+    }
+
+    .car-card,
+    .expense-card,
+    .compare-card {
+      border-radius: var(--radius-card);
+      border: 1px solid #d5e2f3;
+      background: #ffffff;
+      padding: 12px;
+      box-shadow: 0 3px 10px var(--shadow);
+      margin-bottom: 12px;
+      animation: floatIn 0.45s ease both;
+    }
+
+    .car-name {
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+      color: var(--dark-blue);
+      margin-bottom: 4px;
+    }
+
+    .car-meta {
+      font-size: 11px;
+      line-height: 16px;
+      color: var(--text-gray);
+      margin-bottom: 10px;
+    }
+
+    .price-main {
+      font-family: var(--font-number);
+      font-size: 32px;
+      line-height: 48px;
+      color: var(--dark-blue);
+      letter-spacing: 0.02em;
+      margin-bottom: 8px;
+    }
+
+    .future-bars {
+      display: grid;
+      gap: 8px;
+    }
+
+    .future-row {
+      display: grid;
+      grid-template-columns: 54px 1fr 62px;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      line-height: 15px;
+      color: var(--text-gray);
+    }
+
+    .bar-track {
+      height: 8px;
+      border-radius: 999px;
+      background: #eaf0fb;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: var(--gradient-primary);
+    }
+
+    .bar-fill.alt {
+      background: linear-gradient(90deg, #f84ca2, #ff7dbf);
+    }
+
+    .expense-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .expense-item {
+      background: #f8fbff;
+      border: 1px solid #e2ebfa;
+      border-radius: 10px;
+      padding: 8px;
+    }
+
+    .expense-item .label {
+      font-size: 10px;
+      line-height: 15px;
+      color: var(--text-gray);
+      margin-bottom: 4px;
+    }
+
+    .expense-item .value {
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+      color: var(--dark-blue);
+    }
+
+    .mini-chart {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+      align-items: end;
+      height: 70px;
+      padding-top: 8px;
+    }
+
+    .mini-chart div {
+      border-radius: 6px 6px 3px 3px;
+      background: linear-gradient(180deg, #6fc2ff, #4a79ff);
+      position: relative;
+    }
+
+    .mini-chart div::after {
+      content: attr(data-v);
+      position: absolute;
+      top: -16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 9px;
+      color: var(--text-gray);
+      white-space: nowrap;
+    }
+
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      line-height: 16px;
+    }
+
+    .compare-table th,
+    .compare-table td {
+      border-bottom: 1px solid var(--ruled-line);
+      text-align: left;
+      padding: 8px 4px;
+    }
+
+    .compare-table th {
+      color: var(--text-gray);
+      font-weight: 700;
+    }
+
+    .highlight-row td {
+      background: #eff6ff;
+      color: var(--dark-blue);
+      font-weight: 700;
+    }
+
+    .phone-zero {
+      margin-top: 10px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #fff0f8 0%, #ffe4f0 100%);
+      border: 1px solid #ffc6df;
+      padding: 10px;
+      color: #b30f5f;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .cta {
+      width: 100%;
+      height: 43px;
+      border: 0;
+      border-radius: var(--radius-button);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+      color: var(--dark-blue);
+      background: var(--gradient-primary);
+      box-shadow: 0 7px 16px rgba(29, 220, 255, 0.3);
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .cta:active {
+      transform: translateY(1px) scale(0.99);
+      box-shadow: 0 3px 8px rgba(29, 220, 255, 0.22);
+    }
+
+    .swipe-hint {
+      text-align: center;
+      margin: 10px 0 8px;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      letter-spacing: 0.04em;
+    }
+
+    .nav {
+      display: grid;
+      grid-template-columns: 72px 1fr 72px;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      height: 32px;
+      border: 1px solid #cfddf2;
+      border-radius: 16px;
+      background: #ffffff;
+      color: var(--dark-blue);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #c6d5ef;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+
+    .dot.active {
+      background: var(--pink);
+      transform: scale(1.25);
+    }
+
+    .flow-card {
+      margin: 10px 12px;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid #d8e4f6;
+      background: #ffffff;
+      box-shadow: 0 3px 12px var(--shadow);
+    }
+
+    .flow-title {
+      margin: 0 0 8px;
+      font-size: 18px;
+      line-height: 27px;
+      color: var(--dark-blue);
+      font-weight: 700;
+    }
+
+    .flow-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 11px;
+      line-height: 16px;
+      color: var(--text-gray);
+      font-weight: 700;
+    }
+
+    .flow-progress {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #edf2fb;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .flow-progress .bar {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--gradient-pink);
+      transition: width 0.35s ease;
+    }
+
+    .question {
+      margin: 0 0 10px;
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+    }
+
+    .chip-grid {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .chip {
+      min-height: 43px;
+      border-radius: var(--radius-chip);
+      border: 1px solid var(--ruled-line);
+      background: #ffffff;
+      color: var(--text-black);
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .chip:hover {
+      border-color: #d8e4f8;
+    }
+
+    .chip.selected {
+      background: var(--dark-blue);
+      border-color: var(--dark-blue);
+      color: #ffffff;
+      transform: scale(1.01);
+    }
+
+    .result {
+      border-radius: 12px;
+      border: 1px solid #ffe0ef;
+      background: #fff4fa;
+      padding: 12px;
+      color: #7b2f5e;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      margin: 8px 0 0;
+      animation: pop 0.28s ease;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .ghost {
+      margin-top: 10px;
+      width: 100%;
+      min-height: 40px;
+      border-radius: var(--radius-button);
+      border: 1px solid #d2deef;
+      background: #ffffff;
+      color: var(--dark-blue);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .action-panel {
+      margin: 10px 12px 16px;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid #d8e4f6;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    }
+
+    .sim-title {
+      margin: 0 0 8px;
+      font-size: 14px;
+      line-height: 21px;
+      color: var(--dark-blue);
+      font-weight: 700;
+    }
+
+    .sim-output {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      background: #f2f8ff;
+      border: 1px solid #d8e8ff;
+      font-size: 12px;
+      line-height: 18px;
+      color: var(--dark-blue);
+      font-weight: 700;
+    }
+
+    .footer {
+      padding: 0 16px 16px;
+      text-align: center;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.95; }
+      50% { transform: scale(1.04); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.95; }
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(220%); }
+    }
+
+    @keyframes floatIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pop {
+      0% { opacity: 0; transform: scale(0.94); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @media (min-width: 768px) {
+      body {
+        padding: 28px;
+      }
+      .phone-shell {
+        width: min(100%, 430px);
+      }
+      .slide {
+        min-height: 430px;
+      }
+    }
   </style>
 </head>
 <body>
-  <script src="../auth.js"></script>
-  <!-- このプロトタイプの狙い: 競合比較を“電話0本”で一発理解させ、安心感からDLを後押しする -->
-  <div class="screen">
-    <div class="hero">
-      <div class="ribbon">電話0本</div>
-      <h1>電話ラッシュ、もう終わり。</h1>
-      <p>UcarPACは電話1社のみ。しかもAI査定で相場チェックは電話不要。</p>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <div style="font-family:'Righteous',sans-serif;font-size:28px;color:#fff;">8,000社</div>
-        <div style="font-size:12px;color:#cbd5ff;">が競うオークション</div>
+  <main class="phone-shell">
+    <header class="header">
+      <div class="title-row">
+        <h1 class="title">UcarPAC ストア訴求プロトタイプ</h1>
+        <span class="date-badge">検証日 2026-03-02</span>
       </div>
-      <div class="toggle">
-        <span class="active">UcarPAC</span>
-        <span>MOTA</span>
-        <span>ズバット</span>
+      <div class="kpi-strip">
+        <div class="kpi-head">
+          <strong>ストアPV→DL率</strong>
+          <span id="kpiValue">17.3% → 25%</span>
+        </div>
+        <div class="kpi-meter">
+          <div class="kpi-fill" id="kpiFill"></div>
+        </div>
       </div>
-    </div>
+    </header>
 
-    <div class="compare" id="compare">
-      <div class="row"><strong>AI査定</strong><span class="pill ok">UcarPACのみ</span></div>
-      <div class="row"><strong>電話数</strong><span class="pill ok">0〜1社</span></div>
-      <div class="row"><strong>入札数</strong><span class="pill ok">8,000社</span></div>
-      <div class="row"><strong>手数料</strong><span class="pill ok">無料</span></div>
-    </div>
+    <section class="carousel-wrap">
+      <div class="carousel" id="carousel">
+        <div class="track" id="track">
+          <article class="slide">
+            <div class="slide-top">
+              <span class="platform ios">iOS向けスクショA</span>
+              <span class="badge pulse">個人情報入力なし</span>
+            </div>
+            <h2>AIが愛車を10秒査定</h2>
+            <p>トヨタ ハリアー Z 2021年式 / 31,500km の想定。価格レンジと売り時を一画面で訴求。</p>
+            <div class="car-card">
+              <div class="car-name">トヨタ ハリアー Z / パールホワイト</div>
+              <div class="car-meta">査定ロジック更新: 2026-03-02 09:10 / 全国オークション実績反映</div>
+              <div class="price-main">¥2,486,000</div>
+              <div class="future-bars">
+                <div class="future-row">
+                  <span>現在相場</span>
+                  <div class="bar-track"><div class="bar-fill" style="width: 87%;"></div></div>
+                  <strong>248.6万円</strong>
+                </div>
+                <div class="future-row">
+                  <span>3ヶ月後</span>
+                  <div class="bar-track"><div class="bar-fill alt" style="width: 83%;"></div></div>
+                  <strong>236.8万円</strong>
+                </div>
+                <div class="future-row">
+                  <span>6ヶ月後</span>
+                  <div class="bar-track"><div class="bar-fill alt" style="width: 78%;"></div></div>
+                  <strong>224.1万円</strong>
+                </div>
+              </div>
+            </div>
+            <button class="cta" type="button">30秒でAI査定を開始</button>
+          </article>
 
-    <div class="cta">
-      <button class="primary">相場を見てみる</button>
-      <button class="pink">AI査定を体験</button>
-    </div>
-  </div>
+          <article class="slide">
+            <div class="slide-top">
+              <span class="platform android">Android向けスクショB</span>
+              <span class="badge pulse">出費管理+将来予測</span>
+            </div>
+            <h2>維持費と売り時を同時に可視化</h2>
+            <p>ホンダ フリード G 2018年式 / 62,200km。月次出費と価格予測をワンタップ比較。</p>
+            <div class="expense-card">
+              <div class="expense-grid">
+                <div class="expense-item">
+                  <div class="label">ガソリン代 (2月)</div>
+                  <div class="value">¥13,840</div>
+                </div>
+                <div class="expense-item">
+                  <div class="label">保険(月割)</div>
+                  <div class="value">¥6,300</div>
+                </div>
+                <div class="expense-item">
+                  <div class="label">整備・修理</div>
+                  <div class="value">¥4,600</div>
+                </div>
+                <div class="expense-item">
+                  <div class="label">駐車場</div>
+                  <div class="value">¥11,000</div>
+                </div>
+              </div>
+              <div class="car-meta">予測査定額推移 (万円): 3月→8月</div>
+              <div class="mini-chart">
+                <div style="height: 62%;" data-v="171"></div>
+                <div style="height: 58%;" data-v="168"></div>
+                <div style="height: 55%;" data-v="165"></div>
+                <div style="height: 52%;" data-v="163"></div>
+                <div style="height: 49%;" data-v="160"></div>
+                <div style="height: 45%;" data-v="157"></div>
+              </div>
+            </div>
+            <button class="cta" type="button">出費管理をはじめる</button>
+          </article>
+
+          <article class="slide">
+            <div class="slide-top">
+              <span class="platform all">スクショC 競合比較</span>
+              <span class="badge pulse">電話0本で相場チェック</span>
+            </div>
+            <h2>比較してわかる負担の少なさ</h2>
+            <p>相場確認フェーズでは電話0本。売却申込後も電話は1社のみで完結。</p>
+            <div class="compare-card">
+              <table class="compare-table">
+                <thead>
+                  <tr>
+                    <th>サービス</th>
+                    <th>相場確認時の電話</th>
+                    <th>入札規模</th>
+                    <th>手数料</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="highlight-row">
+                    <td>UcarPAC</td>
+                    <td>0本</td>
+                    <td>8,000社</td>
+                    <td>無料</td>
+                  </tr>
+                  <tr>
+                    <td>MOTA</td>
+                    <td>最大3社</td>
+                    <td>数百社</td>
+                    <td>無料</td>
+                  </tr>
+                  <tr>
+                    <td>ズバット</td>
+                    <td>最大10社</td>
+                    <td>比較見積</td>
+                    <td>無料</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="phone-zero">「まずは価格だけ知りたい」なら、電話0本で開始</div>
+            </div>
+            <button class="cta" type="button">電話なしで相場をチェック</button>
+          </article>
+        </div>
+      </div>
+
+      <div class="swipe-hint">← スワイプして訴求案を切り替え →</div>
+
+      <div class="nav">
+        <button class="nav-btn" id="prevBtn" type="button">戻る</button>
+        <div class="dots" id="dots"></div>
+        <button class="nav-btn" id="nextBtn" type="button">次へ</button>
+      </div>
+    </section>
+
+    <section class="flow-card">
+      <h2 class="flow-title">売り時診断フロー</h2>
+      <div class="flow-meta">
+        <span id="stepLabel">STEP 1/3</span>
+        <span id="xpLabel">XP 0</span>
+      </div>
+      <div class="flow-progress">
+        <div class="bar" id="flowBar"></div>
+      </div>
+      <p class="question" id="question"></p>
+      <div class="chip-grid" id="options"></div>
+      <div class="result hidden" id="result"></div>
+      <button class="ghost hidden" id="restartBtn" type="button">診断をやり直す</button>
+    </section>
+
+    <section class="action-panel">
+      <h3 class="sim-title">CVRシミュレーション</h3>
+      <button class="cta" id="simulateBtn" type="button">この構成でPV→DL率を試算</button>
+      <div class="sim-output" id="simOutput">現在値: 17.3% / 目標: 25.0%</div>
+    </section>
+
+    <footer class="footer">
+      スワイプ + 診断ステップ + マイクロアニメーションで、ストア詳細ページの体験価値を検証
+    </footer>
+  </main>
+
   <script>
-    const options = document.querySelectorAll('.toggle span');
-    const compare = document.getElementById('compare');
-    const data = {
-      'UcarPAC': [
-        ['AI査定','UcarPACのみ','ok'],
-        ['電話数','0〜1社','ok'],
-        ['入札数','8,000社','ok'],
-        ['手数料','無料','ok']
-      ],
-      'MOTA': [
-        ['AI査定','なし','bad'],
-        ['電話数','最大3社','bad'],
-        ['入札数','数百社','bad'],
-        ['手数料','無料','ok']
-      ],
-      'ズバット': [
-        ['AI査定','なし','bad'],
-        ['電話数','最大10社','bad'],
-        ['入札数','比較形式','bad'],
-        ['手数料','無料','ok']
-      ]
+    const track = document.getElementById("track");
+    const dotsRoot = document.getElementById("dots");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const kpiFill = document.getElementById("kpiFill");
+    const kpiValue = document.getElementById("kpiValue");
+
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const stepLabel = document.getElementById("stepLabel");
+    const xpLabel = document.getElementById("xpLabel");
+    const flowBar = document.getElementById("flowBar");
+    const resultEl = document.getElementById("result");
+    const restartBtn = document.getElementById("restartBtn");
+    const simulateBtn = document.getElementById("simulateBtn");
+    const simOutput = document.getElementById("simOutput");
+
+    const slides = 3;
+    let currentSlide = 0;
+    let startX = 0;
+
+    const steps = [
+      {
+        q: "売却予定のタイミングは？",
+        options: [
+          { label: "3ヶ月以内に売る予定", point: 4 },
+          { label: "半年〜1年で検討", point: 3 },
+          { label: "まだ未定", point: 1 }
+        ]
+      },
+      {
+        q: "月間の走行距離は？",
+        options: [
+          { label: "1,000km以上", point: 3 },
+          { label: "500〜1,000km", point: 2 },
+          { label: "500km未満", point: 1 }
+        ]
+      },
+      {
+        q: "いちばん重視したいことは？",
+        options: [
+          { label: "できるだけ高く売る", point: 4 },
+          { label: "電話対応の少なさ", point: 3 },
+          { label: "今は維持費の管理", point: 2 }
+        ]
+      }
+    ];
+
+    const flowState = {
+      step: 0,
+      score: 0,
+      xp: 0,
+      picks: []
     };
-    options.forEach(opt => {
-      opt.addEventListener('click', () => {
-        options.forEach(o=>o.classList.remove('active'));
-        opt.classList.add('active');
-        const key = opt.textContent.trim();
-        compare.innerHTML = data[key].map(r =>
-          `<div class="row"><strong>${r[0]}</strong><span class="pill ${r[2]}">${r[1]}</span></div>`
-        ).join('');
+
+    function createDots() {
+      dotsRoot.innerHTML = "";
+      for (let i = 0; i < slides; i += 1) {
+        const dot = document.createElement("span");
+        dot.className = "dot" + (i === 0 ? " active" : "");
+        dotsRoot.appendChild(dot);
+      }
+    }
+
+    function renderCarousel() {
+      track.style.transform = `translateX(-${currentSlide * (100 / slides)}%)`;
+      [...dotsRoot.children].forEach((dot, idx) => {
+        dot.classList.toggle("active", idx === currentSlide);
       });
+    }
+
+    function nextSlide() {
+      currentSlide = (currentSlide + 1) % slides;
+      renderCarousel();
+    }
+
+    function prevSlide() {
+      currentSlide = (currentSlide - 1 + slides) % slides;
+      renderCarousel();
+    }
+
+    function renderFlow() {
+      const total = steps.length;
+      const done = flowState.step >= total;
+      stepLabel.textContent = done ? "診断完了" : `STEP ${flowState.step + 1}/${total}`;
+      xpLabel.textContent = `XP ${flowState.xp}`;
+      flowBar.style.width = `${(Math.min(flowState.step, total) / total) * 100}%`;
+
+      if (done) {
+        questionEl.textContent = "あなた向けの訴求セットが確定しました。";
+        optionsEl.innerHTML = "";
+        resultEl.classList.remove("hidden");
+        restartBtn.classList.remove("hidden");
+
+        let recommend = "スクショB（出費管理）";
+        if (flowState.score >= 10) recommend = "スクショA + スクショC";
+        if (flowState.score >= 7 && flowState.score < 10) recommend = "スクショA + スクショB";
+
+        resultEl.innerHTML =
+          `推奨訴求: ${recommend}<br>` +
+          `診断スコア: ${flowState.score} / 11<br>` +
+          `提案: AI査定の価格根拠と「電話0本」導線を上部に固定し、CVR上振れを狙う。`;
+        return;
+      }
+
+      resultEl.classList.add("hidden");
+      restartBtn.classList.add("hidden");
+      questionEl.textContent = steps[flowState.step].q;
+      optionsEl.innerHTML = "";
+
+      steps[flowState.step].options.forEach((opt) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chip";
+        btn.textContent = opt.label;
+        btn.addEventListener("click", () => {
+          btn.classList.add("selected");
+          flowState.picks.push(opt.label);
+          flowState.score += opt.point;
+          flowState.xp += 40 + opt.point * 10;
+          setTimeout(() => {
+            flowState.step += 1;
+            renderFlow();
+          }, 160);
+        });
+        optionsEl.appendChild(btn);
+      });
+    }
+
+    function simulateCVR() {
+      const base = 17.3;
+      const slideBoosts = [3.5, 2.9, 4.2];
+      const slideBoost = slideBoosts[currentSlide];
+      const flowBoost = flowState.step >= steps.length ? Math.min(2.3, flowState.score * 0.22) : 0.8;
+      const estimate = Math.min(25.0, base + slideBoost + flowBoost);
+
+      const percentTowardGoal = Math.min(100, (estimate / 25.0) * 100);
+      kpiFill.style.width = `${percentTowardGoal}%`;
+      kpiValue.textContent = `${base.toFixed(1)}% → ${estimate.toFixed(1)}%`;
+
+      simOutput.textContent =
+        `選択中: スクショ${String.fromCharCode(65 + currentSlide)} / ` +
+        `診断スコア: ${flowState.score} / ` +
+        `試算CVR: ${estimate.toFixed(1)}%`;
+    }
+
+    prevBtn.addEventListener("click", prevSlide);
+    nextBtn.addEventListener("click", nextSlide);
+    simulateBtn.addEventListener("click", simulateCVR);
+
+    restartBtn.addEventListener("click", () => {
+      flowState.step = 0;
+      flowState.score = 0;
+      flowState.xp = 0;
+      flowState.picks = [];
+      renderFlow();
     });
+
+    track.addEventListener("touchstart", (e) => {
+      startX = e.touches[0].clientX;
+    });
+
+    track.addEventListener("touchend", (e) => {
+      const endX = e.changedTouches[0].clientX;
+      const diff = endX - startX;
+      if (Math.abs(diff) < 40) return;
+      if (diff < 0) nextSlide();
+      if (diff > 0) prevSlide();
+    });
+
+    createDots();
+    renderCarousel();
+    renderFlow();
   </script>
 </body>
 </html>
