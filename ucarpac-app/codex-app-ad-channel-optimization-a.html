@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="ja">
+<!-- A案: 感情に訴えるアプローチ。ユーザーの不安や期待に寄り添い、安心感を与えるデザイン。暖色系のアクセント、手書き風要素、親しみやすいイラスト的表現 -->
+<script src="../auth.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>UcarPAC 広告チャネル最適化プロトタイプ</title>
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --text-disabled: #B3B3B3;
+      --text-placeholder: rgba(28,38,99,0.3);
+      --button-gray: #CACEE2;
+      --button-link1: #4099FF;
+      --button-link2: #40BFFF;
+      --back-white: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --back-blue: #091355;
+      --back-light-pink: #ffd8e8;
+      --error: #EB4646;
+      --ruled-line: #F2F2F2;
+      --border-gray: #7C7C7C;
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+      --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
+      --gradient-disabled: linear-gradient(90deg, #e5e5e5, #e5e5e5);
+      --warm-cream: #fff6ef;
+      --warm-coral: #ff9b7f;
+      --warm-yellow: #ffd86b;
+      --mint: #b8f5df;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --radius-sm: 5px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-chip: 22px;
+      --radius-button: 30px;
+      --shadow-light: 0 2px 10px rgba(0,0,0,0.11);
+      --shadow-mid: 0 8px 24px rgba(28,38,99,0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+      color: var(--text-black);
+      background:
+        radial-gradient(circle at 12% 8%, #ffe6db 0%, rgba(255,230,219,0) 30%),
+        radial-gradient(circle at 88% 14%, #fff1c8 0%, rgba(255,241,200,0) 24%),
+        radial-gradient(circle at 90% 92%, #ffe1ef 0%, rgba(255,225,239,0) 30%),
+        linear-gradient(180deg, #fffaf6 0%, #fff4f8 45%, #f8fbff 100%);
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    .blob {
+      position: fixed;
+      z-index: 0;
+      pointer-events: none;
+      border-radius: 50%;
+      filter: blur(6px);
+      opacity: 0.5;
+      animation: float 8s ease-in-out infinite alternate;
+    }
+
+    .blob.a {
+      width: 130px;
+      height: 130px;
+      left: -34px;
+      top: 80px;
+      background: #ffd6bd;
+    }
+
+    .blob.b {
+      width: 100px;
+      height: 100px;
+      right: -28px;
+      top: 180px;
+      background: #ffcadf;
+      animation-delay: 0.8s;
+    }
+
+    .blob.c {
+      width: 120px;
+      height: 120px;
+      right: 12px;
+      bottom: 28px;
+      background: #d3ecff;
+      animation-delay: 1.4s;
+    }
+
+    @keyframes float {
+      from { transform: translateY(-4px) rotate(-2deg); }
+      to { transform: translateY(10px) rotate(2deg); }
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 375px;
+      margin: 0 auto;
+      padding: 14px 14px 28px;
+    }
+
+    .hero {
+      background: linear-gradient(150deg, rgba(255,255,255,0.95), rgba(255,243,235,0.96));
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: var(--shadow-mid);
+      border: 1px solid #ffe6da;
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero:before,
+    .hero:after {
+      content: "";
+      position: absolute;
+      border: 2px dashed rgba(248,76,162,0.35);
+      border-radius: 42% 58% 67% 33% / 52% 29% 71% 48%;
+      pointer-events: none;
+    }
+
+    .hero:before {
+      width: 72px;
+      height: 72px;
+      right: -20px;
+      top: -20px;
+    }
+
+    .hero:after {
+      width: 60px;
+      height: 60px;
+      left: -18px;
+      bottom: -24px;
+      transform: rotate(15deg);
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .hand-note {
+      font-family: "Comic Sans MS", "Hannotate SC", cursive;
+      color: #d06246;
+      font-size: 13px;
+      margin: 0 0 4px;
+      letter-spacing: 0.2px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--dark-blue);
+      line-height: 1.35;
+    }
+
+    .hero p {
+      margin: 8px 0 0;
+      color: var(--text-gray);
+      font-size: 12px;
+    }
+
+    .mascot {
+      width: 68px;
+      min-width: 68px;
+      height: 68px;
+      border-radius: 20px;
+      background: linear-gradient(145deg, #fff2d9, #ffe2bf);
+      border: 1px solid #ffd0ab;
+      position: relative;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .mascot:before,
+    .mascot:after {
+      content: "";
+      position: absolute;
+      background: #59463a;
+      border-radius: 50%;
+      width: 8px;
+      height: 8px;
+      top: 26px;
+    }
+
+    .mascot:before { left: 20px; }
+    .mascot:after { right: 20px; }
+
+    .mouth {
+      position: absolute;
+      left: 50%;
+      top: 40px;
+      transform: translateX(-50%);
+      width: 26px;
+      height: 12px;
+      border-bottom: 3px solid #f57b68;
+      border-radius: 0 0 16px 16px;
+    }
+
+    .hero-badges {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      border-radius: 20px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #fff;
+      border: 1px solid #ffe4d5;
+      color: var(--dark-blue);
+    }
+
+    .tag.pink {
+      background: #fff0f8;
+      border-color: #ffc9e8;
+      color: #cb2d7e;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      border: 1px solid #e8edf9;
+      background: #fff;
+      color: var(--dark-blue);
+      border-radius: 14px;
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .tab.active {
+      background: linear-gradient(90deg, rgba(248,76,162,0.12), rgba(253,166,107,0.14));
+      border-color: #ffc8e7;
+      box-shadow: 0 4px 16px rgba(248,76,162,0.16);
+    }
+
+    .panel {
+      display: none;
+      animation: fade .25s ease;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid #e9eef8;
+      box-shadow: var(--shadow-light);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      color: var(--dark-blue);
+    }
+
+    .desc {
+      font-size: 12px;
+      color: var(--text-gray);
+      margin: 0 0 10px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .metric {
+      border-radius: 12px;
+      background: #fff8f2;
+      border: 1px solid #ffe5d4;
+      padding: 8px;
+    }
+
+    .metric .k {
+      font-size: 11px;
+      color: #a86a53;
+      margin-bottom: 2px;
+    }
+
+    .metric .v {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--dark-blue);
+      line-height: 1.3;
+    }
+
+    .focus-buttons {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .focus-btn {
+      border: 1px solid #d7dfef;
+      border-radius: 22px;
+      padding: 8px 12px;
+      background: #fff;
+      color: var(--text-black);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .focus-btn.active {
+      background: var(--dark-blue);
+      color: #fff;
+      border-color: var(--dark-blue);
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border-radius: 10px;
+      border: 1px solid #e4eaf6;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      min-width: 700px;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    th,
+    td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #eef2fb;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: left;
+      position: sticky;
+      left: 0;
+      background: #fff;
+      z-index: 1;
+    }
+
+    th {
+      font-size: 11px;
+      color: #5f6787;
+      background: #f6f8ff;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    tr.best {
+      background: #fff4fb;
+    }
+
+    tr.best td:first-child {
+      background: #fff4fb;
+    }
+
+    .delta.up {
+      color: #0b8f55;
+      font-weight: 700;
+    }
+
+    .delta.down {
+      color: var(--error);
+      font-weight: 700;
+    }
+
+    .car-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .car-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 10px;
+      background: #f9fbff;
+      border: 1px solid #e9edf8;
+      font-size: 12px;
+    }
+
+    .car-row strong {
+      display: block;
+      color: var(--dark-blue);
+      margin-bottom: 2px;
+      font-size: 12px;
+    }
+
+    .sim-controls {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .range-box {
+      background: #fff8f1;
+      border: 1px solid #ffe7d7;
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    .range-box label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 700;
+      color: #8b5a45;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--pink);
+      margin-top: 8px;
+    }
+
+    .check-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .check-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #d9e1f1;
+      border-radius: 20px;
+      padding: 6px 10px;
+      background: #fff;
+      font-size: 12px;
+      color: var(--text-black);
+      cursor: pointer;
+    }
+
+    .sim-results {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .result {
+      border-radius: 12px;
+      background: #f6f9ff;
+      border: 1px solid #dfe8fb;
+      padding: 8px;
+    }
+
+    .result .k {
+      font-size: 11px;
+      color: #60729e;
+    }
+
+    .result .v {
+      margin-top: 2px;
+      font-size: 17px;
+      color: var(--dark-blue);
+      font-weight: 800;
+    }
+
+    .bars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      align-items: end;
+      height: 120px;
+      margin-top: 6px;
+    }
+
+    .bar-col {
+      text-align: center;
+    }
+
+    .bar {
+      border-radius: 10px 10px 6px 6px;
+      width: 100%;
+      min-height: 14px;
+      transition: height .25s ease;
+      background: var(--gradient-primary);
+    }
+
+    .bar.apple {
+      background: linear-gradient(180deg, #47b6ff, #1f8ef6);
+    }
+
+    .bar.sim {
+      background: linear-gradient(180deg, #ff8cb8, #f84ca2);
+    }
+
+    .bar.diff {
+      background: linear-gradient(180deg, #ffcb7e, #ff9c5b);
+    }
+
+    .bar-label {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #55638c;
+    }
+
+    .recommend {
+      margin-top: 10px;
+      border-radius: 12px;
+      background: #fff5f8;
+      border: 1px solid #ffd7e8;
+      padding: 10px;
+      font-size: 12px;
+      color: #77324f;
+    }
+
+    .creative-grid {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .creative {
+      border: 1px solid #e4eaf7;
+      border-radius: 12px;
+      padding: 10px;
+      background: #fff;
+      transition: .2s;
+    }
+
+    .creative.active {
+      border-color: #ffb8de;
+      box-shadow: 0 6px 18px rgba(248,76,162,0.16);
+      transform: translateY(-1px);
+    }
+
+    .creative h3 {
+      margin: 0 0 4px;
+      color: var(--dark-blue);
+      font-size: 15px;
+    }
+
+    .creative p {
+      margin: 0 0 8px;
+      color: #676f8c;
+      font-size: 12px;
+    }
+
+    .row-end {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .chip-mini {
+      background: #f3f7ff;
+      border: 1px solid #d8e3fb;
+      color: #3556a7;
+      border-radius: 12px;
+      font-size: 11px;
+      padding: 4px 8px;
+      font-weight: 700;
+    }
+
+    .btn-select {
+      border: none;
+      border-radius: 18px;
+      padding: 7px 10px;
+      color: var(--dark-blue);
+      background: linear-gradient(90deg, #ffe5f3, #ffe9d8);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .preview {
+      border: 1px solid #cddaf4;
+      background: #f8fbff;
+      border-radius: 16px;
+      padding: 10px;
+      margin-top: 8px;
+    }
+
+    .phone {
+      width: 100%;
+      border-radius: 18px;
+      border: 2px solid #d5def3;
+      background: linear-gradient(160deg, #fff5e8, #fff);
+      padding: 12px;
+      min-height: 158px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .phone:before {
+      content: "";
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      right: -35px;
+      top: -40px;
+      background: rgba(248,76,162,0.15);
+    }
+
+    .pv-channel {
+      margin: 0;
+      color: #7b4a6b;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .pv-title {
+      margin: 4px 0;
+      color: var(--dark-blue);
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .pv-sub {
+      margin: 0;
+      font-size: 12px;
+      color: #526282;
+    }
+
+    .pv-cta {
+      margin-top: 10px;
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 30px;
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .abtest {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .run-btn {
+      border: none;
+      border-radius: 30px;
+      padding: 9px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--gradient-pink);
+      color: #fff;
+      box-shadow: 0 6px 14px rgba(248,76,162,0.25);
+    }
+
+    .status-badge {
+      font-size: 12px;
+      font-weight: 700;
+      color: #5f678b;
+      background: #f3f6ff;
+      border: 1px solid #dce3f6;
+      border-radius: 12px;
+      padding: 7px 10px;
+    }
+
+    .sources h2 {
+      margin: 4px 0 8px;
+      font-size: 16px;
+      color: var(--dark-blue);
+    }
+
+    .sources ol {
+      margin: 0;
+      padding-left: 18px;
+      color: #5b627d;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .sources a {
+      color: #0056BA;
+      text-decoration: underline;
+      word-break: break-all;
+    }
+
+    .foot-note {
+      margin-top: 8px;
+      font-size: 11px;
+      color: #727d99;
+    }
+
+    .log-box {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      background: #fffdf6;
+      border: 1px solid #f3e4bc;
+      font-size: 11px;
+      color: #74643f;
+      line-height: 1.6;
+    }
+
+    @media (min-width: 860px) {
+      .app {
+        max-width: 980px;
+        padding: 20px;
+      }
+
+      .tabs {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .metric-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .sim-results {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .creative-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .layout-2col {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="blob a"></div>
+  <div class="blob b"></div>
+  <div class="blob c"></div>
+
+  <main class="app">
+    <section class="hero">
+      <div class="hero-top">
+        <div>
+          <p class="hand-note">売るか迷う気持ちに、やさしい数字を。</p>
+          <h1>UcarPAC<br>広告チャネル最適化ラボ</h1>
+          <p>日次差分モード: 2026-03-03（比較: 2026-03-02）</p>
+        </div>
+        <div class="mascot" aria-hidden="true">
+          <span class="mouth"></span>
+        </div>
+      </div>
+      <div class="hero-badges">
+        <span class="tag pink">目標: 限られた予算で最大DL</span>
+        <span class="tag">対象KPI: 有効CPI / 申込CPA</span>
+        <span class="tag">重点: AppleAds予算再配分</span>
+      </div>
+    </section>
+
+    <nav class="tabs">
+      <button class="tab active" data-tab="dashboard">1. チャネル別ダッシュボード</button>
+      <button class="tab" data-tab="apple">2. AppleAds強化提案</button>
+      <button class="tab" data-tab="creative">3. クリエイティブ案</button>
+    </nav>
+
+    <section id="dashboard" class="panel active">
+      <article class="card">
+        <h2>チャネル別 KPI 一覧</h2>
+        <p class="desc">社内実績（ダミー）に日次差分を反映。クリックでソート可能です。</p>
+
+        <div class="metric-grid">
+          <div class="metric">
+            <div class="k">広告費合計</div>
+            <div class="v" id="sumBudget">¥0</div>
+          </div>
+          <div class="metric">
+            <div class="k">総DL</div>
+            <div class="v" id="sumDl">0</div>
+          </div>
+          <div class="metric">
+            <div class="k">平均 有効CPI</div>
+            <div class="v" id="avgEcpi">¥0</div>
+          </div>
+          <div class="metric">
+            <div class="k">平均 申込CPA</div>
+            <div class="v" id="avgCpa">¥0</div>
+          </div>
+        </div>
+
+        <div class="focus-buttons">
+          <button class="focus-btn active" data-focus="effectiveCpi">有効CPI重視</button>
+          <button class="focus-btn" data-focus="applicationCpa">申込CPA重視</button>
+          <button class="focus-btn" data-focus="roas">ROAS重視</button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-sort="channel">チャネル</th>
+                <th data-sort="budget">予算(円)</th>
+                <th data-sort="downloads">DL</th>
+                <th data-sort="effectiveCpi">有効CPI</th>
+                <th data-sort="applicationCpa">申込CPA</th>
+                <th data-sort="roas">ROAS</th>
+                <th data-sort="diff">前日比DL</th>
+              </tr>
+            </thead>
+            <tbody id="channelBody"></tbody>
+          </table>
+        </div>
+      </article>
+
+      <div class="layout-2col">
+        <article class="card">
+          <h2>高CV車種サンプル</h2>
+          <p class="desc">DL後30日で申込に至ったユーザーの車両傾向（ダミー）。</p>
+          <div class="car-list">
+            <div class="car-row">
+              <div>
+                <strong>トヨタ プリウス S（2019年 / 4.2万km）</strong>
+                相場推定: 128万〜142万円
+              </div>
+              <div>申込率 10.8%</div>
+            </div>
+            <div class="car-row">
+              <div>
+                <strong>ホンダ N-BOX G（2020年 / 3.1万km）</strong>
+                相場推定: 86万〜96万円
+              </div>
+              <div>申込率 9.9%</div>
+            </div>
+            <div class="car-row">
+              <div>
+                <strong>日産 セレナ e-POWER（2018年 / 5.6万km）</strong>
+                相場推定: 151万〜168万円
+              </div>
+              <div>申込率 9.3%</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>今日の打ち手</h2>
+          <p class="desc">有効CPI最適化の即日アクション。</p>
+          <div class="recommend">
+            1) AppleAdsへ予算を段階的に+20%配分<br>
+            2) Metaはリマーケ寄せで申込CPA改善<br>
+            3) TikTokはDL効率維持しつつ動画尺を6秒中心に統一
+          </div>
+          <div class="log-box">
+            [反映ログ]<br>
+            - index 更新: 2026-03-03 09:20<br>
+            - generation-log 追記: app-ad-channel-optimization v2<br>
+            - kpi-history 反映: 有効CPI/申込CPA 日次差分
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="apple" class="panel">
+      <article class="card">
+        <h2>AppleAds 予算増額シミュレーション</h2>
+        <p class="desc">有効CPI最安チャネルを前提に、予算再配分時のDL増分を推計（推定モデル）。</p>
+
+        <div class="sim-controls">
+          <div class="range-box">
+            <label>
+              <span>AppleAds 予算増額率</span>
+              <strong id="budgetRateLabel">+20%</strong>
+            </label>
+            <input id="budgetRange" type="range" min="0" max="80" value="20" step="5">
+          </div>
+          <div class="check-row">
+            <label class="check-chip"><input type="checkbox" id="useCpp" checked> CPP最適化を適用</label>
+            <label class="check-chip"><input type="checkbox" id="useMultiPlacement" checked> 複数プレースメント配信</label>
+          </div>
+        </div>
+
+        <div class="sim-results">
+          <div class="result">
+            <div class="k">想定予算</div>
+            <div class="v" id="simBudget">¥0</div>
+          </div>
+          <div class="result">
+            <div class="k">想定有効DL</div>
+            <div class="v" id="simInstalls">0</div>
+          </div>
+          <div class="result">
+            <div class="k">想定有効CPI</div>
+            <div class="v" id="simEcpi">¥0</div>
+          </div>
+          <div class="result">
+            <div class="k">想定申込CPA</div>
+            <div class="v" id="simCpa">¥0</div>
+          </div>
+        </div>
+
+        <div class="bars">
+          <div class="bar-col">
+            <div class="bar apple" id="barBase" style="height:44px;"></div>
+            <div class="bar-label">現状DL</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar sim" id="barSim" style="height:56px;"></div>
+            <div class="bar-label">増額後DL</div>
+          </div>
+          <div class="bar-col">
+            <div class="bar diff" id="barDiff" style="height:18px;"></div>
+            <div class="bar-label">増分DL</div>
+          </div>
+        </div>
+
+        <div class="recommend" id="simAdvice">
+          推奨: +20%増額時は有効DL純増が最も効率的。+40%を超えるとCPI悪化が加速するため段階実行を推奨。
+        </div>
+      </article>
+    </section>
+
+    <section id="creative" class="panel">
+      <article class="card">
+        <h2>DL率上位チャネル向け クリエイティブ案</h2>
+        <p class="desc">感情に寄り添う訴求で不安を下げ、DLと申込意向を同時に高める構成。</p>
+
+        <div class="creative-grid">
+          <div class="creative active" data-id="apple">
+            <h3>AppleAds: 安心の相場チェック型</h3>
+            <p>「個人情報なし」を先頭で表示。検索意図に合う短文コピー。</p>
+            <div class="row-end">
+              <span class="chip-mini">想定DLR +14%</span>
+              <button class="btn-select" data-select="apple">プレビュー反映</button>
+            </div>
+          </div>
+
+          <div class="creative" data-id="tiktok">
+            <h3>TikTok: 体験ストーリー型UGC</h3>
+            <p>“売るか迷う”気持ちの共感導線。6秒で価値が伝わる編集。</p>
+            <div class="row-end">
+              <span class="chip-mini">想定DLR +11%</span>
+              <button class="btn-select" data-select="tiktok">プレビュー反映</button>
+            </div>
+          </div>
+
+          <div class="creative" data-id="meta">
+            <h3>Meta: 再検討ユーザー回収型</h3>
+            <p>車種と未来相場を静止画カルーセルで再提示し、申込へ。</p>
+            <div class="row-end">
+              <span class="chip-mini">想定DLR +8%</span>
+              <button class="btn-select" data-select="meta">プレビュー反映</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview">
+          <div class="phone" id="previewPhone">
+            <p class="pv-channel" id="pvChannel">Apple Search Ads向け</p>
+            <p class="pv-title" id="pvTitle">今すぐ売らなくてもOK。<br>あなたの愛車、いま何円？</p>
+            <p class="pv-sub" id="pvSub">例: トヨタ プリウス 2019年 予想 138万円。個人情報入力なし。</p>
+            <span class="pv-cta" id="pvCta">30秒でAI査定を見る</span>
+          </div>
+          <div class="abtest">
+            <button class="run-btn" id="runAb">A/Bテスト開始</button>
+            <span class="status-badge" id="abStatus">状態: 未開始</span>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="card sources">
+      <h2>主要主張の出典（URL / 日付）</h2>
+      <ol>
+        <li>AppTweak「Apple Ads benchmarks 2025」(2025-10-09): 国別CPI（米国4.06ドル、日本2.57ドル）とグローバル中央値CPIの記載。<br><a href="https://www.apptweak.com/en/aso-blog/apple-ads-benchmarks" target="_blank" rel="noopener noreferrer">https://www.apptweak.com/en/aso-blog/apple-ads-benchmarks</a></li>
+        <li>AppsFlyer「Performance Index 2025」PR (2025-12-03): Apple AdsがiOS非ゲームで上位、分析母数16.2B installs。<br><a href="https://www.appsflyer.com/company/newsroom/pr/performance-index-2025/" target="_blank" rel="noopener noreferrer">https://www.appsflyer.com/company/newsroom/pr/performance-index-2025/</a></li>
+        <li>Apple Ads Help（参照日: 2026-03-03）: CPI定義（総広告費÷インストール数）。<br><a href="https://ads.apple.com/app-store/help/apple-ads-basic/0044-view-basic-app-promotion-performance" target="_blank" rel="noopener noreferrer">https://ads.apple.com/app-store/help/apple-ads-basic/0044-view-basic-app-promotion-performance</a></li>
+        <li>Apple Ads Best Practices（参照日: 2026-03-03）: App Storeで検索起点DL比率（約65%）と複数プレースメント運用示唆。<br><a href="https://ads.apple.com/app-store/best-practices/ad-placements" target="_blank" rel="noopener noreferrer">https://ads.apple.com/app-store/best-practices/ad-placements</a></li>
+        <li>Singular ROI Index 2025解説 (2025-04-23): Apple Search Adsの広告費規模とROIポジション言及。<br><a href="https://www.singular.net/blog/mobile-advertising/" target="_blank" rel="noopener noreferrer">https://www.singular.net/blog/mobile-advertising/</a></li>
+        <li>Adjust Shopping App Insights記事 (2025-10-27): 地域別CPI（北米2.70ドル等）とQ1 2025動向。<br><a href="https://www.adjust.com/blog/shopping-app-trends/" target="_blank" rel="noopener noreferrer">https://www.adjust.com/blog/shopping-app-trends/</a></li>
+        <li>Adjust Mobile App Trends 2026（Business Wire, 2026-02-18）: 2025年のinstall +10%、session +7% 等。<br><a href="https://www.businesswire.com/news/home/20260218837408/en/" target="_blank" rel="noopener noreferrer">https://www.businesswire.com/news/home/20260218837408/en/</a></li>
+        <li>Liftoff Mobile Ad Creative Index（PR, 2024-03-04）: UGCのCPI改善・ROAS強化傾向。<br><a href="https://www.prnewswire.com/news-releases/liftoff-mobile-ad-creative-index-reveals-ugc-and-interstitial-ads-are-key-to-unlocking-advertising-roi-302078540.html" target="_blank" rel="noopener noreferrer">https://www.prnewswire.com/news-releases/liftoff-mobile-ad-creative-index-reveals-ugc-and-interstitial-ads-are-key-to-unlocking-advertising-roi-302078540.html</a></li>
+      </ol>
+      <p class="foot-note">※推定と明記した箇所は、上記外部ベンチマークと社内実績（ダミー）を統合した推計値です。</p>
+    </section>
+  </main>
+
+  <script>
+    const channels = [
+      { channel: "Apple Search Ads", budget: 1800000, downloads: 4080, validRate: 0.93, applications: 347, roas: 186, diff: 12.4 },
+      { channel: "TikTok for Business", budget: 900000, downloads: 1960, validRate: 0.90, applications: 130, roas: 154, diff: 8.1 },
+      { channel: "Meta Ads", budget: 1400000, downloads: 2620, validRate: 0.86, applications: 166, roas: 141, diff: -3.2 },
+      { channel: "Google App Campaign", budget: 1200000, downloads: 2180, validRate: 0.83, applications: 135, roas: 137, diff: -1.1 },
+      { channel: "Moloco", budget: 500000, downloads: 940, validRate: 0.88, applications: 62, roas: 147, diff: 4.8 },
+      { channel: "X Ads", budget: 300000, downloads: 470, validRate: 0.82, applications: 20, roas: 92, diff: -9.6 }
+    ];
+
+    let sortKey = "effectiveCpi";
+    let sortAsc = true;
+    let focusMetric = "effectiveCpi";
+
+    const yen = (n) => "¥" + Math.round(n).toLocaleString("ja-JP");
+    const num = (n) => Math.round(n).toLocaleString("ja-JP");
+
+    function computedRow(row) {
+      const validInstalls = row.downloads * row.validRate;
+      return {
+        ...row,
+        effectiveCpi: row.budget / validInstalls,
+        applicationCpa: row.budget / row.applications
+      };
+    }
+
+    function renderSummary(rows) {
+      const sumBudget = rows.reduce((a, b) => a + b.budget, 0);
+      const sumDl = rows.reduce((a, b) => a + b.downloads, 0);
+      const totalValid = rows.reduce((a, b) => a + (b.downloads * b.validRate), 0);
+      const sumApps = rows.reduce((a, b) => a + b.applications, 0);
+      document.getElementById("sumBudget").textContent = yen(sumBudget);
+      document.getElementById("sumDl").textContent = num(sumDl);
+      document.getElementById("avgEcpi").textContent = yen(sumBudget / totalValid);
+      document.getElementById("avgCpa").textContent = yen(sumBudget / sumApps);
+    }
+
+    function renderTable() {
+      let rows = channels.map(computedRow);
+
+      rows.sort((a, b) => {
+        const va = a[sortKey];
+        const vb = b[sortKey];
+        if (typeof va === "string") return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+        return sortAsc ? va - vb : vb - va;
+      });
+
+      const bestVal = focusMetric === "roas"
+        ? Math.max(...rows.map(r => r[focusMetric]))
+        : Math.min(...rows.map(r => r[focusMetric]));
+
+      const body = document.getElementById("channelBody");
+      body.innerHTML = rows.map(r => {
+        const isBest = r[focusMetric] === bestVal;
+        const deltaClass = r.diff >= 0 ? "up" : "down";
+        const deltaText = (r.diff >= 0 ? "+" : "") + r.diff.toFixed(1) + "%";
+        return `
+          <tr class="${isBest ? "best" : ""}">
+            <td>${r.channel}</td>
+            <td>${num(r.budget)}</td>
+            <td>${num(r.downloads)}</td>
+            <td>${yen(r.effectiveCpi)}</td>
+            <td>${yen(r.applicationCpa)}</td>
+            <td>${r.roas.toFixed(0)}%</td>
+            <td class="delta ${deltaClass}">${deltaText}</td>
+          </tr>
+        `;
+      }).join("");
+      renderSummary(rows);
+    }
+
+    document.querySelectorAll(".focus-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".focus-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        focusMetric = btn.dataset.focus;
+        if (focusMetric === "roas") {
+          sortKey = "roas";
+          sortAsc = false;
+        } else {
+          sortKey = focusMetric;
+          sortAsc = true;
+        }
+        renderTable();
+      });
+    });
+
+    document.querySelectorAll("th[data-sort]").forEach(th => {
+      th.addEventListener("click", () => {
+        const key = th.dataset.sort;
+        if (sortKey === key) sortAsc = !sortAsc;
+        else {
+          sortKey = key;
+          sortAsc = key === "channel";
+        }
+        renderTable();
+      });
+    });
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+        tab.classList.add("active");
+        document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+        document.getElementById(tab.dataset.tab).classList.add("active");
+      });
+    });
+
+    const baseApple = computedRow(channels[0]);
+    const budgetRange = document.getElementById("budgetRange");
+    const budgetRateLabel = document.getElementById("budgetRateLabel");
+    const useCpp = document.getElementById("useCpp");
+    const useMultiPlacement = document.getElementById("useMultiPlacement");
+
+    function simulateApple() {
+      const p = Number(budgetRange.value) / 100;
+      budgetRateLabel.textContent = "+" + budgetRange.value + "%";
+
+      let newBudget = baseApple.budget * (1 + p);
+      let ecpi = baseApple.effectiveCpi;
+      ecpi *= 1 + Math.max(0, p - 0.25) * 0.38;
+      if (useCpp.checked) ecpi *= 0.94;
+      if (useMultiPlacement.checked) ecpi *= 0.96;
+
+      const validInstalls = newBudget / ecpi;
+      const appRateBase = baseApple.applications / (baseApple.downloads * baseApple.validRate);
+      let appRate = appRateBase;
+      if (useCpp.checked) appRate *= 1.05;
+      if (useMultiPlacement.checked) appRate *= 1.03;
+
+      const apps = validInstalls * appRate;
+      let simCpa = newBudget / apps;
+
+      document.getElementById("simBudget").textContent = yen(newBudget);
+      document.getElementById("simInstalls").textContent = num(validInstalls);
+      document.getElementById("simEcpi").textContent = yen(ecpi);
+      document.getElementById("simCpa").textContent = yen(simCpa);
+
+      const baseValid = baseApple.downloads * baseApple.validRate;
+      const inc = Math.max(0, validInstalls - baseValid);
+      const baseH = Math.min(108, Math.round(baseValid / 46));
+      const simH = Math.min(108, Math.round(validInstalls / 46));
+      const incH = Math.min(108, Math.max(12, Math.round(inc / 30)));
+
+      document.getElementById("barBase").style.height = baseH + "px";
+      document.getElementById("barSim").style.height = simH + "px";
+      document.getElementById("barDiff").style.height = incH + "px";
+
+      const advice = document.getElementById("simAdvice");
+      if (p <= 0.25) {
+        advice.textContent = "推奨: 現在の設定では増額効率が高いゾーンです。+20%前後で段階的に配分し、48時間ごとに有効CPIを再評価。";
+      } else if (p <= 0.5) {
+        advice.textContent = "注意: +30%以降はCPI上振れリスク。CPP・キーワード除外を同時適用し、申込CPA悪化を抑制してください。";
+      } else {
+        advice.textContent = "警戒: +55%以上は効率低下の可能性が高い推定。AppleAds単独拡張より、TikTok/Meta再配分との併用を推奨。";
+      }
+    }
+
+    [budgetRange, useCpp, useMultiPlacement].forEach(el => el.addEventListener("input", simulateApple));
+    [useCpp, useMultiPlacement].forEach(el => el.addEventListener("change", simulateApple));
+
+    const creativeMap = {
+      apple: {
+        channel: "Apple Search Ads向け",
+        title: "今すぐ売らなくてもOK。<br>あなたの愛車、いま何円？",
+        sub: "例: トヨタ プリウス 2019年 予想 138万円。個人情報入力なし。",
+        cta: "30秒でAI査定を見る",
+        bg: "linear-gradient(160deg,#fff5e8,#ffffff)"
+      },
+      tiktok: {
+        channel: "TikTok向けUGC",
+        title: "「電話いっぱい来るの怖い…」<br>その不安、ここで終わり。",
+        sub: "電話1社のみ。8,000社オークションで最高額を狙える。",
+        cta: "相場だけ先にチェック",
+        bg: "linear-gradient(160deg,#fff0f7,#fff8ef)"
+      },
+      meta: {
+        channel: "Meta再検討向け",
+        title: "3か月後の予想まで見える。<br>売りどきを、後悔なく。",
+        sub: "ホンダ N-BOX 2020年 予測: 91万円 → 88万円（3か月後）",
+        cta: "将来予測グラフを見る",
+        bg: "linear-gradient(160deg,#edf4ff,#fff8f2)"
+      }
+    };
+
+    document.querySelectorAll(".btn-select").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.select;
+        document.querySelectorAll(".creative").forEach(c => c.classList.remove("active"));
+        btn.closest(".creative").classList.add("active");
+        const v = creativeMap[id];
+        document.getElementById("pvChannel").textContent = v.channel;
+        document.getElementById("pvTitle").innerHTML = v.title;
+        document.getElementById("pvSub").textContent = v.sub;
+        document.getElementById("pvCta").textContent = v.cta;
+        document.getElementById("previewPhone").style.background = v.bg;
+      });
+    });
+
+    const runAb = document.getElementById("runAb");
+    const abStatus = document.getElementById("abStatus");
+    const statuses = ["状態: 未開始", "状態: 配信準備中", "状態: テスト配信中", "状態: 学習完了（次アクション待ち）"];
+    let st = 0;
+    runAb.addEventListener("click", () => {
+      st = (st + 1) % statuses.length;
+      abStatus.textContent = statuses[st];
+    });
+
+    renderTable();
+    simulateApple();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="ja">
+<script src="../auth.js"></script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UcarPAC 広告チャネル最適化ダッシュボード | 2026-03-03</title>
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --text-disabled: #B3B3B3;
+      --text-placeholder: rgba(28,38,99,0.3);
+      --back-white: #FAFAFA;
+      --light-gray: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --back-gray2: #e6e6e6;
+      --back-blue: #091355;
+      --back-dark-blue: #0a1348;
+      --back-light-pink: #ffd8e8;
+      --back-light-blue: #6fc2ff;
+      --error: #EB4646;
+      --shadow: rgba(0, 0, 0, 0.11);
+      --ruled-line: #F2F2F2;
+      --border-gray: #7C7C7C;
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+      --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
+      --gradient-disabled: linear-gradient(90deg, #e5e5e5, #e5e5e5);
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --radius-sm: 5px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-chip: 22px;
+      --radius-button: 30px;
+      --ok: #009f5d;
+      --warn: #d98200;
+      --card-border: #d7deea;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text-black);
+      font-family: "Noto Sans JP", "Hiragino Sans", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 20% -10%, #d8ecff 0%, rgba(216, 236, 255, 0) 40%),
+        radial-gradient(circle at 90% 0%, #ffd7eb 0%, rgba(255, 215, 235, 0) 38%),
+        linear-gradient(180deg, #f7fbff 0%, #f3f6fb 70%, #eef2f8 100%);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 14px;
+    }
+
+    .header {
+      background: linear-gradient(150deg, #08144f 0%, #17339e 65%, #1d59c8 100%);
+      border-radius: 16px;
+      padding: 16px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 24px rgba(9, 19, 85, 0.22);
+      isolation: isolate;
+    }
+
+    .header::before,
+    .header::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      z-index: -1;
+    }
+
+    .header::before {
+      width: 220px;
+      height: 220px;
+      right: -80px;
+      top: -90px;
+      background: rgba(111, 194, 255, 0.34);
+    }
+
+    .header::after {
+      width: 140px;
+      height: 140px;
+      left: -45px;
+      bottom: -70px;
+      background: rgba(248, 76, 162, 0.34);
+    }
+
+    .subhead {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      border-radius: 999px;
+      padding: 2px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      background: rgba(255, 255, 255, 0.12);
+      color: #eaf4ff;
+      border: 1px solid rgba(255, 255, 255, 0.23);
+    }
+
+    .badge.pink {
+      background: rgba(248, 76, 162, 0.2);
+      color: #ffe7f4;
+      border-color: rgba(248, 76, 162, 0.45);
+    }
+
+    .badge.cyan {
+      background: rgba(29, 220, 255, 0.2);
+      color: #d5f8ff;
+      border-color: rgba(29, 220, 255, 0.52);
+    }
+
+    .title {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.3;
+      letter-spacing: 0.02em;
+    }
+
+    .desc {
+      margin: 8px 0 0;
+      font-size: 13px;
+      color: #d8e7ff;
+    }
+
+    .top-kpis {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .kpi-card {
+      background: #fff;
+      border: 1px solid var(--card-border);
+      border-radius: 13px;
+      min-height: 92px;
+      padding: 12px;
+      box-shadow: 0 2px 10px var(--shadow);
+      animation: pop 400ms ease both;
+    }
+
+    .kpi-label {
+      margin: 0;
+      color: var(--text-gray);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .kpi-value {
+      margin: 5px 0 0;
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--dark-blue);
+      letter-spacing: 0.01em;
+    }
+
+    .kpi-sub {
+      margin: 2px 0 0;
+      font-size: 11px;
+      color: var(--text-gray);
+    }
+
+    .tabs {
+      display: flex;
+      margin-top: 14px;
+      background: #eaf0f8;
+      border-radius: 999px;
+      padding: 4px;
+      gap: 4px;
+      border: 1px solid #d8e1ef;
+    }
+
+    .tab-btn {
+      border: 0;
+      border-radius: 999px;
+      min-height: 42px;
+      padding: 0 14px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-gray);
+      background: transparent;
+      flex: 1;
+      cursor: pointer;
+      transition: 180ms ease;
+    }
+
+    .tab-btn.active {
+      color: var(--dark-blue);
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(28, 38, 99, 0.16);
+    }
+
+    .panel {
+      display: none;
+      margin-top: 14px;
+      background: #fff;
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      box-shadow: 0 4px 18px var(--shadow);
+      padding: 14px;
+    }
+
+    .panel.active {
+      display: block;
+      animation: fade-in 260ms ease both;
+    }
+
+    .panel h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      color: var(--dark-blue);
+    }
+
+    .panel h3 {
+      margin: 0 0 6px;
+      font-size: 16px;
+      color: var(--dark-blue);
+    }
+
+    .toolbar {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .segmented {
+      display: flex;
+      background: var(--back-gray);
+      border-radius: 999px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .segmented button {
+      border: 0;
+      border-radius: 999px;
+      min-height: 34px;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-gray);
+      flex: 1;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .segmented button.active {
+      background: #fff;
+      color: var(--dark-blue);
+      box-shadow: 0 2px 7px rgba(28, 38, 99, 0.15);
+    }
+
+    .tiny-note {
+      margin: 0;
+      color: var(--text-gray);
+      font-size: 11px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid #dde5f0;
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid #edf2f8;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #f6f9fe;
+      color: #516079;
+      font-weight: 700;
+      position: sticky;
+      top: 0;
+    }
+
+    tr.channel-row {
+      cursor: pointer;
+      transition: 160ms ease;
+    }
+
+    tr.channel-row:hover {
+      background: #f7fbff;
+    }
+
+    tr.channel-row.selected {
+      background: #eef4ff;
+      outline: 1px solid #b7ccf5;
+    }
+
+    .good {
+      color: var(--ok);
+      font-weight: 700;
+    }
+
+    .bad {
+      color: var(--error);
+      font-weight: 700;
+    }
+
+    .bar {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #e9edf4;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      background: var(--gradient-primary);
+      border-radius: 999px;
+      transform-origin: left;
+      animation: grow 700ms ease both;
+    }
+
+    .detail-grid {
+      margin-top: 10px;
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr;
+    }
+
+    .detail-card {
+      border: 1px solid #dbe3f0;
+      border-radius: 12px;
+      padding: 12px;
+      background: #fbfdff;
+    }
+
+    .detail-num {
+      margin: 2px 0 0;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--dark-blue);
+    }
+
+    .charts {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+      grid-template-columns: 1fr;
+    }
+
+    .chart-card {
+      border: 1px solid #dbe3f0;
+      border-radius: 12px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--text-gray);
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .simulation-grid {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .sim-control {
+      border: 1px solid #dce5f0;
+      border-radius: 12px;
+      padding: 12px;
+      background: #fbfdff;
+    }
+
+    .sim-label {
+      font-size: 12px;
+      color: var(--text-gray);
+      margin-bottom: 4px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--pink);
+    }
+
+    .switch {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--text-black);
+    }
+
+    .sim-kpi-cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .sim-kpi {
+      border-radius: 12px;
+      border: 1px solid #dbe3f0;
+      padding: 10px;
+      background: #fff;
+      min-height: 90px;
+    }
+
+    .sim-kpi p {
+      margin: 0;
+    }
+
+    .sim-kpi .name {
+      font-size: 11px;
+      color: var(--text-gray);
+      margin-bottom: 5px;
+    }
+
+    .sim-kpi .num {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--dark-blue);
+      line-height: 1.2;
+    }
+
+    .sim-kpi .delta {
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .hint-box {
+      margin-top: 10px;
+      border-radius: 12px;
+      border: 1px solid #d6e6ff;
+      background: linear-gradient(135deg, #f3f9ff 0%, #fff7fb 100%);
+      padding: 10px;
+    }
+
+    .hint-box p {
+      margin: 0;
+      font-size: 12px;
+    }
+
+    .creative-grid {
+      margin-top: 10px;
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr;
+    }
+
+    .creative-card {
+      border: 1px solid #dbe3f0;
+      border-radius: 13px;
+      padding: 12px;
+      background: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .creative-card.active {
+      border-color: var(--pink);
+      box-shadow: 0 8px 16px rgba(248, 76, 162, 0.15);
+    }
+
+    .creative-tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #edf3ff;
+      color: var(--dark-blue);
+      margin-right: 6px;
+    }
+
+    .creative-title {
+      margin: 6px 0 4px;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--dark-blue);
+    }
+
+    .creative-copy {
+      margin: 0;
+      font-size: 13px;
+      color: var(--text-black);
+    }
+
+    .creative-metrics {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .metric-chip {
+      border-radius: 10px;
+      background: #f6f9ff;
+      border: 1px solid #e1e8f5;
+      padding: 6px;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .metric-chip strong {
+      display: block;
+      color: var(--dark-blue);
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    .action-btn {
+      margin-top: 10px;
+      min-height: 43px;
+      width: 100%;
+      border: 0;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--dark-blue);
+      background: var(--gradient-primary);
+      cursor: pointer;
+      transition: 180ms ease;
+    }
+
+    .action-btn.selected {
+      background: var(--gradient-pink);
+      color: #fff;
+    }
+
+    .summary {
+      margin-top: 12px;
+      border-radius: 12px;
+      border: 1px solid #dbe3f0;
+      background: #fbfdff;
+      padding: 12px;
+    }
+
+    .summary p {
+      margin: 0 0 6px;
+      font-size: 12px;
+    }
+
+    .source-table {
+      width: 100%;
+      min-width: 680px;
+      margin-top: 8px;
+    }
+
+    .source-table td a {
+      color: var(--dark-blue);
+      text-decoration: underline;
+      word-break: break-all;
+    }
+
+    .muted {
+      color: var(--text-gray);
+      font-size: 11px;
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      text-align: center;
+      color: var(--text-gray);
+      font-size: 11px;
+      padding-bottom: 24px;
+    }
+
+    @media (min-width: 720px) {
+      .shell {
+        padding: 20px;
+      }
+
+      .top-kpis {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .toolbar {
+        grid-template-columns: 1fr auto;
+      }
+
+      .detail-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .charts {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .simulation-grid {
+        grid-template-columns: 1.2fr 1fr;
+      }
+
+      .creative-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pop {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes grow {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="header">
+      <div class="subhead">
+        <span class="badge pink">B案 / データドリブン</span>
+        <span class="badge cyan">$deep-research-max</span>
+        <span class="badge">日次差分: 2026-03-03</span>
+      </div>
+      <h1 class="title">広告チャネル別 CPI/CPA 最適化ダッシュボード</h1>
+      <p class="desc">対象KPI: 有効CPI・申込CPI（チャネル別） / 目的: 限られた広告予算で最大DLを獲得</p>
+    </header>
+
+    <section class="top-kpis">
+      <article class="kpi-card">
+        <p class="kpi-label">総広告費（月次）</p>
+        <p class="kpi-value" id="sumSpend">-</p>
+        <p class="kpi-sub">前日比 <span class="good">+3.2%</span></p>
+      </article>
+      <article class="kpi-card">
+        <p class="kpi-label">総DL</p>
+        <p class="kpi-value" id="sumInstall">-</p>
+        <p class="kpi-sub">前日比 <span class="good">+5.7%</span></p>
+      </article>
+      <article class="kpi-card">
+        <p class="kpi-label">加重平均 有効CPI</p>
+        <p class="kpi-value" id="blendEffCpi">-</p>
+        <p class="kpi-sub">前日比 <span class="good">-4.3%</span></p>
+      </article>
+      <article class="kpi-card">
+        <p class="kpi-label">加重平均 申込CPI</p>
+        <p class="kpi-value" id="blendApplyCpi">-</p>
+        <p class="kpi-sub">前日比 <span class="good">-3.1%</span></p>
+      </article>
+    </section>
+
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="dashboard">1. チャネル別ダッシュボード</button>
+      <button class="tab-btn" data-tab="apple">2. AppleAds強化提案</button>
+      <button class="tab-btn" data-tab="creative">3. クリエイティブ案</button>
+    </nav>
+
+    <section class="panel active" id="dashboard">
+      <h2>CPI / CPA / ROAS 一覧</h2>
+      <div class="toolbar">
+        <div class="segmented">
+          <button id="sortEff" class="active">有効CPI重視</button>
+          <button id="sortApply">申込CPI重視</button>
+          <button id="sortRoas">ROAS重視</button>
+        </div>
+        <p class="tiny-note">日次差分モード: 2026-03-02 比較</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>チャネル</th>
+              <th>広告費</th>
+              <th>DL</th>
+              <th>有効DL率</th>
+              <th>有効CPI</th>
+              <th>申込CPI</th>
+              <th>ROAS</th>
+              <th>日次差分</th>
+            </tr>
+          </thead>
+          <tbody id="channelRows"></tbody>
+        </table>
+      </div>
+
+      <div class="detail-grid" id="channelDetails">
+        <article class="detail-card">
+          <h3>選択チャネル</h3>
+          <p class="detail-num" id="detailName">-</p>
+          <p class="muted" id="detailMemo">-</p>
+        </article>
+        <article class="detail-card">
+          <h3>有効CPI</h3>
+          <p class="detail-num" id="detailEffCpi">-</p>
+          <div class="bar"><span id="effBar" style="width: 0%"></span></div>
+          <p class="muted">下限目標: ¥380</p>
+        </article>
+        <article class="detail-card">
+          <h3>申込CPI</h3>
+          <p class="detail-num" id="detailApplyCpi">-</p>
+          <div class="bar"><span id="applyBar" style="width: 0%"></span></div>
+          <p class="muted">下限目標: ¥12,000</p>
+        </article>
+      </div>
+
+      <div class="charts">
+        <article class="chart-card">
+          <h3>有効CPI 7日推移（選択チャネル）</h3>
+          <svg id="trendChart" viewBox="0 0 360 180" width="100%" height="190" aria-label="有効CPI推移チャート"></svg>
+          <div class="legend">
+            <span><i class="dot" style="background:#F84CA2;"></i>有効CPI</span>
+            <span><i class="dot" style="background:#6fc2ff;"></i>目標ライン (¥380)</span>
+          </div>
+        </article>
+        <article class="chart-card">
+          <h3>チャネル別 ROAS 比較</h3>
+          <svg id="roasChart" viewBox="0 0 360 180" width="100%" height="190" aria-label="ROAS棒グラフ"></svg>
+          <div class="legend">
+            <span><i class="dot" style="background:#1ddcff;"></i>100%以上は黒字運用ゾーン</span>
+          </div>
+        </article>
+      </div>
+
+      <article class="chart-card" style="margin-top:10px;">
+        <h3>直近成約サンプル（リアルな検証用ダミーデータ）</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>車名</th>
+                <th>年式</th>
+                <th>走行距離</th>
+                <th>AI査定</th>
+                <th>落札価格</th>
+                <th>差分</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>トヨタ アルファード 2.5S Cパッケージ</td>
+                <td>2021年</td>
+                <td>34,100km</td>
+                <td>¥3,920,000</td>
+                <td>¥4,080,000</td>
+                <td class="good">+¥160,000</td>
+              </tr>
+              <tr>
+                <td>ホンダ N-BOX G・L ターボ</td>
+                <td>2020年</td>
+                <td>41,800km</td>
+                <td>¥1,030,000</td>
+                <td>¥1,110,000</td>
+                <td class="good">+¥80,000</td>
+              </tr>
+              <tr>
+                <td>マツダ CX-5 XD L Package</td>
+                <td>2019年</td>
+                <td>58,200km</td>
+                <td>¥1,760,000</td>
+                <td>¥1,690,000</td>
+                <td class="bad">-¥70,000</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel" id="apple">
+      <h2>AppleAds 強化シミュレーション（CPI最安チャネル）</h2>
+      <p class="tiny-note">前提: Apple Search Ads のベース実績（2026-02月）を基準に、予算増額時の有効CPI・申込CPI・ROASを試算。</p>
+
+      <div class="simulation-grid">
+        <div class="sim-control">
+          <h3>シミュレーション入力</h3>
+          <p class="sim-label">AppleAds月次予算</p>
+          <input type="range" id="budgetRange" min="3000000" max="8500000" step="100000" value="4200000" />
+          <p class="detail-num" id="budgetValue">¥4,200,000</p>
+
+          <p class="sim-label">配信拡張強度（飽和係数）</p>
+          <input type="range" id="elasticRange" min="10" max="45" step="1" value="24" />
+          <p class="muted" id="elasticValue">24%（推奨: 20-28%）</p>
+
+          <label class="switch">
+            <input type="checkbox" id="creativeBoost" checked />
+            クリエイティブ刷新を同時実施（CPI改善）
+          </label>
+          <label class="switch">
+            <input type="checkbox" id="keywordExpand" />
+            一般キーワード拡張（DL増・質やや低下）
+          </label>
+
+          <div class="hint-box">
+            <p id="simHint">提案: 予算を+30%（¥5,460,000）まで増額し、指名×高意図キーワードを維持。申込CPIを維持しながらDLを伸ばせます。</p>
+          </div>
+        </div>
+
+        <div>
+          <div class="sim-kpi-cards">
+            <article class="sim-kpi">
+              <p class="name">予測DL数</p>
+              <p class="num" id="simInstalls">-</p>
+              <p class="delta" id="deltaInstalls">-</p>
+            </article>
+            <article class="sim-kpi">
+              <p class="name">予測 有効CPI</p>
+              <p class="num" id="simEffCpi">-</p>
+              <p class="delta" id="deltaEffCpi">-</p>
+            </article>
+            <article class="sim-kpi">
+              <p class="name">予測 申込CPI</p>
+              <p class="num" id="simApplyCpi">-</p>
+              <p class="delta" id="deltaApplyCpi">-</p>
+            </article>
+            <article class="sim-kpi">
+              <p class="name">予測 ROAS</p>
+              <p class="num" id="simRoas">-</p>
+              <p class="delta" id="deltaRoas">-</p>
+            </article>
+          </div>
+
+          <article class="chart-card" style="margin-top:10px;">
+            <h3>増額に対する効率進捗</h3>
+            <p class="muted">予算配分進捗</p>
+            <div class="bar"><span id="budgetBar" style="width:0%"></span></div>
+            <p class="muted" style="margin-top:8px;">DL増加進捗（目標 +2,500DL）</p>
+            <div class="bar"><span id="installBar" style="width:0%"></span></div>
+            <p class="muted" style="margin-top:8px;">ROAS健全性（目標 170%以上）</p>
+            <div class="bar"><span id="roasBar" style="width:0%"></span></div>
+          </article>
+
+          <article class="chart-card" style="margin-top:10px;">
+            <h3>推奨アクション</h3>
+            <ul style="margin:0; padding-left:18px; font-size:12px;">
+              <li id="action1">-</li>
+              <li id="action2">-</li>
+              <li id="action3">-</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="creative">
+      <h2>DL率が高いチャネル向け クリエイティブ案</h2>
+      <p class="tiny-note">対象チャネル: Apple Search Ads / Meta（高DL・低CPI帯）</p>
+      <div class="creative-grid" id="creativeGrid"></div>
+
+      <article class="summary">
+        <h3 style="margin-top:0;">採用プラン集計</h3>
+        <p id="selectedCount">採用数: 0案</p>
+        <p id="selectedLift">想定DL純増: +0 / 月</p>
+        <p id="selectedApplyLift">想定申込純増: +0 / 月</p>
+        <p id="selectedCost">制作費: ¥0</p>
+        <p class="muted">判定ルール: 申込CPIが現状比で5%以上改善する案を優先</p>
+      </article>
+
+      <article class="chart-card" style="margin-top:10px;">
+        <h3>クリエイティブ例（訴求コピー）</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>配信先</th>
+                <th>見出し</th>
+                <th>本文</th>
+                <th>CTA</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Apple Search Ads</td>
+                <td>「個人情報なしで30秒AI査定」</td>
+                <td>アルファード 2021年式の最新相場を今すぐ確認。将来予測で売り時がわかる。</td>
+                <td>相場を無料で見る</td>
+              </tr>
+              <tr>
+                <td>Meta Reels</td>
+                <td>「電話1社だけ、8,000社が競る」</td>
+                <td>N-BOXでも高額売却。営業電話ラッシュを回避しつつ最高額を狙う。</td>
+                <td>かんたん売却を始める</td>
+              </tr>
+              <tr>
+                <td>Meta Feed</td>
+                <td>「出費管理で維持費まで見える化」</td>
+                <td>ガソリン・保険・車検費用を可視化。売却判断を数字でサポート。</td>
+                <td>維持費を記録する</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel active" style="margin-top:14px;">
+      <h2>主要主張の出典（URL / 日付付き）</h2>
+      <p class="tiny-note">検証材料更新日: 2026-03-03（主要主張に出典URLと公開日/確認日を明記）</p>
+      <div class="table-wrap">
+        <table class="source-table">
+          <thead>
+            <tr>
+              <th>主要主張</th>
+              <th>出典URL</th>
+              <th>公開日/更新日</th>
+              <th>確認日</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Apple Search Adsの配信ロジック・基本指標定義</td>
+              <td><a href="https://searchads.apple.com/jp/" target="_blank" rel="noopener">https://searchads.apple.com/jp/</a></td>
+              <td>公式サイト（継続更新）</td>
+              <td>2026-03-03</td>
+            </tr>
+            <tr>
+              <td>Google App Campaigns（UAC）でのインストール最適化</td>
+              <td><a href="https://support.google.com/google-ads/answer/6247380" target="_blank" rel="noopener">https://support.google.com/google-ads/answer/6247380</a></td>
+              <td>Google Ads Help（継続更新）</td>
+              <td>2026-03-03</td>
+            </tr>
+            <tr>
+              <td>Meta広告でのアプリインストール最適化指針</td>
+              <td><a href="https://www.facebook.com/business/help/308280575877100" target="_blank" rel="noopener">https://www.facebook.com/business/help/308280575877100</a></td>
+              <td>Meta Business Help Center（継続更新）</td>
+              <td>2026-03-03</td>
+            </tr>
+            <tr>
+              <td>車買取市場のオンライン化トレンド（国内統計）</td>
+              <td><a href="https://www.meti.go.jp/statistics/" target="_blank" rel="noopener">https://www.meti.go.jp/statistics/</a></td>
+              <td>経済産業省 統計公開データ</td>
+              <td>2026-03-03</td>
+            </tr>
+            <tr>
+              <td>中古車オークション・流通関連の市場概況</td>
+              <td><a href="https://www.jada.or.jp/" target="_blank" rel="noopener">https://www.jada.or.jp/</a></td>
+              <td>一般社団法人 日本自動車販売協会連合会</td>
+              <td>2026-03-03</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">成果物連携メモ: prototypes/ops/auto-kpi/research-2026-03-03.md を想定した指標セットを反映済み。</p>
+    </section>
+
+    <p class="footer-note">UcarPAC App Prototype / Mobile-first 375px / Inline CSS & JS</p>
+  </div>
+
+  <script>
+    const channels = [
+      {
+        id: "apple",
+        name: "Apple Search Ads",
+        spend: 4200000,
+        installs: 10400,
+        validRate: 0.78,
+        applications: 330,
+        revenue: 9300000,
+        prevEffCpi: 545,
+        prevApplyCpi: 13200,
+        trend: [590, 560, 530, 510, 495, 478, 462],
+        memo: "指名 + 高意図KWが主軸。最安CPI帯で安定。"
+      },
+      {
+        id: "meta",
+        name: "Meta (Instagram/Facebook)",
+        spend: 3600000,
+        installs: 7600,
+        validRate: 0.72,
+        applications: 198,
+        revenue: 6600000,
+        prevEffCpi: 700,
+        prevApplyCpi: 19200,
+        trend: [760, 745, 730, 705, 690, 675, 658],
+        memo: "静止画より縦動画が有効。若年層DLが強い。"
+      },
+      {
+        id: "google",
+        name: "Google App Campaigns",
+        spend: 3000000,
+        installs: 6200,
+        validRate: 0.66,
+        applications: 147,
+        revenue: 4800000,
+        prevEffCpi: 760,
+        prevApplyCpi: 21800,
+        trend: [840, 815, 790, 770, 755, 742, 729],
+        memo: "ボリューム確保向き。質のばらつきが課題。"
+      },
+      {
+        id: "tiktok",
+        name: "TikTok Ads",
+        spend: 2000000,
+        installs: 5100,
+        validRate: 0.55,
+        applications: 92,
+        revenue: 2600000,
+        prevEffCpi: 730,
+        prevApplyCpi: 24200,
+        trend: [790, 775, 760, 742, 725, 712, 702],
+        memo: "DL単価は中位、申込までの歩留まりが弱い。"
+      },
+      {
+        id: "x",
+        name: "X Ads",
+        spend: 1200000,
+        installs: 2200,
+        validRate: 0.58,
+        applications: 41,
+        revenue: 1000000,
+        prevEffCpi: 980,
+        prevApplyCpi: 29600,
+        trend: [1090, 1060, 1025, 1002, 985, 972, 960],
+        memo: "速報性訴求は強いが、現状効率は要改善。"
+      }
+    ];
+
+    const creatives = [
+      {
+        id: "cr1",
+        channel: "Apple Search Ads",
+        concept: "個人情報不要訴求",
+        title: "30秒AI査定 / 電話なしで相場確認",
+        copy: "「アルファード 2021年式」など具体車名検索に合わせて、即時査定額と3か月予測を提示。",
+        ctr: 6.4,
+        cvr: 28.1,
+        cpiGain: 11,
+        installLift: 420,
+        applyLift: 15,
+        cost: 180000
+      },
+      {
+        id: "cr2",
+        channel: "Apple Search Ads",
+        concept: "電話1社訴求",
+        title: "8,000社入札でも電話は1社のみ",
+        copy: "比較系キーワード面で電話ラッシュ不安を解消。申込前の不安離脱を抑える。",
+        ctr: 5.8,
+        cvr: 26.4,
+        cpiGain: 9,
+        installLift: 310,
+        applyLift: 12,
+        cost: 150000
+      },
+      {
+        id: "cr3",
+        channel: "Meta Reels",
+        concept: "売り時予測グラフ訴求",
+        title: "今売る？3か月後？AIが売り時を可視化",
+        copy: "N-BOX / CX-5 の価格推移を3秒で見せるショート動画。出費管理連携で保存価値を作る。",
+        ctr: 3.6,
+        cvr: 19.2,
+        cpiGain: 14,
+        installLift: 580,
+        applyLift: 18,
+        cost: 240000
+      },
+      {
+        id: "cr4",
+        channel: "Meta Feed",
+        concept: "出費管理フック",
+        title: "ガソリン・保険・車検費、全部アプリで管理",
+        copy: "出費管理ニーズから流入させ、後追いで査定導線へ。検討層の再訪率を強化。",
+        ctr: 2.9,
+        cvr: 17.8,
+        cpiGain: 8,
+        installLift: 260,
+        applyLift: 9,
+        cost: 130000
+      }
+    ];
+
+    const yen = (v) => "¥" + Math.round(v).toLocaleString("ja-JP");
+    const pct = (v) => (v >= 0 ? "+" : "") + v.toFixed(1) + "%";
+    const num = (v) => Math.round(v).toLocaleString("ja-JP");
+
+    let activeTab = "dashboard";
+    let sortKey = "eff";
+    let selectedChannel = channels[0].id;
+    const selectedCreative = new Set();
+
+    function metrics(channel) {
+      const effectiveInstalls = channel.installs * channel.validRate;
+      const effCpi = channel.spend / effectiveInstalls;
+      const applyCpi = channel.spend / channel.applications;
+      const roas = (channel.revenue / channel.spend) * 100;
+      return { effectiveInstalls, effCpi, applyCpi, roas };
+    }
+
+    function renderTopKpi() {
+      const totalSpend = channels.reduce((s, c) => s + c.spend, 0);
+      const totalInstall = channels.reduce((s, c) => s + c.installs, 0);
+      const totalEffInstall = channels.reduce((s, c) => s + (c.installs * c.validRate), 0);
+      const totalApps = channels.reduce((s, c) => s + c.applications, 0);
+
+      document.getElementById("sumSpend").textContent = yen(totalSpend);
+      document.getElementById("sumInstall").textContent = num(totalInstall);
+      document.getElementById("blendEffCpi").textContent = yen(totalSpend / totalEffInstall);
+      document.getElementById("blendApplyCpi").textContent = yen(totalSpend / totalApps);
+    }
+
+    function sortedChannels() {
+      const arr = [...channels];
+      if (sortKey === "eff") {
+        arr.sort((a, b) => metrics(a).effCpi - metrics(b).effCpi);
+      } else if (sortKey === "apply") {
+        arr.sort((a, b) => metrics(a).applyCpi - metrics(b).applyCpi);
+      } else {
+        arr.sort((a, b) => metrics(b).roas - metrics(a).roas);
+      }
+      return arr;
+    }
+
+    function renderRows() {
+      const rows = document.getElementById("channelRows");
+      rows.innerHTML = "";
+      const data = sortedChannels();
+      data.forEach((c) => {
+        const m = metrics(c);
+        const diffEff = ((m.effCpi - c.prevEffCpi) / c.prevEffCpi) * 100;
+        const diffApply = ((m.applyCpi - c.prevApplyCpi) / c.prevApplyCpi) * 100;
+        const tr = document.createElement("tr");
+        tr.className = "channel-row" + (c.id === selectedChannel ? " selected" : "");
+        tr.innerHTML = `
+          <td><strong>${c.name}</strong></td>
+          <td>${yen(c.spend)}</td>
+          <td>${num(c.installs)}</td>
+          <td>${(c.validRate * 100).toFixed(1)}%</td>
+          <td>${yen(m.effCpi)}</td>
+          <td>${yen(m.applyCpi)}</td>
+          <td>${m.roas.toFixed(0)}%</td>
+          <td>
+            有効CPI <span class="${diffEff <= 0 ? "good" : "bad"}">${pct(diffEff)}</span><br/>
+            申込CPI <span class="${diffApply <= 0 ? "good" : "bad"}">${pct(diffApply)}</span>
+          </td>
+        `;
+        tr.addEventListener("click", () => {
+          selectedChannel = c.id;
+          renderRows();
+          renderDetails();
+          renderTrend();
+        });
+        rows.appendChild(tr);
+      });
+      renderRoasChart();
+    }
+
+    function renderDetails() {
+      const c = channels.find((x) => x.id === selectedChannel);
+      const m = metrics(c);
+      document.getElementById("detailName").textContent = c.name;
+      document.getElementById("detailMemo").textContent = c.memo;
+      document.getElementById("detailEffCpi").textContent = yen(m.effCpi);
+      document.getElementById("detailApplyCpi").textContent = yen(m.applyCpi);
+
+      const effScore = Math.max(0, Math.min(100, (700 - m.effCpi) / 4));
+      const applyScore = Math.max(0, Math.min(100, (24000 - m.applyCpi) / 120));
+      document.getElementById("effBar").style.width = effScore + "%";
+      document.getElementById("applyBar").style.width = applyScore + "%";
+    }
+
+    function renderTrend() {
+      const c = channels.find((x) => x.id === selectedChannel);
+      const svg = document.getElementById("trendChart");
+      const w = 360;
+      const h = 180;
+      const pad = 24;
+
+      const values = c.trend;
+      const max = Math.max(...values, 760);
+      const min = Math.min(...values, 330);
+      const sx = (i) => pad + (i * ((w - pad * 2) / (values.length - 1)));
+      const sy = (v) => h - pad - ((v - min) / (max - min)) * (h - pad * 2);
+
+      let points = values.map((v, i) => `${sx(i)},${sy(v)}`).join(" ");
+
+      const targetY = sy(380);
+      let labels = "";
+      values.forEach((v, i) => {
+        labels += `<text x="${sx(i)}" y="${h - 7}" font-size="9" fill="#7b879d" text-anchor="middle">D${i+1}</text>`;
+      });
+
+      svg.innerHTML = `
+        <rect x="0" y="0" width="${w}" height="${h}" fill="#ffffff"/>
+        <line x1="${pad}" y1="${targetY}" x2="${w-pad}" y2="${targetY}" stroke="#6fc2ff" stroke-dasharray="4 3"/>
+        <polyline fill="none" stroke="#F84CA2" stroke-width="3" points="${points}" />
+        ${values.map((v, i) => `<circle cx="${sx(i)}" cy="${sy(v)}" r="3.5" fill="#F84CA2"/>`).join("")}
+        <text x="${w-pad}" y="${targetY-5}" fill="#6fc2ff" font-size="10" text-anchor="end">目標 ¥380</text>
+        ${labels}
+      `;
+    }
+
+    function renderRoasChart() {
+      const svg = document.getElementById("roasChart");
+      const sorted = [...channels].sort((a, b) => metrics(b).roas - metrics(a).roas);
+      const w = 360;
+      const h = 180;
+      const pad = 30;
+      const barW = 46;
+      const gap = 18;
+      const max = Math.max(...sorted.map(c => metrics(c).roas), 220);
+
+      let bars = "";
+      let labels = "";
+      sorted.forEach((c, i) => {
+        const roas = metrics(c).roas;
+        const x = pad + i * (barW + gap);
+        const bh = (roas / max) * 112;
+        const y = h - 28 - bh;
+        bars += `<rect x="${x}" y="${y}" width="${barW}" height="${bh}" rx="6" fill="url(#gradBar)"></rect>`;
+        bars += `<text x="${x + barW/2}" y="${y-4}" font-size="10" fill="#1c2663" text-anchor="middle">${roas.toFixed(0)}%</text>`;
+        labels += `<text x="${x + barW/2}" y="${h-12}" font-size="9" fill="#6f7d95" text-anchor="middle">${c.name.split(" ")[0]}</text>`;
+      });
+
+      svg.innerHTML = `
+        <defs>
+          <linearGradient id="gradBar" x1="0%" x2="100%">
+            <stop offset="0%" stop-color="#1ddcff"/>
+            <stop offset="100%" stop-color="#4db4ff"/>
+          </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="${w}" height="${h}" fill="#ffffff"></rect>
+        <line x1="18" y1="${h-28}" x2="${w-10}" y2="${h-28}" stroke="#e4ebf6"/>
+        <line x1="18" y1="${h-28-((100/max)*112)}" x2="${w-10}" y2="${h-28-((100/max)*112)}" stroke="#c9d9f8" stroke-dasharray="4 3"/>
+        <text x="${w-12}" y="${h-28-((100/max)*112)-4}" font-size="10" fill="#6f7d95" text-anchor="end">100%</text>
+        ${bars}
+        ${labels}
+      `;
+    }
+
+    function runSimulation() {
+      const base = channels.find(c => c.id === "apple");
+      const baseM = metrics(base);
+
+      const budget = Number(document.getElementById("budgetRange").value);
+      const elastic = Number(document.getElementById("elasticRange").value) / 100;
+      const boost = document.getElementById("creativeBoost").checked;
+      const expand = document.getElementById("keywordExpand").checked;
+
+      document.getElementById("budgetValue").textContent = yen(budget);
+      document.getElementById("elasticValue").textContent = Math.round(elastic * 100) + "%（推奨: 20-28%）";
+
+      const budgetRatio = budget / base.spend;
+      const increase = Math.max(0, budgetRatio - 1);
+      const saturation = 1 + (increase * elastic);
+      let simEffCpi = baseM.effCpi * saturation;
+
+      if (boost) simEffCpi *= 0.9;
+      if (expand) simEffCpi *= 1.06;
+
+      const qualityAdj = (expand ? 0.95 : 1) * (boost ? 1.03 : 1);
+      const simEffInstalls = budget / simEffCpi;
+      const baseApplyRate = base.applications / baseM.effectiveInstalls;
+      const simApplyRate = Math.max(0.02, baseApplyRate * qualityAdj);
+      const simApps = simEffInstalls * simApplyRate;
+      const simApplyCpi = budget / simApps;
+      const profitPerApp = 29000;
+      const simRoas = (simApps * profitPerApp / budget) * 100;
+
+      const deltaInst = ((simEffInstalls - baseM.effectiveInstalls) / baseM.effectiveInstalls) * 100;
+      const deltaEff = ((simEffCpi - baseM.effCpi) / baseM.effCpi) * 100;
+      const deltaApply = ((simApplyCpi - baseM.applyCpi) / baseM.applyCpi) * 100;
+      const deltaRoas = ((simRoas - baseM.roas) / baseM.roas) * 100;
+
+      document.getElementById("simInstalls").textContent = num(simEffInstalls);
+      document.getElementById("simEffCpi").textContent = yen(simEffCpi);
+      document.getElementById("simApplyCpi").textContent = yen(simApplyCpi);
+      document.getElementById("simRoas").textContent = simRoas.toFixed(0) + "%";
+
+      document.getElementById("deltaInstalls").innerHTML = `現状比 <span class="${deltaInst >= 0 ? "good" : "bad"}">${pct(deltaInst)}</span>`;
+      document.getElementById("deltaEffCpi").innerHTML = `現状比 <span class="${deltaEff <= 0 ? "good" : "bad"}">${pct(deltaEff)}</span>`;
+      document.getElementById("deltaApplyCpi").innerHTML = `現状比 <span class="${deltaApply <= 0 ? "good" : "bad"}">${pct(deltaApply)}</span>`;
+      document.getElementById("deltaRoas").innerHTML = `現状比 <span class="${deltaRoas >= 0 ? "good" : "bad"}">${pct(deltaRoas)}</span>`;
+
+      const budgetProgress = Math.max(0, Math.min(100, (budget - 3000000) / (8500000 - 3000000) * 100));
+      const installProgress = Math.max(0, Math.min(100, ((simEffInstalls - baseM.effectiveInstalls) / 2500) * 100));
+      const roasProgress = Math.max(0, Math.min(100, (simRoas / 170) * 100));
+
+      document.getElementById("budgetBar").style.width = budgetProgress + "%";
+      document.getElementById("installBar").style.width = installProgress + "%";
+      document.getElementById("roasBar").style.width = roasProgress + "%";
+
+      const hint = [];
+      if (simEffCpi <= 500) {
+        hint.push("有効CPIは健全。増額余地あり。");
+      } else {
+        hint.push("有効CPI悪化傾向。配信拡張を抑制。");
+      }
+      if (simApplyCpi <= 13000) {
+        hint.push("申込CPIは目標内。売却相談導線を強化。");
+      } else {
+        hint.push("申込CPIが重い。LPと査定フォーム改善を優先。");
+      }
+      if (simRoas >= 180) {
+        hint.push("ROAS高水準。AppleAds比率を上げる価値あり。");
+      } else {
+        hint.push("ROAS改善余地あり。クリエイティブ同時改善が必要。");
+      }
+      document.getElementById("simHint").textContent = "提案: " + hint.join(" ");
+
+      document.getElementById("action1").textContent =
+        simRoas >= 170 ? "AppleAdsを総予算の35〜42%へ増額。" : "AppleAds増額は30%以内に制限し学習を安定化。";
+      document.getElementById("action2").textContent =
+        boost ? "刷新クリエイティブを2週間ごとにA/B更新。" : "クリエイティブ刷新をONにしCPIを下げる。";
+      document.getElementById("action3").textContent =
+        expand ? "一般KW拡張時は除外KWを週次更新して品質維持。" : "指名+比較意図KW中心で申込率を守る。";
+    }
+
+    function renderCreatives() {
+      const root = document.getElementById("creativeGrid");
+      root.innerHTML = "";
+      creatives.forEach((c) => {
+        const active = selectedCreative.has(c.id);
+        const card = document.createElement("article");
+        card.className = "creative-card" + (active ? " active" : "");
+        card.innerHTML = `
+          <span class="creative-tag">${c.channel}</span>
+          <span class="creative-tag">${c.concept}</span>
+          <h3 class="creative-title">${c.title}</h3>
+          <p class="creative-copy">${c.copy}</p>
+          <div class="creative-metrics">
+            <div class="metric-chip">予測CTR<strong>${c.ctr}%</strong></div>
+            <div class="metric-chip">予測CVR<strong>${c.cvr}%</strong></div>
+            <div class="metric-chip">CPI改善<strong>-${c.cpiGain}%</strong></div>
+          </div>
+          <button class="action-btn ${active ? "selected" : ""}" data-id="${c.id}">
+            ${active ? "採用中（解除する）" : "この案を採用する"}
+          </button>
+        `;
+        root.appendChild(card);
+      });
+
+      root.querySelectorAll(".action-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-id");
+          if (selectedCreative.has(id)) {
+            selectedCreative.delete(id);
+          } else {
+            selectedCreative.add(id);
+          }
+          renderCreatives();
+          renderCreativeSummary();
+        });
+      });
+    }
+
+    function renderCreativeSummary() {
+      let installLift = 0;
+      let applyLift = 0;
+      let cost = 0;
+      selectedCreative.forEach((id) => {
+        const c = creatives.find((x) => x.id === id);
+        installLift += c.installLift;
+        applyLift += c.applyLift;
+        cost += c.cost;
+      });
+      document.getElementById("selectedCount").textContent = `採用数: ${selectedCreative.size}案`;
+      document.getElementById("selectedLift").textContent = `想定DL純増: +${num(installLift)} / 月`;
+      document.getElementById("selectedApplyLift").textContent = `想定申込純増: +${num(applyLift)} / 月`;
+      document.getElementById("selectedCost").textContent = `制作費: ${yen(cost)}`;
+    }
+
+    function wireTabs() {
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          activeTab = btn.getAttribute("data-tab");
+          document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+
+          document.querySelectorAll(".panel").forEach(p => {
+            if (p.id === "dashboard" || p.id === "apple" || p.id === "creative") {
+              p.classList.remove("active");
+            }
+          });
+          document.getElementById(activeTab).classList.add("active");
+        });
+      });
+    }
+
+    function wireSort() {
+      const eff = document.getElementById("sortEff");
+      const app = document.getElementById("sortApply");
+      const roas = document.getElementById("sortRoas");
+
+      const clear = () => [eff, app, roas].forEach(b => b.classList.remove("active"));
+
+      eff.addEventListener("click", () => {
+        sortKey = "eff";
+        clear();
+        eff.classList.add("active");
+        renderRows();
+      });
+
+      app.addEventListener("click", () => {
+        sortKey = "apply";
+        clear();
+        app.classList.add("active");
+        renderRows();
+      });
+
+      roas.addEventListener("click", () => {
+        sortKey = "roas";
+        clear();
+        roas.classList.add("active");
+        renderRows();
+      });
+    }
+
+    function initSimulationWires() {
+      ["budgetRange", "elasticRange", "creativeBoost", "keywordExpand"].forEach(id => {
+        document.getElementById(id).addEventListener("input", runSimulation);
+        document.getElementById(id).addEventListener("change", runSimulation);
+      });
+    }
+
+    function init() {
+      wireTabs();
+      wireSort();
+      initSimulationWires();
+
+      renderTopKpi();
+      renderRows();
+      renderDetails();
+      renderTrend();
+      runSimulation();
+
+      renderCreatives();
+      renderCreativeSummary();
+    }
+
+    init();
+  </script>
+</body>
+</html>

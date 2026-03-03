@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="ja">
+<script src="../auth.js"></script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>UcarPAC | 広告チャネル別CPI/CPA最適化</title>
+  <style>
+    :root {
+      --pink: #f84ca2;
+      --dark-blue: #1c2663;
+      --white: #ffffff;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --text-disabled: #b3b3b3;
+      --text-placeholder: rgba(28, 38, 99, 0.3);
+      --button-gray: #cacee2;
+      --button-link1: #4099ff;
+      --button-link2: #40bfff;
+      --back-white: #fafafa;
+      --back-gray: #edf1f4;
+      --back-blue: #091355;
+      --back-dark-blue: #0a1348;
+      --back-light-pink: #ffd8e8;
+      --back-light-blue: #6fc2ff;
+      --error: #eb4646;
+      --shadow: rgba(0, 0, 0, 0.11);
+      --ruled-line: #f2f2f2;
+      --border-gray: #7c7c7c;
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+      --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
+      --gradient-disabled: linear-gradient(90deg, #e5e5e5, #e5e5e5);
+      --font-sans: "Noto Sans JP", "Hiragino Sans", system-ui, sans-serif;
+      --radius-sm: 5px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-chip: 22px;
+      --radius-button: 30px;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-sans);
+      color: var(--text-black);
+      background:
+        radial-gradient(100vw 65vh at 85% -10%, rgba(111, 194, 255, 0.22), transparent 60%),
+        radial-gradient(80vw 45vh at -5% 8%, rgba(248, 76, 162, 0.15), transparent 65%),
+        linear-gradient(180deg, #0a1348 0%, #091355 35%, #edf1f4 35%, #fafafa 100%);
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 420px;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(2px);
+    }
+
+    .header {
+      padding: 20px 16px 14px;
+      color: var(--white);
+      position: relative;
+    }
+
+    .header::after {
+      content: "";
+      position: absolute;
+      right: -28px;
+      top: -22px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(150deg, rgba(248, 76, 162, 0.5), rgba(29, 220, 255, 0.15));
+      filter: blur(2px);
+      animation: floaty 4.8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .title-main {
+      font-weight: 700;
+      font-size: 20px;
+      line-height: 30px;
+      margin: 0;
+      letter-spacing: 0.02em;
+    }
+
+    .title-sub {
+      margin: 2px 0 0;
+      font-size: 12px;
+      line-height: 18px;
+      color: #bfdbfe;
+    }
+
+    .date-pill {
+      font-size: 11px;
+      line-height: 16px;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 999px;
+      white-space: nowrap;
+      font-weight: 700;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .badge {
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 11px;
+      line-height: 15px;
+      font-weight: 700;
+      animation: popin 0.5s ease both;
+    }
+
+    .badge.pink {
+      color: #fff;
+      background: var(--gradient-pink);
+    }
+
+    .badge.blue {
+      color: var(--dark-blue);
+      background: var(--gradient-primary);
+    }
+
+    .badge.white {
+      color: var(--dark-blue);
+      background: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      padding: 0 16px 14px;
+      margin-top: 2px;
+    }
+
+    .tab {
+      flex: 1;
+      min-height: 43px;
+      border: none;
+      border-radius: var(--radius-chip);
+      font-size: 11px;
+      line-height: 16px;
+      font-weight: 700;
+      color: var(--dark-blue);
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+    }
+
+    .tab.active {
+      color: #fff;
+      background: linear-gradient(120deg, #1c2663, #2a3a93);
+      transform: translateY(-1px);
+    }
+
+    .swipe-hint {
+      font-size: 10px;
+      line-height: 15px;
+      color: #bfdbfe;
+      text-align: center;
+      margin-top: -4px;
+      margin-bottom: 6px;
+      animation: shimmer 2.8s linear infinite;
+    }
+
+    .viewport {
+      position: relative;
+      overflow: hidden;
+      padding-bottom: 24px;
+      touch-action: pan-y;
+    }
+
+    .slides {
+      display: flex;
+      width: 300%;
+      transition: transform 0.45s cubic-bezier(0.2, 0.9, 0.2, 1);
+      will-change: transform;
+    }
+
+    .screen {
+      width: 100%;
+      padding: 0 16px 80px;
+      min-height: calc(100vh - 186px);
+    }
+
+    .panel {
+      background: #fff;
+      border-radius: 13px;
+      padding: 16px;
+      box-shadow: 0 4px 16px var(--shadow);
+      margin-top: 10px;
+      animation: fadeup 0.5s ease both;
+    }
+
+    .panel h2 {
+      margin: 0 0 4px;
+      font-size: 18px;
+      line-height: 27px;
+      color: var(--dark-blue);
+    }
+
+    .panel .desc {
+      margin: 0;
+      font-size: 12px;
+      line-height: 18px;
+      color: var(--text-gray);
+    }
+
+    .kpi-switch {
+      margin-top: 14px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      border: 1px solid var(--ruled-line);
+      background: #fff;
+      color: var(--text-black);
+      min-height: 43px;
+      border-radius: var(--radius-chip);
+      padding: 10px 14px;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      transition: 0.2s ease;
+      cursor: pointer;
+    }
+
+    .chip.active {
+      border-color: transparent;
+      color: #fff;
+      background: var(--dark-blue);
+      box-shadow: 0 4px 10px rgba(28, 38, 99, 0.25);
+    }
+
+    .summary-cards {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .summary {
+      border-radius: 12px;
+      background: linear-gradient(180deg, #f9fcff 0%, #edf6ff 100%);
+      border: 1px solid #d9eafe;
+      padding: 10px;
+    }
+
+    .summary .label {
+      font-size: 10px;
+      color: var(--text-gray);
+      line-height: 15px;
+    }
+
+    .summary .value {
+      font-size: 20px;
+      line-height: 30px;
+      font-weight: 700;
+      color: var(--dark-blue);
+      margin-top: 2px;
+      font-family: "Righteous", var(--font-sans);
+    }
+
+    .channel-list {
+      margin-top: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .channel-card {
+      border-radius: 12px;
+      border: 1px solid #dde6f4;
+      padding: 12px;
+      background: #fff;
+      box-shadow: 0 2px 8px var(--shadow);
+      transition: 0.2s ease;
+    }
+
+    .channel-card.top {
+      border-color: #4099ff;
+      background: linear-gradient(180deg, #f6fbff 0%, #ffffff 100%);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .rank-badge {
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 15px;
+      color: var(--dark-blue);
+      background: #edf4ff;
+      border-radius: 999px;
+      padding: 4px 8px;
+      min-width: 44px;
+      text-align: center;
+    }
+
+    .channel-name {
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+      color: var(--dark-blue);
+      flex: 1;
+    }
+
+    .trend {
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .trend.up {
+      background: #e7fff4;
+      color: #008f4f;
+    }
+
+    .trend.down {
+      background: #fff2f2;
+      color: #b5022d;
+    }
+
+    .kpi-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .kpi-row .v {
+      font-weight: 700;
+      color: var(--dark-blue);
+    }
+
+    .bar-wrap {
+      margin-top: 7px;
+      height: 8px;
+      border-radius: 99px;
+      background: #edf1f7;
+      overflow: hidden;
+    }
+
+    .bar {
+      height: 100%;
+      width: 50%;
+      border-radius: inherit;
+      background: var(--gradient-primary);
+      transition: width 0.35s ease;
+    }
+
+    .token-row {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed #e7ebf3;
+    }
+
+    .token-label {
+      font-size: 11px;
+      line-height: 16px;
+      color: var(--text-gray);
+    }
+
+    .counter {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .counter button {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: none;
+      font-weight: 700;
+      color: var(--dark-blue);
+      background: #edf1f8;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .counter .n {
+      min-width: 20px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--dark-blue);
+    }
+
+    .token-panel {
+      margin-top: 12px;
+      border-radius: 12px;
+      background: linear-gradient(120deg, rgba(248, 76, 162, 0.08), rgba(64, 153, 255, 0.1));
+      padding: 12px;
+      border: 1px solid #f2e2ef;
+    }
+
+    .token-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 11px;
+    }
+
+    .token-cell {
+      background: #fff;
+      border-radius: 10px;
+      padding: 8px;
+      border: 1px solid #ecedf7;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 700;
+      color: var(--dark-blue);
+    }
+
+    .label-weak {
+      font-size: 10px;
+      line-height: 15px;
+      color: var(--text-gray);
+    }
+
+    .range-block {
+      margin-top: 14px;
+      background: #fff;
+      border: 1px solid #d9e6f6;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .range-value {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-top: 2px;
+    }
+
+    .range-value strong {
+      font-family: "Righteous", var(--font-sans);
+      color: var(--dark-blue);
+      font-size: 24px;
+      line-height: 36px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #4099ff;
+      margin-top: 8px;
+    }
+
+    .sim-grid {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .sim-item {
+      border-radius: 12px;
+      padding: 10px;
+      background: #fff;
+      border: 1px solid #e6ecf6;
+    }
+
+    .sim-item .k {
+      font-size: 10px;
+      line-height: 15px;
+      color: var(--text-gray);
+    }
+
+    .sim-item .v {
+      margin-top: 2px;
+      font-size: 18px;
+      line-height: 27px;
+      font-weight: 700;
+      color: var(--dark-blue);
+      font-family: "Righteous", var(--font-sans);
+    }
+
+    .diagnosis {
+      margin-top: 12px;
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #e4ebf7;
+      padding: 12px;
+    }
+
+    .diag-progress {
+      height: 7px;
+      margin-top: 8px;
+      background: #edf1f7;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .diag-progress > span {
+      display: block;
+      width: 0%;
+      height: 100%;
+      background: var(--gradient-primary);
+      transition: width 0.35s ease;
+    }
+
+    .diag-q {
+      margin: 8px 0 0;
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+    }
+
+    .diag-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .diag-btn {
+      border: 1px solid #d8e5f8;
+      background: #fff;
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 12px;
+      line-height: 18px;
+      color: var(--dark-blue);
+      font-weight: 700;
+      transition: 0.2s ease;
+      cursor: pointer;
+    }
+
+    .diag-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .diag-result {
+      display: none;
+      margin-top: 10px;
+      background: linear-gradient(120deg, rgba(28, 38, 99, 0.95), rgba(47, 108, 196, 0.96));
+      border-radius: 12px;
+      color: #fff;
+      padding: 12px;
+      animation: fadeup 0.35s ease;
+    }
+
+    .diag-result.show {
+      display: block;
+    }
+
+    .diag-result p {
+      margin: 0;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .diag-result strong {
+      display: block;
+      font-size: 18px;
+      line-height: 27px;
+      margin: 4px 0;
+      font-family: "Righteous", var(--font-sans);
+    }
+
+    .exec-steps {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .exec-step {
+      border-radius: 12px;
+      border: 1px solid #e5ebf6;
+      background: #fff;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      color: var(--dark-blue);
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .exec-step.done {
+      background: #ecfff4;
+      border-color: #a9e9c7;
+      color: #00693c;
+    }
+
+    .cta-btn {
+      margin-top: 12px;
+      width: 100%;
+      min-height: 43px;
+      border: none;
+      border-radius: var(--radius-button);
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 21px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .cta-btn:active {
+      transform: scale(0.98);
+    }
+
+    .deck {
+      margin-top: 12px;
+      position: relative;
+      min-height: 314px;
+      perspective: 1000px;
+    }
+
+    .creative-card {
+      width: 100%;
+      border-radius: 13px;
+      background: #fff;
+      border: 1px solid #dce6f6;
+      padding: 14px;
+      box-shadow: 0 6px 18px var(--shadow);
+      transform-style: preserve-3d;
+      transition: transform 0.35s ease, opacity 0.3s ease;
+    }
+
+    .creative-tag {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(120deg, #f84ca2, #ff7fbe);
+      margin-bottom: 8px;
+    }
+
+    .creative-card h3 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 24px;
+      color: var(--dark-blue);
+    }
+
+    .creative-card p {
+      margin: 8px 0 0;
+      font-size: 12px;
+      line-height: 18px;
+      color: var(--text-black);
+    }
+
+    .creative-box {
+      margin-top: 10px;
+      background: linear-gradient(145deg, #eff6ff, #ffffff);
+      border: 1px solid #d9e7fd;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .creative-metrics {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 11px;
+    }
+
+    .creative-metrics div {
+      border-radius: 9px;
+      background: #fafcff;
+      border: 1px solid #e7edf8;
+      padding: 8px;
+    }
+
+    .deck-controls {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .deck-controls button {
+      flex: 1;
+      min-height: 43px;
+      border-radius: var(--radius-button);
+      border: 1px solid #d6e4f8;
+      background: #fff;
+      color: var(--dark-blue);
+      font-size: 13px;
+      line-height: 19px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .vote-row {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .vote-btn {
+      min-height: 43px;
+      border: none;
+      border-radius: var(--radius-chip);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .vote-btn.adopt {
+      background: linear-gradient(120deg, #18dca8, #4be4c4);
+      color: #0a3f37;
+    }
+
+    .vote-btn.improve {
+      background: linear-gradient(120deg, #ffdd87, #ffd0a3);
+      color: #7d4a00;
+    }
+
+    .vote-btn.hold {
+      background: #eceff5;
+      color: #4f5d74;
+    }
+
+    .vote-score {
+      margin-top: 10px;
+      background: #fff;
+      border: 1px solid #e3e9f5;
+      border-radius: 12px;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      text-align: center;
+    }
+
+    .vote-score strong {
+      display: block;
+      font-family: "Righteous", var(--font-sans);
+      font-size: 18px;
+      line-height: 27px;
+      color: var(--dark-blue);
+    }
+
+    .vote-score span {
+      font-size: 10px;
+      line-height: 15px;
+      color: var(--text-gray);
+    }
+
+    .sources {
+      margin-top: 12px;
+      background: #fff;
+      border: 1px solid #e6ebf5;
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    .sources h4 {
+      margin: 0;
+      font-size: 12px;
+      line-height: 18px;
+      color: var(--dark-blue);
+    }
+
+    .sources p {
+      margin: 6px 0 0;
+      font-size: 10px;
+      line-height: 15px;
+      color: var(--text-gray);
+      word-break: break-all;
+    }
+
+    .nav-dots {
+      position: fixed;
+      bottom: max(16px, env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 8px 10px;
+      border-radius: 999px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+      z-index: 10;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #cad6ea;
+      transition: 0.25s ease;
+    }
+
+    .dot.active {
+      width: 24px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #1ddcff, #4db4ff);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 72px;
+      left: 50%;
+      transform: translateX(-50%) translateY(18px);
+      opacity: 0;
+      color: #fff;
+      background: rgba(28, 38, 99, 0.95);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 11px;
+      line-height: 16px;
+      pointer-events: none;
+      transition: 0.3s ease;
+      z-index: 11;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @keyframes fadeup {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes popin {
+      from {
+        opacity: 0;
+        transform: scale(0.92);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes floaty {
+      0%,
+      100% {
+        transform: translateY(0) translateX(0);
+      }
+      50% {
+        transform: translateY(6px) translateX(-3px);
+      }
+    }
+
+    @keyframes shimmer {
+      0% {
+        opacity: 0.4;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0.4;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .app {
+        margin: 24px 0;
+        min-height: calc(100vh - 48px);
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        box-shadow: 0 20px 42px rgba(4, 14, 57, 0.35);
+      }
+
+      .nav-dots {
+        position: absolute;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="title-row">
+        <div>
+          <h1 class="title-main">広告チャネル最適化ミッション</h1>
+          <p class="title-sub">有効CPI・申込CPIを日次差分で最適化</p>
+        </div>
+        <div class="date-pill">2026-03-03 更新</div>
+      </div>
+      <div class="badge-row">
+        <span class="badge pink">個人情報不要でDL訴求</span>
+        <span class="badge blue">AppleAds CPI最安</span>
+        <span class="badge white">8,000社オークション訴求</span>
+      </div>
+    </header>
+
+    <nav class="tabs" id="tabs">
+      <button class="tab active" data-page="0">1. KPI<br />ダッシュボード</button>
+      <button class="tab" data-page="1">2. AppleAds<br />増額シミュレーション</button>
+      <button class="tab" data-page="2">3. 高DL向け<br />クリエイティブ案</button>
+    </nav>
+    <div class="swipe-hint">← 左右スワイプで画面を切り替え →</div>
+
+    <div class="viewport" id="viewport">
+      <div class="slides" id="slides">
+        <section class="screen">
+          <article class="panel">
+            <h2>チャネル別ダッシュボード</h2>
+            <p class="desc">CPI / CPA / ROASを切替えて、予算配分をゲーム感覚で調整</p>
+            <div class="kpi-switch" id="kpiSwitch">
+              <button class="chip active" data-metric="validCPI">有効CPI</button>
+              <button class="chip" data-metric="applyCPI">申込CPI</button>
+              <button class="chip" data-metric="roas">ROAS</button>
+            </div>
+
+            <div class="summary-cards">
+              <div class="summary">
+                <div class="label">総広告費 (直近30日)</div>
+                <div class="value" id="sumSpend">¥0</div>
+              </div>
+              <div class="summary">
+                <div class="label">有効インストール</div>
+                <div class="value" id="sumValid">0</div>
+              </div>
+            </div>
+
+            <div class="channel-list" id="channelList"></div>
+
+            <div class="token-panel">
+              <p class="section-title">予算ブーストミニゲーム</p>
+              <p class="label-weak">10トークン（1トークン=¥50,000）を配分してDL増加を試算</p>
+              <div class="token-grid">
+                <div class="token-cell">
+                  残トークン
+                  <strong id="tokenLeft" style="display:block; color:#1c2663; font-size:18px;">10</strong>
+                </div>
+                <div class="token-cell">
+                  追加予算
+                  <strong id="boostBudget" style="display:block; color:#1c2663; font-size:18px;">¥0</strong>
+                </div>
+                <div class="token-cell">
+                  追加有効DL
+                  <strong id="boostValid" style="display:block; color:#1c2663; font-size:18px;">0</strong>
+                </div>
+                <div class="token-cell">
+                  想定追加申込
+                  <strong id="boostApps" style="display:block; color:#1c2663; font-size:18px;">0</strong>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="screen">
+          <article class="panel">
+            <h2>AppleAds強化提案</h2>
+            <p class="desc">CPI最安チャネルを中心に、増額時の有効CPI・申込CPIを可視化</p>
+
+            <div class="range-block">
+              <div class="label-weak">AppleAds 追加予算（月額）</div>
+              <div class="range-value">
+                <small>0円</small>
+                <strong id="appleBudgetLabel">¥500,000</strong>
+                <small>2,000,000円</small>
+              </div>
+              <input type="range" id="appleRange" min="0" max="2000000" step="50000" value="500000" />
+            </div>
+
+            <div class="sim-grid">
+              <div class="sim-item">
+                <div class="k">想定追加有効DL</div>
+                <div class="v" id="simValid">0</div>
+              </div>
+              <div class="sim-item">
+                <div class="k">想定追加申込</div>
+                <div class="v" id="simApply">0</div>
+              </div>
+              <div class="sim-item">
+                <div class="k">増額後 有効CPI</div>
+                <div class="v" id="simVCPI">¥0</div>
+              </div>
+              <div class="sim-item">
+                <div class="k">増額後 申込CPI</div>
+                <div class="v" id="simACPI">¥0</div>
+              </div>
+            </div>
+
+            <div class="diagnosis">
+              <p class="section-title">3問診断: 最適配分フロー</p>
+              <div class="diag-progress"><span id="diagBar"></span></div>
+              <p class="diag-q" id="diagQuestion">Q1. 今月の最優先目標は？</p>
+              <div class="diag-options" id="diagOptions"></div>
+              <div class="diag-result" id="diagResult">
+                <p>診断結果（推奨配分）</p>
+                <strong id="diagHeadline">AppleAds 45% / Meta 25% / TikTok 20% / UAC 10%</strong>
+                <p id="diagDetail">DL最大化を重視。AppleAdsのブランド指名流入とキーワード拡張を優先。</p>
+              </div>
+            </div>
+
+            <div class="exec-steps" id="execSteps">
+              <div class="exec-step" data-step="0"><span>Step1: 高意図キーワードを20語追加</span><span>未完了</span></div>
+              <div class="exec-step" data-step="1"><span>Step2: 価格予測訴求のスクショ差し替え</span><span>未完了</span></div>
+              <div class="exec-step" data-step="2"><span>Step3: 18-23時の入札係数を+15%</span><span>未完了</span></div>
+            </div>
+
+            <button class="cta-btn" id="applyPlanBtn">この配分で運用プランを確定</button>
+          </article>
+        </section>
+
+        <section class="screen">
+          <article class="panel">
+            <h2>高DLチャネル向けクリエイティブ案</h2>
+            <p class="desc">AppleAds / Meta / TikTok向けに、訴求角度をカード化してスワイプ評価</p>
+
+            <div class="deck" id="deck">
+              <div class="creative-card" id="creativeCard"></div>
+            </div>
+
+            <div class="deck-controls">
+              <button id="prevCreative">← 前の案</button>
+              <button id="nextCreative">次の案 →</button>
+            </div>
+
+            <div class="vote-row">
+              <button class="vote-btn adopt" data-vote="adopt">採用</button>
+              <button class="vote-btn improve" data-vote="improve">改善</button>
+              <button class="vote-btn hold" data-vote="hold">保留</button>
+            </div>
+
+            <div class="vote-score">
+              <div><strong id="voteAdopt">0</strong><span>採用</span></div>
+              <div><strong id="voteImprove">0</strong><span>改善</span></div>
+              <div><strong id="voteHold">0</strong><span>保留</span></div>
+            </div>
+
+            <div class="sources">
+              <h4>検証材料（URL + 日付）</h4>
+              <p>実績値: UcarPAC広告運用ログ（対象期間 2026-02-01〜2026-03-02）</p>
+              <p>Apple Search Ads 公式: https://searchads.apple.com/ （参照日: 2026-03-03）</p>
+              <p>AppsFlyer Performance Index: https://www.appsflyer.com/resources/reports/performance-index/ （参照日: 2026-03-03）</p>
+              <p>Adjust Mobile App Trends: https://www.adjust.com/resources/reports/mobile-app-trends/ （参照日: 2026-03-03）</p>
+            </div>
+          </article>
+        </section>
+      </div>
+    </div>
+
+    <div class="nav-dots">
+      <span class="dot active" data-dot="0"></span>
+      <span class="dot" data-dot="1"></span>
+      <span class="dot" data-dot="2"></span>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">プランを更新しました</div>
+
+  <script>
+    const state = {
+      page: 0,
+      metric: "validCPI",
+      tokens: 10,
+      tokenValue: 50000,
+      tokenAlloc: {
+        apple: 0,
+        meta: 0,
+        tiktok: 0,
+        google: 0,
+        x: 0
+      },
+      channels: [
+        { id: "apple", name: "Apple Search Ads", spend: 1200000, installs: 1840, qualified: 1560, applications: 312, validCPI: 769, applyCPI: 3846, roas: 4.6, trend: 12 },
+        { id: "meta", name: "Meta (Instagram/Reels)", spend: 980000, installs: 1120, qualified: 824, applications: 146, validCPI: 1189, applyCPI: 6712, roas: 2.8, trend: -4 },
+        { id: "tiktok", name: "TikTok Ads", spend: 760000, installs: 990, qualified: 702, applications: 99, validCPI: 1082, applyCPI: 7677, roas: 2.3, trend: 7 },
+        { id: "google", name: "Google UAC", spend: 1100000, installs: 1280, qualified: 930, applications: 124, validCPI: 1183, applyCPI: 8871, roas: 2.1, trend: -3 },
+        { id: "x", name: "X Ads", spend: 340000, installs: 290, qualified: 198, applications: 22, validCPI: 1717, applyCPI: 15455, roas: 1.3, trend: -11 }
+      ],
+      diagnosis: {
+        step: 0,
+        answers: []
+      },
+      questions: [
+        { q: "Q1. 今月の最優先目標は？", options: ["DL最大化", "申込最大化", "ROAS改善"] },
+        { q: "Q2. 予算の増額余地は？", options: ["高い（+20%以上）", "中程度（+10%前後）", "低い（維持）"] },
+        { q: "Q3. 競合入札の強さは？", options: ["強い", "普通", "弱い"] }
+      ],
+      creatives: [
+        {
+          channel: "Apple Search Ads",
+          title: "指名検索用: 売り時予測で背中を押す",
+          hook: "「3ヶ月後に-8.4万円」予測で今売る判断を促進",
+          example: "トヨタ プリウス S (2019年/4.2万km): 現在112万円 → 3ヶ月後103.6万円",
+          copy: "AIが相場の下落タイミングを先読み。個人情報なしでまず査定。",
+          cta: "最短30秒で相場チェック",
+          dlr: "8.2%",
+          apr: "18.5%"
+        },
+        {
+          channel: "Meta Reels",
+          title: "縦動画: 電話1社だけを強調",
+          hook: "「一括査定の電話ラッシュなし」を冒頭1.5秒で提示",
+          example: "ホンダ N-BOX G (2020年/2.8万km): 最高入札96万円 / 8,000社参加",
+          copy: "電話対応は1社のみ。オークションで最高額を狙う売却体験。",
+          cta: "電話1社で売却を始める",
+          dlr: "6.7%",
+          apr: "16.2%"
+        },
+        {
+          channel: "TikTok Ads",
+          title: "UGC風: 出費管理×資産価値の可視化",
+          hook: "維持費月次グラフと査定推移を同時表示して保存訴求",
+          example: "マツダ CX-5 XD (2018年/5.1万km): 年間維持費23.4万円 / 想定売却124万円",
+          copy: "給油・保険・車検をまとめて管理。売り時が一目で分かる。",
+          cta: "出費管理を無料で始める",
+          dlr: "7.1%",
+          apr: "13.8%"
+        }
+      ],
+      creativeIndex: 0,
+      votes: { adopt: 0, improve: 0, hold: 0 },
+      swipeStartX: null
+    };
+
+    const slides = document.getElementById("slides");
+    const tabs = [...document.querySelectorAll(".tab")];
+    const dots = [...document.querySelectorAll(".dot")];
+    const channelList = document.getElementById("channelList");
+    const sumSpend = document.getElementById("sumSpend");
+    const sumValid = document.getElementById("sumValid");
+    const tokenLeft = document.getElementById("tokenLeft");
+    const boostBudget = document.getElementById("boostBudget");
+    const boostValid = document.getElementById("boostValid");
+    const boostApps = document.getElementById("boostApps");
+    const toast = document.getElementById("toast");
+
+    const kpiLabels = {
+      validCPI: "有効CPI",
+      applyCPI: "申込CPI",
+      roas: "ROAS"
+    };
+
+    function yen(v) {
+      return "¥" + Math.round(v).toLocaleString("ja-JP");
+    }
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 1400);
+    }
+
+    function setPage(index) {
+      state.page = Math.max(0, Math.min(2, index));
+      slides.style.transform = `translateX(-${state.page * (100 / 3)}%)`;
+      tabs.forEach((tab, i) => tab.classList.toggle("active", i === state.page));
+      dots.forEach((dot, i) => dot.classList.toggle("active", i === state.page));
+    }
+
+    function metricSort(a, b) {
+      if (state.metric === "roas") return b.roas - a.roas;
+      return a[state.metric] - b[state.metric];
+    }
+
+    function renderChannels() {
+      const totalSpend = state.channels.reduce((s, c) => s + c.spend, 0);
+      const totalValid = state.channels.reduce((s, c) => s + c.qualified, 0);
+      sumSpend.textContent = yen(totalSpend);
+      sumValid.textContent = totalValid.toLocaleString("ja-JP");
+
+      const sorted = [...state.channels].sort(metricSort);
+      const values = sorted.map((c) => (state.metric === "roas" ? c.roas : c[state.metric]));
+      const max = Math.max(...values);
+      const min = Math.min(...values);
+
+      channelList.innerHTML = sorted
+        .map((c, i) => {
+          const isTop = i < 2;
+          const trendClass = c.trend >= 0 ? "up" : "down";
+          const trendText = c.trend >= 0 ? `+${c.trend}%` : `${c.trend}%`;
+          let ratio;
+          if (state.metric === "roas") {
+            ratio = (c.roas / max) * 100;
+          } else {
+            ratio = max === min ? 80 : ((max - c[state.metric]) / (max - min)) * 100;
+            ratio = Math.max(12, ratio);
+          }
+          return `
+            <div class="channel-card ${isTop ? "top" : ""}">
+              <div class="card-top">
+                <span class="rank-badge">#${i + 1}</span>
+                <span class="channel-name">${c.name}</span>
+                <span class="trend ${trendClass}">${trendText}</span>
+              </div>
+              <div class="kpi-row"><span>${kpiLabels[state.metric]}</span><span class="v">${state.metric === "roas" ? c.roas.toFixed(1) + "x" : yen(c[state.metric])}</span></div>
+              <div class="kpi-row"><span>有効DL</span><span class="v">${c.qualified.toLocaleString("ja-JP")}</span></div>
+              <div class="kpi-row"><span>申込数</span><span class="v">${c.applications.toLocaleString("ja-JP")}</span></div>
+              <div class="bar-wrap"><div class="bar" style="width:${ratio.toFixed(1)}%"></div></div>
+              <div class="token-row">
+                <span class="token-label">追加トークン（${yen(state.tokenValue)} /枚）</span>
+                <div class="counter">
+                  <button data-id="${c.id}" data-delta="-1">-</button>
+                  <span class="n">${state.tokenAlloc[c.id]}</span>
+                  <button data-id="${c.id}" data-delta="1">+</button>
+                </div>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+
+      channelList.querySelectorAll(".counter button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          adjustToken(btn.dataset.id, Number(btn.dataset.delta));
+        });
+      });
+
+      renderTokenSummary();
+    }
+
+    function adjustToken(id, delta) {
+      const used = Object.values(state.tokenAlloc).reduce((s, n) => s + n, 0);
+      const current = state.tokenAlloc[id];
+      if (delta > 0 && used >= state.tokens) {
+        showToast("トークンが不足しています");
+        return;
+      }
+      if (delta < 0 && current <= 0) return;
+      state.tokenAlloc[id] += delta;
+      renderChannels();
+    }
+
+    function renderTokenSummary() {
+      const used = Object.values(state.tokenAlloc).reduce((s, n) => s + n, 0);
+      tokenLeft.textContent = String(state.tokens - used);
+      const extraBudget = used * state.tokenValue;
+      boostBudget.textContent = yen(extraBudget);
+
+      let valid = 0;
+      let apply = 0;
+      state.channels.forEach((c) => {
+        const alloc = state.tokenAlloc[c.id] * state.tokenValue;
+        if (alloc > 0) {
+          const dValid = alloc / c.validCPI;
+          const appRate = c.applications / c.qualified;
+          valid += dValid;
+          apply += dValid * appRate;
+        }
+      });
+      boostValid.textContent = Math.round(valid).toLocaleString("ja-JP");
+      boostApps.textContent = Math.round(apply).toLocaleString("ja-JP");
+    }
+
+    function simulateApple() {
+      const apple = state.channels.find((c) => c.id === "apple");
+      const extra = Number(document.getElementById("appleRange").value);
+      const maxExtra = 2000000;
+      const fatigue = 1 + 0.18 * Math.pow(extra / maxExtra, 1.35);
+      const effectiveCPI = apple.validCPI * fatigue;
+      const addValid = extra / effectiveCPI;
+      const appRate = apple.applications / apple.qualified;
+      const addApply = addValid * appRate * 0.97;
+
+      const nextValidCPI = (apple.spend + extra) / (apple.qualified + addValid);
+      const nextApplyCPI = (apple.spend + extra) / (apple.applications + addApply);
+
+      document.getElementById("appleBudgetLabel").textContent = yen(extra);
+      document.getElementById("simValid").textContent = Math.round(addValid).toLocaleString("ja-JP");
+      document.getElementById("simApply").textContent = Math.round(addApply).toLocaleString("ja-JP");
+      document.getElementById("simVCPI").textContent = yen(nextValidCPI);
+      document.getElementById("simACPI").textContent = yen(nextApplyCPI);
+    }
+
+    function renderDiagnosis() {
+      const q = state.questions[state.diagnosis.step];
+      const question = document.getElementById("diagQuestion");
+      const options = document.getElementById("diagOptions");
+      const bar = document.getElementById("diagBar");
+      const result = document.getElementById("diagResult");
+      bar.style.width = `${(state.diagnosis.step / state.questions.length) * 100}%`;
+
+      if (!q) {
+        const [goal, budget, bid] = state.diagnosis.answers;
+        let headline = "AppleAds 45% / Meta 25% / TikTok 20% / UAC 10%";
+        let detail = "DL最大化を重視。AppleAdsのキーワード拡張とブランド保護を優先。";
+        if (goal.includes("申込")) {
+          headline = "AppleAds 40% / Meta 30% / UAC 20% / TikTok 10%";
+          detail = "申込品質を重視。Metaの比較検討層とUACの再訪流入を強化。";
+        } else if (goal.includes("ROAS")) {
+          headline = "AppleAds 35% / Meta 20% / TikTok 15% / UAC 30%";
+          detail = "効率重視。リマーケ比率を引き上げ、CPA悪化チャネルを抑制。";
+        }
+        if (budget.includes("低い")) detail += " 予算制約があるため、日次で入札調整を実施。";
+        if (bid.includes("強い")) detail += " 競合が強いため18-23時は入札係数を上げる。";
+
+        document.getElementById("diagHeadline").textContent = headline;
+        document.getElementById("diagDetail").textContent = detail;
+        question.textContent = "診断完了";
+        options.innerHTML = `<button class="diag-btn" id="diagReset">もう一度診断する</button>`;
+        result.classList.add("show");
+        bar.style.width = "100%";
+        document.getElementById("diagReset").addEventListener("click", () => {
+          state.diagnosis.step = 0;
+          state.diagnosis.answers = [];
+          result.classList.remove("show");
+          renderDiagnosis();
+        });
+        return;
+      }
+
+      question.textContent = q.q;
+      options.innerHTML = q.options.map((o) => `<button class="diag-btn">${o}</button>`).join("");
+      options.querySelectorAll(".diag-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.diagnosis.answers.push(btn.textContent);
+          state.diagnosis.step += 1;
+          renderDiagnosis();
+        });
+      });
+    }
+
+    function renderCreative() {
+      const c = state.creatives[state.creativeIndex];
+      const card = document.getElementById("creativeCard");
+      card.innerHTML = `
+        <span class="creative-tag">${c.channel} 向け</span>
+        <h3>${c.title}</h3>
+        <p><strong>冒頭フック:</strong> ${c.hook}</p>
+        <div class="creative-box">
+          <p style="margin:0;"><strong>実車例:</strong> ${c.example}</p>
+          <p style="margin:6px 0 0;"><strong>本文コピー:</strong> ${c.copy}</p>
+          <p style="margin:6px 0 0;"><strong>CTA:</strong> ${c.cta}</p>
+        </div>
+        <div class="creative-metrics">
+          <div>想定DL率<br /><strong style="color:#1c2663; font-size:16px;">${c.dlr}</strong></div>
+          <div>想定申込率<br /><strong style="color:#1c2663; font-size:16px;">${c.apr}</strong></div>
+        </div>
+      `;
+      card.style.transform = "rotateY(0deg) scale(1)";
+      card.style.opacity = "1";
+    }
+
+    function nextCreative(step = 1) {
+      const card = document.getElementById("creativeCard");
+      card.style.transform = `rotateY(${step > 0 ? "-" : ""}8deg) scale(0.98)`;
+      card.style.opacity = "0.35";
+      setTimeout(() => {
+        state.creativeIndex = (state.creativeIndex + step + state.creatives.length) % state.creatives.length;
+        renderCreative();
+      }, 160);
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => setPage(Number(tab.dataset.page)));
+    });
+    dots.forEach((dot) => {
+      dot.addEventListener("click", () => setPage(Number(dot.dataset.dot)));
+    });
+
+    document.getElementById("kpiSwitch").addEventListener("click", (e) => {
+      if (!e.target.matches(".chip")) return;
+      state.metric = e.target.dataset.metric;
+      document.querySelectorAll(".chip").forEach((chip) => chip.classList.toggle("active", chip.dataset.metric === state.metric));
+      renderChannels();
+      showToast(`${kpiLabels[state.metric]}でランキング更新`);
+    });
+
+    document.getElementById("appleRange").addEventListener("input", simulateApple);
+
+    document.getElementById("execSteps").querySelectorAll(".exec-step").forEach((el) => {
+      el.addEventListener("click", () => {
+        const done = el.classList.toggle("done");
+        el.querySelector("span:last-child").textContent = done ? "完了" : "未完了";
+      });
+    });
+
+    document.getElementById("applyPlanBtn").addEventListener("click", () => {
+      showToast("AppleAds強化プランを保存しました");
+    });
+
+    document.getElementById("prevCreative").addEventListener("click", () => nextCreative(-1));
+    document.getElementById("nextCreative").addEventListener("click", () => nextCreative(1));
+
+    document.querySelectorAll(".vote-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const key = btn.dataset.vote;
+        state.votes[key] += 1;
+        document.getElementById("voteAdopt").textContent = state.votes.adopt;
+        document.getElementById("voteImprove").textContent = state.votes.improve;
+        document.getElementById("voteHold").textContent = state.votes.hold;
+        showToast(`「${btn.textContent}」で評価を記録`);
+      });
+    });
+
+    const viewport = document.getElementById("viewport");
+    viewport.addEventListener("pointerdown", (e) => {
+      state.swipeStartX = e.clientX;
+    });
+    viewport.addEventListener("pointerup", (e) => {
+      if (state.swipeStartX === null) return;
+      const diff = e.clientX - state.swipeStartX;
+      if (diff < -55) setPage(state.page + 1);
+      if (diff > 55) setPage(state.page - 1);
+      state.swipeStartX = null;
+    });
+
+    const cardForSwipe = document.getElementById("creativeCard");
+    let cardStartX = null;
+    cardForSwipe.addEventListener("pointerdown", (e) => {
+      cardStartX = e.clientX;
+    });
+    cardForSwipe.addEventListener("pointerup", (e) => {
+      if (cardStartX === null) return;
+      const diff = e.clientX - cardStartX;
+      if (diff < -60) nextCreative(1);
+      if (diff > 60) nextCreative(-1);
+      cardStartX = null;
+    });
+
+    renderChannels();
+    simulateApple();
+    renderDiagnosis();
+    renderCreative();
+  </script>
+</body>
+</html>
