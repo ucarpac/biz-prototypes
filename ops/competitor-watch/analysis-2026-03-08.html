@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>車買取業界 週次競合分析レポート</title>
+  <style>
+    :root {
+      --bg-1: #07111d;
+      --bg-2: #0d1730;
+      --bg-3: #10203f;
+      --panel: rgba(9, 16, 31, 0.68);
+      --panel-strong: rgba(14, 24, 46, 0.86);
+      --line: rgba(255, 255, 255, 0.1);
+      --line-strong: rgba(255, 255, 255, 0.16);
+      --text: #f5f7fb;
+      --muted: #a8b6cf;
+      --soft: #dbe7ff;
+      --blue: #7fd7ff;
+      --cyan: #64f0df;
+      --green: #67d69d;
+      --yellow: #ffd36e;
+      --orange: #ffb26c;
+      --red: #ff7b7b;
+      --pink: #ff8fb8;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(127, 215, 255, 0.18), transparent 24%),
+        radial-gradient(circle at 88% 14%, rgba(255, 143, 184, 0.16), transparent 22%),
+        radial-gradient(circle at 76% 74%, rgba(100, 240, 223, 0.12), transparent 24%),
+        linear-gradient(145deg, var(--bg-1), var(--bg-2) 48%, var(--bg-3));
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      width: 42vw;
+      height: 42vw;
+      border-radius: 50%;
+      filter: blur(70px);
+      pointer-events: none;
+      opacity: 0.22;
+      z-index: 0;
+    }
+
+    body::before {
+      top: -10vw;
+      right: -8vw;
+      background: linear-gradient(135deg, var(--blue), transparent 70%);
+    }
+
+    body::after {
+      bottom: -16vw;
+      left: -10vw;
+      background: linear-gradient(135deg, var(--cyan), transparent 70%);
+    }
+
+    a {
+      color: var(--soft);
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      width: min(1200px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 72px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.35fr 0.95fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 22px;
+    }
+
+    .hero-main,
+    .hero-side,
+    .section,
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .hero-main {
+      border-radius: var(--radius-xl);
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-main::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(120deg, rgba(127, 215, 255, 0.12), transparent 34%),
+        linear-gradient(210deg, rgba(255, 143, 184, 0.08), transparent 28%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(127, 215, 255, 0.12);
+      border: 1px solid rgba(127, 215, 255, 0.22);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+    }
+
+    .hero-sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.75;
+      max-width: 760px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--soft);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .hero-side {
+      border-radius: var(--radius-xl);
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .stat {
+      border-radius: 18px;
+      padding: 16px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--line);
+      min-height: 116px;
+    }
+
+    .stat .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .stat .value {
+      display: block;
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      margin-bottom: 6px;
+    }
+
+    .stat .meta {
+      color: var(--soft);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .section {
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      margin-top: 18px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: clamp(22px, 2.4vw, 30px);
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+    }
+
+    .section-note {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      max-width: 760px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 1px solid transparent;
+    }
+
+    .pill.blue {
+      color: var(--blue);
+      background: rgba(127, 215, 255, 0.1);
+      border-color: rgba(127, 215, 255, 0.18);
+    }
+
+    .pill.green {
+      color: var(--green);
+      background: rgba(103, 214, 157, 0.1);
+      border-color: rgba(103, 214, 157, 0.18);
+    }
+
+    .pill.orange {
+      color: var(--orange);
+      background: rgba(255, 178, 108, 0.1);
+      border-color: rgba(255, 178, 108, 0.18);
+    }
+
+    .pill.red {
+      color: var(--red);
+      background: rgba(255, 123, 123, 0.12);
+      border-color: rgba(255, 123, 123, 0.18);
+    }
+
+    .highlight-grid,
+    .summary-grid,
+    .threat-grid,
+    .action-grid,
+    .app-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .highlight-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .threat-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .action-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .app-grid {
+      grid-template-columns: 1.15fr 0.85fr;
+    }
+
+    .card {
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), transparent 36%);
+      pointer-events: none;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--soft);
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .source-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .source {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line-strong);
+      background: rgba(255,255,255,0.04);
+      color: var(--soft);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .company-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--line);
+      color: var(--soft);
+      margin-top: 10px;
+    }
+
+    .insight-box {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(127, 215, 255, 0.08);
+      border: 1px solid rgba(127, 215, 255, 0.14);
+      color: var(--soft);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .ring-wrap {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .metric-ring {
+      --score: 54.6;
+      width: 120px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background:
+        conic-gradient(from 210deg, var(--blue) calc(var(--score) * 1%), rgba(255,255,255,0.08) 0);
+      display: grid;
+      place-items: center;
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .metric-ring::before {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, rgba(10,17,32,0.98), rgba(18,28,54,0.98));
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .metric-ring .inner {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .metric-ring strong {
+      display: block;
+      font-size: 30px;
+      line-height: 1;
+      letter-spacing: -0.05em;
+    }
+
+    .metric-ring span {
+      display: block;
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .mini-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      width: 100%;
+    }
+
+    .mini {
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      padding: 12px;
+    }
+
+    .mini .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .mini strong {
+      display: block;
+      font-size: 20px;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 4px;
+    }
+
+    .mini small {
+      color: var(--soft);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .progress-box {
+      margin-top: 12px;
+    }
+
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: var(--soft);
+    }
+
+    .progress {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.07);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .progress > span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--cyan), var(--blue));
+    }
+
+    .threat-card {
+      border-radius: 18px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      min-height: 166px;
+    }
+
+    .threat-card.high {
+      background: linear-gradient(180deg, rgba(255,123,123,0.12), rgba(255,255,255,0.03));
+      border-color: rgba(255,123,123,0.2);
+    }
+
+    .threat-card.mid {
+      background: linear-gradient(180deg, rgba(255,211,110,0.12), rgba(255,255,255,0.03));
+      border-color: rgba(255,211,110,0.18);
+    }
+
+    .threat-card.low {
+      background: linear-gradient(180deg, rgba(103,214,157,0.12), rgba(255,255,255,0.03));
+      border-color: rgba(103,214,157,0.18);
+    }
+
+    .threat-level {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .threat-card h4 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .threat-card p {
+      margin: 0;
+      color: var(--soft);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .priority {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .priority.p1 {
+      color: var(--red);
+      background: rgba(255,123,123,0.12);
+      border: 1px solid rgba(255,123,123,0.18);
+    }
+
+    .priority.p2 {
+      color: var(--yellow);
+      background: rgba(255,211,110,0.12);
+      border: 1px solid rgba(255,211,110,0.18);
+    }
+
+    .priority.p3 {
+      color: var(--green);
+      background: rgba(103,214,157,0.12);
+      border: 1px solid rgba(103,214,157,0.18);
+    }
+
+    .action-card h3 {
+      margin-bottom: 10px;
+    }
+
+    .action-card .what {
+      color: var(--soft);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .action-card .why {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.8;
+      text-align: left;
+    }
+
+    @media (max-width: 1080px) {
+      .hero,
+      .app-grid,
+      .highlight-grid,
+      .summary-grid,
+      .threat-grid,
+      .action-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-side {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .wrap {
+        width: min(100% - 20px, 1200px);
+        padding-top: 20px;
+        padding-bottom: 40px;
+      }
+
+      .hero-main,
+      .section,
+      .hero-side {
+        padding: 18px;
+      }
+
+      .hero-side {
+        grid-template-columns: 1fr;
+      }
+
+      .mini-metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .card,
+      .threat-card {
+        padding: 16px;
+      }
+
+      .chip-row {
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+<script src="../../auth.js"></script>
+
+<div class="wrap">
+  <header class="hero">
+    <section class="hero-main">
+      <div class="eyebrow">Weekly Competitive Dashboard</div>
+      <h1>車買取業界 週次競合分析レポート</h1>
+      <p class="hero-sub">
+        対象期間は <strong>2026/03/02 - 2026/03/08</strong>。公開Web検索と提供されたApp Store / Play Storeデータを統合すると、
+        今週の競争軸は <strong>ポイント還元</strong>、<strong>オークション高値の証明</strong>、<strong>Web上の相場・比較導線</strong> に集中。
+        UcarPACはアプリ保有が差別化要素になる一方、現状の評価スコアの低さが訴求力を削いでいます。
+      </p>
+      <div class="chip-row">
+        <div class="chip">調査期間 2026/03/02-03/08</div>
+        <div class="chip">収集時刻 2026-03-08 23:30</div>
+        <div class="chip">対象ブランド 8社</div>
+        <div class="chip">公開検索ベース</div>
+      </div>
+    </section>
+
+    <aside class="hero-side">
+      <div class="stat">
+        <span class="label">週内で公開更新を確認</span>
+        <strong class="value">6 / 8</strong>
+        <span class="meta">MOTA / セルカ / 楽天Car / ネクステージ / グーネット / カーセンサー</span>
+      </div>
+      <div class="stat">
+        <span class="label">脅威レベル高</span>
+        <strong class="value">3社</strong>
+        <span class="meta">MOTA・セルカ・楽天Car買取</span>
+      </div>
+      <div class="stat">
+        <span class="label">アプリ可視データ</span>
+        <strong class="value">1 / 8</strong>
+        <span class="meta">観測できたのはUcarPAC iOSのみ。競合は提供データ上未取得</span>
+      </div>
+      <div class="stat">
+        <span class="label">今週の主戦場</span>
+        <strong class="value">Web</strong>
+        <span class="meta">相場情報、比較導線、ポイント特典、店舗網の即売却訴求が中心</span>
+      </div>
+    </aside>
+  </header>
+
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">1. 今週のハイライト</h2>
+        <p class="section-note">重要な動きのみを3件に絞って要約。</p>
+      </div>
+      <span class="pill blue">Top Signals</span>
+    </div>
+
+    <div class="highlight-grid">
+      <article class="card">
+        <div class="kicker">Highlight 01</div>
+        <div class="card-top">
+          <h3>楽天Carが還元設計で優位</h3>
+          <span class="pill red">Rakuten</span>
+        </div>
+        <p>
+          売却30万円以上で <strong>5,000pt</strong>、楽天モバイル契約者は同条件で <strong>最大20,000pt</strong>。
+          さらに <strong>2026/03/02以降の売却成立</strong> を対象に、ガソリン優待プログラムも連動。
+          単純な査定額比較ではなく、楽天経済圏込みの総還元価値で囲い込みに来ています。
+        </p>
+      </article>
+
+      <article class="card">
+        <div class="kicker">Highlight 02</div>
+        <div class="card-top">
+          <h3>セルカが「高く売れる証拠」を追加</h3>
+          <span class="pill red">SellCa</span>
+        </div>
+        <p>
+          2026/03/03公表の年間レポートで、<strong>2025年平均成約単価 約203万円</strong>、
+          <strong>12月は241万円超</strong> の過去最高水準を打ち出しました。
+          オークション形式の高値訴求が、実績ベースでさらに強化されています。
+        </p>
+      </article>
+
+      <article class="card">
+        <div class="kicker">Highlight 03</div>
+        <div class="card-top">
+          <h3>アプリ競争よりWeb競争が鮮明</h3>
+          <span class="pill orange">Market</span>
+        </div>
+        <p>
+          提供データで競合アプリの可視情報は取れておらず、今週の更新も
+          Goo-net・カーセンサー・MOTA・ネクステージなど <strong>Web面の相場情報、比較導線、認知施策</strong> が中心。
+          UcarPACはアプリを持つ優位がある一方、評価改善なしでは活かし切れません。
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">2. 各競合の1週間サマリー</h2>
+        <p class="section-note">
+          「更新確認なし」は 2026/03/02-03/08 の公開Web検索で新規施策や新着告知を確認できなかった状態を示します。
+        </p>
+      </div>
+      <span class="pill blue">8 Brand Scan</span>
+    </div>
+
+    <div class="summary-grid">
+      <article class="card">
+        <div class="card-top">
+          <div>
+            <h3>MOTA車買取</h3>
+            <div class="company-badge">直接競合</div>
+          </div>
+          <span class="pill red">注目</span>
+        </div>
+        <div class="stack">
+          <p>
+            <strong>03/03</strong> に、代表が文化放送「武田砂鉄 ラジオマガジン」へ
+            <strong>03/10出演予定</strong> と告知。中古車市場の動向と「MOTA車買取」の仕組みを一般向けに説明する流れです。
+          </p>
+          <p>
+            サービス訴求は引き続き <strong>最大20社の査定額開示</strong> と
+            <strong>上位3社のみ連絡</strong>。電話負担を減らしながら価格比較できる設計を、メディア露出で補強しています。
+          </p>
+          <div class="insight-box">示唆: 新機能よりも認知拡大と安心感の再訴求。UcarPACの「電話1社だけ」優位を、より明確に言語化する必要があります。</div>
+        </div>
+        <div class="source-row">
+          <a class="source" href="https://mota.inc/news/4n0ih-4xsyk/" target="_blank" rel="noreferrer noopener">企業ニュース</a>
+          <a class="source" href="https://autoc-one.jp/ullo/" target="_blank" rel="noreferrer noopener">サービスページ</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <div>
+            <h3>セルカ</h3>
+            <div class="company-badge">直接競合</div>
+          </div>
+          <span class="pill red">注目</span>
+        </div>
+        <div class="stack">
+          <p>
+            <strong>03/03</strong> に年間レポートを公開。
+            <strong>2025年平均成約単価は約203万円</strong>、<strong>12月は241万円超</strong> で過去最高と発信しました。
+          </p>
+          <p>
+            今週の動きは、機能追加ではなく <strong>「セルカは高く売れる」証拠の蓄積</strong>。
+            オークション型サービスとしての説得力を、数字で積み上げています。
+          </p>
+          <div class="insight-box">示唆: UcarPACも「最高落札額」だけでなく、「平均上振れ額」や「下取り差額」の見せ方を定量で固定化したい局面です。</div>
+        </div>
+        <div class="source-row">
+          <a class="source" href="https://prtimes.jp/main/html/rd/p/000000057.000118153.html" target="_blank" rel="noreferrer noopener">03/03 レポート</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <div>
+            <h3>楽天Car買取</h3>
+            <div class="company-badge">直接競合</div>
+          </div>
+          <span class="pill red">注目</span>
+        </div>
+        <div class="stack">
+          <p>
+            車売却系の特典が厚いまま継続。<strong>ダイヤモンド会員は5,000pt</strong>、
+            <strong>楽天モバイル契約者は最大20,000pt</strong>。
+            どちらも売却30万円以上が基準です。
+          </p>
+          <p>
+            加えて、ガソリン優待プログラムでは
+            <strong>2026/03/02以降の楽天Car車買取の売却契約成立</strong> が対象。
+            売却後まで含めた継続接点を作っています。
+          </p>
+          <div class="insight-box">示唆: 価格以外の「総還元価値」で競争している点が脅威。UcarPACも成約特典や維持費優待の実験余地があります。</div>
+        </div>
+        <div class="source-row">
+          <a class="source" href="https://car.rakuten.co.jp/campaign/" target="_blank" rel="noreferrer noopener">キャンペーン一覧</a>
+          <a class="source" href="https://sell.car.rakuten.co.jp/campaign/rank/diamond/" target="_blank" rel="noreferrer noopener">5,000pt施策</a>
+          <a class="source" href="https://sell.car.rakuten.co.jp/campaign/mobile-point-20000/" target="_blank" rel="noreferrer noopener">20,000pt施策</a>
+          <a class="source" href="https://car.rakuten.co.jp/app/campaign/gasoline-program/condition/sell-car/" target="_blank" rel="noreferrer noopener">ガソリン優待</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <div>
+            <h3>ズバット車買取比較</h3>
+            <div class="company-badge">間接競合</div>
+          </div>
+          <span class="pill orange">静観</span>
+        </div>
+        <div class="stack">
+          <p>
+            <strong>今週の新機能・新キャンペーンは公開検索で未確認</strong>。
+            ただし現行の訴求軸は変わらず、<strong>300社超の参加業者</strong> と
+            <strong>300万人超の利用実績</strong> を前面に出した比較導線です。
+          </p>
+          <p>
+            体験としては従来型の一括査定寄りですが、SEO上は依然として強く、
+            検討初期のユーザー接点を取りやすいポジションを維持しています。
+          </p>
+          <div class="insight-box">示唆: 体験差別化はしやすい一方、検索比較文脈では埋もれやすい。比較LPの整備が必要です。</div>
+        </div>
+        <div class="source-row">
+          <a class="source" href="https://www.zba.jp/car-kaitori/" target="_blank" rel="noreferrer noopener">サービスTOP</a>
+          <a class="source" href="https://www.zba.jp/car-kaitori/appraisal/point_03.html" target="_blank" rel="noreferrer noopener">比較訴求ページ</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <div>
+            <h3>ソコカラ</h3>
+            <div class="company-badge">直接競合</div>
+          </div>
+          <span class="pill green">更新確認なし</span>
+        </div>
+        <div class="stack">
+          <p>
+            <strong>03/02-03/08の公開検索では新規のニュース、キャンペーン、機能更新を確認できず</strong>。
+            公式サイトはJS主体で、外部検索から更新点を追いにくい構造でした。
+          </p>
+          <p>
+            ブランド特性は引き続き <strong>事故車・不動車対応</strong> と
+            <strong>海外販路</strong> が主軸。今週は大きく仕掛けるというより、既存ポジション維持の週に見えます。
+          </p>
+          <div class="insight-box">示唆: 良質車両の主戦場では相対脅威が下がる一方、難車両セグメントでは依然強い相手です。</div>
+        </div>
+        <div class="source-row">
+          <a class="source" href="https://www.sococara.com/" target="_blank" rel="noreferrer noopener">公式サイト</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <div>
+            <h3>ネクステージ</h3>
+            <div class="company-badge">固定買取・実店舗</div>
+          </div>
+          <span class="pill orange">店舗強化</span>
+        </div>
+        <div class="stack">
+          <p>
+            <strong>03/02</strong> に店舗名称変更を告知。
+            「ネクステージ前橋SUV専門店」は、前橋総合店のオープンに合わせ
+            <strong>「ネクステージ天川大島店」</strong> へ変更。
+          </p>
+          <p>
+            展示車ラインアップを大幅に変えつつ、
+            <strong>店頭査定</strong> と <strong>無料の出張買取</strong> は継続。
+            オフライン接点と即売却ニーズの受け皿を広げています。
+          </p>
+          <div class="insight-box">示唆: 価格最大化より「早い・近い・相談しやすい」で取り切る相手。即売却層への対抗導線が必要です。</div>
+        </div>
+        <div class="source-row">
+          <a class="source" href="https://www.nextage.jp/information/news/1038005/" target="_blank" rel="noreferrer noopener">03/02 ニュース</a>
+          <a class="source" href="https://www.nextage.jp/" target="_blank" rel="noreferrer noopener">公式TOP</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <div>
+            <h3>グーネット買取</h3>
+            <div class="company-badge">参考・SEO強者</div>
+          </div>
+          <span class="pill orange">相場更新</span>
+        </div>
+        <div class="stack">
+          <p>
+            買取トップでは <strong>年間オンライン査定実績 707,662件（2025年実績）</strong> を前面訴求。
+            個別の相場ページは <strong>2026年03月更新</strong> が継続しており、
+            今週もマガジンで週次ダイジェストを配信しています。
+          </p>
+          <p>
+            つまり、成約の最終受け皿よりも、
+            <strong>「まず相場を知りたい」流入</strong> を継続的に吸い込む構造が強い状態です。
+          </p>
+          <div class="insight-box">示唆: UcarPACが指名検索以外を取るには、「車種別AI査定」や「今週の高値傾向」などの上流コンテンツが必要です。</div>
+        </div>
+        <div class="source-row">
+          <a class="source" href="https://www.goo-net.com/kaitori/" target="_blank" rel="noreferrer noopener">買取TOP</a>
+          <a class="source" href="https://www.goo-net.com/kaitori/maker_guide/show/1025/10252038/10154896/" target="_blank" rel="noreferrer noopener">03月更新相場例</a>
+          <a class="source" href="https://www.goo-net.com/magazine/newmodel/car-news/278210/" target="_blank" rel="noreferrer noopener">03/07 ダイジェスト</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <div>
+            <h3>カーセンサー</h3>
+            <div class="company-badge">参考・巨大流入面</div>
+          </div>
+          <span class="pill orange">情報鮮度高</span>
+        </div>
+        <div class="stack">
+          <p>
+            <strong>日刊カーセンサーは03/05に新着記事更新</strong>。
+            さらに買取相場ページでは <strong>2026年3月平均小売相場</strong> や
+            <strong>前月比</strong> を表示し、相場確認導線の鮮度を維持しています。
+          </p>
+          <p>
+            買取導線は <strong>全国約1,000店以上参画</strong>、
+            <strong>最大30社比較</strong> に加え、
+            <strong>オークション型査定</strong> も併記されており守備範囲が広い構造です。
+          </p>
+          <div class="insight-box">示唆: 比較査定と相場情報を同時に持つため、検討初期の「とりあえず見る先」として非常に強い存在です。</div>
+        </div>
+        <div class="source-row">
+          <a class="source" href="https://www.carsensor.net/contents/" target="_blank" rel="noreferrer noopener">日刊カーセンサー</a>
+          <a class="source" href="https://kaitori.carsensor.net/TS/S004/" target="_blank" rel="noreferrer noopener">3月相場ページ例</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">3. App Store評価の変動</h2>
+        <p class="section-note">今回提供データには前週スナップショットがないため、週次の増減値は未算出。ここでは現況と競争上の意味を整理します。</p>
+      </div>
+      <span class="pill blue">App Snapshot</span>
+    </div>
+
+    <div class="app-grid">
+      <article class="card">
+        <div class="card-top">
+          <div>
+            <h3>UcarPAC iOS 現況</h3>
+            <div class="company-badge">自社アプリ</div>
+          </div>
+          <span class="pill orange">変動未算出</span>
+        </div>
+
+        <div class="ring-wrap">
+          <div class="metric-ring" style="--score:54.6;">
+            <div class="inner">
+              <strong>2.73</strong>
+              <span>/ 5.0</span>
+            </div>
+          </div>
+
+          <div class="mini-metrics">
+            <div class="mini">
+              <span class="label">レビュー件数</span>
+              <strong>11件</strong>
+              <small>母数がまだ小さい</small>
+            </div>
+            <div class="mini">
+              <span class="label">最新バージョン</span>
+              <strong>1.2.12</strong>
+              <small>2026/02/13 更新</small>
+            </div>
+            <div class="mini">
+              <span class="label">直近リリースノート</span>
+              <strong>軽微修正</strong>
+              <small>カメラ不具合等の修正</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="insight-box">
+          解釈: UcarPACは今回データ上で唯一可視化できたネイティブアプリ資産を持っています。
+          ただし評価 <strong>2.73</strong> は、AI査定やアプリ体験を前面に押し出す際の信頼障壁になりやすい水準です。
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-top">
+          <div>
+            <h3>競合アプリの可視性</h3>
+            <div class="company-badge">提供データ準拠</div>
+          </div>
+          <span class="pill green">Web優勢</span>
+        </div>
+
+        <div class="progress-box">
+          <div class="progress-head">
+            <span>アプリ情報が取れているブランド</span>
+            <strong>1 / 8</strong>
+          </div>
+          <div class="progress">
+            <span style="width: 12.5%;"></span>
+          </div>
+        </div>
+
+        <div class="mini-metrics" style="margin-top: 12px;">
+          <div class="mini">
+            <span class="label">UcarPAC</span>
+            <strong>iOSのみ</strong>
+            <small>Playは未取得</small>
+          </div>
+          <div class="mini">
+            <span class="label">競合7ブランド</span>
+            <strong>未取得</strong>
+            <small>iOS / Playとも提供データ上なし</small>
+          </div>
+          <div class="mini">
+            <span class="label">示唆</span>
+            <strong>主戦場はWeb</strong>
+            <small>今週の競争軸はLP、相場、比較、特典</small>
+          </div>
+        </div>
+
+        <div class="insight-box">
+          解釈: 競合がアプリで強く見えていない今こそ、
+          <strong>「アプリがあること」ではなく「アプリで何が簡単になるか」</strong> を再設計すると差別化になりやすい状況です。
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">4. 脅威レベル判定</h2>
+        <p class="section-note">今週の動きと中長期の競争構造を合わせた実務的な優先度。</p>
+      </div>
+      <span class="pill blue">Threat Map</span>
+    </div>
+
+    <div class="threat-grid">
+      <article class="threat-card high">
+        <div class="threat-level">🔴 高</div>
+        <h4>MOTA車買取</h4>
+        <p>電話負担を減らす体験設計がUcarPACに近く、認知露出も継続。比較文脈で最もぶつかりやすい相手です。</p>
+      </article>
+
+      <article class="threat-card high">
+        <div class="threat-level">🔴 高</div>
+        <h4>セルカ</h4>
+        <p>オークション高値の実績PRが強い週。UcarPACの「高く売れる」訴求を数字で侵食しやすい存在です。</p>
+      </article>
+
+      <article class="threat-card high">
+        <div class="threat-level">🔴 高</div>
+        <h4>楽天Car買取</h4>
+        <p>価格だけでなくポイント還元まで含めた総価値で競争。楽天経済圏による送客力が大きな脅威です。</p>
+      </article>
+
+      <article class="threat-card mid">
+        <div class="threat-level">🟡 中</div>
+        <h4>ズバット車買取比較</h4>
+        <p>今週は静かでも、SEOと比較導線は依然強い。検討初期のリード獲得を奪われやすいプレイヤーです。</p>
+      </article>
+
+      <article class="threat-card low">
+        <div class="threat-level">🟢 低</div>
+        <h4>ソコカラ</h4>
+        <p>事故車・不動車・輸出寄りのため主戦場は一部重なる程度。今週の公開動きも確認できませんでした。</p>
+      </article>
+
+      <article class="threat-card mid">
+        <div class="threat-level">🟡 中</div>
+        <h4>ネクステージ</h4>
+        <p>実店舗と出張査定の近接性が強み。最高額よりも「早く売る」ニーズを確実に取りに来る相手です。</p>
+      </article>
+
+      <article class="threat-card mid">
+        <div class="threat-level">🟡 中</div>
+        <h4>グーネット買取</h4>
+        <p>相場ページの更新頻度と検索流入面が強力。売却検討前の情報収集フェーズを抑えられやすい構造です。</p>
+      </article>
+
+      <article class="threat-card mid">
+        <div class="threat-level">🟡 中</div>
+        <h4>カーセンサー</h4>
+        <p>相場情報、比較査定、オークション型査定を一画面で持つ守備範囲の広さが脅威。上流流入面で特に強いです。</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">5. UcarPACへの推奨アクション</h2>
+        <p class="section-note">競争圧力に対して、今週から実行しやすいものを優先度付きで整理。</p>
+      </div>
+      <span class="pill blue">Action Plan</span>
+    </div>
+
+    <div class="action-grid">
+      <article class="card action-card">
+        <div class="priority p1">P1</div>
+        <h3>アプリ評価の立て直しを最優先</h3>
+        <div class="what">
+          カメラ導線の再QA、査定完了後のレビュー依頼、低評価の発生ポイント調査を即実施。
+          リリースノートも「何が良くなったか」をユーザー言語で更新し、2.73の改善を最短で狙う。
+        </div>
+        <div class="why">
+          理由: 今回の可視データではUcarPACだけがアプリ競争に立てる一方、評価スコアが差別化を打ち消しています。
+        </div>
+      </article>
+
+      <article class="card action-card">
+        <div class="priority p1">P1</div>
+        <h3>比較LPで「電話1社だけ」を固定訴求</h3>
+        <div class="what">
+          MOTA、セルカ、楽天Carとの比較表を用意し、
+          <strong>電話1社のみ</strong>、<strong>AI査定</strong>、<strong>手数料無料</strong>、<strong>事前の相場把握</strong>
+          をファーストビュー直下で明示する。
+        </div>
+        <div class="why">
+          理由: 今週の直接競合は全員が「高く売れる」を打ち出しており、UcarPACは体験差をより明確に見せる必要があります。
+        </div>
+      </article>
+
+      <article class="card action-card">
+        <div class="priority p2">P2</div>
+        <h3>成約特典の小規模テストを開始</h3>
+        <div class="what">
+          楽天のポイント攻勢に対抗し、まずは地域限定または期間限定で
+          <strong>売却完了特典</strong>、<strong>ガソリン・メンテ優待</strong>、<strong>紹介インセンティブ</strong>
+          のA/Bテストを回す。
+        </div>
+        <div class="why">
+          理由: 価格競争だけでは楽天経済圏に不利。総価値の見せ方を持たないと比較時に不利になります。
+        </div>
+      </article>
+
+      <article class="card action-card">
+        <div class="priority p2">P2</div>
+        <h3>週次の相場コンテンツを公開運用へ</h3>
+        <div class="what">
+          「今週高く売れやすい車種」「AI査定と実売差」「下取りとの差額事例」などを週次更新し、
+          Goo-net・カーセンサー・MOTAが強い上流検索の取り込みに踏み込む。
+        </div>
+        <div class="why">
+          理由: 今週見えた競争の主戦場はWeb上の相場・比較情報。ここを取らないと指名検索以外の流入が広がりません。
+        </div>
+      </article>
+
+      <article class="card action-card">
+        <div class="priority p3">P3</div>
+        <h3>即売却ニーズ向けの別導線を整える</h3>
+        <div class="what">
+          「最短で売りたい」「来店で相談したい」層向けに、UcarPAC内でも
+          <strong>スピード重視モード</strong> やサポート導線を明確化し、ネクステージ系の取りこぼしを減らす。
+        </div>
+        <div class="why">
+          理由: 店舗型競合は高額売却層ではなく、早さ・近さを重視する層を確実に回収しています。
+        </div>
+      </article>
+
+      <article class="card action-card">
+        <div class="priority p3">P3</div>
+        <h3>難車両セグメントは切り分けて訴求</h3>
+        <div class="what">
+          事故車・不動車・低年式など、ソコカラが強い領域は通常導線と分離し、
+          UcarPACで勝てる条件と、別訴求が必要な条件を明確化する。
+        </div>
+        <div class="why">
+          理由: 主戦場が違う競合を同じメッセージで受けると、CVRも顧客満足も下がりやすくなります。
+        </div>
+      </article>
+    </div>
+
+    <div class="footer-note">
+      調査メモ: 本レポートは 2026/03/02-03/08 の公開Web検索と公開ページ確認、ならびに提供されたApp Store / Play Storeデータをもとに作成。
+      「更新確認なし」は公開面で新着が見つからなかったことを示し、非公開CRM、広告配信、店舗現場施策は含みません。
+    </div>
+  </section>
+</div>
+</body>
+</html>
