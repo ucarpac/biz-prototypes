@@ -2,56 +2,56 @@
 <html lang="ja">
 <script src="../auth.js"></script>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>UcarPAC Store Screens Prototype</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UcarPAC ストアスクショ インタラクティブプロトタイプ</title>
   <style>
     :root {
-      --pink: #F84CA2;
+      --pink: #f84ca2;
       --dark-blue: #1c2663;
-      --white: #FFFFFF;
+      --white: #ffffff;
       --text-black: #404040;
       --text-gray: #737373;
-      --text-disabled: #B3B3B3;
-      --text-placeholder: rgba(28,38,99,0.3);
+      --text-disabled: #b3b3b3;
+      --text-placeholder: rgba(28, 38, 99, 0.3);
       --text-light-blue: #bfdbfe;
-      --text-under-blue: #0056BA;
-      --button-gray: #CACEE2;
-      --button-link1: #4099FF;
-      --button-link2: #40BFFF;
-      --back-white: #FAFAFA;
-      --light-gray: #FAFAFA;
-      --back-gray: #EDF1F4;
+      --text-under-blue: #0056ba;
+      --button-gray: #cacee2;
+      --button-disabled: #b3b3b3;
+      --button-link1: #4099ff;
+      --button-link2: #40bfff;
+      --back-white: #fafafa;
+      --light-gray: #fafafa;
+      --back-gray: #edf1f4;
       --back-gray2: #e6e6e6;
       --back-blue: #091355;
       --back-dark-blue: #0a1348;
       --back-light-pink: #ffd8e8;
       --back-light-blue: #6fc2ff;
-      --error: #EB4646;
-      --shadow: rgba(0,0,0,0.11);
-      --ruled-line: #F2F2F2;
-      --border-gray: #7C7C7C;
+      --error: #eb4646;
+      --shadow: rgba(0, 0, 0, 0.11);
+      --ruled-line: #f2f2f2;
+      --border-gray: #7c7c7c;
       --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
       --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
       --gradient-disabled: linear-gradient(90deg, #e5e5e5, #e5e5e5);
       --font-sans: "Noto Sans JP", "Hiragino Sans", system-ui, sans-serif;
-      --font-number: "Righteous", "Noto Sans JP", sans-serif;
       --space-1: 4px;
       --space-2: 8px;
       --space-3: 12px;
       --space-4: 16px;
       --space-5: 20px;
       --space-6: 24px;
-      --space-7: 27px;
       --space-8: 32px;
       --radius-sm: 5px;
       --radius-md: 12px;
-      --radius-card: 13px;
       --radius-lg: 16px;
       --radius-chip: 22px;
       --radius-button: 30px;
-      --radius-button-xl: 43px;
-      --phone-width: 375px;
+      --panel: rgba(255, 255, 255, 0.78);
+      --panel-strong: rgba(255, 255, 255, 0.92);
+      --surface-shadow: 0 20px 60px rgba(14, 27, 91, 0.16);
+      --phone-shadow: 0 40px 100px rgba(7, 14, 50, 0.35);
     }
 
     * {
@@ -62,91 +62,60 @@
     html, body {
       margin: 0;
       min-height: 100%;
-      background:
-        radial-gradient(circle at 10% 10%, rgba(248, 76, 162, 0.15), transparent 30%),
-        radial-gradient(circle at 90% 15%, rgba(29, 220, 255, 0.22), transparent 28%),
-        linear-gradient(180deg, #fef7fb 0%, #edf5ff 45%, #f7fbff 100%);
       font-family: var(--font-sans);
+      background:
+        radial-gradient(circle at 15% 15%, rgba(248, 76, 162, 0.18), transparent 26%),
+        radial-gradient(circle at 85% 10%, rgba(29, 220, 255, 0.22), transparent 24%),
+        linear-gradient(180deg, #f7fbff 0%, #eef3ff 45%, #fdf6fb 100%);
       color: var(--text-black);
       overflow-x: hidden;
     }
 
-    body {
-      padding: 20px 14px 40px;
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(28, 38, 99, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(28, 38, 99, 0.03) 1px, transparent 1px);
+      background-size: 24px 24px;
+      mask-image: radial-gradient(circle at center, black 40%, transparent 78%);
     }
 
-    .shell {
-      max-width: 1180px;
+    .page {
+      max-width: 1200px;
       margin: 0 auto;
+      padding: 24px 16px 48px;
+      position: relative;
+      z-index: 1;
     }
 
     .hero {
-      position: relative;
-      padding: 22px 18px 18px;
-      border-radius: 28px;
-      background: rgba(255,255,255,0.68);
-      border: 1px solid rgba(255,255,255,0.8);
-      box-shadow: 0 24px 60px rgba(28,38,99,0.09);
-      backdrop-filter: blur(20px);
-      overflow: hidden;
-    }
-
-    .hero::before,
-    .hero::after {
-      content: "";
-      position: absolute;
-      border-radius: 999px;
-      filter: blur(10px);
-      opacity: 0.6;
-      pointer-events: none;
-    }
-
-    .hero::before {
-      width: 180px;
-      height: 180px;
-      top: -80px;
-      right: -40px;
-      background: rgba(248, 76, 162, 0.18);
-    }
-
-    .hero::after {
-      width: 150px;
-      height: 150px;
-      bottom: -70px;
-      left: -30px;
-      background: rgba(29, 220, 255, 0.18);
+      display: grid;
+      gap: 14px;
+      margin-bottom: 24px;
     }
 
     .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      min-height: 32px;
-      padding: 0 14px;
+      width: fit-content;
+      padding: 10px 16px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.92);
-      color: var(--dark-blue);
       font-size: 12px;
       font-weight: 700;
-      letter-spacing: 0.04em;
-    }
-
-    .eyebrow span {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--pink);
-      box-shadow: 0 0 0 6px rgba(248,76,162,0.15);
-      animation: pulse 2.2s infinite;
+      color: var(--dark-blue);
+      background: rgba(255, 255, 255, 0.74);
+      box-shadow: 0 10px 30px rgba(17, 34, 110, 0.08);
+      backdrop-filter: blur(14px);
     }
 
     .hero h1 {
-      margin: 16px 0 10px;
-      font-size: 34px;
-      line-height: 1.28;
-      font-weight: 900;
-      color: var(--dark-blue);
+      margin: 0;
+      font-size: clamp(28px, 5vw, 50px);
+      line-height: 1.15;
       letter-spacing: -0.04em;
+      color: var(--dark-blue);
+      max-width: 760px;
     }
 
     .hero p {
@@ -154,227 +123,237 @@
       font-size: 14px;
       line-height: 1.7;
       color: var(--text-gray);
-      max-width: 720px;
+      max-width: 760px;
     }
 
-    .toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
-      margin-top: 18px;
-    }
-
-    .chip {
-      border: 1px solid rgba(28,38,99,0.08);
-      background: var(--white);
-      color: var(--text-black);
-      border-radius: var(--radius-chip);
-      min-height: 43px;
-      padding: 0 16px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 180ms ease, background 180ms ease, color 180ms ease, box-shadow 180ms ease;
-    }
-
-    .chip.is-active {
-      background: var(--dark-blue);
-      color: var(--white);
-      box-shadow: 0 10px 24px rgba(28,38,99,0.18);
-    }
-
-    .chip:hover {
-      transform: translateY(-1px);
-    }
-
-    .progress-wrap {
-      margin-top: 18px;
+    .layout {
       display: grid;
-      gap: 10px;
-    }
-
-    .progress-label {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12px;
-      color: var(--text-gray);
-    }
-
-    .progress-track {
-      width: 100%;
-      height: 10px;
-      background: rgba(28,38,99,0.08);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .progress-bar {
-      height: 100%;
-      width: 33.33%;
-      background: linear-gradient(90deg, #f84ca2 0%, #1ddcff 100%);
-      border-radius: 999px;
-      transition: width 360ms cubic-bezier(.2,.8,.2,1);
-    }
-
-    .stage {
-      margin-top: 20px;
-      display: grid;
-      gap: 18px;
+      gap: 24px;
       align-items: start;
+      grid-template-columns: minmax(0, 390px) minmax(0, 1fr);
     }
 
-    .carousel-shell {
+    .phone-stage {
+      position: sticky;
+      top: 24px;
+      display: grid;
+      gap: 16px;
+      justify-items: center;
+    }
+
+    .phone-frame {
+      width: min(100%, 375px);
+      aspect-ratio: 375 / 812;
+      padding: 12px;
+      border-radius: 40px;
+      background:
+        linear-gradient(180deg, #1d255f 0%, #090f31 45%, #10183f 100%);
+      box-shadow: var(--phone-shadow);
       position: relative;
       overflow: hidden;
-      border-radius: 30px;
-      padding: 10px 0 4px;
     }
 
-    .carousel {
-      display: flex;
-      transition: transform 420ms cubic-bezier(.2,.8,.2,1);
-      will-change: transform;
-      touch-action: pan-y;
-    }
-
-    .slide {
-      min-width: 100%;
-      display: flex;
-      justify-content: center;
-      padding: 10px 4px 24px;
-    }
-
-    .phone {
-      position: relative;
-      width: min(100%, var(--phone-width));
-      min-height: 740px;
-      border-radius: 38px;
-      background: var(--back-white);
-      border: 1px solid rgba(28,38,99,0.08);
-      box-shadow:
-        0 18px 44px rgba(28,38,99,0.12),
-        inset 0 0 0 8px #fcfdff;
-      overflow: hidden;
-    }
-
-    .phone::before {
+    .phone-frame::before {
       content: "";
       position: absolute;
       top: 10px;
       left: 50%;
+      width: 132px;
+      height: 26px;
       transform: translateX(-50%);
-      width: 134px;
-      height: 28px;
-      background: #11142c;
       border-radius: 0 0 18px 18px;
-      z-index: 4;
+      background: #070d27;
+      z-index: 3;
     }
 
     .screen {
+      height: 100%;
+      border-radius: 30px;
+      overflow: hidden;
       position: relative;
-      min-height: 740px;
-      padding: 30px 16px 18px;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(250,252,255,0.95) 24%, rgba(241,247,255,0.88) 100%);
+      background: #fff;
     }
 
-    .screen.ios {
-      background:
-        radial-gradient(circle at 80% 8%, rgba(248,76,162,0.2), transparent 20%),
-        radial-gradient(circle at 12% 24%, rgba(29,220,255,0.2), transparent 22%),
-        linear-gradient(180deg, #ffffff 0%, #fff7fb 38%, #f3f8ff 100%);
+    .track {
+      display: flex;
+      height: 100%;
+      transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform;
     }
 
-    .screen.android {
-      background:
-        radial-gradient(circle at 20% 10%, rgba(111,194,255,0.2), transparent 24%),
-        radial-gradient(circle at 82% 18%, rgba(248,76,162,0.16), transparent 22%),
-        linear-gradient(180deg, #fbfdff 0%, #f3fbff 42%, #fdf7fb 100%);
+    .slide {
+      min-width: 100%;
+      height: 100%;
+      position: relative;
+      padding: 18px 18px 22px;
+      overflow: hidden;
     }
 
-    .screen.compare {
-      background:
-        radial-gradient(circle at 10% 12%, rgba(248,76,162,0.2), transparent 22%),
-        radial-gradient(circle at 88% 12%, rgba(29,220,255,0.2), transparent 26%),
-        linear-gradient(180deg, #fffafd 0%, #f4f9ff 48%, #ffffff 100%);
+    .slide::before,
+    .slide::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      opacity: 0.8;
+      filter: blur(8px);
+      pointer-events: none;
     }
 
-    .status {
+    .slide-a {
+      background:
+        radial-gradient(circle at 78% 12%, rgba(29, 220, 255, 0.35), transparent 24%),
+        radial-gradient(circle at 14% 84%, rgba(248, 76, 162, 0.32), transparent 24%),
+        linear-gradient(180deg, #071145 0%, #10206f 52%, #08143e 100%);
+      color: var(--white);
+    }
+
+    .slide-a::before {
+      width: 180px;
+      height: 180px;
+      top: -56px;
+      right: -40px;
+      background: rgba(29, 220, 255, 0.18);
+      animation: float 7s ease-in-out infinite;
+    }
+
+    .slide-a::after {
+      width: 140px;
+      height: 140px;
+      left: -40px;
+      bottom: 140px;
+      background: rgba(248, 76, 162, 0.16);
+      animation: float 8s ease-in-out infinite reverse;
+    }
+
+    .slide-b {
+      background:
+        radial-gradient(circle at 14% 12%, rgba(248, 76, 162, 0.18), transparent 24%),
+        radial-gradient(circle at 84% 18%, rgba(29, 220, 255, 0.22), transparent 24%),
+        linear-gradient(180deg, #fffdfd 0%, #eff7ff 55%, #f8fbff 100%);
+      color: var(--dark-blue);
+    }
+
+    .slide-b::before {
+      width: 160px;
+      height: 160px;
+      right: -34px;
+      top: 96px;
+      background: rgba(29, 220, 255, 0.14);
+      animation: float 9s ease-in-out infinite;
+    }
+
+    .slide-b::after {
+      width: 120px;
+      height: 120px;
+      left: -24px;
+      bottom: 100px;
+      background: rgba(248, 76, 162, 0.12);
+      animation: float 6s ease-in-out infinite reverse;
+    }
+
+    .slide-c {
+      background:
+        radial-gradient(circle at 80% 15%, rgba(248, 76, 162, 0.25), transparent 22%),
+        radial-gradient(circle at 18% 80%, rgba(29, 220, 255, 0.2), transparent 20%),
+        linear-gradient(180deg, #0b154a 0%, #18235f 48%, #0c1232 100%);
+      color: var(--white);
+    }
+
+    .slide-c::before {
+      width: 200px;
+      height: 200px;
+      top: -80px;
+      left: -50px;
+      background: rgba(29, 220, 255, 0.12);
+      animation: float 10s ease-in-out infinite;
+    }
+
+    .slide-c::after {
+      width: 160px;
+      height: 160px;
+      bottom: -40px;
+      right: -24px;
+      background: rgba(248, 76, 162, 0.14);
+      animation: float 7s ease-in-out infinite reverse;
+    }
+
+    .statusbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 6px 6px 14px;
-      font-size: 12px;
-      color: var(--dark-blue);
+      font-size: 11px;
       font-weight: 700;
-    }
-
-    .top-card {
+      letter-spacing: 0.04em;
+      margin-bottom: 18px;
       position: relative;
-      border-radius: 28px;
-      padding: 20px 18px 18px;
-      color: var(--white);
-      overflow: hidden;
-      box-shadow: 0 18px 32px rgba(28,38,99,0.18);
+      z-index: 2;
     }
 
-    .top-card.ai {
-      background: linear-gradient(140deg, #0d1d74 0%, #2337af 42%, #f84ca2 100%);
+    .status-icons {
+      display: flex;
+      gap: 8px;
+      align-items: center;
     }
 
-    .top-card.future {
-      background: linear-gradient(145deg, #051048 0%, #0d2a84 42%, #1ddcff 100%);
-    }
-
-    .top-card.compare {
-      background: linear-gradient(145deg, #f84ca2 0%, #db348b 34%, #1c2663 100%);
-    }
-
-    .top-card::before {
-      content: "";
-      position: absolute;
-      right: -20px;
-      top: -18px;
-      width: 130px;
-      height: 130px;
+    .dot {
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.14);
+      background: currentColor;
+      opacity: 0.8;
     }
 
-    .store-label {
+    .platform {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      min-height: 30px;
-      padding: 0 12px;
+      padding: 8px 12px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.16);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.04em;
+      width: fit-content;
+      margin-bottom: 14px;
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
     }
 
-    .store-label strong {
-      font-size: 13px;
-      letter-spacing: 0;
+    .slide-a .platform,
+    .slide-c .platform {
+      background: rgba(255, 255, 255, 0.12);
+      color: #dff5ff;
     }
 
-    .headline {
-      margin-top: 14px;
-      font-size: 31px;
-      line-height: 1.25;
-      font-weight: 900;
+    .slide-b .platform {
+      background: rgba(255, 255, 255, 0.84);
+      color: var(--dark-blue);
+      box-shadow: 0 10px 22px rgba(28, 38, 99, 0.08);
+      border-color: rgba(64, 153, 255, 0.12);
+    }
+
+    .screenshot-label {
+      font-size: 10px;
+      font-weight: 700;
+      opacity: 0.82;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .slide-title {
+      margin: 0;
+      font-size: 32px;
+      line-height: 1.12;
       letter-spacing: -0.05em;
+      position: relative;
+      z-index: 2;
     }
 
-    .subcopy {
-      margin-top: 10px;
-      max-width: 250px;
-      font-size: 13px;
-      line-height: 1.65;
-      color: rgba(255,255,255,0.82);
+    .slide-copy {
+      margin: 10px 0 0;
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 290px;
+      position: relative;
+      z-index: 2;
     }
 
     .badge-row {
@@ -382,1080 +361,1508 @@
       flex-wrap: wrap;
       gap: 8px;
       margin-top: 16px;
+      position: relative;
+      z-index: 2;
     }
 
     .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      min-height: 32px;
-      padding: 0 12px;
+      padding: 8px 12px;
       border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .badge.white {
-      background: rgba(255,255,255,0.98);
-      color: var(--dark-blue);
-    }
-
-    .badge.sky {
-      background: rgba(29,220,255,0.18);
-      color: var(--white);
-      border: 1px solid rgba(191,219,254,0.25);
-    }
-
-    .content-stack {
-      margin-top: 16px;
-      display: grid;
-      gap: 14px;
-    }
-
-    .module {
-      border-radius: 22px;
-      padding: 16px;
-      background: rgba(255,255,255,0.92);
-      border: 1px solid rgba(28,38,99,0.06);
-      box-shadow: 0 12px 24px rgba(28,38,99,0.08);
-    }
-
-    .module-title {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
-      color: var(--dark-blue);
-    }
-
-    .module-title strong {
-      font-size: 18px;
-      line-height: 1.5;
-    }
-
-    .module-title span {
       font-size: 11px;
       font-weight: 700;
-      color: var(--text-gray);
+      backdrop-filter: blur(10px);
     }
 
-    .car-strip {
-      display: grid;
-      grid-template-columns: 88px 1fr;
-      gap: 14px;
-      align-items: center;
-      padding: 12px;
-      border-radius: 18px;
-      background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
-      border: 1px solid rgba(64,153,255,0.14);
+    .slide-a .badge,
+    .slide-c .badge {
+      background: rgba(255, 255, 255, 0.12);
+      color: #f4fbff;
+      border: 1px solid rgba(255, 255, 255, 0.12);
     }
 
-    .car-thumb {
+    .slide-b .badge {
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--dark-blue);
+      box-shadow: 0 8px 24px rgba(17, 36, 110, 0.08);
+    }
+
+    .price-card,
+    .glass-card,
+    .compare-card,
+    .soft-card {
       position: relative;
-      height: 88px;
-      border-radius: 16px;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.3), rgba(255,255,255,0)),
-        linear-gradient(140deg, #1c2663 0%, #2643ce 55%, #6fc2ff 100%);
+      z-index: 2;
+      border-radius: 24px;
+      padding: 16px;
       overflow: hidden;
     }
 
-    .car-thumb::before {
-      content: "";
-      position: absolute;
-      left: 10px;
-      right: 10px;
-      bottom: 14px;
-      height: 26px;
-      border-radius: 18px 18px 12px 12px;
-      background: #ffffff;
-      box-shadow: inset 0 -6px 0 rgba(28,38,99,0.1);
+    .price-card {
+      margin-top: 18px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.08));
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.14);
+      backdrop-filter: blur(16px);
     }
 
-    .car-thumb::after {
-      content: "";
-      position: absolute;
-      left: 18px;
-      right: 18px;
-      bottom: 22px;
-      height: 14px;
-      border-radius: 10px;
-      background: rgba(28,38,99,0.25);
-    }
-
-    .car-meta h3,
-    .future-copy h3 {
-      margin: 0;
-      font-size: 18px;
+    .car-meta {
+      font-size: 11px;
       line-height: 1.5;
-      color: var(--dark-blue);
+      opacity: 0.9;
+      margin-bottom: 10px;
     }
 
-    .car-meta p,
-    .future-copy p,
-    .bullet p,
-    .vs-copy p {
-      margin: 4px 0 0;
+    .price-big {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .price-big strong {
+      font-size: 38px;
+      line-height: 1;
+      letter-spacing: -0.05em;
+      font-weight: 900;
+    }
+
+    .price-big span {
+      font-size: 12px;
+      padding-bottom: 5px;
+      opacity: 0.86;
+    }
+
+    .delta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(29, 220, 255, 0.16);
+      color: #c1f4ff;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .chart {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      align-items: end;
+      gap: 8px;
+      height: 86px;
+      margin: 12px 0 6px;
+    }
+
+    .bar-wrap {
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+    }
+
+    .bar {
+      width: 100%;
+      border-radius: 12px 12px 6px 6px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(29, 220, 255, 0.36));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+      height: var(--height, 40px);
+      transform-origin: bottom;
+      animation: growBar 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .bar.hot {
+      background: linear-gradient(180deg, #ffd2e8 0%, #f84ca2 100%);
+    }
+
+    .bar-label {
+      font-size: 10px;
+      opacity: 0.72;
+    }
+
+    .step-flow {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.09);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 800;
+      background: rgba(255, 255, 255, 0.16);
+      flex-shrink: 0;
+    }
+
+    .step-item.active {
+      background: rgba(29, 220, 255, 0.18);
+      border-color: rgba(29, 220, 255, 0.34);
+      transform: translateX(4px);
+    }
+
+    .step-item small {
+      display: block;
+      font-size: 10px;
+      opacity: 0.72;
+    }
+
+    .step-item strong {
+      display: block;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .shot-button {
+      margin-top: 14px;
+      width: 100%;
+      min-height: 43px;
+      border: 0;
+      border-radius: 999px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .shot-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .shot-button:active {
+      transform: translateY(1px) scale(0.99);
+    }
+
+    .slide-a .shot-button {
+      color: var(--dark-blue);
+      background: var(--gradient-primary);
+      box-shadow: 0 14px 28px rgba(29, 220, 255, 0.28);
+    }
+
+    .dashboard-stack {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.84);
+      box-shadow: 0 16px 36px rgba(17, 36, 110, 0.1);
+      border: 1px solid rgba(64, 153, 255, 0.08);
+    }
+
+    .card-title {
+      margin: 0 0 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-gray);
+      letter-spacing: 0.04em;
+    }
+
+    .cost-flex {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .donut {
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at center, #ffffff 42%, transparent 43%),
+        conic-gradient(#f84ca2 0 26%, #4db4ff 26% 63%, #1c2663 63% 87%, #d9e6ff 87% 100%);
+      display: grid;
+      place-items: center;
+      position: relative;
+    }
+
+    .donut::after {
+      content: "3/4";
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--dark-blue);
+      background: #fff;
+      box-shadow: 0 10px 18px rgba(17, 36, 110, 0.08);
+    }
+
+    .cost-values strong {
+      display: block;
+      font-size: 30px;
+      line-height: 1;
+      color: var(--dark-blue);
+      letter-spacing: -0.04em;
+      margin-bottom: 8px;
+    }
+
+    .cost-values p {
+      margin: 0;
       font-size: 12px;
       line-height: 1.6;
       color: var(--text-gray);
     }
 
-    .price-panel {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
-      align-items: end;
-      margin-top: 14px;
-      padding: 16px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, #091355 0%, #172885 58%, #243fd0 100%);
-      color: var(--white);
-    }
-
-    .price-panel small {
-      display: block;
-      margin-bottom: 4px;
-      font-size: 11px;
-      letter-spacing: 0.06em;
-      opacity: 0.82;
-    }
-
-    .price-panel strong {
-      font-family: var(--font-number);
-      font-size: 40px;
-      line-height: 1;
-      letter-spacing: 0.01em;
-    }
-
-    .price-panel em {
-      font-style: normal;
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-light-blue);
-    }
-
-    .timeline {
+    .expense-list {
       display: grid;
       gap: 10px;
-      margin-top: 14px;
     }
 
-    .timeline-row {
-      position: relative;
+    .expense-item {
       display: grid;
-      grid-template-columns: 52px 1fr auto;
-      gap: 12px;
+      grid-template-columns: auto 1fr auto;
       align-items: center;
-      padding: 12px;
-      border-radius: 18px;
-      background: rgba(237,241,244,0.72);
-      overflow: hidden;
-    }
-
-    .timeline-row.active {
-      background: linear-gradient(90deg, rgba(248,76,162,0.1), rgba(29,220,255,0.12));
-      border: 1px solid rgba(64,153,255,0.16);
-    }
-
-    .month-pill {
-      min-height: 38px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--white);
-      color: var(--dark-blue);
+      gap: 10px;
       font-size: 12px;
-      font-weight: 800;
+      color: var(--dark-blue);
     }
 
-    .bar-track {
-      height: 12px;
+    .expense-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .expense-bar {
+      height: 8px;
       border-radius: 999px;
-      background: rgba(28,38,99,0.08);
+      background: #e5eefb;
       overflow: hidden;
     }
 
-    .bar-fill {
+    .expense-bar span {
+      display: block;
       height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #1ddcff, #4db4ff);
-      transform-origin: left center;
-      animation: growBar 900ms cubic-bezier(.2,.8,.2,1);
+      width: var(--fill, 60%);
+      border-radius: inherit;
+      background: linear-gradient(90deg, #1ddcff, #f84ca2);
+      transition: width 0.4s ease;
     }
 
-    .bar-fill.pink {
-      background: linear-gradient(90deg, #f84ca2, #ff79be);
+    .forecast-box {
+      background: linear-gradient(135deg, rgba(28, 38, 99, 0.96), rgba(14, 23, 80, 0.94));
+      color: #fff;
+      border-radius: 22px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
     }
 
-    .value {
-      font-family: var(--font-number);
-      font-size: 21px;
+    .forecast-box::after {
+      content: "";
+      position: absolute;
+      inset: auto -20px -40px auto;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: rgba(29, 220, 255, 0.14);
+      filter: blur(4px);
+    }
+
+    .forecast-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .forecast-top strong {
+      display: block;
+      font-size: 26px;
       line-height: 1;
-      color: var(--dark-blue);
+      letter-spacing: -0.04em;
+      margin-top: 4px;
+    }
+
+    .forecast-chip {
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(248, 76, 162, 0.18);
+      color: #ffd4e9;
+      font-size: 11px;
+      font-weight: 700;
       white-space: nowrap;
     }
 
-    .expense-grid {
+    .spark {
+      display: flex;
+      align-items: end;
+      gap: 6px;
+      height: 72px;
+      margin-top: 12px;
+    }
+
+    .spark span {
+      width: 18%;
+      border-radius: 10px 10px 4px 4px;
+      height: var(--h, 40%);
+      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(29,220,255,0.35));
+      animation: growBar 0.8s ease;
+    }
+
+    .android-footer {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .slide-b .shot-button {
+      background: var(--gradient-pink);
+      color: var(--white);
+      box-shadow: 0 14px 30px rgba(248, 76, 162, 0.22);
+    }
+
+    .compare-zone {
+      margin-top: 18px;
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-    .expense-card {
-      padding: 14px;
-      border-radius: 18px;
-      background: linear-gradient(180deg, #fff 0%, #f9fbff 100%);
-      border: 1px solid rgba(28,38,99,0.06);
-    }
-
-    .expense-card strong,
-    .stat-card strong {
-      display: block;
-      font-size: 13px;
-      color: var(--text-gray);
-    }
-
-    .expense-card b,
-    .stat-card b {
-      display: block;
-      margin-top: 8px;
-      font-family: var(--font-number);
-      font-size: 24px;
-      line-height: 1.1;
-      color: var(--dark-blue);
-    }
-
-    .future-graph {
+      gap: 12px;
       position: relative;
-      height: 168px;
-      border-radius: 22px;
-      margin-top: 14px;
+      z-index: 2;
+    }
+
+    .hero-zero {
+      display: grid;
+      grid-template-columns: 104px 1fr;
+      gap: 14px;
+      align-items: center;
       padding: 16px;
-      background: linear-gradient(180deg, #08134f 0%, #12237a 100%);
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.06));
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(16px);
+    }
+
+    .zero-bubble {
+      width: 104px;
+      height: 104px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at 30% 30%, #ffffff 0%, #d7f4ff 28%, #1ddcff 65%, #4db4ff 100%);
+      color: var(--dark-blue);
+      box-shadow: 0 20px 40px rgba(29, 220, 255, 0.26);
+      animation: pulse 2.6s ease-in-out infinite;
+    }
+
+    .zero-bubble strong {
+      display: block;
+      font-size: 46px;
+      line-height: 1;
+      letter-spacing: -0.06em;
+    }
+
+    .zero-bubble span {
+      display: block;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .hero-zero p {
+      margin: 6px 0 0;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #d8eaff;
+    }
+
+    .compare-card {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(12px);
+    }
+
+    .compare-row {
+      display: grid;
+      grid-template-columns: 92px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+
+    .compare-bar {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.14);
       overflow: hidden;
     }
 
-    .future-graph svg {
-      width: 100%;
-      height: 100%;
+    .compare-bar span {
       display: block;
+      height: 100%;
+      width: var(--risk, 40%);
+      border-radius: inherit;
+      background: linear-gradient(90deg, #f84ca2, #ff8ec2);
+      transition: width 0.5s ease;
     }
 
-    .future-legend {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 10px;
-      font-size: 11px;
-      color: var(--text-gray);
-      font-weight: 700;
+    .compare-bar.cool span {
+      background: linear-gradient(90deg, #1ddcff, #4db4ff);
     }
 
-    .future-legend .rise {
-      color: #009a58;
+    .compare-note {
+      padding: 14px;
+      border-radius: 20px;
+      background: rgba(29, 220, 255, 0.14);
+      font-size: 12px;
+      line-height: 1.7;
+      color: #e8f9ff;
+      border: 1px solid rgba(29, 220, 255, 0.18);
     }
 
-    .cta {
-      width: 100%;
-      min-height: 52px;
-      margin-top: 14px;
-      border: 0;
-      border-radius: var(--radius-button);
-      background: var(--gradient-primary);
+    .slide-c .shot-button {
+      background: #fff;
       color: var(--dark-blue);
-      font-size: 14px;
-      font-weight: 900;
-      letter-spacing: 0.02em;
-      cursor: pointer;
-      box-shadow: 0 14px 22px rgba(29,220,255,0.24);
-      transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
-    }
-
-    .cta.pink {
-      background: var(--gradient-pink);
-      color: var(--white);
-      box-shadow: 0 14px 22px rgba(248,76,162,0.22);
-    }
-
-    .cta:hover,
-    .cta:active {
-      transform: translateY(-1px) scale(1.01);
-      filter: saturate(1.04);
-    }
-
-    .cta:focus-visible,
-    .chip:focus-visible,
-    .arrow:focus-visible {
-      outline: 3px solid rgba(64,153,255,0.35);
-      outline-offset: 2px;
-    }
-
-    .micro-note {
-      margin-top: 10px;
-      text-align: center;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-gray);
+      box-shadow: 0 14px 32px rgba(10, 19, 72, 0.28);
     }
 
     .swipe-hint {
-      display: inline-flex;
+      display: flex;
       align-items: center;
-      gap: 8px;
-      margin-top: 12px;
-      padding: 8px 12px;
+      gap: 10px;
+      padding: 10px 14px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.9);
       color: var(--dark-blue);
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 12px 26px rgba(17, 36, 110, 0.08);
       font-size: 12px;
-      font-weight: 800;
-      box-shadow: 0 10px 18px rgba(28,38,99,0.08);
+      font-weight: 700;
+      animation: nudge 2.4s ease-in-out infinite;
     }
 
-    .swipe-hint .dots {
-      display: inline-flex;
-      gap: 4px;
+    .swipe-arrows {
+      display: flex;
+      gap: 6px;
     }
 
-    .swipe-hint .dots i {
-      width: 5px;
-      height: 5px;
+    .swipe-arrows span {
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
-      background: var(--pink);
-      animation: drift 1.6s infinite;
-    }
-
-    .swipe-hint .dots i:nth-child(2) { animation-delay: 0.2s; }
-    .swipe-hint .dots i:nth-child(3) { animation-delay: 0.4s; }
-
-    .footer-panel {
       display: grid;
-      gap: 14px;
-      border-radius: 24px;
-      padding: 16px;
-      background: rgba(255,255,255,0.88);
-      border: 1px solid rgba(28,38,99,0.06);
-      box-shadow: 0 16px 34px rgba(28,38,99,0.08);
-    }
-
-    .footer-panel h2 {
-      margin: 0;
-      font-size: 20px;
-      line-height: 1.5;
+      place-items: center;
       color: var(--dark-blue);
+      background: linear-gradient(180deg, #fff, #edf4ff);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
     }
 
-    .footer-panel p {
+    .panel-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(255, 255, 255, 0.46);
+      border-radius: 28px;
+      padding: 20px;
+      box-shadow: var(--surface-shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 20px;
+      line-height: 1.3;
+      color: var(--dark-blue);
+      letter-spacing: -0.03em;
+    }
+
+    .panel p {
       margin: 0;
-      font-size: 13px;
+      font-size: 14px;
       line-height: 1.7;
       color: var(--text-gray);
     }
 
-    .mini-steps {
+    .panel-top {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+      gap: 12px;
     }
 
-    .mini-step {
-      padding: 12px;
-      border-radius: 18px;
-      background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 100%);
-      border: 1px solid rgba(28,38,99,0.06);
-      text-align: center;
+    .meta-grid {
+      margin-top: 18px;
+      display: grid;
+      gap: 14px;
+      grid-template-columns: 1.15fr 0.85fr;
     }
 
-    .mini-step b {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
+    .meta-card {
+      border-radius: 22px;
+      padding: 16px;
+      background: var(--panel-strong);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.68);
+    }
+
+    .meta-card small {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-gray);
       margin-bottom: 8px;
-      background: var(--dark-blue);
-      color: var(--white);
-      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
-    .mini-step strong {
+    .meta-card strong {
       display: block;
-      font-size: 12px;
       color: var(--dark-blue);
-      line-height: 1.5;
+      font-size: 18px;
+      line-height: 1.45;
+      letter-spacing: -0.03em;
     }
 
-    .mini-step span {
+    .meta-card span {
       display: block;
-      margin-top: 5px;
-      font-size: 10px;
-      line-height: 1.5;
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--text-gray);
+      line-height: 1.6;
+    }
+
+    .nav-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .nav-button {
+      min-height: 43px;
+      border: 0;
+      border-radius: 999px;
+      padding: 0 18px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      color: var(--dark-blue);
+      background: var(--gradient-primary);
+      box-shadow: 0 12px 22px rgba(29, 220, 255, 0.16);
+      transition: transform 0.16s ease, opacity 0.16s ease;
+    }
+
+    .nav-button.secondary {
+      background: #fff;
+      box-shadow: inset 0 0 0 1px rgba(28, 38, 99, 0.12);
+    }
+
+    .nav-button:active {
+      transform: scale(0.98);
+    }
+
+    .dot-nav {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .dot-nav button {
+      border: 0;
+      border-radius: 18px;
+      padding: 10px 12px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--dark-blue);
+      background: rgba(255,255,255,0.76);
+      box-shadow: inset 0 0 0 1px rgba(28, 38, 99, 0.08);
+      cursor: pointer;
+      transition: all 0.22s ease;
+    }
+
+    .dot-nav button.active {
+      color: #fff;
+      background: var(--dark-blue);
+      box-shadow: 0 14px 28px rgba(28, 38, 99, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .progress-rail {
+      height: 10px;
+      border-radius: 999px;
+      background: #e8efff;
+      overflow: hidden;
+      margin-top: 18px;
+    }
+
+    .progress-rail span {
+      display: block;
+      height: 100%;
+      width: 33.33%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #f84ca2, #4db4ff);
+      transition: width 0.45s ease;
+    }
+
+    .diagnostic {
+      display: grid;
+      gap: 18px;
+    }
+
+    .stepper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .stepper span {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #edf2ff;
+      color: var(--dark-blue);
+      font-size: 12px;
+      font-weight: 900;
+      transition: all 0.2s ease;
+    }
+
+    .stepper span.active {
+      background: var(--dark-blue);
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(28, 38, 99, 0.16);
+    }
+
+    .stepper-line {
+      flex: 1;
+      min-width: 28px;
+      height: 6px;
+      border-radius: 999px;
+      background: #edf2ff;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .stepper-line::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      width: var(--step-fill, 0%);
+      background: linear-gradient(90deg, #f84ca2, #4db4ff);
+      transition: width 0.35s ease;
+    }
+
+    .question h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      color: var(--dark-blue);
+    }
+
+    .option-grid {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .option {
+      min-height: 43px;
+      border: 0;
+      border-radius: 22px;
+      padding: 10px 14px;
+      background: #fff;
+      color: var(--text-black);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: inset 0 0 0 1px #e3e8f7;
+      transition: all 0.18s ease;
+    }
+
+    .option.active {
+      background: var(--dark-blue);
+      color: #fff;
+      box-shadow: 0 14px 28px rgba(28, 38, 99, 0.18);
+      transform: translateY(-1px);
+    }
+
+    .result-card {
+      padding: 18px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, rgba(28, 38, 99, 0.98), rgba(17, 30, 102, 0.94));
+      color: #fff;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .result-card::after {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba(29, 220, 255, 0.12);
+      right: -50px;
+      bottom: -80px;
+      filter: blur(6px);
+    }
+
+    .result-card small {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      opacity: 0.72;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .result-card strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.4;
+      margin-bottom: 8px;
+      letter-spacing: -0.03em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .result-card p {
+      color: #d7e6ff;
+      position: relative;
+      z-index: 1;
+    }
+
+    .metric-strip {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .metric {
+      padding: 16px;
+      border-radius: 20px;
+      background: #fff;
+      box-shadow: inset 0 0 0 1px rgba(28, 38, 99, 0.06);
+    }
+
+    .metric small {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-gray);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 26px;
+      line-height: 1;
+      color: var(--dark-blue);
+      letter-spacing: -0.04em;
+      margin-bottom: 6px;
+    }
+
+    .metric span {
+      font-size: 12px;
+      line-height: 1.6;
       color: var(--text-gray);
     }
 
-    .controls {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 12px;
-      margin-top: 4px;
-    }
-
-    .arrow {
-      width: 46px;
-      height: 46px;
-      border: 0;
-      border-radius: 50%;
-      background: var(--white);
-      color: var(--dark-blue);
-      font-size: 20px;
-      font-weight: 900;
-      cursor: pointer;
-      box-shadow: 0 10px 20px rgba(28,38,99,0.08);
-      transition: transform 180ms ease, box-shadow 180ms ease;
-    }
-
-    .arrow:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 24px rgba(28,38,99,0.12);
-    }
-
-    .dots-nav {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: rgba(28,38,99,0.18);
-      transition: transform 180ms ease, background 180ms ease, width 180ms ease;
-    }
-
-    .dot.is-active {
-      width: 28px;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #f84ca2, #1ddcff);
-    }
-
-    .compare-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+    .tiny-note {
       margin-top: 14px;
-    }
-
-    .vs-card {
-      border-radius: 18px;
-      padding: 14px;
-      min-height: 132px;
-      background: linear-gradient(180deg, #fff 0%, #f7f9ff 100%);
-      border: 1px solid rgba(28,38,99,0.06);
-    }
-
-    .vs-card h4 {
-      margin: 0;
-      font-size: 14px;
-      color: var(--dark-blue);
-      line-height: 1.5;
-    }
-
-    .vs-number {
-      margin-top: 14px;
-      font-family: var(--font-number);
-      font-size: 34px;
-      line-height: 1;
-      color: var(--dark-blue);
-    }
-
-    .vs-number.hot {
-      color: var(--pink);
-    }
-
-    .stat-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-    .stat-card {
-      padding: 14px 12px;
-      border-radius: 18px;
-      background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
-      border: 1px solid rgba(28,38,99,0.06);
-      text-align: center;
-    }
-
-    .versus-line {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 10px;
-      margin-top: 14px;
-      padding: 14px;
-      border-radius: 18px;
-      background: linear-gradient(180deg, rgba(248,76,162,0.08), rgba(29,220,255,0.08));
-      border: 1px solid rgba(248,76,162,0.12);
-    }
-
-    .versus-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #1c2663, #f84ca2);
-      color: var(--white);
-      font-size: 24px;
-      font-weight: 900;
-    }
-
-    .bullet-list {
-      display: grid;
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-    .bullet {
-      display: grid;
-      grid-template-columns: 28px 1fr;
-      gap: 10px;
-      align-items: start;
-      padding: 12px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.96);
-      border: 1px solid rgba(28,38,99,0.06);
-    }
-
-    .bullet i {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--dark-blue);
-      color: var(--white);
-      font-style: normal;
       font-size: 12px;
-      font-weight: 800;
+      line-height: 1.7;
+      color: var(--text-gray);
     }
 
-    .screen-footer {
-      margin-top: 14px;
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .screen-footer span {
-      width: 46px;
-      height: 5px;
-      border-radius: 999px;
-      background: rgba(28,38,99,0.12);
-    }
-
-    .screen-footer span.active {
-      background: linear-gradient(90deg, #1ddcff, #f84ca2);
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.18); opacity: 0.6; }
-    }
-
-    @keyframes drift {
-      0%, 100% { transform: translateX(0); opacity: 0.4; }
-      50% { transform: translateX(4px); opacity: 1; }
+    .flash {
+      animation: flash 0.6s ease;
     }
 
     @keyframes growBar {
-      from { transform: scaleX(0.12); }
-      to { transform: scaleX(1); }
-    }
-
-    @media (min-width: 960px) {
-      body {
-        padding: 32px 22px 54px;
+      from {
+        transform: scaleY(0.2);
+        opacity: 0.4;
       }
-
-      .stage {
-        grid-template-columns: minmax(0, 1fr) 320px;
-        gap: 20px;
-      }
-
-      .footer-panel {
-        position: sticky;
-        top: 24px;
+      to {
+        transform: scaleY(1);
+        opacity: 1;
       }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      *,
-      *::before,
-      *::after {
-        animation: none !important;
-        transition: none !important;
-        scroll-behavior: auto !important;
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 20px 40px rgba(29, 220, 255, 0.26);
+      }
+      50% {
+        transform: scale(1.04);
+        box-shadow: 0 24px 50px rgba(29, 220, 255, 0.34);
+      }
+    }
+
+    @keyframes nudge {
+      0%, 100% {
+        transform: translateX(0);
+      }
+      35% {
+        transform: translateX(-4px);
+      }
+      70% {
+        transform: translateX(4px);
+      }
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(12px);
+      }
+    }
+
+    @keyframes flash {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.03);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @media (max-width: 960px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .phone-stage {
+        position: static;
+      }
+
+      .panel {
+        padding: 18px;
+      }
+
+      .meta-grid,
+      .metric-strip {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .page {
+        padding: 16px 12px 36px;
+      }
+
+      .slide {
+        padding: 16px 16px 20px;
+      }
+
+      .slide-title {
+        font-size: 30px;
+      }
+
+      .price-big strong {
+        font-size: 34px;
+      }
+
+      .hero-zero {
+        grid-template-columns: 1fr;
+      }
+
+      .zero-bubble {
+        margin: 0 auto;
       }
     }
   </style>
 </head>
 <body>
-  <div class="shell">
+  <main class="page">
     <section class="hero">
-      <div class="eyebrow"><span></span>STORE PV→DL 改善プロトタイプ / C案</div>
-      <h1>スワイプで比較しながら、<br>3枚の訴求軸を切り替える。</h1>
-      <p>
-        UcarPACの独自価値であるAI査定、出費管理と将来予測、そして「電話0本」の比較訴求を、
-        ストアスクリーンショット向けの没入型ビジュアルとして1ファイルに統合。ステップ進行、
-        タップ反応、数値アニメーションでCVR改善の仮説を検証します。
-      </p>
+      <div class="eyebrow">ASO検証 / ストアPV→DL率 17.3% → 25%</div>
+      <h1>スワイプで訴求を切り替える、UcarPAC向けストアスクショ3面プロトタイプ</h1>
+      <p>AI査定の即効性、出費管理と将来予測の継続価値、そして「相場チェックまでは電話0本」を1つの体験に統合。モバイル幅375px基準で、iOS向けA・Android向けB・比較訴求Cをそのまま検証しやすい構成にしています。</p>
+    </section>
 
-      <div class="toolbar" id="modeChips">
-        <button class="chip is-active" type="button" data-index="0">A / iOS AI査定</button>
-        <button class="chip" type="button" data-index="1">B / Android 出費管理</button>
-        <button class="chip" type="button" data-index="2">C / 電話0本 比較</button>
+    <section class="layout">
+      <div class="phone-stage">
+        <div class="phone-frame">
+          <div class="screen" id="swipeSurface">
+            <div class="track" id="track">
+              <section class="slide slide-a">
+                <div class="statusbar">
+                  <span>9:41</span>
+                  <div class="status-icons">
+                    <span class="dot"></span>
+                    <span class="dot" style="width:10px;border-radius:4px;"></span>
+                    <span style="font-size:10px;">100%</span>
+                  </div>
+                </div>
+                <div class="platform">
+                  <span class="screenshot-label">Store Screenshot A</span>
+                  <span>iOS向け / AI査定主役</span>
+                </div>
+                <h2 class="slide-title">3秒で<br>愛車の相場が動き出す</h2>
+                <p class="slide-copy">2026年3月の市場データを学習したAIが、今の価格と3か月後の売り時を同時に表示。まずは個人情報なしでチェック。</p>
+                <div class="badge-row">
+                  <span class="badge">個人情報入力なし</span>
+                  <span class="badge">相場チェックまで電話0本</span>
+                  <span class="badge">2021 ハリアー Z Leather</span>
+                </div>
+
+                <div class="price-card" id="estimateCard">
+                  <div class="car-meta">トヨタ ハリアー Z Leather Package / 42,800km / パールホワイト / 2WD</div>
+                  <div class="price-big">
+                    <strong id="estimateValue">2,184,000円</strong>
+                    <span>AI査定額</span>
+                  </div>
+                  <div class="delta" id="estimateDelta">3か月後 +52,000円 予測</div>
+                  <div class="chart">
+                    <div class="bar-wrap">
+                      <div class="bar" id="bar1" style="--height: 42px;"></div>
+                      <span class="bar-label">今月</span>
+                    </div>
+                    <div class="bar-wrap">
+                      <div class="bar" id="bar2" style="--height: 56px;"></div>
+                      <span class="bar-label">1か月</span>
+                    </div>
+                    <div class="bar-wrap">
+                      <div class="bar hot" id="bar3" style="--height: 72px;"></div>
+                      <span class="bar-label">3か月</span>
+                    </div>
+                    <div class="bar-wrap">
+                      <div class="bar" id="bar4" style="--height: 60px;"></div>
+                      <span class="bar-label">6か月</span>
+                    </div>
+                  </div>
+                  <div class="step-flow">
+                    <div class="step-item">
+                      <div class="step-number">1</div>
+                      <div><small>STEP</small><strong>メーカー・車種・年式を選ぶ</strong></div>
+                    </div>
+                    <div class="step-item">
+                      <div class="step-number">2</div>
+                      <div><small>STEP</small><strong>走行距離を入力して相場を表示</strong></div>
+                    </div>
+                    <div class="step-item active">
+                      <div class="step-number">3</div>
+                      <div><small>NOW</small><strong>AIが売り時を予測して更新中</strong></div>
+                    </div>
+                  </div>
+                  <button class="shot-button" id="refreshEstimate">査定を更新して見せ方を試す</button>
+                </div>
+              </section>
+
+              <section class="slide slide-b">
+                <div class="statusbar">
+                  <span>9:41</span>
+                  <div class="status-icons">
+                    <span class="dot"></span>
+                    <span class="dot" style="width:10px;border-radius:4px;"></span>
+                    <span style="font-size:10px;">100%</span>
+                  </div>
+                </div>
+                <div class="platform">
+                  <span class="screenshot-label">Store Screenshot B</span>
+                  <span>Android向け / 出費管理 + 将来予測</span>
+                </div>
+                <h2 class="slide-title">出費管理と<br>売り時予測を一画面で</h2>
+                <p class="slide-copy">売る予定がまだ先でも使い続ける理由をつくる。維持費の記録と資産価値の推移がつながるから、戻ってきやすい。</p>
+                <div class="badge-row">
+                  <span class="badge">月間維持費 27,600円</span>
+                  <span class="badge">6か月後 2,256,000円予測</span>
+                  <span class="badge">通知で売り時を逃さない</span>
+                </div>
+
+                <div class="dashboard-stack">
+                  <div class="glass-card">
+                    <p class="card-title">今月の記録ミッション</p>
+                    <div class="cost-flex">
+                      <div class="donut"></div>
+                      <div class="cost-values">
+                        <strong id="costValue">27,600円</strong>
+                        <p>給油 11,200円 / 保険 7,800円 / 駐車場 8,600円。記録を続けるほど売却前の納得感が高まります。</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="forecast-box">
+                    <div class="forecast-top">
+                      <div>
+                        <span style="font-size:12px;opacity:0.72;">AI将来予測</span>
+                        <strong id="futureValue">2,256,000円</strong>
+                      </div>
+                      <div class="forecast-chip" id="futureChip">6か月後が狙い目</div>
+                    </div>
+                    <div class="spark" id="sparkBars">
+                      <span style="--h: 38%;"></span>
+                      <span style="--h: 48%;"></span>
+                      <span style="--h: 56%;"></span>
+                      <span style="--h: 72%;"></span>
+                      <span style="--h: 84%;"></span>
+                    </div>
+                  </div>
+
+                  <div class="glass-card">
+                    <p class="card-title">カテゴリ別の出費</p>
+                    <div class="expense-list">
+                      <div class="expense-item">
+                        <span class="expense-dot" style="background:#f84ca2;"></span>
+                        <span>給油</span>
+                        <strong>11,200円</strong>
+                      </div>
+                      <div class="expense-bar"><span id="fuelBar" style="--fill: 64%;"></span></div>
+
+                      <div class="expense-item">
+                        <span class="expense-dot" style="background:#4db4ff;"></span>
+                        <span>保険</span>
+                        <strong>7,800円</strong>
+                      </div>
+                      <div class="expense-bar"><span id="insuranceBar" style="--fill: 46%;"></span></div>
+
+                      <div class="expense-item">
+                        <span class="expense-dot" style="background:#1c2663;"></span>
+                        <span>駐車場</span>
+                        <strong>8,600円</strong>
+                      </div>
+                      <div class="expense-bar"><span id="parkingBar" style="--fill: 52%;"></span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="android-footer">
+                  <span class="badge">売らない期間も価値がある</span>
+                  <span class="badge">アプリ継続利用を促進</span>
+                </div>
+                <button class="shot-button" id="addExpense">記録を1件追加して変化を見る</button>
+              </section>
+
+              <section class="slide slide-c">
+                <div class="statusbar">
+                  <span>9:41</span>
+                  <div class="status-icons">
+                    <span class="dot"></span>
+                    <span class="dot" style="width:10px;border-radius:4px;"></span>
+                    <span style="font-size:10px;">100%</span>
+                  </div>
+                </div>
+                <div class="platform">
+                  <span class="screenshot-label">Store Screenshot C</span>
+                  <span>競合比較 / 電話0本訴求</span>
+                </div>
+                <h2 class="slide-title">相場チェックまでは<br>電話0本</h2>
+                <p class="slide-copy">「まず価格だけ知りたい」段階では連絡なし。売ると決めた後もやり取りは1社だけ。比較の軸を最初から明快に見せるスクショです。</p>
+
+                <div class="compare-zone">
+                  <div class="hero-zero">
+                    <div class="zero-bubble">
+                      <div>
+                        <strong id="zeroValue">0</strong>
+                        <span>CALLS</span>
+                      </div>
+                    </div>
+                    <div>
+                      <strong style="display:block;font-size:22px;line-height:1.3;letter-spacing:-0.03em;">価格チェックだけなら営業電話なし</strong>
+                      <p>UcarPACは相場を見る段階では電話0本。売却相談に進んだ後も、やり取りは1社のみ。</p>
+                    </div>
+                  </div>
+
+                  <div class="compare-card">
+                    <strong style="display:block;font-size:13px;">連絡負荷の比較</strong>
+                    <div class="compare-row">
+                      <span>UcarPAC</span>
+                      <div class="compare-bar cool"><span id="ucarpacRisk" style="--risk: 10%;"></span></div>
+                      <strong>0本</strong>
+                    </div>
+                    <div class="compare-row">
+                      <span>上位連絡型</span>
+                      <div class="compare-bar"><span id="topRisk" style="--risk: 46%;"></span></div>
+                      <strong>3社</strong>
+                    </div>
+                    <div class="compare-row">
+                      <span>一括査定系</span>
+                      <div class="compare-bar"><span id="bulkRisk" style="--risk: 88%;"></span></div>
+                      <strong>複数社</strong>
+                    </div>
+                  </div>
+
+                  <div class="compare-note" id="compareNote">
+                    差別化メッセージは「0本」で止めず、次の一文で信頼化するのが有効です。
+                    「AI査定で相場を見る段階では電話0本。売ると決めた後も1社だけ。」
+                  </div>
+                </div>
+                <button class="shot-button" id="replayCompare">比較アニメーションを再生</button>
+              </section>
+            </div>
+          </div>
+        </div>
+
+        <div class="swipe-hint">
+          <div class="swipe-arrows"><span>←</span><span>→</span></div>
+          <span>スワイプまたはボタンで切替</span>
+        </div>
       </div>
 
-      <div class="progress-wrap">
-        <div class="progress-label">
-          <strong id="progressTitle">現在の検証画面: スクショA</strong>
-          <span id="progressCount">1 / 3</span>
-        </div>
-        <div class="progress-track">
-          <div class="progress-bar" id="progressBar"></div>
-        </div>
-      </div>
+      <div class="panel-stack">
+        <section class="panel">
+          <div class="panel-top">
+            <h2 id="metaTitle">A / iOS: AI査定を全面に出す</h2>
+            <p id="metaBody">価格を知りたい動機に最短で応える構成。AI査定額、将来予測、個人情報不要の3点を一画面で理解させ、DLの最初の理由をつくります。</p>
+          </div>
 
-      <div class="stage">
-        <div>
-          <div class="carousel-shell" id="swipeArea">
-            <div class="carousel" id="carousel">
-              <section class="slide">
-                <article class="phone" aria-label="ストアスクショA iOS AI査定">
-                  <div class="screen ios">
-                    <div class="status">
-                      <span>9:41</span>
-                      <span>5G 100%</span>
-                    </div>
-
-                    <div class="top-card ai">
-                      <div class="store-label"><strong>iOS向け</strong> AI査定を全面訴求</div>
-                      <div class="headline">AIがあなたの愛車を<br>最短20秒で査定</div>
-                      <div class="subcopy">個人情報なし。アルファード 2021年式 / 31,400km の想定で、いまの売り時をすぐ把握。</div>
-                      <div class="badge-row">
-                        <div class="badge white">個人情報なし</div>
-                        <div class="badge sky">8000社の相場を反映</div>
-                      </div>
-                    </div>
-
-                    <div class="content-stack">
-                      <div class="module">
-                        <div class="module-title">
-                          <strong>査定シミュレーション</strong>
-                          <span>STEP 2 / 3</span>
-                        </div>
-                        <div class="car-strip">
-                          <div class="car-thumb" aria-hidden="true"></div>
-                          <div class="car-meta">
-                            <h3>トヨタ アルファード Z</h3>
-                            <p>2021年式 / パール / 31,400km / 2WD</p>
-                          </div>
-                        </div>
-                        <div class="price-panel">
-                          <div>
-                            <small>AI査定レンジ</small>
-                            <strong>412<span style="font-size:18px;">万円</span></strong>
-                          </div>
-                          <em>直近14日で +7.8万円</em>
-                        </div>
-                        <div class="timeline">
-                          <div class="timeline-row active">
-                            <div class="month-pill">今日</div>
-                            <div class="bar-track"><div class="bar-fill" style="width: 82%;"></div></div>
-                            <div class="value">412</div>
-                          </div>
-                          <div class="timeline-row">
-                            <div class="month-pill">3か月後</div>
-                            <div class="bar-track"><div class="bar-fill pink" style="width: 75%;"></div></div>
-                            <div class="value">398</div>
-                          </div>
-                          <div class="timeline-row">
-                            <div class="month-pill">6か月後</div>
-                            <div class="bar-track"><div class="bar-fill" style="width: 67%;"></div></div>
-                            <div class="value">381</div>
-                          </div>
-                        </div>
-                        <button class="cta" type="button" data-cta="ai">AI査定をはじめる</button>
-                        <div class="micro-note" id="aiMessage">写真を追加すると査定精度がさらに上がります</div>
-                      </div>
-                    </div>
-
-                    <div class="screen-footer" aria-hidden="true">
-                      <span class="active"></span><span></span><span></span>
-                    </div>
-                  </div>
-                </article>
-              </section>
-
-              <section class="slide">
-                <article class="phone" aria-label="ストアスクショB Android 出費管理と将来予測">
-                  <div class="screen android">
-                    <div class="status">
-                      <span>9:41</span>
-                      <span>VoLTE 92%</span>
-                    </div>
-
-                    <div class="top-card future">
-                      <div class="store-label"><strong>Android向け</strong> 出費管理 + 将来予測</div>
-                      <div class="headline">出費まで見えるから、<br>売り時の判断がブレない</div>
-                      <div class="subcopy">ハリアー HYBRID Z 2022年式の維持費と価値推移を同時表示。資産アプリのように毎月確認できます。</div>
-                      <div class="badge-row">
-                        <div class="badge white">月次維持費 48,300円</div>
-                        <div class="badge sky">将来予測つき</div>
-                      </div>
-                    </div>
-
-                    <div class="content-stack">
-                      <div class="module">
-                        <div class="module-title">
-                          <strong>価値推移ダッシュボード</strong>
-                          <span>STEP 3 / 3</span>
-                        </div>
-                        <div class="car-strip">
-                          <div class="car-thumb" aria-hidden="true" style="background: linear-gradient(140deg, #0e1b6a 0%, #2140b8 52%, #f84ca2 100%);"></div>
-                          <div class="future-copy">
-                            <h3>トヨタ ハリアー HYBRID Z</h3>
-                            <p>2022年式 / ブラック / 18,200km / 4WD</p>
-                          </div>
-                        </div>
-
-                        <div class="expense-grid">
-                          <div class="expense-card">
-                            <strong>ガソリン</strong>
-                            <b>¥16,400</b>
-                          </div>
-                          <div class="expense-card">
-                            <strong>保険</strong>
-                            <b>¥9,800</b>
-                          </div>
-                          <div class="expense-card">
-                            <strong>駐車場</strong>
-                            <b>¥18,000</b>
-                          </div>
-                          <div class="expense-card">
-                            <strong>点検</strong>
-                            <b>¥4,100</b>
-                          </div>
-                        </div>
-
-                        <div class="future-graph">
-                          <svg viewBox="0 0 320 160" role="img" aria-label="将来予測グラフ">
-                            <defs>
-                              <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stop-color="#1ddcff"></stop>
-                                <stop offset="100%" stop-color="#f84ca2"></stop>
-                              </linearGradient>
-                            </defs>
-                            <g opacity="0.16" stroke="#ffffff">
-                              <line x1="20" y1="24" x2="300" y2="24"></line>
-                              <line x1="20" y1="56" x2="300" y2="56"></line>
-                              <line x1="20" y1="88" x2="300" y2="88"></line>
-                              <line x1="20" y1="120" x2="300" y2="120"></line>
-                            </g>
-                            <path d="M24 104 C66 86, 112 82, 152 74 S242 52, 296 38" fill="none" stroke="url(#lineGradient)" stroke-width="6" stroke-linecap="round"></path>
-                            <g fill="#ffffff">
-                              <circle cx="24" cy="104" r="5"></circle>
-                              <circle cx="108" cy="82" r="5"></circle>
-                              <circle cx="188" cy="66" r="5"></circle>
-                              <circle cx="296" cy="38" r="6"></circle>
-                            </g>
-                            <g font-size="11" fill="#bfdbfe" font-family="Noto Sans JP, sans-serif" font-weight="700">
-                              <text x="18" y="146">今月</text>
-                              <text x="97" y="146">3か月後</text>
-                              <text x="177" y="146">6か月後</text>
-                              <text x="266" y="146">売り時</text>
-                            </g>
-                            <g font-size="12" fill="#ffffff" font-family="Noto Sans JP, sans-serif" font-weight="700">
-                              <text x="238" y="28">420万円</text>
-                            </g>
-                          </svg>
-                        </div>
-                        <div class="future-legend">
-                          <span>保有コスト込みの総価値を毎月更新</span>
-                          <span class="rise">売却推奨: 6か月以内</span>
-                        </div>
-                        <button class="cta pink" type="button" data-cta="future">維持費もまとめて見る</button>
-                        <div class="micro-note" id="futureMessage">出費を入れるほど、売り時の提案がパーソナルになります</div>
-                      </div>
-                    </div>
-
-                    <div class="screen-footer" aria-hidden="true">
-                      <span></span><span class="active"></span><span></span>
-                    </div>
-                  </div>
-                </article>
-              </section>
-
-              <section class="slide">
-                <article class="phone" aria-label="ストアスクショC 電話0本比較">
-                  <div class="screen compare">
-                    <div class="status">
-                      <span>9:41</span>
-                      <span>Wi-Fi 100%</span>
-                    </div>
-
-                    <div class="top-card compare">
-                      <div class="store-label"><strong>比較訴求</strong> 競合と真逆のストレス設計</div>
-                      <div class="headline">相場チェックだけなら<br>電話は0本でいい</div>
-                      <div class="subcopy">一括査定の電話ラッシュと違い、UcarPACはAI査定時点で個人情報不要。売却相談に進むまで着信なし。</div>
-                      <div class="badge-row">
-                        <div class="badge white">電話 0本</div>
-                        <div class="badge white">売却時も原則1社対応</div>
-                      </div>
-                    </div>
-
-                    <div class="content-stack">
-                      <div class="module">
-                        <div class="module-title">
-                          <strong>よくある比較</strong>
-                          <span>Swipe to Compare</span>
-                        </div>
-
-                        <div class="compare-grid">
-                          <div class="vs-card">
-                            <h4>一括査定</h4>
-                            <div class="vs-number hot">5〜10</div>
-                            <div class="vs-copy"><p>申込直後から各社から着信。相場を知る前に対応負荷が発生。</p></div>
-                          </div>
-                          <div class="vs-card">
-                            <h4>UcarPAC</h4>
-                            <div class="vs-number">0</div>
-                            <div class="vs-copy"><p>AI査定までは電話なし。納得できた段階で次のステップへ。</p></div>
-                          </div>
-                        </div>
-
-                        <div class="stat-row">
-                          <div class="stat-card">
-                            <strong>AI査定</strong>
-                            <b>20秒</b>
-                          </div>
-                          <div class="stat-card">
-                            <strong>やりとり</strong>
-                            <b>1社</b>
-                          </div>
-                          <div class="stat-card">
-                            <strong>入札店</strong>
-                            <b>8000社</b>
-                          </div>
-                        </div>
-
-                        <div class="versus-line">
-                          <div class="versus-icon">0</div>
-                          <div>
-                            <strong style="display:block; color:var(--dark-blue); font-size:16px; line-height:1.5;">まずは価格だけ知りたい人向け</strong>
-                            <p style="margin:4px 0 0; font-size:12px; line-height:1.65; color:var(--text-gray);">営業電話を避けたい層の不安を先回りして解消し、ストア詳細からDLまでの心理的障壁を下げます。</p>
-                          </div>
-                        </div>
-
-                        <div class="bullet-list">
-                          <div class="bullet">
-                            <i>1</i>
-                            <div>
-                              <strong style="display:block; color:var(--dark-blue); font-size:14px; line-height:1.5;">個人情報なしで相場チェック</strong>
-                              <p>メーカー・年式・走行距離だけで最初の価格帯を提示。</p>
-                            </div>
-                          </div>
-                          <div class="bullet">
-                            <i>2</i>
-                            <div>
-                              <strong style="display:block; color:var(--dark-blue); font-size:14px; line-height:1.5;">売却時も電話は原則1社のみ</strong>
-                              <p>オークション結果を見てから、必要な連絡だけに絞れます。</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <button class="cta" type="button" data-cta="compare">電話なしで相場を見る</button>
-                        <div class="micro-note" id="compareMessage">比較軸をタップすると訴求文が切り替わります</div>
-                      </div>
-                    </div>
-
-                    <div class="screen-footer" aria-hidden="true">
-                      <span></span><span></span><span class="active"></span>
-                    </div>
-                  </div>
-                </article>
-              </section>
+          <div class="meta-grid">
+            <div class="meta-card">
+              <small>Primary Hook</small>
+              <strong id="metaHook">「今すぐ価格がわかる」即時価値を先頭で提示</strong>
+              <span id="metaHint">最もCVRへの寄与が大きいのは、ダウンロード前の不安を減らす説明より、最初の便益を3秒で伝えること。</span>
+            </div>
+            <div class="meta-card">
+              <small>Slide Progress</small>
+              <strong><span id="slideCount" style="display:inline;color:var(--dark-blue);font-size:42px;line-height:1;">1</span><span style="display:inline;color:var(--text-gray);font-size:16px;"> / 3</span></strong>
+              <span>先頭表示のスクショ候補を操作しながら、訴求軸の相性を比較できます。</span>
             </div>
           </div>
 
-          <div class="controls">
-            <button class="arrow" type="button" id="prevBtn" aria-label="前へ">‹</button>
-            <div class="dots-nav" id="dotsNav" aria-label="スライド選択">
-              <span class="dot is-active"></span>
-              <span class="dot"></span>
-              <span class="dot"></span>
-            </div>
-            <button class="arrow" type="button" id="nextBtn" aria-label="次へ">›</button>
+          <div class="nav-row">
+            <button class="nav-button secondary" id="prevBtn">前のスクショ</button>
+            <button class="nav-button" id="nextBtn">次のスクショ</button>
           </div>
-        </div>
 
-        <aside class="footer-panel">
-          <h2>検証ポイント</h2>
-          <p id="sideDescription">
-            Aは「個人情報なし」「最短20秒」「AI査定価格」の3点を上から順に視認させ、DL理由を即決させる構成です。
-          </p>
+          <div class="dot-nav" id="dotNav">
+            <button class="active" data-index="0">A / AI査定</button>
+            <button data-index="1">B / 出費管理</button>
+            <button data-index="2">C / 電話0本</button>
+          </div>
 
-          <div class="mini-steps">
-            <div class="mini-step">
-              <b>01</b>
-              <strong>見る</strong>
-              <span>独自機能を一言で理解</span>
-            </div>
-            <div class="mini-step">
-              <b>02</b>
-              <strong>触る</strong>
-              <span>スワイプ感を仮説検証</span>
-            </div>
-            <div class="mini-step">
-              <b>03</b>
-              <strong>選ぶ</strong>
-              <span>DL理由の優先順位を確認</span>
+          <div class="progress-rail"><span id="railFill"></span></div>
+        </section>
+
+        <section class="panel diagnostic">
+          <div class="stepper">
+            <span class="active" id="stepMark1">1</span>
+            <div class="stepper-line" id="stepLine"></div>
+            <span id="stepMark2">2</span>
+            <div class="stepper-line" style="--step-fill:0%;"></div>
+            <span id="stepMark3">3</span>
+          </div>
+
+          <div class="question">
+            <h3>1. いまのユーザー心理に近いものは？</h3>
+            <div class="option-grid" id="timingOptions">
+              <button class="option" data-group="timing" data-value="curious">まず相場だけ知りたい</button>
+              <button class="option" data-group="timing" data-value="later">半年以内に売るかも</button>
+              <button class="option" data-group="timing" data-value="now">できるだけ高く早く売りたい</button>
             </div>
           </div>
 
-          <div class="swipe-hint">
-            左右にスワイプ
-            <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <div class="question">
+            <h3>2. いちばん響かせたい価値は？</h3>
+            <div class="option-grid" id="priorityOptions">
+              <button class="option" data-group="priority" data-value="price">AIで価格がすぐわかる</button>
+              <button class="option" data-group="priority" data-value="cost">維持費もまとめて見える</button>
+              <button class="option" data-group="priority" data-value="easy">電話ストレスが少ない</button>
+            </div>
           </div>
-        </aside>
+
+          <div class="result-card" id="resultCard">
+            <small>Recommended First Screenshot</small>
+            <strong id="resultTitle">まだ選択中です</strong>
+            <p id="resultBody">2つの質問に答えると、先頭に置くべきスクショ候補とその理由を自動で切り替えます。</p>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>今回の3案で押さえるべきDL改善ポイント</h2>
+          <div class="metric-strip">
+            <div class="metric">
+              <small>Instant Value</small>
+              <strong>3秒</strong>
+              <span>AI査定までの速さを視覚化し、初回DLの理由を直球で示す。</span>
+            </div>
+            <div class="metric">
+              <small>Retention Hook</small>
+              <strong>27,600円</strong>
+              <span>維持費の具体値を見せて「入れて終わり」にしない継続価値を訴求。</span>
+            </div>
+            <div class="metric">
+              <small>Stress Relief</small>
+              <strong>0本</strong>
+              <span>電話ストレスの少なさを即読できる形で競合比較に落とし込む。</span>
+            </div>
+          </div>
+          <p class="tiny-note">操作ヒント: スクショ内のボタンでも状態変化します。Aは査定額更新、Bは出費記録追加、Cは比較アニメーション再生。単なる静止画ではなく、訴求の動きを確認するためのプロトタイプです。</p>
+        </section>
       </div>
     </section>
-  </div>
+  </main>
 
   <script>
-    (function () {
-      const carousel = document.getElementById("carousel");
-      const chips = Array.from(document.querySelectorAll("#modeChips .chip"));
-      const dots = Array.from(document.querySelectorAll("#dotsNav .dot"));
-      const progressBar = document.getElementById("progressBar");
-      const progressTitle = document.getElementById("progressTitle");
-      const progressCount = document.getElementById("progressCount");
-      const sideDescription = document.getElementById("sideDescription");
-      const prevBtn = document.getElementById("prevBtn");
-      const nextBtn = document.getElementById("nextBtn");
-      const swipeArea = document.getElementById("swipeArea");
-      const aiMessage = document.getElementById("aiMessage");
-      const futureMessage = document.getElementById("futureMessage");
-      const compareMessage = document.getElementById("compareMessage");
-      const total = 3;
+    const slides = [
+      {
+        title: "A / iOS: AI査定を全面に出す",
+        body: "価格を知りたい動機に最短で応える構成。AI査定額、将来予測、個人情報不要の3点を一画面で理解させ、DLの最初の理由をつくります。",
+        hook: "「今すぐ価格がわかる」即時価値を先頭で提示",
+        hint: "相場確認ニーズに最短で接続しやすく、ストア流入の最大母数に刺さるファーストビュー候補です。"
+      },
+      {
+        title: "B / Android: 出費管理 + 将来予測",
+        body: "売却検討が先のユーザーにも残る理由をつくる構成。出費管理と将来予測を並べて、日常利用と将来売却をつなぎます。",
+        hook: "「売らない期間も使う価値」を見せて継続利用を促す",
+        hint: "将来売却層や保有コスト意識が高いユーザーに向いており、アンインストール抑制まで含めた訴求に相性が良いです。"
+      },
+      {
+        title: "C / 競合比較: 相場チェックまでは電話0本",
+        body: "競合との差を一瞬で読ませる構成。『複数社から電話が来そう』という先入観を打ち消し、検討開始の心理負荷を下げます。",
+        hook: "「まず0本、売却時も1社だけ」でストレスを見える化",
+        hint: "電話負荷の懸念が強い市場では強力ですが、単独先頭よりAかBの2枚目以降に置く運用も検討価値があります。"
+      }
+    ];
 
-      const descriptions = [
-        "Aは「個人情報なし」「最短20秒」「AI査定価格」の3点を上から順に視認させ、DL理由を即決させる構成です。",
-        "Bは資産管理アプリに近い視覚言語で、価格変動と維持費を同時に見せ、継続利用のイメージまで作ります。",
-        "Cは比較不安を先回りし、電話ストレスを0本と明言して、競合検討中ユーザーの離脱を抑える訴求です。"
+    const track = document.getElementById("track");
+    const dotNav = Array.from(document.querySelectorAll("#dotNav button"));
+    const metaTitle = document.getElementById("metaTitle");
+    const metaBody = document.getElementById("metaBody");
+    const metaHook = document.getElementById("metaHook");
+    const metaHint = document.getElementById("metaHint");
+    const slideCount = document.getElementById("slideCount");
+    const railFill = document.getElementById("railFill");
+    const swipeSurface = document.getElementById("swipeSurface");
+
+    let current = 0;
+    let startX = 0;
+    let diffX = 0;
+
+    function setSlide(index) {
+      current = (index + slides.length) % slides.length;
+      track.style.transform = "translateX(" + (current * -100) + "%)";
+      dotNav.forEach((button, i) => {
+        button.classList.toggle("active", i === current);
+      });
+      metaTitle.textContent = slides[current].title;
+      metaBody.textContent = slides[current].body;
+      metaHook.textContent = slides[current].hook;
+      metaHint.textContent = slides[current].hint;
+      slideCount.textContent = String(current + 1);
+      railFill.style.width = ((current + 1) / slides.length) * 100 + "%";
+    }
+
+    dotNav.forEach((button) => {
+      button.addEventListener("click", () => setSlide(Number(button.dataset.index)));
+    });
+
+    document.getElementById("prevBtn").addEventListener("click", () => setSlide(current - 1));
+    document.getElementById("nextBtn").addEventListener("click", () => setSlide(current + 1));
+
+    swipeSurface.addEventListener("touchstart", (event) => {
+      startX = event.touches[0].clientX;
+    }, { passive: true });
+
+    swipeSurface.addEventListener("touchmove", (event) => {
+      diffX = event.touches[0].clientX - startX;
+    }, { passive: true });
+
+    swipeSurface.addEventListener("touchend", () => {
+      if (Math.abs(diffX) > 45) {
+        setSlide(current + (diffX < 0 ? 1 : -1));
+      }
+      startX = 0;
+      diffX = 0;
+    });
+
+    let mouseDown = false;
+    swipeSurface.addEventListener("mousedown", (event) => {
+      mouseDown = true;
+      startX = event.clientX;
+    });
+    window.addEventListener("mousemove", (event) => {
+      if (!mouseDown) return;
+      diffX = event.clientX - startX;
+    });
+    window.addEventListener("mouseup", () => {
+      if (!mouseDown) return;
+      if (Math.abs(diffX) > 45) {
+        setSlide(current + (diffX < 0 ? 1 : -1));
+      }
+      mouseDown = false;
+      startX = 0;
+      diffX = 0;
+    });
+
+    const estimateValue = document.getElementById("estimateValue");
+    const estimateDelta = document.getElementById("estimateDelta");
+    const estimateCard = document.getElementById("estimateCard");
+    const bars = [
+      document.getElementById("bar1"),
+      document.getElementById("bar2"),
+      document.getElementById("bar3"),
+      document.getElementById("bar4")
+    ];
+
+    document.getElementById("refreshEstimate").addEventListener("click", () => {
+      const base = 2184000 + Math.floor((Math.random() - 0.3) * 160000);
+      const delta = 28000 + Math.floor(Math.random() * 54000);
+      estimateValue.textContent = base.toLocaleString("ja-JP") + "円";
+      estimateDelta.textContent = "3か月後 +" + delta.toLocaleString("ja-JP") + "円 予測";
+      const heights = [
+        36 + Math.floor(Math.random() * 16),
+        44 + Math.floor(Math.random() * 20),
+        62 + Math.floor(Math.random() * 18),
+        52 + Math.floor(Math.random() * 18)
       ];
+      bars.forEach((bar, index) => {
+        bar.style.setProperty("--height", heights[index] + "px");
+        bar.classList.remove("flash");
+        void bar.offsetWidth;
+        bar.classList.add("flash");
+      });
+      estimateCard.classList.remove("flash");
+      void estimateCard.offsetWidth;
+      estimateCard.classList.add("flash");
+    });
 
-      const titles = [
-        "現在の検証画面: スクショA",
-        "現在の検証画面: スクショB",
-        "現在の検証画面: スクショC"
-      ];
+    const costValue = document.getElementById("costValue");
+    const futureValue = document.getElementById("futureValue");
+    const futureChip = document.getElementById("futureChip");
+    const fuelBar = document.getElementById("fuelBar");
+    const insuranceBar = document.getElementById("insuranceBar");
+    const parkingBar = document.getElementById("parkingBar");
+    const sparkBars = document.getElementById("sparkBars");
+    let addCount = 0;
 
-      let index = 0;
-      let startX = 0;
-      let currentX = 0;
-      let dragging = false;
+    document.getElementById("addExpense").addEventListener("click", () => {
+      addCount += 1;
+      const total = 27600 + addCount * 1800;
+      const future = 2256000 + addCount * 12000;
+      costValue.textContent = total.toLocaleString("ja-JP") + "円";
+      futureValue.textContent = future.toLocaleString("ja-JP") + "円";
+      futureChip.textContent = addCount % 2 === 0 ? "売却判断の材料が増加" : "6か月後が狙い目";
+      fuelBar.style.width = Math.min(88, 64 + addCount * 4) + "%";
+      insuranceBar.style.width = Math.min(72, 46 + addCount * 3) + "%";
+      parkingBar.style.width = Math.min(74, 52 + addCount * 2) + "%";
+      Array.from(sparkBars.children).forEach((bar, index) => {
+        const next = 38 + index * 10 + Math.min(10, addCount * 2);
+        bar.style.setProperty("--h", next + "%");
+        bar.classList.remove("flash");
+        void bar.offsetWidth;
+        bar.classList.add("flash");
+      });
+      sparkBars.parentElement.classList.remove("flash");
+      void sparkBars.parentElement.offsetWidth;
+      sparkBars.parentElement.classList.add("flash");
+    });
 
-      function render() {
-        carousel.style.transform = "translateX(" + (-index * 100) + "%)";
-        progressBar.style.width = (((index + 1) / total) * 100) + "%";
-        progressTitle.textContent = titles[index];
-        progressCount.textContent = (index + 1) + " / " + total;
-        sideDescription.textContent = descriptions[index];
+    const zeroValue = document.getElementById("zeroValue");
+    const ucarpacRisk = document.getElementById("ucarpacRisk");
+    const topRisk = document.getElementById("topRisk");
+    const bulkRisk = document.getElementById("bulkRisk");
+    const compareNote = document.getElementById("compareNote");
+    let compareToggle = false;
 
-        chips.forEach(function (chip, i) {
-          chip.classList.toggle("is-active", i === index);
-        });
+    document.getElementById("replayCompare").addEventListener("click", () => {
+      compareToggle = !compareToggle;
+      zeroValue.textContent = compareToggle ? "0" : "0";
+      ucarpacRisk.style.width = compareToggle ? "8%" : "10%";
+      topRisk.style.width = compareToggle ? "52%" : "46%";
+      bulkRisk.style.width = compareToggle ? "94%" : "88%";
+      compareNote.textContent = compareToggle
+        ? "比較テキストは『電話0本』だけで終わらせず、次の流れも補足すると誤認を避けられます。『相場チェックでは0本、売却相談後は1社のみ。』"
+        : "差別化メッセージは「0本」で止めず、次の一文で信頼化するのが有効です。 「AI査定で相場を見る段階では電話0本。売ると決めた後も1社だけ。」";
+      compareNote.classList.remove("flash");
+      void compareNote.offsetWidth;
+      compareNote.classList.add("flash");
+    });
 
-        dots.forEach(function (dot, i) {
-          dot.classList.toggle("is-active", i === index);
-        });
+    const state = { timing: null, priority: null };
+    const stepMark1 = document.getElementById("stepMark1");
+    const stepMark2 = document.getElementById("stepMark2");
+    const stepMark3 = document.getElementById("stepMark3");
+    const stepLine = document.getElementById("stepLine");
+    const resultTitle = document.getElementById("resultTitle");
+    const resultBody = document.getElementById("resultBody");
+    const resultCard = document.getElementById("resultCard");
+
+    function updateDiagnostic() {
+      stepMark1.classList.toggle("active", true);
+      stepMark2.classList.toggle("active", Boolean(state.timing));
+      stepMark3.classList.toggle("active", Boolean(state.timing && state.priority));
+      stepLine.style.setProperty("--step-fill", state.timing ? "100%" : "0%");
+
+      if (!state.timing || !state.priority) {
+        resultTitle.textContent = state.timing ? "次は訴求価値を選択" : "まだ選択中です";
+        resultBody.textContent = state.timing
+          ? "もう1つ選ぶと、先頭に置くべきスクショ候補を自動で提案します。"
+          : "2つの質問に答えると、先頭に置くべきスクショ候補とその理由を自動で切り替えます。";
+        return;
       }
 
-      function go(nextIndex) {
-        index = (nextIndex + total) % total;
-        render();
+      let recommendation = 0;
+      let title = "";
+      let body = "";
+
+      if (state.priority === "cost") {
+        recommendation = 1;
+        title = "先頭候補は B / 出費管理 + 将来予測";
+        body = "売却時期が先でも使い続ける理由を前面化できます。継続利用の価値を見せたいときに最も強い並びです。";
+      } else if (state.priority === "easy") {
+        recommendation = 2;
+        title = "先頭候補は C / 電話0本比較";
+        body = "電話ストレスの不安を最初に除去する構成です。検討ハードルが高い流入に向いています。";
+      } else if (state.timing === "now") {
+        recommendation = 2;
+        title = "先頭候補は C → A の順";
+        body = "高く早く売りたい層には、連絡負荷の少なさで不安を解消してからAI査定の具体価値へつなぐ流れが効きます。";
+      } else {
+        recommendation = 0;
+        title = "先頭候補は A / AI査定";
+        body = "まず価格を知りたいユーザーには、最短で相場が見える価値を先頭に出す構成が最も自然です。";
       }
 
-      chips.forEach(function (chip) {
-        chip.addEventListener("click", function () {
-          go(Number(chip.dataset.index));
+      resultTitle.textContent = title;
+      resultBody.textContent = body;
+      resultCard.classList.remove("flash");
+      void resultCard.offsetWidth;
+      resultCard.classList.add("flash");
+      setSlide(recommendation);
+    }
+
+    document.querySelectorAll(".option").forEach((button) => {
+      button.addEventListener("click", () => {
+        const group = button.dataset.group;
+        const value = button.dataset.value;
+        state[group] = value;
+        document.querySelectorAll('.option[data-group="' + group + '"]').forEach((target) => {
+          target.classList.toggle("active", target === button);
         });
+        updateDiagnostic();
       });
+    });
 
-      prevBtn.addEventListener("click", function () {
-        go(index - 1);
-      });
-
-      nextBtn.addEventListener("click", function () {
-        go(index + 1);
-      });
-
-      dots.forEach(function (dot, i) {
-        dot.addEventListener("click", function () {
-          go(i);
-        });
-      });
-
-      swipeArea.addEventListener("pointerdown", function (event) {
-        dragging = true;
-        startX = event.clientX;
-        currentX = event.clientX;
-      });
-
-      swipeArea.addEventListener("pointermove", function (event) {
-        if (!dragging) return;
-        currentX = event.clientX;
-      });
-
-      function endSwipe() {
-        if (!dragging) return;
-        const delta = currentX - startX;
-        dragging = false;
-        if (Math.abs(delta) > 50) {
-          if (delta < 0) go(index + 1);
-          else go(index - 1);
-        }
-      }
-
-      swipeArea.addEventListener("pointerup", endSwipe);
-      swipeArea.addEventListener("pointercancel", endSwipe);
-      swipeArea.addEventListener("pointerleave", endSwipe);
-
-      document.querySelector('[data-cta="ai"]').addEventListener("click", function () {
-        aiMessage.textContent = "装備を2つ追加: AI査定レンジが 412万円 → 418万円 に更新";
-      });
-
-      document.querySelector('[data-cta="future"]').addEventListener("click", function () {
-        futureMessage.textContent = "過去3か月の出費を反映: 売却推奨タイミングが 6か月以内 → 4か月以内 に更新";
-      });
-
-      document.querySelector('[data-cta="compare"]').addEventListener("click", function () {
-        compareMessage.textContent = "訴求切替: 「電話0本」から「まずは相場だけ」にコピーを調整しました";
-      });
-
-      render();
-    }());
+    setSlide(0);
+    updateDiagnostic();
   </script>
 </body>
 </html>
