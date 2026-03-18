@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="ja">
+<!-- B案: データドリブンアプローチ。数字・グラフ・比較表で説得力を出す。ダッシュボード風レイアウト、SVGチャート、進捗バー -->
+<script src="../auth.js"></script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UcarPAC Store Screenshot Prototype - Data Driven</title>
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --text-disabled: #B3B3B3;
+      --text-placeholder: rgba(28,38,99,0.3);
+      --text-light-blue: #bfdbfe;
+      --text-under-blue: #0056BA;
+      --button-gray: #CACEE2;
+      --button-disabled: #B3B3B3;
+      --button-link1: #4099FF;
+      --button-link2: #40BFFF;
+      --back-white: #FAFAFA;
+      --light-gray: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --back-gray2: #e6e6e6;
+      --back-blue: #091355;
+      --back-dark-blue: #0a1348;
+      --back-light-pink: #ffd8e8;
+      --back-light-blue: #6fc2ff;
+      --error: #EB4646;
+      --shadow: rgba(0,0,0,0.11);
+      --ruled-line: #F2F2F2;
+      --border-gray: #7C7C7C;
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+      --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
+      --gradient-disabled: linear-gradient(90deg, #e5e5e5, #e5e5e5);
+      --gradient-deep: linear-gradient(180deg, #091355 0%, #1c2663 52%, #1237a8 100%);
+      --font-sans: "Noto Sans JP", "Hiragino Sans", system-ui, sans-serif;
+      --font-number: "Righteous", "Noto Sans JP", sans-serif;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-7: 27px;
+      --space-8: 32px;
+      --radius-sm: 5px;
+      --radius-md: 12px;
+      --radius-card: 13px;
+      --radius-lg: 16px;
+      --radius-chip: 22px;
+      --radius-button: 30px;
+      --radius-button-lg: 43px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: var(--font-sans);
+      background:
+        radial-gradient(circle at top left, rgba(248,76,162,0.16), transparent 28%),
+        radial-gradient(circle at top right, rgba(29,220,255,0.2), transparent 35%),
+        linear-gradient(180deg, #f7fbff 0%, #eef4fa 100%);
+      color: var(--text-black);
+    }
+
+    body {
+      padding: 20px 12px 36px;
+    }
+
+    .page {
+      width: min(100%, 1240px);
+      margin: 0 auto;
+    }
+
+    .hero {
+      background: var(--gradient-deep);
+      color: var(--white);
+      border-radius: 28px;
+      padding: 24px 18px 22px;
+      box-shadow: 0 20px 60px rgba(9, 19, 85, 0.24);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: 0.5;
+    }
+
+    .hero::before {
+      width: 240px;
+      height: 240px;
+      background: rgba(248,76,162,0.25);
+      top: -100px;
+      right: -80px;
+    }
+
+    .hero::after {
+      width: 180px;
+      height: 180px;
+      background: rgba(29,220,255,0.24);
+      bottom: -60px;
+      left: -40px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 14px;
+      background: rgba(255,255,255,0.12);
+      color: var(--text-light-blue);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .hero h1 {
+      margin: 14px 0 10px;
+      font-size: clamp(28px, 5vw, 44px);
+      line-height: 1.2;
+      font-weight: 800;
+      max-width: 780px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 760px;
+      color: rgba(255,255,255,0.82);
+      font-size: 14px;
+      line-height: 1.7;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .metric-card {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .metric-card .label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.72);
+      margin-bottom: 6px;
+    }
+
+    .metric-card .value {
+      font-family: var(--font-number);
+      font-size: clamp(22px, 4vw, 32px);
+      color: var(--white);
+      letter-spacing: 0.03em;
+    }
+
+    .metric-card .sub {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #cbe6ff;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 18px 0 20px;
+      align-items: center;
+    }
+
+    .chip {
+      appearance: none;
+      border: 1px solid var(--ruled-line);
+      background: var(--white);
+      color: var(--text-black);
+      min-height: 43px;
+      padding: 0 18px;
+      border-radius: var(--radius-chip);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      transition: 180ms ease;
+    }
+
+    .chip.active,
+    .chip:hover {
+      background: var(--dark-blue);
+      color: var(--white);
+      border-color: var(--dark-blue);
+      transform: translateY(-1px);
+    }
+
+    .primary-button {
+      appearance: none;
+      border: 0;
+      min-height: 43px;
+      padding: 0 22px;
+      border-radius: var(--radius-button);
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(77,180,255,0.3);
+      transition: transform 180ms ease;
+    }
+
+    .primary-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      align-items: start;
+    }
+
+    .phone {
+      background: linear-gradient(180deg, #fbfdff 0%, #f2f6fb 100%);
+      border-radius: 32px;
+      padding: 12px;
+      box-shadow: 0 24px 60px rgba(28,38,99,0.16);
+      border: 1px solid rgba(28,38,99,0.08);
+      position: relative;
+      transition: transform 220ms ease, box-shadow 220ms ease;
+    }
+
+    .phone.hidden {
+      display: none;
+    }
+
+    .phone:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 28px 70px rgba(28,38,99,0.2);
+    }
+
+    .device {
+      background: var(--back-white);
+      border-radius: 24px;
+      overflow: hidden;
+      min-height: 760px;
+      position: relative;
+      border: 1px solid #dfe7f2;
+    }
+
+    .notch {
+      width: 40%;
+      height: 22px;
+      background: #0e1535;
+      margin: 8px auto 10px;
+      border-radius: 0 0 16px 16px;
+    }
+
+    .status {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 18px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--dark-blue);
+    }
+
+    .screen-header {
+      padding: 18px 18px 14px;
+      background: var(--gradient-deep);
+      color: var(--white);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .screen-header.pink {
+      background: linear-gradient(135deg, #ffe4f1 0%, #ffd0e8 30%, #091355 100%);
+    }
+
+    .screen-header.compare {
+      background: linear-gradient(135deg, #091355 0%, #102382 48%, #f84ca2 130%);
+    }
+
+    .screen-title {
+      margin: 8px 0 6px;
+      font-size: 28px;
+      line-height: 1.2;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    .screen-sub {
+      font-size: 13px;
+      line-height: 1.65;
+      opacity: 0.92;
+      margin-bottom: 14px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.14);
+      color: var(--white);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .badge.light {
+      background: rgba(255,255,255,0.92);
+      color: var(--dark-blue);
+    }
+
+    .content {
+      padding: 16px;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: var(--radius-card);
+      padding: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      margin-bottom: 14px;
+      border: 1px solid rgba(28,38,99,0.06);
+    }
+
+    .card-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .card-title strong {
+      font-size: 16px;
+      color: var(--dark-blue);
+    }
+
+    .mini-note {
+      font-size: 11px;
+      color: var(--text-gray);
+    }
+
+    .price-row {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .big-price {
+      font-family: var(--font-number);
+      font-size: 42px;
+      line-height: 1;
+      color: var(--dark-blue);
+    }
+
+    .yen {
+      font-size: 18px;
+      font-weight: 800;
+      margin-left: 4px;
+      font-family: var(--font-sans);
+    }
+
+    .delta {
+      text-align: right;
+    }
+
+    .delta strong {
+      display: block;
+      font-size: 22px;
+      color: #16a34a;
+      line-height: 1.1;
+    }
+
+    .delta span {
+      font-size: 12px;
+      color: var(--text-gray);
+    }
+
+    .bar-group {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .bar-line {
+      display: grid;
+      grid-template-columns: 60px 1fr 54px;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+    }
+
+    .bar-track {
+      height: 10px;
+      background: var(--back-gray);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0;
+      border-radius: 999px;
+      background: var(--gradient-primary);
+      transition: width 900ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    .bar-fill.pink {
+      background: var(--gradient-pink);
+    }
+
+    .chart-wrap {
+      border-radius: 14px;
+      padding: 12px;
+      background: linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
+      border: 1px solid #d9e6f6;
+    }
+
+    .legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--text-gray);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .summary-box {
+      background: var(--back-gray);
+      border-radius: 12px;
+      padding: 12px 10px;
+      text-align: center;
+    }
+
+    .summary-box .num {
+      display: block;
+      font-family: var(--font-number);
+      font-size: 22px;
+      color: var(--dark-blue);
+    }
+
+    .summary-box .txt {
+      display: block;
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--text-gray);
+    }
+
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--ruled-line);
+      font-size: 13px;
+    }
+
+    .list-item:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .list-item strong {
+      color: var(--dark-blue);
+      font-size: 14px;
+    }
+
+    .soft-box {
+      background: linear-gradient(135deg, #f7f9fd 0%, #edf4fb 100%);
+      border: 1px solid #d9e4f2;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .compare-table {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .compare-head,
+    .compare-row {
+      display: grid;
+      grid-template-columns: 1.25fr 0.8fr 0.8fr;
+      gap: 8px;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .compare-head {
+      color: var(--text-gray);
+      font-weight: 700;
+      padding-bottom: 4px;
+    }
+
+    .compare-row {
+      background: #f7faff;
+      border-radius: 12px;
+      padding: 10px;
+      border: 1px solid #e3ebf7;
+    }
+
+    .good {
+      color: #0f9f63;
+      font-weight: 800;
+    }
+
+    .bad {
+      color: var(--error);
+      font-weight: 800;
+    }
+
+    .highlight {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(248,76,162,0.12), rgba(29,220,255,0.16));
+      border: 1px solid rgba(248,76,162,0.2);
+    }
+
+    .zero-call {
+      font-family: var(--font-number);
+      font-size: 40px;
+      color: var(--pink);
+      line-height: 1;
+    }
+
+    .footer-cta {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .ghost-button {
+      appearance: none;
+      border: 1px solid rgba(28,38,99,0.14);
+      background: var(--white);
+      color: var(--dark-blue);
+      min-height: 43px;
+      border-radius: var(--radius-button);
+      padding: 0 18px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .device-footer {
+      padding: 6px 18px 18px;
+      font-size: 11px;
+      color: var(--text-gray);
+      text-align: center;
+    }
+
+    .floating-stat {
+      position: absolute;
+      right: 14px;
+      bottom: 14px;
+      background: rgba(255,255,255,0.96);
+      border-radius: 18px;
+      padding: 10px 12px;
+      box-shadow: 0 12px 22px rgba(28,38,99,0.16);
+      width: 140px;
+      z-index: 2;
+    }
+
+    .floating-stat .cap {
+      display: block;
+      font-size: 11px;
+      color: var(--text-gray);
+      margin-bottom: 4px;
+    }
+
+    .floating-stat .num {
+      display: block;
+      font-family: var(--font-number);
+      font-size: 22px;
+      color: var(--dark-blue);
+    }
+
+    .pulse {
+      animation: pulse 2.4s infinite;
+    }
+
+    .rise {
+      animation: rise 1.2s ease forwards;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 12px 22px rgba(28,38,99,0.16); }
+      50% { transform: scale(1.03); box-shadow: 0 18px 28px rgba(248,76,162,0.26); }
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 12px 8px 28px;
+      }
+
+      .hero {
+        padding: 20px 14px 18px;
+        border-radius: 22px;
+      }
+
+      .screen-title {
+        font-size: 24px;
+      }
+
+      .content {
+        padding: 12px;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .price-row {
+        grid-template-columns: 1fr;
+      }
+
+      .delta {
+        text-align: left;
+      }
+
+      .footer-cta {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero rise">
+      <div class="eyebrow">ASO検証 / ストアPV→DL率改善</div>
+      <h1>数字で伝える3枚構成。<br>AI査定・維持費・電話0本を一気に理解させる。</h1>
+      <p>ストア詳細ページの離脱要因を「何ができるか分からない」「他社との違いが伝わらない」と仮定し、1秒で差別化が伝わるデータドリブンなスクリーンショットを設計。AI査定の現在価格、3か月予測、維持費、競合比較をダッシュボード風に再構成しています。</p>
+      <div class="hero-metrics">
+        <div class="metric-card">
+          <div class="label">現状CVR</div>
+          <div class="value">17.3%</div>
+          <div class="sub">ストアPV → DL</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">目標CVR</div>
+          <div class="value">25.0%</div>
+          <div class="sub">+7.7pt 改善目標</div>
+        </div>
+        <div class="metric-card">
+          <div class="label">最大訴求値</div>
+          <div class="value">8,000社</div>
+          <div class="sub">入札 × 電話0本 × AI予測</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="toolbar">
+      <button class="chip active" data-filter="all">3画面を表示</button>
+      <button class="chip" data-filter="ios">A / iOS</button>
+      <button class="chip" data-filter="android">B / Android</button>
+      <button class="chip" data-filter="compare">C / 比較訴求</button>
+      <button class="primary-button" id="animateButton">数値アニメーションを再生</button>
+    </div>
+
+    <section class="layout">
+      <article class="phone rise" data-screen="ios">
+        <div class="device">
+          <div class="notch"></div>
+          <div class="status">
+            <span>9:41</span>
+            <span>5G 100%</span>
+          </div>
+          <div class="screen-header">
+            <div class="badge-row">
+              <span class="badge light">iOS向け</span>
+              <span class="badge">個人情報なし</span>
+              <span class="badge">AI査定</span>
+            </div>
+            <h2 class="screen-title">愛車の価格、<br>いま数秒で見える</h2>
+            <p class="screen-sub">2021年式 トヨタ ハリアー Z Leather Package を想定。現在相場と3か月予測を同時表示し、「売るか迷っている人」にまず価値を体感させる構成。</p>
+          </div>
+
+          <div class="content">
+            <div class="card">
+              <div class="card-title">
+                <strong>AI査定サマリー</strong>
+                <span class="mini-note">精度 87%</span>
+              </div>
+              <div class="price-row">
+                <div>
+                  <div class="mini-note">現在の想定売却価格</div>
+                  <div class="big-price">298<span class="yen">万円</span></div>
+                </div>
+                <div class="delta">
+                  <strong>+12万円</strong>
+                  <span>上位相場比</span>
+                </div>
+              </div>
+              <div class="bar-group">
+                <div class="bar-line">
+                  <span>概算</span>
+                  <div class="bar-track"><div class="bar-fill" data-width="72%"></div></div>
+                  <strong>272万</strong>
+                </div>
+                <div class="bar-line">
+                  <span>AI査定</span>
+                  <div class="bar-track"><div class="bar-fill pink" data-width="88%"></div></div>
+                  <strong>298万</strong>
+                </div>
+                <div class="bar-line">
+                  <span>上振れ</span>
+                  <div class="bar-track"><div class="bar-fill" data-width="94%"></div></div>
+                  <strong>310万</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">
+                <strong>3か月価格予測</strong>
+                <span class="mini-note">週次更新</span>
+              </div>
+              <div class="chart-wrap">
+                <svg viewBox="0 0 320 180" width="100%" height="180" aria-label="AI査定チャート">
+                  <defs>
+                    <linearGradient id="chartA1" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#1ddcff" />
+                      <stop offset="100%" stop-color="#4db4ff" />
+                    </linearGradient>
+                    <linearGradient id="chartA2" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="rgba(29,220,255,0.22)" />
+                      <stop offset="100%" stop-color="rgba(29,220,255,0.03)" />
+                    </linearGradient>
+                  </defs>
+                  <g stroke="#dbe6f4" stroke-width="1">
+                    <line x1="24" y1="30" x2="304" y2="30"></line>
+                    <line x1="24" y1="70" x2="304" y2="70"></line>
+                    <line x1="24" y1="110" x2="304" y2="110"></line>
+                    <line x1="24" y1="150" x2="304" y2="150"></line>
+                  </g>
+                  <g fill="#7b8ca8" font-size="10" font-family="Noto Sans JP">
+                    <text x="10" y="34">320</text>
+                    <text x="10" y="74">305</text>
+                    <text x="10" y="114">290</text>
+                    <text x="10" y="154">275</text>
+                    <text x="28" y="170">今週</text>
+                    <text x="106" y="170">4月</text>
+                    <text x="182" y="170">5月</text>
+                    <text x="258" y="170">6月</text>
+                  </g>
+                  <path d="M24 96 C66 88, 98 82, 122 78 C150 72, 188 66, 216 60 C240 56, 272 50, 304 44 L304 150 L24 150 Z" fill="url(#chartA2)"></path>
+                  <path d="M24 96 C66 88, 98 82, 122 78 C150 72, 188 66, 216 60 C240 56, 272 50, 304 44" fill="none" stroke="url(#chartA1)" stroke-width="4" stroke-linecap="round"></path>
+                  <circle cx="24" cy="96" r="5" fill="#1c2663"></circle>
+                  <circle cx="122" cy="78" r="5" fill="#1c2663"></circle>
+                  <circle cx="216" cy="60" r="5" fill="#F84CA2"></circle>
+                  <circle cx="304" cy="44" r="6" fill="#F84CA2"></circle>
+                </svg>
+                <div class="legend">
+                  <span><i class="dot" style="background:#1ddcff"></i>相場予測</span>
+                  <span><i class="dot" style="background:#F84CA2"></i>売り時ピーク</span>
+                </div>
+              </div>
+              <div class="summary-grid">
+                <div class="summary-box">
+                  <span class="num">298</span>
+                  <span class="txt">現在</span>
+                </div>
+                <div class="summary-box">
+                  <span class="num">304</span>
+                  <span class="txt">1か月後</span>
+                </div>
+                <div class="summary-box">
+                  <span class="num">312</span>
+                  <span class="txt">3か月後</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">
+                <strong>入力はこれだけ</strong>
+                <span class="mini-note">40秒想定</span>
+              </div>
+              <div class="list">
+                <div class="list-item">
+                  <span>メーカー / 車種 / 年式</span>
+                  <strong>入力済み</strong>
+                </div>
+                <div class="list-item">
+                  <span>走行距離 / グレード</span>
+                  <strong>入力済み</strong>
+                </div>
+                <div class="list-item">
+                  <span>個人情報</span>
+                  <strong class="good">不要</strong>
+                </div>
+              </div>
+              <div class="footer-cta">
+                <button class="primary-button">無料で価格を見る</button>
+                <button class="ghost-button">あとで売る判断をする</button>
+              </div>
+            </div>
+          </div>
+          <div class="floating-stat pulse">
+            <span class="cap">推定DL訴求寄与</span>
+            <span class="num">+3.2pt</span>
+          </div>
+          <div class="device-footer">ストアスクショA / AI査定を全面訴求</div>
+        </div>
+      </article>
+
+      <article class="phone rise" data-screen="android">
+        <div class="device">
+          <div class="notch"></div>
+          <div class="status">
+            <span>9:41</span>
+            <span>Wi-Fi 89%</span>
+          </div>
+          <div class="screen-header pink">
+            <div class="badge-row">
+              <span class="badge light">Android向け</span>
+              <span class="badge light">出費管理</span>
+              <span class="badge light">将来予測</span>
+            </div>
+            <h2 class="screen-title">維持費まで見えると、<br>売る判断が変わる</h2>
+            <p class="screen-sub">査定だけで終わらず、毎月の出費と資産価値の下落を同じ画面で見せる。マネー管理アプリに近い理解性で「入れておく理由」を強化するスクショ。</p>
+          </div>
+
+          <div class="content">
+            <div class="card">
+              <div class="card-title">
+                <strong>2026年3月の維持費</strong>
+                <span class="mini-note">ホンダ ヴェゼル e:HEV Z</span>
+              </div>
+              <div class="price-row">
+                <div>
+                  <div class="mini-note">月間コスト</div>
+                  <div class="big-price">4.8<span class="yen">万円</span></div>
+                </div>
+                <div class="delta">
+                  <strong style="color:#1c2663">-0.6万円</strong>
+                  <span>前月比</span>
+                </div>
+              </div>
+              <div class="bar-group">
+                <div class="bar-line">
+                  <span>ガソリン</span>
+                  <div class="bar-track"><div class="bar-fill pink" data-width="58%"></div></div>
+                  <strong>18,400円</strong>
+                </div>
+                <div class="bar-line">
+                  <span>保険</span>
+                  <div class="bar-track"><div class="bar-fill" data-width="41%"></div></div>
+                  <strong>12,000円</strong>
+                </div>
+                <div class="bar-line">
+                  <span>整備</span>
+                  <div class="bar-track"><div class="bar-fill" data-width="33%"></div></div>
+                  <strong>8,600円</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">
+                <strong>資産価値 × 出費の推移</strong>
+                <span class="mini-note">半年</span>
+              </div>
+              <div class="chart-wrap">
+                <svg viewBox="0 0 320 188" width="100%" height="188" aria-label="維持費と査定の複合チャート">
+                  <g stroke="#dbe6f4" stroke-width="1">
+                    <line x1="24" y1="24" x2="304" y2="24"></line>
+                    <line x1="24" y1="64" x2="304" y2="64"></line>
+                    <line x1="24" y1="104" x2="304" y2="104"></line>
+                    <line x1="24" y1="144" x2="304" y2="144"></line>
+                  </g>
+                  <g fill="#7b8ca8" font-size="10" font-family="Noto Sans JP">
+                    <text x="30" y="168">10月</text>
+                    <text x="78" y="168">11月</text>
+                    <text x="126" y="168">12月</text>
+                    <text x="174" y="168">1月</text>
+                    <text x="222" y="168">2月</text>
+                    <text x="270" y="168">3月</text>
+                  </g>
+                  <g fill="#cfe6ff">
+                    <rect x="34" y="92" width="20" height="52" rx="6"></rect>
+                    <rect x="82" y="84" width="20" height="60" rx="6"></rect>
+                    <rect x="130" y="98" width="20" height="46" rx="6"></rect>
+                    <rect x="178" y="80" width="20" height="64" rx="6"></rect>
+                    <rect x="226" y="88" width="20" height="56" rx="6"></rect>
+                    <rect x="274" y="104" width="20" height="40" rx="6"></rect>
+                  </g>
+                  <path d="M44 56 C74 58, 98 60, 140 70 C170 76, 210 82, 244 88 C268 92, 282 98, 284 102" fill="none" stroke="#F84CA2" stroke-width="4" stroke-linecap="round"></path>
+                  <circle cx="44" cy="56" r="5" fill="#F84CA2"></circle>
+                  <circle cx="140" cy="70" r="5" fill="#F84CA2"></circle>
+                  <circle cx="244" cy="88" r="5" fill="#F84CA2"></circle>
+                  <circle cx="284" cy="102" r="6" fill="#1c2663"></circle>
+                </svg>
+                <div class="legend">
+                  <span><i class="dot" style="background:#F84CA2"></i>査定額の推移</span>
+                  <span><i class="dot" style="background:#cfe6ff"></i>月間維持費</span>
+                </div>
+              </div>
+              <div class="highlight">
+                <div>
+                  <div class="mini-note">6か月での価値減少</div>
+                  <strong style="font-size:24px;color:var(--dark-blue);">-14万円</strong>
+                </div>
+                <div>
+                  <div class="mini-note">維持費合計</div>
+                  <strong style="font-size:24px;color:var(--pink);">27.6万円</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">
+                <strong>売り時インサイト</strong>
+                <span class="mini-note">AIサジェスト</span>
+              </div>
+              <div class="soft-box">
+                <strong style="display:block;font-size:16px;color:var(--dark-blue);margin-bottom:6px;">4月中の出品で手取り最大化</strong>
+                <div style="font-size:13px;line-height:1.7;color:var(--text-gray);">
+                  予測では5月以降にSUV相場が鈍化。いま出品すると想定価格は231万円、6月まで保有すると223万円想定です。
+                </div>
+              </div>
+              <div class="footer-cta">
+                <button class="primary-button">出費もまとめて管理</button>
+                <button class="ghost-button">将来予測を見る</button>
+              </div>
+            </div>
+          </div>
+          <div class="floating-stat pulse">
+            <span class="cap">継続利用の訴求</span>
+            <span class="num">+2.6pt</span>
+          </div>
+          <div class="device-footer">ストアスクショB / 出費管理と将来予測を訴求</div>
+        </div>
+      </article>
+
+      <article class="phone rise" data-screen="compare">
+        <div class="device">
+          <div class="notch"></div>
+          <div class="status">
+            <span>9:41</span>
+            <span>5G 92%</span>
+          </div>
+          <div class="screen-header compare">
+            <div class="badge-row">
+              <span class="badge">競合比較</span>
+              <span class="badge">電話0本訴求</span>
+              <span class="badge light">8,000社入札</span>
+            </div>
+            <h2 class="screen-title">相場チェックだけなら、<br>営業電話は0本でいい</h2>
+            <p class="screen-sub">一括査定や上位3社連絡型との違いを、電話本数・入札規模・個人情報の3軸で可視化。差別化メッセージを1画面で完結させる比較スクショ。</p>
+          </div>
+
+          <div class="content">
+            <div class="card">
+              <div class="card-title">
+                <strong>比較ダッシュボード</strong>
+                <span class="mini-note">相場確認フェーズ</span>
+              </div>
+              <div class="compare-table">
+                <div class="compare-head">
+                  <span>項目</span>
+                  <span>UcarPAC</span>
+                  <span>他社例</span>
+                </div>
+                <div class="compare-row">
+                  <strong>相場チェック時の電話</strong>
+                  <span class="good">0本</span>
+                  <span class="bad">3〜10本</span>
+                </div>
+                <div class="compare-row">
+                  <strong>個人情報入力</strong>
+                  <span class="good">不要</span>
+                  <span class="bad">必要</span>
+                </div>
+                <div class="compare-row">
+                  <strong>入札規模</strong>
+                  <span class="good">8,000社</span>
+                  <span>最大2,000社</span>
+                </div>
+                <div class="compare-row">
+                  <strong>売り時予測</strong>
+                  <span class="good">AIで表示</span>
+                  <span class="bad">なし</span>
+                </div>
+              </div>
+
+              <div class="highlight">
+                <div>
+                  <div class="mini-note">営業電話</div>
+                  <div class="zero-call">0本</div>
+                </div>
+                <div style="flex:1">
+                  <div class="mini-note">相場を見たあと、売る時期を決めてから申し込める</div>
+                  <strong style="font-size:18px;color:var(--dark-blue);line-height:1.5;">まず価格だけ確認。必要になったら売却相談へ。</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">
+                <strong>申込ストレス比較</strong>
+                <span class="mini-note">体感差を数値化</span>
+              </div>
+              <div class="bar-group">
+                <div class="bar-line">
+                  <span>UcarPAC</span>
+                  <div class="bar-track"><div class="bar-fill" data-width="14%"></div></div>
+                  <strong>低負荷</strong>
+                </div>
+                <div class="bar-line">
+                  <span>上位3社型</span>
+                  <div class="bar-track"><div class="bar-fill pink" data-width="58%"></div></div>
+                  <strong>中</strong>
+                </div>
+                <div class="bar-line">
+                  <span>一括査定型</span>
+                  <div class="bar-track"><div class="bar-fill pink" data-width="92%"></div></div>
+                  <strong>高</strong>
+                </div>
+              </div>
+              <div class="summary-grid">
+                <div class="summary-box">
+                  <span class="num">0</span>
+                  <span class="txt">相場確認時の電話</span>
+                </div>
+                <div class="summary-box">
+                  <span class="num">1</span>
+                  <span class="txt">売却時のやりとり先</span>
+                </div>
+                <div class="summary-box">
+                  <span class="num">8000</span>
+                  <span class="txt">入札業者数</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title">
+                <strong>ストア訴求メッセージ</strong>
+                <span class="mini-note">3秒理解</span>
+              </div>
+              <div class="soft-box">
+                <strong style="display:block;font-size:18px;color:var(--dark-blue);margin-bottom:8px;">電話0本で相場チェック。売る時だけ、最高額へ。</strong>
+                <div style="font-size:13px;line-height:1.7;color:var(--text-gray);">
+                  AI査定で価格を見る → 維持費と将来予測で判断する → 売る時だけ8,000社オークションへ。アプリで完結する導線をシンプルに見せます。
+                </div>
+              </div>
+              <div class="footer-cta">
+                <button class="primary-button">電話0本で価格を見る</button>
+                <button class="ghost-button">比較ポイントを見る</button>
+              </div>
+            </div>
+          </div>
+          <div class="floating-stat pulse">
+            <span class="cap">差別化理解の寄与</span>
+            <span class="num">+1.9pt</span>
+          </div>
+          <div class="device-footer">ストアスクショC / 競合比較「電話0本」を訴求</div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const chips = document.querySelectorAll('.chip');
+    const screens = document.querySelectorAll('.phone');
+    const fills = document.querySelectorAll('.bar-fill');
+    const animateButton = document.getElementById('animateButton');
+
+    function animateBars() {
+      fills.forEach(fill => {
+        fill.style.width = '0';
+      });
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          fills.forEach(fill => {
+            fill.style.width = fill.dataset.width;
+          });
+        }, 80);
+      });
+    }
+
+    function applyFilter(filter) {
+      screens.forEach(screen => {
+        if (filter === 'all' || screen.dataset.screen === filter) {
+          screen.classList.remove('hidden');
+        } else {
+          screen.classList.add('hidden');
+        }
+      });
+    }
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        chips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        applyFilter(chip.dataset.filter);
+        animateBars();
+      });
+    });
+
+    animateButton.addEventListener('click', animateBars);
+
+    animateBars();
+  </script>
+</body>
+</html>
