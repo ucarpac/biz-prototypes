@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>UcarPAC v4 - 乗り換えシミュレーション搭載</title>
+<style>
+  :root {
+    --accent: #E1006E;
+    --accent-soft: #FCE7F3;
+    --accent-dark: #B8005A;
+    --charcoal: #1A1A2E;
+    --slate: #64748B;
+    --mist: #F1F5F9;
+    --white: #FFFFFF;
+    --green: #10B981;
+    --green-soft: #D1FAE5;
+    --amber: #F59E0B;
+    --amber-soft: #FEF3C7;
+    --red: #EF4444;
+    --red-soft: #FEE2E2;
+    --blue: #3B82F6;
+    --blue-soft: #DBEAFE;
+    --purple: #8B5CF6;
+    --purple-soft: #EDE9FE;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+    --radius: 16px;
+    --radius-sm: 12px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, 'Hiragino Sans', 'BIZ UDPGothic', sans-serif;
+    background: #E8ECF0;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    gap: 20px;
+  }
+
+  /* Phone */
+  .phone {
+    width: 390px; height: 844px;
+    background: var(--white);
+    border-radius: 40px; overflow: hidden;
+    box-shadow: var(--shadow-md), 0 0 0 8px var(--charcoal);
+    position: relative; display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .statusbar {
+    height: 54px; background: var(--charcoal);
+    display: flex; align-items: flex-end; justify-content: space-between;
+    padding: 0 28px 8px; color: white; font-size: 14px; font-weight: 600; flex-shrink: 0;
+  }
+  .statusbar .notch {
+    position: absolute; top:0; left:50%; transform:translateX(-50%);
+    width:120px; height:30px; background:#000; border-radius:0 0 20px 20px;
+  }
+  .nav-tabs {
+    display: flex; gap:3px; padding:6px 12px; background:var(--charcoal);
+    overflow-x: auto; flex-shrink: 0;
+  }
+  .nav-tabs button {
+    padding:5px 12px; border:none; border-radius:18px; font-size:11px;
+    font-weight:600; cursor:pointer; white-space:nowrap;
+    background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.6);
+    transition: all 0.2s;
+  }
+  .nav-tabs button.active { background:var(--accent); color:white; }
+  .screen-wrap { flex:1; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; }
+  .scr { display:none; min-height:100%; }
+  .scr.active { display:block; }
+
+  /* Tab Bar - 5 tabs */
+  .tabbar {
+    height: 76px; background:white; border-top:1px solid #E2E8F0;
+    display:flex; align-items:center; justify-content:space-around;
+    padding-bottom:14px; flex-shrink:0;
+  }
+  .tab {
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    cursor:pointer; color:var(--slate); font-size:10px;
+    position: relative;
+  }
+  .tab.active { color:var(--accent); }
+  .tab svg { width:22px; height:22px; }
+  .tab.center-tab { margin-top: -18px; }
+  .tab.center-tab .center-circle {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(225,0,110,0.35);
+    border: 3px solid white;
+  }
+  .tab.center-tab svg { width:24px; height:24px; color: white; }
+  .tab.center-tab span { color: var(--accent); font-weight: 700; margin-top: 2px; }
+
+  /* Common */
+  .sec-title {
+    font-size:12px; font-weight:700; color:var(--slate);
+    letter-spacing:0.5px; padding:14px 18px 6px;
+    text-transform: uppercase;
+  }
+  .card {
+    margin:0 14px 10px; background:white; border-radius:var(--radius-sm);
+    box-shadow:var(--shadow-sm); overflow:hidden;
+  }
+  .card-body { padding:14px; }
+
+  /* ============ HOME ============ */
+  .home { background:var(--mist); padding-bottom:16px; }
+  .home-header { background:var(--charcoal); padding:14px 18px 20px; color:white; }
+  .home-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+  .logo { font-size:17px; font-weight:800; }
+  .logo span { color:var(--accent); }
+  .bell { position:relative; width:34px; height:34px; border-radius:50%;
+    background:rgba(255,255,255,0.1); display:flex; align-items:center;
+    justify-content:center; cursor:pointer; }
+  .bell svg { width:20px; height:20px; }
+  .bell-badge { position:absolute; top:-2px; right:-2px; width:15px; height:15px;
+    background:var(--accent); border-radius:50%; font-size:9px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; }
+
+  /* Price Hero */
+  .price-hero { text-align: center; padding: 8px 0 4px; }
+  .price-hero .price-label { font-size: 12px; opacity: 0.6; margin-bottom: 4px; }
+  .price-hero .price-value { font-size: 42px; font-weight: 900; letter-spacing: -1px; line-height: 1.1; }
+  .price-hero .price-unit { font-size: 18px; font-weight: 400; }
+  .price-hero .price-sub { font-size: 11px; opacity: 0.5; margin-top: 6px; line-height: 1.5; }
+
+  /* Compact metric cards in header */
+  .metric-cards { display: flex; gap: 8px; margin-top: 14px; }
+  .metric-card {
+    flex: 1; background: rgba(255,255,255,0.08);
+    border-radius: 10px; padding: 10px 10px; text-align: center;
+  }
+  .metric-card .mc-val { font-size: 14px; font-weight: 800; }
+  .metric-card .mc-lbl { font-size: 9px; opacity: 0.5; margin-top: 2px; line-height: 1.4; }
+
+  /* Sell CTA */
+  .sell-cta-fixed {
+    margin: 6px 14px 10px; padding: 14px 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    border-radius: var(--radius-sm); color: white;
+    display: flex; align-items: center; gap: 12px; cursor: pointer;
+  }
+  .sell-cta-fixed h4 { font-size: 14px; font-weight: 700; }
+  .sell-cta-fixed p { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+
+  /* Todo */
+  .todo-section { padding: 0 14px; }
+  .todo-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 4px 8px; }
+  .todo-header h3 { font-size: 14px; font-weight: 700; color: var(--charcoal); }
+  .todo-header .todo-count { font-size: 11px; font-weight: 600; color: var(--white); background: var(--accent); padding: 2px 8px; border-radius: 10px; }
+  .todo-card {
+    background: white; border-radius: var(--radius-sm);
+    padding: 14px 16px; margin-bottom: 8px;
+    box-shadow: var(--shadow-sm); cursor: pointer; transition: transform 0.15s;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .todo-card:hover { transform: scale(0.98); }
+  .todo-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .todo-body { flex: 1; min-width: 0; }
+  .todo-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; display: inline-block; margin-bottom: 3px; }
+  .todo-title { font-size: 13px; font-weight: 700; color: var(--charcoal); line-height: 1.4; }
+  .todo-desc { font-size: 11px; color: var(--slate); margin-top: 2px; line-height: 1.5; }
+  .todo-why { font-size: 10px; color: var(--blue); margin-top: 4px; cursor: pointer; font-weight: 600; }
+  .todo-action { font-size: 11px; font-weight: 700; margin-top: 5px; display: inline-block; }
+
+  /* Why tooltip */
+  .why-tooltip {
+    display: none; background: var(--charcoal); color: white;
+    border-radius: 8px; padding: 10px 14px; font-size: 11px; line-height: 1.5;
+    margin-top: 6px; animation: fadeIn 0.2s ease;
+  }
+  .why-tooltip.show { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ============ MY CAR ============ */
+  .mycar { background:var(--mist); padding-bottom:16px; }
+  .mycar-header { background:var(--charcoal); padding:18px; color:white; text-align:center; }
+  .mycar-car-img {
+    width:180px; height:100px; background:rgba(255,255,255,0.08);
+    border-radius:12px; margin:0 auto 10px;
+    display:flex; align-items:center; justify-content:center; font-size:48px;
+  }
+  .mycar-car-name { font-size:18px; font-weight:800; }
+  .mycar-car-sub { font-size:12px; opacity:0.6; margin-top:2px; }
+  .mycar-stats {
+    margin:-12px 14px 10px; background:white; border-radius:var(--radius);
+    padding:14px; box-shadow:var(--shadow-md);
+    display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;
+  }
+  .ms-item { text-align:center; }
+  .ms-item .val { font-size:18px; font-weight:800; color:var(--charcoal); }
+  .ms-item .label { font-size:10px; color:var(--slate); margin-top:2px; }
+
+  /* Schedule cards */
+  .schedule-section { padding: 0 14px; }
+  .sched-card {
+    background: white; border-radius: var(--radius-sm);
+    padding: 14px 16px; margin-bottom: 8px;
+    box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 12px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .sched-card:hover { background: var(--mist); }
+  .sched-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .sched-info { flex: 1; }
+  .sched-info h4 { font-size: 13px; font-weight: 600; color: var(--charcoal); }
+  .sched-info .sched-date { font-size: 12px; color: var(--charcoal); font-weight: 700; margin-top: 2px; }
+  .sched-info .sched-sub { font-size: 11px; color: var(--slate); margin-top: 1px; }
+  .sched-badge { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 4px; white-space: nowrap; }
+
+  /* Cost bars */
+  .cost-bar-item { margin-bottom: 10px; }
+  .cost-bar-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+  .cost-bar-track { height: 6px; background: var(--mist); border-radius: 3px; overflow: hidden; }
+  .cost-bar-fill { height: 100%; border-radius: 3px; }
+
+  /* Chart */
+  .tco-chart {
+    margin: 0 14px 10px; background: white; border-radius: var(--radius-sm);
+    padding: 16px; box-shadow: var(--shadow-sm);
+  }
+  .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .chart-title { font-size: 13px; font-weight: 700; color: var(--charcoal); }
+  .chart-period { font-size: 11px; color: var(--slate); }
+
+  /* Data completion */
+  .data-comp {
+    margin:0 14px 10px; background:white; border-radius:var(--radius-sm);
+    padding:14px 16px; box-shadow:var(--shadow-sm);
+  }
+  .dc-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  .dc-title { font-size:13px; font-weight:700; color:var(--charcoal); }
+  .dc-pct { font-size:13px; font-weight:700; color:var(--accent); }
+  .dc-bar { height:6px; background:var(--mist); border-radius:3px; margin-bottom:10px; overflow:hidden; }
+  .dc-bar-fill { height:100%; background:linear-gradient(90deg, var(--accent), #FF6B9D); border-radius:3px; }
+  .dc-reward { font-size:11px; color:var(--purple); margin-top:8px; font-weight:600; }
+
+  /* ============ TRADE-IN SIMULATION ============ */
+  .tradein { background: var(--mist); padding-bottom: 16px; }
+  .tradein-header {
+    background: linear-gradient(135deg, var(--charcoal), #2D1B4E);
+    padding: 20px 18px; color: white; text-align: center;
+  }
+  .tradein-header h2 { font-size: 20px; font-weight: 800; }
+  .tradein-header p { font-size: 12px; opacity: 0.7; margin-top: 4px; }
+  .tradein-header .ti-subtitle {
+    display: inline-block; margin-top: 8px;
+    padding: 4px 14px; border-radius: 20px;
+    background: rgba(225,0,110,0.25); color: #FF6B9D;
+    font-size: 11px; font-weight: 600;
+  }
+
+  /* Current car summary */
+  .ti-current {
+    margin: -8px 14px 10px; background: white; border-radius: var(--radius);
+    padding: 16px; box-shadow: var(--shadow-md);
+  }
+  .ti-current-label {
+    font-size: 11px; font-weight: 700; color: var(--slate);
+    letter-spacing: 0.5px; margin-bottom: 8px;
+  }
+  .ti-current-car {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+  }
+  .ti-car-icon {
+    width: 50px; height: 50px; background: var(--mist); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ti-car-info h4 { font-size: 14px; font-weight: 700; color: var(--charcoal); }
+  .ti-car-info p { font-size: 11px; color: var(--slate); }
+  .ti-current-metrics {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+  .ti-metric {
+    background: var(--mist); border-radius: 8px; padding: 10px; text-align: center;
+  }
+  .ti-metric .tm-val { font-size: 18px; font-weight: 800; color: var(--charcoal); }
+  .ti-metric .tm-lbl { font-size: 10px; color: var(--slate); margin-top: 2px; }
+
+  /* Candidate selection */
+  .ti-candidates {
+    margin: 0 14px 10px; background: white; border-radius: var(--radius-sm);
+    padding: 16px; box-shadow: var(--shadow-sm);
+  }
+  .ti-cand-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+  }
+  .ti-cand-header h4 { font-size: 14px; font-weight: 700; color: var(--charcoal); }
+  .ti-cand-header .ti-cand-filter {
+    font-size: 11px; color: var(--accent); font-weight: 600; cursor: pointer;
+  }
+  .ti-cand-card {
+    border: 2px solid var(--mist); border-radius: 10px; padding: 12px;
+    margin-bottom: 8px; cursor: pointer; transition: all 0.2s;
+  }
+  .ti-cand-card:hover { border-color: var(--accent-soft); }
+  .ti-cand-card.selected { border-color: var(--accent); background: var(--accent-soft); }
+  .ti-cand-top { display: flex; justify-content: space-between; align-items: center; }
+  .ti-cand-name { font-size: 13px; font-weight: 700; color: var(--charcoal); }
+  .ti-cand-rank { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+  .ti-cand-specs {
+    display: flex; gap: 12px; margin-top: 6px; font-size: 11px; color: var(--slate);
+  }
+  .ti-cand-specs span { display: flex; align-items: center; gap: 3px; }
+  .ti-cand-price {
+    margin-top: 6px; font-size: 13px; font-weight: 700; color: var(--charcoal);
+  }
+
+  /* Comparison result */
+  .ti-result {
+    margin: 0 14px 10px; background: white; border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm); overflow: hidden;
+  }
+  .ti-result-header {
+    background: var(--charcoal); color: white; padding: 12px 16px;
+    font-size: 14px; font-weight: 700; text-align: center;
+  }
+  .ti-compare {
+    display: grid; grid-template-columns: 1fr 40px 1fr; padding: 16px;
+  }
+  .ti-col { text-align: center; }
+  .ti-col-label { font-size: 10px; color: var(--slate); font-weight: 600; margin-bottom: 8px; }
+  .ti-col-car { font-size: 12px; font-weight: 700; color: var(--charcoal); margin-bottom: 12px; }
+  .ti-col-item { margin-bottom: 10px; }
+  .ti-col-item .val { font-size: 16px; font-weight: 800; }
+  .ti-col-item .lbl { font-size: 10px; color: var(--slate); margin-top: 1px; }
+  .ti-arrow { display: flex; align-items: center; justify-content: center; color: var(--slate); font-size: 18px; }
+
+  /* Comparison diff summary */
+  .ti-diff-summary {
+    margin: 0 14px 10px; border-radius: var(--radius-sm); overflow: hidden;
+  }
+  .ti-diff-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px; background: white; border-bottom: 1px solid var(--mist);
+  }
+  .ti-diff-item:last-child { border-bottom: none; }
+  .ti-diff-item .di-label { font-size: 12px; color: var(--charcoal); }
+  .ti-diff-item .di-val { font-size: 13px; font-weight: 700; }
+  .ti-diff-item .di-val.positive { color: var(--green); }
+  .ti-diff-item .di-val.negative { color: var(--red); }
+  .ti-diff-item .di-val.neutral { color: var(--charcoal); }
+
+  /* Monthly payment simulation */
+  .ti-payment {
+    margin: 0 14px 10px; background: white; border-radius: var(--radius-sm);
+    padding: 16px; box-shadow: var(--shadow-sm);
+  }
+  .ti-payment h4 { font-size: 14px; font-weight: 700; color: var(--charcoal); margin-bottom: 12px; }
+  .ti-payment-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0; border-bottom: 1px solid var(--mist);
+    font-size: 12px; color: var(--charcoal);
+  }
+  .ti-payment-row:last-child { border-bottom: none; }
+  .ti-payment-row .pr-label { color: var(--slate); }
+  .ti-payment-row .pr-val { font-weight: 700; }
+
+  /* CTA */
+  .ti-cta {
+    margin: 10px 14px; padding: 16px; text-align: center;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: white; border-radius: var(--radius-sm);
+    font-size: 15px; font-weight: 700; cursor: pointer; border: none;
+    width: calc(100% - 28px);
+  }
+  .ti-cta:hover { opacity: 0.9; }
+  .ti-cta-sub {
+    text-align: center; font-size: 11px; color: var(--slate);
+    margin: 0 14px 10px;
+  }
+
+  /* ============ ASSESSMENT ============ */
+  .assess { background: var(--mist); padding-bottom: 16px; }
+  .assess-header {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    padding: 24px 18px; color: white; text-align: center;
+  }
+  .assess-header h2 { font-size: 20px; font-weight: 800; }
+  .assess-header p { font-size: 12px; opacity: 0.8; margin-top: 4px; }
+  .assess-reveal {
+    margin: 14px 14px; background: white; border-radius: var(--radius);
+    padding: 20px; box-shadow: var(--shadow-md); text-align: center;
+  }
+  .assess-reveal .ar-label { font-size: 13px; color: var(--slate); margin-bottom: 12px; line-height: 1.6; }
+  .assess-reveal .ar-btn {
+    display: inline-block; padding: 14px 28px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: white; border-radius: var(--radius-sm);
+    font-size: 15px; font-weight: 700; cursor: pointer; border: none; transition: opacity 0.2s;
+  }
+  .assess-reveal .ar-btn:hover { opacity: 0.9; }
+  .assess-price-result { display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--mist); }
+  .assess-price-result.show { display: block; }
+  .assess-price-result .apr-label { font-size: 12px; color: var(--slate); }
+  .assess-price-result .apr-price { font-size: 36px; font-weight: 900; color: var(--accent); }
+  .assess-price-result .apr-unit { font-size: 14px; font-weight: 400; color: var(--charcoal); }
+  .assess-price-result .apr-date { font-size: 11px; color: var(--slate); margin-top: 4px; }
+  .assess-cta-btn {
+    display: block; margin: 0 14px 10px; padding: 16px; text-align: center;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: white; border-radius: var(--radius-sm); font-size: 16px; font-weight: 700;
+    cursor: pointer; border: none; width: calc(100% - 28px);
+  }
+  .assess-benefit {
+    margin: 0 14px 10px; background: white;
+    border-radius: var(--radius-sm); padding: 16px; box-shadow: var(--shadow-sm);
+  }
+  .assess-benefit h4 { font-size: 13px; font-weight: 700; color: var(--charcoal); margin-bottom: 10px; }
+  .ab-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid var(--mist);
+    font-size: 12px; color: var(--charcoal);
+  }
+  .ab-item:last-child { border-bottom: none; }
+
+  /* Owner trends */
+  .owner-trends {
+    margin: 0 14px 10px; background: white; border-radius: var(--radius-sm);
+    padding: 16px; box-shadow: var(--shadow-sm);
+  }
+  .owner-trends h4 { font-size: 13px; font-weight: 700; color: var(--charcoal); margin-bottom: 10px; }
+  .ot-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid var(--mist);
+    font-size: 12px; color: var(--charcoal);
+  }
+  .ot-item:last-child { border-bottom: none; }
+  .ot-source { font-size: 10px; color: var(--slate); margin-top: 8px; font-style: italic; }
+
+  /* Edit modal */
+  .edit-modal-overlay {
+    display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5); z-index: 100;
+    align-items: flex-end; justify-content: center;
+  }
+  .edit-modal-overlay.show { display: flex; }
+  .edit-modal {
+    width: 100%; background: white; border-radius: 20px 20px 0 0;
+    padding: 24px 20px 40px; animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .edit-modal h3 {
+    font-size: 16px; font-weight: 700; color: var(--charcoal); margin-bottom: 16px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .edit-modal .close-btn {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--mist); border: none; cursor: pointer;
+    font-size: 14px; display: flex; align-items: center; justify-content: center;
+  }
+  .edit-modal input[type="date"] {
+    width: 100%; padding: 14px; border: 2px solid #E2E8F0;
+    border-radius: 10px; font-size: 16px; margin-bottom: 12px; font-family: inherit;
+  }
+  .edit-modal input[type="date"]:focus { outline: none; border-color: var(--accent); }
+  .edit-modal .save-btn {
+    width: 100%; padding: 14px; border: none;
+    background: var(--accent); color: white;
+    border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+
+  /* Info Panel */
+  .info-panel {
+    width:480px; background:white; border-radius:20px;
+    padding:28px; overflow-y:auto; max-height:844px;
+    box-shadow:var(--shadow-md); flex-shrink:0;
+  }
+  .info-panel h2 { font-size:18px; font-weight:800; color:var(--charcoal); margin-bottom:16px; }
+  .info-panel h3 { font-size:14px; font-weight:700; color:var(--accent); margin:20px 0 8px; }
+  .info-panel h4 { font-size:13px; font-weight:700; color:var(--charcoal); margin:12px 0 4px; }
+  .info-panel p, .info-panel li { font-size:12px; color:var(--slate); line-height:1.7; }
+  .info-panel ul { padding-left:18px; margin-bottom:8px; }
+  .info-panel table { width:100%; border-collapse:collapse; font-size:11px; margin:8px 0; }
+  .info-panel th, .info-panel td { padding:6px 8px; border:1px solid #E2E8F0; text-align:left; }
+  .info-panel th { background:var(--mist); font-weight:700; color:var(--charcoal); }
+  .info-panel .tag {
+    display:inline-block; padding:2px 8px; border-radius:4px;
+    font-size:10px; font-weight:700; margin:2px;
+  }
+
+  @media (max-width: 900px) {
+    body { flex-direction:column; align-items:center; }
+    .info-panel { width:390px; max-height:none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== PHONE ========== -->
+<div class="phone">
+  <div class="statusbar">
+    <div class="notch"></div>
+    <span>12:34</span>
+    <span>85%</span>
+  </div>
+  <div class="nav-tabs">
+    <button class="active" onclick="goNav('home')">ホーム</button>
+    <button onclick="goNav('mycar')">マイカー</button>
+    <button onclick="goNav('tradein')">乗り換え</button>
+    <button onclick="goNav('notifdrw')">通知</button>
+  </div>
+
+  <div class="screen-wrap">
+
+    <!-- ===== HOME ===== -->
+    <div id="s-home" class="scr active">
+      <div class="home">
+        <div class="home-header">
+          <div class="home-top">
+            <div class="logo">Ucar<span>PAC</span></div>
+            <div class="bell" onclick="goNav('notifdrw')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <div class="bell-badge">3</div>
+            </div>
+          </div>
+
+          <!-- Price HERO: main display (v4: price restored as primary) -->
+          <div class="price-hero">
+            <div class="price-label">あなたの車の推定価格</div>
+            <div class="price-value">285<span class="price-unit">万円</span></div>
+            <div class="price-sub">2026年3月21日更新 / 年間コスト 91万円</div>
+          </div>
+
+          <!-- Compact metrics -->
+          <div class="metric-cards">
+            <div class="metric-card">
+              <div class="mc-val">105万円</div>
+              <div class="mc-lbl">今売ると手元に<br>(ローン残債差引後)</div>
+            </div>
+            <div class="metric-card">
+              <div class="mc-val" style="color:#6EE7B7;">12社注目</div>
+              <div class="mc-lbl">あなたの車種への<br>入札関心数</div>
+            </div>
+            <div class="metric-card">
+              <div class="mc-val" style="color:#FF6B9D;">91万円</div>
+              <div class="mc-lbl">年間いくらで<br>乗れるか</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sell CTA - topmost for 43.6% instant deciders -->
+        <div class="sell-cta-fixed" onclick="goTab('assess')">
+          <div>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          </div>
+          <div style="flex:1;">
+            <h4>セルフ査定で最高値を目指す</h4>
+            <p>最大8,000社が入札。平均売却額+17万円</p>
+          </div>
+          <div style="font-size:20px;">&#8250;</div>
+        </div>
+
+        <!-- Trade-in simulation CTA (NEW in v4) -->
+        <div style="margin:0 14px 10px;padding:14px 16px;background:linear-gradient(135deg, #1A1A2E, #2D1B4E);border-radius:var(--radius-sm);color:white;display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="goNav('tradein')">
+          <div style="width:42px;height:42px;border-radius:10px;background:rgba(225,0,110,0.2);display:flex;align-items:center;justify-content:center;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF6B9D" stroke-width="2"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:700;">乗り換えシミュレーション</div>
+            <div style="font-size:11px;opacity:0.7;margin-top:2px;">次の車に乗り換えたらいくらお得？</div>
+          </div>
+          <div style="font-size:20px;opacity:0.6;">&#8250;</div>
+        </div>
+
+        <!-- やることリスト -->
+        <div class="todo-section">
+          <div class="todo-header">
+            <h3>やることリスト</h3>
+            <span class="todo-count">3件</span>
+          </div>
+
+          <!-- Recall Alert -->
+          <div class="todo-card" style="border-left:3px solid var(--red);background:#FFF5F5;">
+            <div class="todo-icon" style="background:var(--red-soft);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="todo-body">
+              <span class="todo-badge" style="background:var(--red-soft);color:var(--red);">リコール情報</span>
+              <div class="todo-title">BMW 3シリーズに関するリコール情報があります</div>
+              <div class="todo-desc">リコール未対応の車は査定額に影響する可能性があります。</div>
+              <a href="#" style="display:inline-block;margin-top:6px;font-size:11px;font-weight:700;color:white;background:var(--red);padding:5px 14px;border-radius:6px;text-decoration:none;">詳細を確認（国交省） &#8250;</a>
+            </div>
+          </div>
+
+          <!-- Shaken -->
+          <div class="todo-card" onclick="goNav('mycar')">
+            <div class="todo-icon" style="background:var(--amber-soft);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div class="todo-body">
+              <span class="todo-badge" style="background:var(--amber-soft);color:var(--amber);">車検まで11ヶ月</span>
+              <div class="todo-title">車検費用の目安は15万円です</div>
+              <div class="todo-desc">車検のタイミングで売却すると、車検費用15万円を節約できます。</div>
+              <div class="todo-why" onclick="event.stopPropagation();toggleWhy(this)">なぜこの提案？</div>
+              <div class="why-tooltip">車検満了日（2027年3月）が近づいているため、費用の目安と売却オプションを事前にお知らせしています。</div>
+              <span class="todo-action" style="color:var(--amber);">詳細を確認する &#8250;</span>
+            </div>
+          </div>
+
+          <!-- Insurance -->
+          <div class="todo-card">
+            <div class="todo-icon" style="background:var(--green-soft);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div class="todo-body">
+              <span class="todo-badge" style="background:var(--green-soft);color:var(--green);">節約チャンス</span>
+              <div class="todo-title">保険料12万円 → 同車種平均9.6万円（年2.4万円の節約チャンス）</div>
+              <div class="todo-desc">走行距離連動型保険への切り替えがお得です。</div>
+              <div class="todo-why" onclick="event.stopPropagation();toggleWhy(this)">なぜこの提案？</div>
+              <div class="why-tooltip">入力された保険料が同車種・同年齢帯の平均より高いためです。</div>
+              <span class="todo-action" style="color:var(--green);">保険料をシミュレーション &#8250;</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- あなたの車の成績表 - ザイム的比較 -->
+        <div style="margin:6px 14px 10px;">
+          <div style="background:white;border-radius:var(--radius-sm);padding:16px;box-shadow:var(--shadow-sm);">
+            <h4 style="font-size:14px;font-weight:700;color:var(--charcoal);margin-bottom:14px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+              あなたの車の成績表
+            </h4>
+
+            <!-- 年間コスト -->
+            <div style="margin-bottom:14px;">
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--charcoal);margin-bottom:4px;">
+                <span style="font-weight:600;">年間コスト</span>
+                <span style="font-weight:700;">91万円</span>
+              </div>
+              <div style="height:8px;background:var(--mist);border-radius:4px;overflow:hidden;margin-bottom:4px;">
+                <div style="height:100%;width:87%;background:linear-gradient(90deg, var(--green), #34D399);border-radius:4px;"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--slate);">
+                <span>同クラスSUV平均: 105万円</span>
+              </div>
+              <div style="font-size:12px;color:var(--green);font-weight:700;margin-top:4px;">あなたは上位 35%</div>
+            </div>
+
+            <!-- リセールバリュー -->
+            <div style="margin-bottom:14px;">
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--charcoal);margin-bottom:4px;">
+                <span style="font-weight:600;">リセールバリュー</span>
+                <span style="font-weight:700;color:var(--accent);">輸入車 3位</span>
+              </div>
+              <div style="height:8px;background:var(--mist);border-radius:4px;overflow:hidden;margin-bottom:4px;">
+                <div style="height:100%;width:95%;background:linear-gradient(90deg, var(--accent), #FF6B9D);border-radius:4px;"></div>
+              </div>
+              <div style="font-size:11px;color:var(--slate);">同車格 128台中</div>
+            </div>
+
+            <!-- 維持費 -->
+            <div style="margin-bottom:10px;">
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--charcoal);margin-bottom:4px;">
+                <span style="font-weight:600;">維持費</span>
+                <span style="font-weight:700;">68万円</span>
+              </div>
+              <div style="height:8px;background:var(--mist);border-radius:4px;overflow:hidden;margin-bottom:4px;">
+                <div style="height:100%;width:83%;background:linear-gradient(90deg, var(--blue), #60A5FA);border-radius:4px;"></div>
+              </div>
+              <div style="font-size:11px;color:var(--slate);">同クラス平均: 82万円</div>
+              <div style="font-size:12px;color:var(--green);font-weight:700;margin-top:4px;">14万円お得!</div>
+            </div>
+
+            <div style="text-align:center;margin-top:12px;">
+              <span onclick="goNav('mycar')" style="font-size:12px;font-weight:700;color:var(--accent);cursor:pointer;">
+                詳しい比較を見る &#8250;
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MY CAR ===== -->
+    <div id="s-mycar" class="scr">
+      <div class="mycar">
+        <div class="mycar-header">
+          <div class="mycar-car-img">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"><path d="M5 17h14M5 17a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1l2-3h8l2 3h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2M5 17l-1 2h2m12-2l1 2h-2"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>
+          </div>
+          <div class="mycar-car-name">BMW 3シリーズ 320i</div>
+          <div class="mycar-car-sub">2022年式 / 32,000km / ブラック</div>
+        </div>
+
+        <div class="mycar-stats">
+          <div class="ms-item">
+            <div class="val" style="color:var(--accent);">285万</div>
+            <div class="label">推定価格</div>
+          </div>
+          <div class="ms-item">
+            <div class="val" style="color:var(--green);">91万</div>
+            <div class="label">年間コスト</div>
+          </div>
+          <div class="ms-item">
+            <div class="val" style="color:var(--amber);">11M</div>
+            <div class="label">車検まで</div>
+          </div>
+        </div>
+
+        <!-- Schedule -->
+        <div class="sec-title">スケジュール</div>
+        <div class="schedule-section">
+          <div class="sched-card">
+            <div class="sched-icon" style="background:var(--red-soft);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div class="sched-info">
+              <h4>車検満了日</h4>
+              <div class="sched-date">2027年3月15日</div>
+              <div class="sched-sub">あと11ヶ月</div>
+            </div>
+            <span class="sched-badge" style="background:var(--amber-soft);color:var(--amber);">推定</span>
+          </div>
+
+          <div class="sched-card">
+            <div class="sched-icon" style="background:var(--green-soft);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div class="sched-info">
+              <h4>保険更新日</h4>
+              <div class="sched-date">2026年9月（推定）</div>
+              <div class="sched-sub">あいおいニッセイ / 年12万円</div>
+            </div>
+            <span class="sched-badge" style="background:var(--amber-soft);color:var(--amber);">推定</span>
+          </div>
+
+          <div class="sched-card">
+            <div class="sched-icon" style="background:var(--purple-soft);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div class="sched-info">
+              <h4>自動車税</h4>
+              <div class="sched-date">2026年5月</div>
+              <div class="sched-sub">毎年5月（法定） / 36,000円</div>
+            </div>
+            <span class="sched-badge" style="background:var(--green-soft);color:var(--green);">確定</span>
+          </div>
+        </div>
+
+        <!-- Cost breakdown -->
+        <div class="sec-title">所有コスト内訳（年間）</div>
+        <div class="card">
+          <div class="card-body">
+            <div style="font-size:11px;color:var(--slate);background:var(--mist);padding:8px 12px;border-radius:8px;margin-bottom:12px;line-height:1.6;">
+              初回のみ入力。毎月自動で計上されます。<span style="color:var(--charcoal);font-weight:600;">手動入力は月2-4回（給油のみ）</span>
+            </div>
+            <div class="cost-bar-item">
+              <div class="cost-bar-label">
+                <span style="color:var(--slate);">駐車場 <span style="font-size:9px;font-weight:700;background:var(--purple-soft);color:var(--purple);padding:1px 6px;border-radius:3px;margin-left:4px;">繰り返し</span></span>
+                <span style="font-weight:700;">300,000円</span>
+              </div>
+              <div class="cost-bar-track"><div class="cost-bar-fill" style="width:44%; background:var(--amber);"></div></div>
+            </div>
+            <div class="cost-bar-item">
+              <div class="cost-bar-label">
+                <span style="color:var(--slate);">ローン返済 <span style="font-size:9px;font-weight:700;background:var(--purple-soft);color:var(--purple);padding:1px 6px;border-radius:3px;margin-left:4px;">繰り返し</span></span>
+                <span style="font-weight:700;">186,000円</span>
+              </div>
+              <div class="cost-bar-track"><div class="cost-bar-fill" style="width:27%; background:var(--purple);"></div></div>
+            </div>
+            <div class="cost-bar-item">
+              <div class="cost-bar-label">
+                <span style="color:var(--slate);">保険料 <span style="font-size:9px;font-weight:700;background:var(--purple-soft);color:var(--purple);padding:1px 6px;border-radius:3px;margin-left:4px;">繰り返し</span></span>
+                <span style="font-weight:700;">120,000円</span>
+              </div>
+              <div class="cost-bar-track"><div class="cost-bar-fill" style="width:18%; background:var(--green);"></div></div>
+            </div>
+            <div class="cost-bar-item">
+              <div class="cost-bar-label">
+                <span style="color:var(--slate);">燃料費 <span style="font-size:9px;font-weight:700;background:var(--blue-soft);color:var(--blue);padding:1px 6px;border-radius:3px;margin-left:4px;">手動入力</span></span>
+                <span style="font-weight:700;">48,000円</span>
+              </div>
+              <div class="cost-bar-track"><div class="cost-bar-fill" style="width:7%; background:var(--blue);"></div></div>
+            </div>
+            <div class="cost-bar-item" style="margin-bottom:0;">
+              <div class="cost-bar-label">
+                <span style="color:var(--slate);">自動車税 <span style="font-size:9px;font-weight:700;background:var(--green-soft);color:var(--green);padding:1px 6px;border-radius:3px;margin-left:4px;">自動</span></span>
+                <span style="font-weight:700;">36,000円</span>
+              </div>
+              <div class="cost-bar-track"><div class="cost-bar-fill" style="width:5%; background:var(--red);"></div></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:14px; padding-top:10px; border-top:2px solid var(--charcoal);">
+              <span style="font-size:14px; font-weight:700;">合計</span>
+              <span style="font-size:14px; font-weight:800; color:var(--accent);">690,000円/年</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loan vs Market Price 5-year chart -->
+        <div class="tco-chart">
+          <div class="chart-header">
+            <div class="chart-title">ローン残債 x 買取相場</div>
+            <div class="chart-period">5年推移</div>
+          </div>
+          <svg viewBox="0 0 320 170" style="width:100%;height:auto;" xmlns="http://www.w3.org/2000/svg">
+            <line x1="40" y1="15" x2="40" y2="130" stroke="#E2E8F0" stroke-width="0.5"/>
+            <line x1="40" y1="130" x2="310" y2="130" stroke="#E2E8F0" stroke-width="0.5"/>
+            <line x1="40" y1="45" x2="310" y2="45" stroke="#E2E8F0" stroke-width="0.5" stroke-dasharray="3,3"/>
+            <line x1="40" y1="87" x2="310" y2="87" stroke="#E2E8F0" stroke-width="0.5" stroke-dasharray="3,3"/>
+            <text x="36" y="19" fill="#94A3B8" font-size="8" text-anchor="end">500万</text>
+            <text x="36" y="49" fill="#94A3B8" font-size="8" text-anchor="end">400万</text>
+            <text x="36" y="91" fill="#94A3B8" font-size="8" text-anchor="end">250万</text>
+            <text x="36" y="134" fill="#94A3B8" font-size="8" text-anchor="end">50万</text>
+            <text x="55" y="145" fill="#94A3B8" font-size="8" text-anchor="middle">現在</text>
+            <text x="119" y="145" fill="#94A3B8" font-size="8" text-anchor="middle">1年後</text>
+            <text x="183" y="145" fill="#94A3B8" font-size="8" text-anchor="middle">2年後</text>
+            <text x="247" y="145" fill="#94A3B8" font-size="8" text-anchor="middle">3年後</text>
+            <text x="300" y="145" fill="#94A3B8" font-size="8" text-anchor="middle">5年後</text>
+            <defs>
+              <linearGradient id="sellZoneGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#10B981" stop-opacity="0.15"/>
+                <stop offset="100%" stop-color="#10B981" stop-opacity="0.03"/>
+              </linearGradient>
+            </defs>
+            <rect x="150" y="15" width="160" height="115" fill="url(#sellZoneGrad)" rx="4"/>
+            <text x="230" y="28" fill="#10B981" font-size="7" font-weight="700" text-anchor="middle">売却可能ゾーン</text>
+            <path d="M55,30 Q90,40 119,52 T183,72 T247,90 T300,105" fill="none" stroke="#3B82F6" stroke-width="2.5"/>
+            <path d="M55,22 Q90,38 119,55 T183,82 T247,108 T300,125" fill="none" stroke="#8B5CF6" stroke-width="2.5"/>
+            <circle cx="150" cy="62" r="6" fill="white" stroke="#10B981" stroke-width="2.5"/>
+            <circle cx="150" cy="62" r="3" fill="#10B981"/>
+            <rect x="102" y="48" width="96" height="14" rx="3" fill="var(--charcoal)" opacity="0.9"/>
+            <text x="150" y="58" fill="white" font-size="7" font-weight="700" text-anchor="middle">ここから売却可能ゾーン</text>
+            <line x1="55" y1="15" x2="55" y2="130" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4,3"/>
+            <text x="55" y="12" fill="var(--accent)" font-size="7" font-weight="700" text-anchor="middle">現在地</text>
+            <rect x="60" y="22" width="52" height="14" rx="3" fill="#3B82F6" opacity="0.9"/>
+            <text x="86" y="32" fill="white" font-size="7" font-weight="700" text-anchor="middle">285万円</text>
+            <rect x="60" y="10" width="52" height="14" rx="3" fill="#8B5CF6" opacity="0.9"/>
+            <text x="86" y="20" fill="white" font-size="7" font-weight="700" text-anchor="middle">180万円</text>
+            <line x1="55" y1="160" x2="70" y2="160" stroke="#3B82F6" stroke-width="2"/>
+            <text x="73" y="163" fill="#64748B" font-size="8">買取相場</text>
+            <line x1="140" y1="160" x2="155" y2="160" stroke="#8B5CF6" stroke-width="2"/>
+            <text x="158" y="163" fill="#64748B" font-size="8">ローン残債</text>
+            <rect x="230" y="155" width="8" height="8" rx="2" fill="#10B981" opacity="0.3"/>
+            <text x="242" y="163" fill="#64748B" font-size="8">売却可能ゾーン</text>
+          </svg>
+          <div style="background:var(--green-soft);border-radius:8px;padding:10px 14px;margin-top:10px;">
+            <div style="font-size:13px;font-weight:700;color:var(--green);">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5" style="vertical-align:-2px;margin-right:4px;"><path d="M20 6L9 17l-5-5"/></svg>
+              現在、売却すると 105万円 手元に残ります
+            </div>
+            <div style="font-size:11px;color:var(--slate);margin-top:4px;">買取相場 285万円 - ローン残債 180万円 = ポジティブエクイティ</div>
+          </div>
+        </div>
+
+        <!-- Owner trends -->
+        <div class="owner-trends">
+          <h4>同車種オーナーの動向</h4>
+          <div class="ot-item">
+            <span style="font-size:16px;flex-shrink:0;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            </span>
+            <span>BMW 3シリーズオーナーの平均保有期間: <b>4.2年</b></span>
+          </div>
+          <div class="ot-item">
+            <span style="font-size:16px;flex-shrink:0;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </span>
+            <span>リセールバリュー維持率: <b style="color:var(--accent);">輸入車3位</b></span>
+          </div>
+          <div class="ot-item">
+            <span style="font-size:16px;flex-shrink:0;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </span>
+            <span>平均年間コスト: <b>105万円</b>（あなた: <b style="color:var(--green);">91万円 = 14万円お得</b>）</span>
+          </div>
+          <div class="ot-source">出典: UcarPACオークション実績ベース</div>
+        </div>
+
+        <!-- Data completion -->
+        <div class="data-comp">
+          <div class="dc-header">
+            <div class="dc-title">データ充実度</div>
+            <div class="dc-pct">65%</div>
+          </div>
+          <div class="dc-bar"><div class="dc-bar-fill" style="width:65%;"></div></div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <span style="font-size:11px; padding:4px 10px; border-radius:6px; background:var(--green-soft); color:var(--green);">&#10003; 車両情報</span>
+            <span style="font-size:11px; padding:4px 10px; border-radius:6px; background:var(--green-soft); color:var(--green);">&#10003; 走行距離</span>
+            <span style="font-size:11px; padding:4px 10px; border-radius:6px; background:var(--green-soft); color:var(--green);">&#10003; ローン</span>
+            <span style="font-size:11px; padding:4px 10px; border-radius:6px; background:var(--mist); color:var(--slate); border:1px dashed #CBD5E1; cursor:pointer;">+ 保険詳細</span>
+            <span style="font-size:11px; padding:4px 10px; border-radius:6px; background:var(--mist); color:var(--slate); border:1px dashed #CBD5E1; cursor:pointer;">+ 車検日確認</span>
+          </div>
+          <div class="dc-reward">&#9733; 全項目入力で 500 V-Point プレゼント！</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TRADE-IN SIMULATION (NEW in v4) ===== -->
+    <div id="s-tradein" class="scr">
+      <div class="tradein">
+        <div class="tradein-header">
+          <h2>乗り換えシミュレーション</h2>
+          <p>今の車を売って、次の車に乗り換えたら？</p>
+          <span class="ti-subtitle">UcarPACマスタデータで試算</span>
+        </div>
+
+        <!-- Current car summary -->
+        <div class="ti-current">
+          <div class="ti-current-label">YOUR CURRENT CAR</div>
+          <div class="ti-current-car">
+            <div class="ti-car-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--charcoal)" stroke-width="1.5"><path d="M5 17h14M5 17a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1l2-3h8l2 3h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2M5 17l-1 2h2m12-2l1 2h-2"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>
+            </div>
+            <div class="ti-car-info">
+              <h4>BMW 3シリーズ 320i</h4>
+              <p>2022年式 / 32,000km / 2000cc / 12.4km/L</p>
+            </div>
+          </div>
+          <div class="ti-current-metrics">
+            <div class="ti-metric">
+              <div class="tm-val" style="color:var(--accent);">285万円</div>
+              <div class="tm-lbl">売却予想額</div>
+            </div>
+            <div class="ti-metric">
+              <div class="tm-val">91万円</div>
+              <div class="tm-lbl">年間コスト</div>
+            </div>
+            <div class="ti-metric">
+              <div class="tm-val">180万円</div>
+              <div class="tm-lbl">ローン残債</div>
+            </div>
+            <div class="ti-metric">
+              <div class="tm-val" style="color:var(--green);">105万円</div>
+              <div class="tm-lbl">手元に残る額</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Candidate cars -->
+        <div class="ti-candidates">
+          <div class="ti-cand-header">
+            <h4>次の車を選ぶ</h4>
+            <span class="ti-cand-filter">条件変更</span>
+          </div>
+
+          <div style="font-size:11px;color:var(--slate);margin-bottom:10px;background:var(--mist);padding:8px 12px;border-radius:8px;line-height:1.5;">
+            リセールバリューが高い車をおすすめしています。将来の売却時にも有利です。
+          </div>
+
+          <div class="ti-cand-card selected" onclick="selectCandidate(this, 'rav4')">
+            <div class="ti-cand-top">
+              <span class="ti-cand-name">トヨタ RAV4 Adventure</span>
+              <span class="ti-cand-rank" style="background:var(--green-soft);color:var(--green);">リセール国産5位</span>
+            </div>
+            <div class="ti-cand-specs">
+              <span>2000cc</span>
+              <span>16.4km/L</span>
+              <span>自動車税: 36,000円</span>
+            </div>
+            <div class="ti-cand-price">中古車相場: 350万円</div>
+          </div>
+
+          <div class="ti-cand-card" onclick="selectCandidate(this, 'cx5')">
+            <div class="ti-cand-top">
+              <span class="ti-cand-name">マツダ CX-5</span>
+              <span class="ti-cand-rank" style="background:var(--blue-soft);color:var(--blue);">リセール国産8位</span>
+            </div>
+            <div class="ti-cand-specs">
+              <span>2200cc</span>
+              <span>17.4km/L</span>
+              <span>自動車税: 45,000円</span>
+            </div>
+            <div class="ti-cand-price">中古車相場: 280万円</div>
+          </div>
+
+          <div class="ti-cand-card" onclick="selectCandidate(this, 'harrier')">
+            <div class="ti-cand-top">
+              <span class="ti-cand-name">トヨタ ハリアー</span>
+              <span class="ti-cand-rank" style="background:var(--accent-soft);color:var(--accent);">リセール国産3位</span>
+            </div>
+            <div class="ti-cand-specs">
+              <span>2000cc</span>
+              <span>15.4km/L</span>
+              <span>自動車税: 36,000円</span>
+            </div>
+            <div class="ti-cand-price">中古車相場: 380万円</div>
+          </div>
+        </div>
+
+        <!-- Comparison result -->
+        <div class="ti-result" id="tiResult">
+          <div class="ti-result-header">乗り換え比較</div>
+          <div class="ti-compare">
+            <div class="ti-col">
+              <div class="ti-col-label">今の車</div>
+              <div class="ti-col-car">BMW 320i</div>
+              <div class="ti-col-item">
+                <div class="val" style="color:var(--charcoal);">91万円</div>
+                <div class="lbl">年間コスト</div>
+              </div>
+              <div class="ti-col-item">
+                <div class="val" style="color:var(--charcoal);">12.4km/L</div>
+                <div class="lbl">燃費</div>
+              </div>
+              <div class="ti-col-item">
+                <div class="val" style="color:var(--charcoal);">2000cc</div>
+                <div class="lbl">排気量</div>
+              </div>
+            </div>
+            <div class="ti-arrow">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+            </div>
+            <div class="ti-col">
+              <div class="ti-col-label">乗り換え後</div>
+              <div class="ti-col-car" id="tiNextCar">RAV4 Adventure</div>
+              <div class="ti-col-item">
+                <div class="val" style="color:var(--green);" id="tiNextCost">78万円</div>
+                <div class="lbl">年間コスト（推定）</div>
+              </div>
+              <div class="ti-col-item">
+                <div class="val" style="color:var(--green);" id="tiNextFuel">16.4km/L</div>
+                <div class="lbl">燃費</div>
+              </div>
+              <div class="ti-col-item">
+                <div class="val" id="tiNextDisp">2000cc</div>
+                <div class="lbl">排気量</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Diff summary -->
+        <div class="ti-diff-summary">
+          <div class="ti-diff-item" style="background:var(--green-soft);">
+            <span class="di-label" style="font-weight:700;">年間コスト差</span>
+            <span class="di-val positive" id="tiDiffCost" style="font-size:18px;">-13万円/年 お得</span>
+          </div>
+          <div class="ti-diff-item">
+            <span class="di-label">燃費差</span>
+            <span class="di-val positive" id="tiDiffFuel">+4.0km/L 改善</span>
+          </div>
+          <div class="ti-diff-item">
+            <span class="di-label">排気量</span>
+            <span class="di-val neutral" id="tiDiffDisp">同じ (2000cc)</span>
+          </div>
+          <div class="ti-diff-item">
+            <span class="di-label">自動車税</span>
+            <span class="di-val neutral" id="tiDiffTax">同額 (36,000円)</span>
+          </div>
+          <div class="ti-diff-item">
+            <span class="di-label">リセールバリュー</span>
+            <span class="di-val positive" id="tiDiffResale">輸入車3位 → 国産5位</span>
+          </div>
+        </div>
+
+        <!-- Monthly payment -->
+        <div class="ti-payment">
+          <h4>支払いシミュレーション</h4>
+          <div class="ti-payment-row">
+            <span class="pr-label">今の車の売却額</span>
+            <span class="pr-val" style="color:var(--green);">+285万円</span>
+          </div>
+          <div class="ti-payment-row">
+            <span class="pr-label">ローン残債（完済）</span>
+            <span class="pr-val" style="color:var(--red);">-180万円</span>
+          </div>
+          <div class="ti-payment-row">
+            <span class="pr-label">手元に残る額（=頭金）</span>
+            <span class="pr-val" style="color:var(--accent);" id="tiDownPayment">105万円</span>
+          </div>
+          <div class="ti-payment-row" style="border-top:2px solid var(--charcoal);padding-top:12px;">
+            <span class="pr-label">次の車の価格</span>
+            <span class="pr-val" id="tiNextPrice">350万円</span>
+          </div>
+          <div class="ti-payment-row">
+            <span class="pr-label">追い金（ローン残額）</span>
+            <span class="pr-val" style="color:var(--amber);" id="tiAdditional">245万円</span>
+          </div>
+          <div class="ti-payment-row" style="background:var(--mist);border-radius:8px;padding:12px;margin-top:8px;">
+            <span class="pr-label" style="font-weight:700;color:var(--charcoal);">月々の支払い（5年ローン）</span>
+            <span class="pr-val" style="font-size:18px;color:var(--accent);" id="tiMonthly">約4.1万円</span>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <button class="ti-cta" onclick="goTab('assess')">
+          まずは今の車を正確に査定する
+        </button>
+        <div class="ti-cta-sub">セルフ査定は無料。売却の義務はありません。</div>
+
+        <div style="margin:0 14px 10px;background:white;border-radius:var(--radius-sm);padding:14px;box-shadow:var(--shadow-sm);">
+          <div style="font-size:11px;color:var(--slate);line-height:1.6;">
+            ※ 数値はUcarPACマスタデータに基づく参考値です。実際の売却額・購入価格は車両状態や市場により変動します。<br>
+            ※ 燃費はカタログ値（WLTCモード）。年間走行距離10,000km、ガソリン175円/Lで計算。<br>
+            ※ リセールバリューランキングはUcarPACオークション実績ベース。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== NOTIFICATION DRAWER ===== -->
+    <div id="s-notifdrw" class="scr">
+      <div style="background:var(--mist);padding-bottom:16px;">
+        <div style="background:var(--charcoal);padding:18px;color:white;display:flex;justify-content:space-between;align-items:center;">
+          <h2 style="font-size:20px;font-weight:800;">通知</h2>
+          <span style="font-size:11px;color:var(--accent);font-weight:600;cursor:pointer;">すべて既読にする</span>
+        </div>
+
+        <div class="sec-title" style="padding-top:10px;">今日</div>
+
+        <div style="margin:6px 14px;background:white;border-radius:var(--radius-sm);padding:14px;box-shadow:var(--shadow-sm);display:flex;gap:10px;border-left:3px solid var(--accent);">
+          <div style="width:38px;height:38px;border-radius:10px;background:var(--blue-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div>
+            <h4 style="font-size:13px;font-weight:600;color:var(--charcoal);">3月 マイカーレポート</h4>
+            <p style="font-size:11px;color:var(--slate);margin-top:3px;line-height:1.5;">年間コスト<b>91万円</b>（同クラス平均より<b>14万円お得</b>）。リセールバリュー<b>輸入車3位</b>を維持中。</p>
+            <div style="font-size:10px;color:#94A3B8;margin-top:4px;">2時間前</div>
+            <span style="display:inline-block;margin-top:6px;font-size:11px;font-weight:700;color:var(--accent);padding:4px 12px;background:var(--accent-soft);border-radius:6px;cursor:pointer;" onclick="goNav('home')">レポートを見る &#8250;</span>
+          </div>
+        </div>
+
+        <div style="margin:6px 14px;background:white;border-radius:var(--radius-sm);padding:14px;box-shadow:var(--shadow-sm);display:flex;gap:10px;border-left:3px solid var(--accent);">
+          <div style="width:38px;height:38px;border-radius:10px;background:var(--green-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div>
+            <h4 style="font-size:13px;font-weight:600;color:var(--charcoal);">保険料の節約シミュレーション結果</h4>
+            <p style="font-size:11px;color:var(--slate);margin-top:3px;line-height:1.5;">走行距離連動型保険に切り替えると<b>年間約2.4万円</b>の節約が見込めます。</p>
+            <div style="font-size:10px;color:#94A3B8;margin-top:4px;">10時間前</div>
+          </div>
+        </div>
+
+        <div class="sec-title">今週</div>
+
+        <div style="margin:6px 14px;background:white;border-radius:var(--radius-sm);padding:14px;box-shadow:var(--shadow-sm);display:flex;gap:10px;">
+          <div style="width:38px;height:38px;border-radius:10px;background:var(--purple-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div>
+            <h4 style="font-size:13px;font-weight:600;color:var(--charcoal);">V-Point付与のお知らせ</h4>
+            <p style="font-size:11px;color:var(--slate);margin-top:3px;line-height:1.5;">走行距離の入力ありがとうございます。+50 V-Point を付与しました。</p>
+            <div style="font-size:10px;color:#94A3B8;margin-top:4px;">3日前</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ASSESSMENT ===== -->
+    <div id="s-assess" class="scr">
+      <div class="assess">
+        <div class="assess-header">
+          <h2>セルフ査定</h2>
+          <p>最大8,000社が入札。中間マージンなしで高額売却</p>
+        </div>
+
+        <div class="assess-reveal">
+          <div class="ar-label">
+            売却を検討中ですか？<br>
+            最新の推定価格をチェックできます。
+          </div>
+          <button class="ar-btn" onclick="revealAssessPrice()">あなたの車の最新査定を見る</button>
+          <div class="assess-price-result" id="assessPriceResult">
+            <div class="apr-label">現在の推定価格</div>
+            <div class="apr-price">285<span class="apr-unit">万円</span></div>
+            <div class="apr-date">2026年3月21日更新</div>
+          </div>
+        </div>
+
+        <button class="assess-cta-btn">無料でセルフ査定を始める</button>
+
+        <div class="assess-benefit">
+          <h4>UcarPACセルフ査定の特徴</h4>
+          <div class="ab-item">
+            <span style="font-size:18px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></span>
+            <span>平均売却額 +17万円（一般買取店比較）</span>
+          </div>
+          <div class="ab-item">
+            <span style="font-size:18px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+            <span>最大8,000社が入札に参加</span>
+          </div>
+          <div class="ab-item">
+            <span style="font-size:18px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>
+            <span>電話営業なし。ネットで完結</span>
+          </div>
+          <div class="ab-item">
+            <span style="font-size:18px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+            <span>査定だけでもOK。売却の義務なし</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="edit-modal-overlay" id="editModal">
+    <div class="edit-modal">
+      <h3>
+        <span id="modalTitle">日付を編集</span>
+        <button class="close-btn" onclick="closeEditModal()">&#10005;</button>
+      </h3>
+      <input type="date" id="modalDateInput" value="2027-03-15">
+      <button class="save-btn" onclick="saveDate()">保存して確定する（+V-Point）</button>
+    </div>
+  </div>
+
+  <!-- Tab Bar - 5 tabs -->
+  <div class="tabbar">
+    <div class="tab active" id="tab-home" onclick="goTab('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      <span>ホーム</span>
+    </div>
+    <div class="tab" id="tab-mycar" onclick="goTab('mycar')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17h14M5 17a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1l2-3h8l2 3h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2M5 17l-1 2h2m12-2l1 2h-2"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>
+      <span>マイカー</span>
+    </div>
+    <div class="tab center-tab" id="tab-assess" onclick="goTab('assess')">
+      <div class="center-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <span>査定</span>
+    </div>
+    <div class="tab" id="tab-tradein" onclick="goTab('tradein')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>
+      <span>乗り換え</span>
+    </div>
+    <div class="tab" id="tab-settings" onclick="goTab('settings')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>設定</span>
+    </div>
+  </div>
+</div>
+
+<!-- ========== INFO PANEL ========== -->
+<div class="info-panel">
+  <h2>v4 設計ドキュメント</h2>
+  <p style="font-size:13px; color:var(--slate); margin-bottom:16px;">
+    11ラウンドの調査・分析・challenger検証を経た最終設計。<br>
+    <b style="color:var(--accent);">v4の新要素: 乗り換えシミュレーション + 価格表示復活</b>
+  </p>
+
+  <h3>v3 → v4 変更点</h3>
+  <table>
+    <tr><th>項目</th><th>v3</th><th>v4</th></tr>
+    <tr><td>ホーム上部</td><td>年間コスト91万円がメイン</td><td><b>推定価格285万円</b>がメイン（即決型3%を守る）</td></tr>
+    <tr><td>ボトムタブ</td><td>4タブ（ホーム/マイカー/査定/設定）</td><td><b>5タブ</b>（+乗り換え）</td></tr>
+    <tr><td>乗り換えシミュレーション</td><td>なし</td><td><b>新規追加</b>（UcarPACマスタ活用）</td></tr>
+    <tr><td>年間コスト表示</td><td>42pt メイン指標</td><td>ヘッダー内カード（3指標の1つ）</td></tr>
+    <tr><td>売却CTA位置</td><td>ホーム最下部</td><td><b>ホーム最上部</b>（成績表の上）</td></tr>
+    <tr><td>ホーム導線</td><td>成績表のみ</td><td>売却CTA + <b>乗り換えCTA</b> + 成績表</td></tr>
+  </table>
+
+  <h3>14の確定設計原則</h3>
+  <ol style="font-size:11px;color:var(--charcoal);line-height:1.8;">
+    <li><b>価格表示はメイン。即決型3%の導線を妨げない</b></li>
+    <li>追加機能は「売らなかった97%」のフォールバック</li>
+    <li>年間コスト（価値下落+維持費）を強化（既存実装あり）</li>
+    <li>ザイム型の同車格比較で面白さを付加</li>
+    <li>ローン残債x買取相場の交差で売り時判定</li>
+    <li>広告臭排除: マーケットプレイスタブ不要</li>
+    <li>スケジュールはデフォルト推定値で入力最小化</li>
+    <li>リコール通知: 入力ゼロで価値提供</li>
+    <li>固定費自動記録: 一度入力で毎月自動</li>
+    <li>「下がる価格を毎回見せる」ネガティブ体験に注意。ただし価格自体は隠さない</li>
+    <li><b>意志確定トリガーは「次の車が決まること」→ 乗り換えシミュレーション</b></li>
+    <li>LINE連携はアプリ削除問題のバイパス</li>
+    <li>V-Pointインセンティブでデータ入力率向上</li>
+    <li>プログレスバーで入力完了率向上</li>
+  </ol>
+
+  <h3 style="color:var(--blue);">乗り換えシミュレーションの設計意図</h3>
+
+  <h4>なぜこの機能が最重要か</h4>
+  <p>Challengerレビュー（Round 10）の最重要指摘: <b>意志確定トリガーは「次の車が決まること」であり、コスト比較ではない</b>。実データでも「次の車が決まっている」ユーザーの成約率11.2%は「検討中」の2.7-3.7%の3-4倍。</p>
+  <p>つまり、<b>ユーザーが「次の車」を具体的にイメージできれば、売却意志が固まる</b>。乗り換えシミュレーションはこのプロセスをアプリ内で支援する。</p>
+
+  <h4>データソース（UcarPAC既存マスタ）</h4>
+  <ul>
+    <li><b>car_families</b>: メーカー・モデル・グレードのマスタ</li>
+    <li><b>排気量データ</b>: 自動車税額の算出</li>
+    <li><b>燃費データ</b>: 年間燃料費の差額算出</li>
+    <li><b>リセールバリュー</b>: ランキングデータ（APIに実装済み、UIコメントアウト中）</li>
+    <li><b>査定実績</b>: 売却予想額の推定</li>
+  </ul>
+
+  <h4>計算ロジック</h4>
+  <table>
+    <tr><th>項目</th><th>今の車</th><th>候補（RAV4）</th></tr>
+    <tr><td>売却/購入価格</td><td>285万円（売却）</td><td>350万円（購入）</td></tr>
+    <tr><td>ローン残債</td><td>180万円</td><td>-</td></tr>
+    <tr><td>手元に残る額</td><td>105万円（=頭金）</td><td>-</td></tr>
+    <tr><td>追い金</td><td>-</td><td>245万円</td></tr>
+    <tr><td>燃費</td><td>12.4km/L</td><td>16.4km/L</td></tr>
+    <tr><td>年間燃料費</td><td>14.1万円</td><td>10.7万円</td></tr>
+    <tr><td>排気量/自動車税</td><td>2000cc/3.6万</td><td>2000cc/3.6万</td></tr>
+    <tr><td>年間コスト（推定）</td><td>91万円</td><td>78万円</td></tr>
+  </table>
+
+  <h4>ユーザーフロー</h4>
+  <ol>
+    <li>乗り換えタブを開く → 現在の車情報が自動表示</li>
+    <li>リセールバリュー高い候補車から選ぶ（レコメンド順）</li>
+    <li>年間コスト差・燃費差・支払いシミュレーションが即座に表示</li>
+    <li>「この車が気に入ったら、まず今の車を正確に査定」→ セルフ査定CTA</li>
+  </ol>
+
+  <h3>実データに基づくファネル設計</h3>
+  <table>
+    <tr><th>セグメント</th><th>割合</th><th>成約率</th><th>v4の対応</th></tr>
+    <tr><td>即決型（DL当日）</td><td>43.6%</td><td>2.7%</td><td>価格+売却CTA最上位</td></tr>
+    <tr><td>熟考型（31-90日）</td><td>-</td><td><b>11.0%（最高品質）</b></td><td>乗り換えシミュレーション + 成績表で定着</td></tr>
+    <tr><td>「次の車決定済み」</td><td>-</td><td><b>11.2%</b></td><td>乗り換えシミュレーションが直接対応</td></tr>
+    <tr><td>「検討中」</td><td>-</td><td>2.7-3.7%</td><td>乗り換えシミュレーションで意志確定を促す</td></tr>
+    <tr><td>「どちらでも」</td><td>-</td><td>0%</td><td>広告ターゲティング改善（アプリ外の課題）</td></tr>
+  </table>
+
+  <h3>コードベースとの整合</h3>
+  <table>
+    <tr><th>機能</th><th>API</th><th>UI</th><th>v4での活用</th></tr>
+    <tr>
+      <td>年間コスト計算</td>
+      <td><span class="tag" style="background:var(--green-soft);color:var(--green);">実装済</span></td>
+      <td><span class="tag" style="background:var(--green-soft);color:var(--green);">実装済</span></td>
+      <td>ホーム+マイカー+乗り換えで活用</td>
+    </tr>
+    <tr>
+      <td>ランキング比較</td>
+      <td><span class="tag" style="background:var(--green-soft);color:var(--green);">実装済</span></td>
+      <td><span class="tag" style="background:var(--amber-soft);color:var(--amber);">コメントアウト</span></td>
+      <td>成績表 + 乗り換え候補のリセール順位</td>
+    </tr>
+    <tr>
+      <td>入札数表示</td>
+      <td><span class="tag" style="background:var(--green-soft);color:var(--green);">実装済</span></td>
+      <td><span class="tag" style="background:var(--green-soft);color:var(--green);">実装済</span></td>
+      <td>ホームの需要カード</td>
+    </tr>
+    <tr>
+      <td>ローンxグラフ</td>
+      <td><span class="tag" style="background:var(--green-soft);color:var(--green);">実装済</span></td>
+      <td><span class="tag" style="background:var(--green-soft);color:var(--green);">実装済</span></td>
+      <td>マイカーの売り時ゾーン</td>
+    </tr>
+    <tr>
+      <td>car_familiesマスタ</td>
+      <td><span class="tag" style="background:var(--green-soft);color:var(--green);">実装済</span></td>
+      <td><span class="tag" style="background:var(--red-soft);color:var(--red);">未実装</span></td>
+      <td><b>乗り換えシミュレーションの候補車データ</b></td>
+    </tr>
+    <tr>
+      <td>燃費・排気量データ</td>
+      <td><span class="tag" style="background:var(--green-soft);color:var(--green);">実装済</span></td>
+      <td><span class="tag" style="background:var(--red-soft);color:var(--red);">未実装</span></td>
+      <td><b>乗り換え時の年間維持費差額計算</b></td>
+    </tr>
+  </table>
+
+  <h3>操作ガイド</h3>
+  <ul>
+    <li><b>上部タブ</b>: ホーム/マイカー/乗り換え/通知を切替</li>
+    <li><b>下部タブ</b>: ホーム/マイカー/査定（中央）/乗り換え/設定</li>
+    <li><b>乗り換え画面</b>: 候補車カードをタップで比較結果が切り替わる</li>
+    <li><b>ホームの乗り換えCTA</b>: 乗り換えシミュレーション画面へ直接遷移</li>
+    <li><b>「セルフ査定で最高値を目指す」</b>: 査定画面へ遷移（即決型向け最短パス）</li>
+  </ul>
+
+  <h3 style="color:var(--red);">未解決課題</h3>
+  <ul>
+    <li>買取相場データのカバレッジ不足 → レンジ表示 or AI査定CTAで対応</li>
+    <li>31-90日熟考層がなぜ待つのか → ユーザーインタビューが必要</li>
+    <li>成約率0%の「どちらでも」層 → 広告ターゲティング改善が本質解</li>
+    <li>コストシミュレーションの入力完了率 → 実データ未確認</li>
+    <li>60%削除のDay分布 → AppsFlyer確認必要</li>
+  </ul>
+</div>
+
+<script>
+let currentEditTarget = null;
+
+// Candidate car data
+const candidates = {
+  rav4: { name: 'RAV4 Adventure', cost: '78万円', fuel: '16.4km/L', disp: '2000cc', price: '350万円', additional: '245万円', monthly: '約4.1万円', tax: '36,000円', rank: '国産5位',
+    diffCost: '-13万円/年 お得', diffFuel: '+4.0km/L 改善', diffDisp: '同じ (2000cc)', diffTax: '同額 (36,000円)', diffResale: '輸入車3位 → 国産5位' },
+  cx5: { name: 'CX-5', cost: '72万円', fuel: '17.4km/L', disp: '2200cc', price: '280万円', additional: '175万円', monthly: '約2.9万円', tax: '45,000円', rank: '国産8位',
+    diffCost: '-19万円/年 お得', diffFuel: '+5.0km/L 改善', diffDisp: '2000cc → 2200cc', diffTax: '+9,000円/年', diffResale: '輸入車3位 → 国産8位' },
+  harrier: { name: 'ハリアー', cost: '82万円', fuel: '15.4km/L', disp: '2000cc', price: '380万円', additional: '275万円', monthly: '約4.6万円', tax: '36,000円', rank: '国産3位',
+    diffCost: '-9万円/年 お得', diffFuel: '+3.0km/L 改善', diffDisp: '同じ (2000cc)', diffTax: '同額 (36,000円)', diffResale: '輸入車3位 → 国産3位' }
+};
+
+function selectCandidate(el, key) {
+  document.querySelectorAll('.ti-cand-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const d = candidates[key];
+  document.getElementById('tiNextCar').textContent = d.name;
+  document.getElementById('tiNextCost').textContent = d.cost;
+  document.getElementById('tiNextFuel').textContent = d.fuel;
+  document.getElementById('tiNextDisp').textContent = d.disp;
+  document.getElementById('tiDiffCost').textContent = d.diffCost;
+  document.getElementById('tiDiffFuel').textContent = d.diffFuel;
+  document.getElementById('tiDiffDisp').textContent = d.diffDisp;
+  document.getElementById('tiDiffTax').textContent = d.diffTax;
+  document.getElementById('tiDiffResale').textContent = d.diffResale;
+  document.getElementById('tiNextPrice').textContent = d.price;
+  document.getElementById('tiAdditional').textContent = d.additional;
+  document.getElementById('tiMonthly').textContent = d.monthly;
+  document.getElementById('tiDownPayment').textContent = '105万円';
+}
+
+// Nav tabs
+function goNav(id) {
+  document.querySelectorAll('.scr').forEach(s => s.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  document.querySelectorAll('.nav-tabs button').forEach(b => b.classList.remove('active'));
+  const map = {home:0, mycar:1, tradein:2, notifdrw:3};
+  if (map[id] !== undefined) {
+    document.querySelectorAll('.nav-tabs button')[map[id]].classList.add('active');
+  }
+  updateBottomTabs(id);
+  document.querySelector('.screen-wrap').scrollTop = 0;
+}
+
+function goTab(id) {
+  document.querySelectorAll('.scr').forEach(s => s.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  updateBottomTabs(id);
+  const navMap = {home:0, mycar:1, tradein:2};
+  document.querySelectorAll('.nav-tabs button').forEach(b => b.classList.remove('active'));
+  if (navMap[id] !== undefined) {
+    document.querySelectorAll('.nav-tabs button')[navMap[id]].classList.add('active');
+  }
+  document.querySelector('.screen-wrap').scrollTop = 0;
+}
+
+function updateBottomTabs(id) {
+  document.querySelectorAll('.tabbar .tab').forEach(t => t.classList.remove('active'));
+  const tabMap = {home:'tab-home', mycar:'tab-mycar', assess:'tab-assess', tradein:'tab-tradein', settings:'tab-settings'};
+  if (tabMap[id]) document.getElementById(tabMap[id]).classList.add('active');
+}
+
+function toggleWhy(el) {
+  const tooltip = el.nextElementSibling;
+  tooltip.classList.toggle('show');
+}
+
+function revealAssessPrice() {
+  document.getElementById('assessPriceResult').classList.add('show');
+}
+
+function openEditModal(target, title, dateVal) {
+  currentEditTarget = target;
+  document.getElementById('modalTitle').textContent = title + 'を編集';
+  document.getElementById('modalDateInput').value = dateVal;
+  document.getElementById('editModal').classList.add('show');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('show');
+  currentEditTarget = null;
+}
+
+function saveDate() {
+  const dateInput = document.getElementById('modalDateInput').value;
+  if (!dateInput) return;
+  closeEditModal();
+}
+</script>
+</body>
+</html>

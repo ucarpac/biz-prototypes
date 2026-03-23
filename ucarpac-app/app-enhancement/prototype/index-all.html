@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UcarPAC アプリ改善提案 - 統合ビュー</title>
+<style>
+  :root {
+    --accent: #E1006E;
+    --accent-soft: #FCE7F3;
+    --charcoal: #1A1A2E;
+    --slate: #64748B;
+    --mist: #F1F5F9;
+    --white: #FFFFFF;
+    --green: #10B981;
+    --green-soft: #D1FAE5;
+    --amber: #F59E0B;
+    --blue: #3B82F6;
+    --purple: #8B5CF6;
+    --radius: 16px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, 'Hiragino Sans', 'BIZ UDPGothic', sans-serif;
+    background: var(--charcoal);
+    color: white;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .hero {
+    padding: 60px 40px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .hero-tag {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .hero h1 {
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1.3;
+    margin-bottom: 16px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero-desc {
+    font-size: 16px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.7;
+    max-width: 800px;
+  }
+
+  /* KGI/KPI Panel */
+  .kpi-panel {
+    max-width: 1400px;
+    margin: 0 auto 40px;
+    padding: 0 40px;
+  }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .kpi-card {
+    background: rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .kpi-card.kgi { border-color: var(--accent); background: rgba(225,0,110,0.1); }
+  .kpi-card .kpi-type {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    opacity: 0.6;
+  }
+  .kpi-card.kgi .kpi-type { color: var(--accent); opacity: 1; }
+  .kpi-card .kpi-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .kpi-card .kpi-desc { font-size: 11px; opacity: 0.5; }
+
+  /* Version Comparison */
+  .versions {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px 40px;
+  }
+  .ver-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  .ver-card {
+    background: rgba(255,255,255,0.04);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .ver-header {
+    padding: 24px 28px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .ver-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+  }
+  .ver-header h2 { font-size: 22px; font-weight: 800; }
+  .ver-header p { font-size: 13px; opacity: 0.5; margin-top: 4px; }
+  .ver-body { padding: 24px 28px; }
+
+  .feature-list { list-style: none; }
+  .feature-list li {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .feature-list li:last-child { border-bottom: none; }
+  .feature-list .icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .feature-list .feat-name { font-weight: 700; }
+  .feature-list .feat-desc { opacity: 0.6; }
+
+  .ver-cta {
+    display: block;
+    text-align: center;
+    padding: 14px;
+    margin: 20px 0 0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .ver-cta:hover { transform: scale(0.98); }
+
+  /* Design Rationale */
+  .rationale {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px 60px;
+  }
+  .rationale h2 {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 24px;
+  }
+  .rationale h2 span { color: var(--accent); }
+
+  .rat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+  }
+  .rat-card {
+    background: rgba(255,255,255,0.04);
+    border-radius: 14px;
+    padding: 24px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .rat-card h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .rat-card p {
+    font-size: 13px;
+    opacity: 0.6;
+    line-height: 1.7;
+    margin-bottom: 8px;
+  }
+  .rat-card .evidence {
+    font-size: 11px;
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 6px;
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+  .rat-card .evidence b { color: var(--accent); }
+
+  /* Implementation Roadmap */
+  .roadmap {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px 60px;
+  }
+  .roadmap h2 { font-size: 24px; font-weight: 800; margin-bottom: 24px; }
+  .roadmap h2 span { color: var(--accent); }
+
+  .rm-timeline {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 16px;
+  }
+  .rm-phase {
+    min-width: 280px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 14px;
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
+    flex-shrink: 0;
+  }
+  .rm-phase-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+  .rm-phase h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .rm-phase .rm-desc { font-size: 12px; opacity: 0.5; margin-bottom: 12px; }
+  .rm-phase ul { list-style: none; }
+  .rm-phase li {
+    font-size: 12px;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .rm-phase li span { opacity: 0.7; }
+  .rm-phase .rm-kpi {
+    margin-top: 12px;
+    padding: 8px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 6px;
+    font-size: 11px;
+  }
+  .rm-phase .rm-kpi b { color: var(--green); }
+
+  /* Revenue Model */
+  .revenue {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px 60px;
+  }
+  .revenue h2 { font-size: 24px; font-weight: 800; margin-bottom: 24px; }
+  .revenue h2 span { color: var(--accent); }
+  .rev-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .rev-table th, .rev-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .rev-table th {
+    font-size: 11px;
+    font-weight: 700;
+    opacity: 0.5;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .rev-table td { opacity: 0.8; }
+  .rev-table .highlight { color: var(--green); font-weight: 700; opacity: 1; }
+
+  /* Existing Code */
+  .existing {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px 60px;
+  }
+  .existing h2 { font-size: 24px; font-weight: 800; margin-bottom: 24px; }
+  .existing h2 span { color: var(--accent); }
+  .ex-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 12px;
+  }
+  .ex-item {
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .ex-status {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; flex-shrink: 0;
+  }
+  .ex-item h4 { font-size: 13px; font-weight: 700; }
+  .ex-item p { font-size: 11px; opacity: 0.5; margin-top: 2px; }
+  .ex-item .arrow { font-size: 11px; color: var(--accent); margin-top: 4px; font-weight: 600; }
+
+  @media (max-width: 1400px) {
+    .ver-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 900px) {
+    .ver-grid { grid-template-columns: 1fr; }
+    .rat-grid { grid-template-columns: 1fr; }
+    .hero { padding: 30px 20px 20px; }
+    .hero h1 { font-size: 24px; }
+    .kpi-panel, .versions, .rationale, .roadmap, .revenue, .existing { padding-left: 20px; padding-right: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">UcarPAC APP Enhancement Proposal</div>
+  <h1>車両ライフサイクル<span>プラットフォーム</span>への進化</h1>
+  <p>
+    削除率60%改善を短期KPIとしつつ、KGI（プラットフォーム売買量の最大化）を見据えた機能拡張提案。
+    車両付随データを活用したマーケティングチャンスの創出と、周辺サービス送客によるマネタイズを設計。
+  </p>
+</div>
+
+<!-- KGI/KPI Structure -->
+<div class="kpi-panel">
+  <div class="kpi-grid">
+    <div class="kpi-card kgi">
+      <div class="kpi-type">KGI</div>
+      <div class="kpi-name">プラットフォーム売買量</div>
+      <div class="kpi-desc">セルフ査定→出品→成約の取引量</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-type">KPI-1</div>
+      <div class="kpi-name">アプリ削除率 60%→40%</div>
+      <div class="kpi-desc">v1で対応。継続接点の創出</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-type">KPI-2</div>
+      <div class="kpi-name">セルフ査定転換率</div>
+      <div class="kpi-desc">インサイト→売却提案→査定</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-type">KPI-3</div>
+      <div class="kpi-name">MAU率</div>
+      <div class="kpi-desc">月次接点の維持</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-type">KPI-4 (新規)</div>
+      <div class="kpi-name">周辺サービス送客収益</div>
+      <div class="kpi-desc">保険・車検・ローン送客</div>
+    </div>
+  </div>
+</div>
+
+<!-- Version Comparison -->
+<div class="versions">
+  <div class="ver-grid">
+    <!-- V1 -->
+    <div class="ver-card">
+      <div class="ver-header">
+        <span class="ver-badge" style="background:var(--blue); color:white;">v1</span>
+        <h2>削除率改善特化</h2>
+        <p>価格トラッキングの強化と接点頻度の向上</p>
+      </div>
+      <div class="ver-body">
+        <ul class="feature-list">
+          <li>
+            <div class="icon" style="background:rgba(59,130,246,0.15); color:var(--blue);">1</div>
+            <div>
+              <div class="feat-name">4ステップオンボーディング</div>
+              <div class="feat-desc">車両登録→Aha Moment（即時査定額表示）→通知設定→完了。初回で価値を実感させる</div>
+            </div>
+          </li>
+          <li>
+            <div class="icon" style="background:rgba(59,130,246,0.15); color:var(--blue);">2</div>
+            <div>
+              <div class="feat-name">価格アラート強化</div>
+              <div class="feat-desc">月次レポート自動送付、価格変動アラート、市場トレンドグラフ</div>
+            </div>
+          </li>
+          <li>
+            <div class="icon" style="background:rgba(59,130,246,0.15); color:var(--blue);">3</div>
+            <div>
+              <div class="feat-name">車検リマインダー（シンプル版）</div>
+              <div class="feat-desc">車検日入力→カウントダウン→「車検 vs 売却」コスト比較</div>
+            </div>
+          </li>
+          <li>
+            <div class="icon" style="background:rgba(59,130,246,0.15); color:var(--blue);">4</div>
+            <div>
+              <div class="feat-name">売却タイミングAI予測</div>
+              <div class="feat-desc">月別需要グラフ。「4月が狙い目」等のポジティブ通知</div>
+            </div>
+          </li>
+        </ul>
+        <a href="index.html" class="ver-cta" style="background:var(--blue); color:white;" target="_blank">v1 プロトタイプを開く &#8250;</a>
+      </div>
+    </div>
+
+    <!-- V2 -->
+    <div class="ver-card" style="border-color: var(--accent);">
+      <div class="ver-header">
+        <span class="ver-badge" style="background:var(--accent); color:white;">v2</span>
+        <h2>ライフサイクルプラットフォーム</h2>
+        <p>v1を包含 + マーケティング基盤 + 送客収益</p>
+      </div>
+      <div class="ver-body">
+        <ul class="feature-list">
+          <li>
+            <div class="icon" style="background:rgba(225,0,110,0.15); color:var(--accent);">1</div>
+            <div>
+              <div class="feat-name">価値 vs コスト ダッシュボード</div>
+              <div class="feat-desc">車両価値と年間維持費を対比表示。「いつ損益が逆転するか」を可視化</div>
+            </div>
+          </li>
+          <li>
+            <div class="icon" style="background:rgba(225,0,110,0.15); color:var(--accent);">2</div>
+            <div>
+              <div class="feat-name">AIインサイト → 送客導線</div>
+              <div class="feat-desc">入力データから「保険料節約2.4万」「ローン借換え」等を自動提案。サービスへ誘導</div>
+            </div>
+          </li>
+          <li>
+            <div class="icon" style="background:rgba(225,0,110,0.15); color:var(--accent);">3</div>
+            <div>
+              <div class="feat-name">コストトラッカー（タイムライン型）</div>
+              <div class="feat-desc">既存コストシミュレーションを月次記録型に進化。継続利用の理由を創出</div>
+            </div>
+          </li>
+          <li>
+            <div class="icon" style="background:rgba(225,0,110,0.15); color:var(--accent);">4</div>
+            <div>
+              <div class="feat-name">サービスマーケットプレイス</div>
+              <div class="feat-desc">保険・車検・ローン・駐車場への送客ハブ。パーソナライズ提案理由付き</div>
+            </div>
+          </li>
+          <li>
+            <div class="icon" style="background:rgba(225,0,110,0.15); color:var(--accent);">5</div>
+            <div>
+              <div class="feat-name">マイカーカルテ</div>
+              <div class="feat-desc">所有コスト内訳+スケジュール。各イベントからサービス送客&売却提案</div>
+            </div>
+          </li>
+          <li>
+            <div class="icon" style="background:rgba(225,0,110,0.15); color:var(--accent);">6</div>
+            <div>
+              <div class="feat-name">入力率向上施策</div>
+              <div class="feat-desc">OCR撮影/V-Point/プログレスバー/段階的収集。LinkedIn事例: +55%</div>
+            </div>
+          </li>
+        </ul>
+        <a href="v2-lifecycle.html" class="ver-cta" style="background:var(--accent); color:white;" target="_blank">v2 プロトタイプを開く &#8250;</a>
+      </div>
+    </div>
+    <!-- V3 -->
+    <div class="ver-card" style="border-color: var(--green);">
+      <div class="ver-header">
+        <span class="ver-badge" style="background:var(--green); color:white;">v3</span>
+        <h2>UXレビュー反映版</h2>
+        <p>v2 + 広告臭排除 + スケジュールUI + コアバリュー保全</p>
+      </div>
+      <div class="ver-body">
+        <ul class="feature-list">
+          <li>
+            <div class="icon" style="background:rgba(16,185,129,0.15); color:var(--green);">1</div>
+            <div>
+              <div class="feat-name">マーケットプレイスタブ廃止</div>
+              <div class="feat-desc">送客バナー一覧→「やることリスト」にコンテキスト埋め込み。広告臭を排除</div>
+            </div>
+          </li>
+          <li>
+            <div class="icon" style="background:rgba(16,185,129,0.15); color:var(--green);">2</div>
+            <div>
+              <div class="feat-name">車両価値ファースト設計</div>
+              <div class="feat-desc">ホーム最上部は「あなたの車: 285万円」固定。3秒で何のアプリかわかる</div>
+            </div>
+          </li>
+          <li>
+            <div class="icon" style="background:rgba(16,185,129,0.15); color:var(--green);">3</div>
+            <div>
+              <div class="feat-name">セルフ査定CTA常駐</div>
+              <div class="feat-desc">ボトムナビ中央に査定ボタン。KGI直結のCTAが埋もれない設計</div>
+            </div>
+          </li>
+          <li>
+            <div class="icon" style="background:rgba(16,185,129,0.15); color:var(--green);">4</div>
+            <div>
+              <div class="feat-name">スケジュール登録UI（デフォルト推定値型）</div>
+              <div class="feat-desc">車検日・保険更新・オイル交換を推定値で事前表示。ユーザーは確認するだけ</div>
+            </div>
+          </li>
+          <li>
+            <div class="icon" style="background:rgba(16,185,129,0.15); color:var(--green);">5</div>
+            <div>
+              <div class="feat-name">「なぜこの提案？」透明性</div>
+              <div class="feat-desc">全送客提案に根拠表示。ステマ規制対応 + 信頼性向上</div>
+            </div>
+          </li>
+          <li>
+            <div class="icon" style="background:rgba(16,185,129,0.15); color:var(--green);">6</div>
+            <div>
+              <div class="feat-name">タブ5→4に削減</div>
+              <div class="feat-desc">ホーム/マイカー/査定/設定。焦点がぼやけない設計</div>
+            </div>
+          </li>
+        </ul>
+        <a href="v3-refined.html" class="ver-cta" style="background:var(--green); color:white;" target="_blank">v3 プロトタイプを開く &#8250;</a>
+      </div>
+    </div>
+    <!-- V4 -->
+    <div class="ver-card" style="border-color: var(--accent); border-width: 2px;">
+      <div class="ver-header">
+        <span class="ver-badge" style="background:linear-gradient(135deg, var(--accent), #B8005A); color:white;">v4 (最終版)</span>
+        <h2>乗り換えシミュレーション搭載</h2>
+        <p>v3 + 価格表示復活 + 乗り換えシミュレーション + 5タブ</p>
+      </div>
+      <div class="ver-body">
+        <ul class="feature-list">
+          <li>
+            <div class="icon" style="background:rgba(225,0,110,0.15); color:var(--accent);">1</div>
+            <div>
+              <div class="feat-name">乗り換えシミュレーション（NEW）</div>
+              <div class="feat-desc">UcarPACマスタの燃費・排気量・リセールバリューで「次の車」と年間コスト比較</div>
+            </div>
+          </li>
+          <li>
+            <div class="icon" style="background:rgba(225,0,110,0.15); color:var(--accent);">2</div>
+            <div>
+              <div class="feat-name">価格表示復活（メインに）</div>
+              <div class="feat-desc">即決型43.6%の導線を守る。285万円を最上部に大表示</div>
+            </div>
+          </li>
+          <li>
+            <div class="icon" style="background:rgba(225,0,110,0.15); color:var(--accent);">3</div>
+            <div>
+              <div class="feat-name">売却CTA最上位配置</div>
+              <div class="feat-desc">「セルフ査定で最高値を目指す」をホーム最上部に。3%CVRを守る</div>
+            </div>
+          </li>
+          <li>
+            <div class="icon" style="background:rgba(225,0,110,0.15); color:var(--accent);">4</div>
+            <div>
+              <div class="feat-name">支払いシミュレーション</div>
+              <div class="feat-desc">売却額→ローン完済→頭金→月々支払いまで一気に試算</div>
+            </div>
+          </li>
+          <li>
+            <div class="icon" style="background:rgba(225,0,110,0.15); color:var(--accent);">5</div>
+            <div>
+              <div class="feat-name">「検討中→意志確定」設計</div>
+              <div class="feat-desc">成約率2.7%→11.2%への引き上げ。「次の車が決まる」をアプリ内で支援</div>
+            </div>
+          </li>
+          <li>
+            <div class="icon" style="background:rgba(225,0,110,0.15); color:var(--accent);">6</div>
+            <div>
+              <div class="feat-name">候補車インタラクティブ切替</div>
+              <div class="feat-desc">RAV4/CX-5/ハリアーをタップで即座に比較結果が変化</div>
+            </div>
+          </li>
+        </ul>
+        <a href="v4-final.html" class="ver-cta" style="background:linear-gradient(135deg, var(--accent), #B8005A); color:white;" target="_blank">v4 プロトタイプを開く &#8250;</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Design Rationale -->
+<div class="rationale">
+  <h2>設計判断と<span>その根拠</span></h2>
+  <div class="rat-grid">
+    <div class="rat-card">
+      <h3>&#128161; なぜ「価値 vs コスト」の対比か？</h3>
+      <p>
+        車査定アプリの本質的課題は「売却完了後に消すのが自然」なこと。
+        維持コストを可視化し「持ち続けるコスト」を意識させることで、
+        売却の意思決定を促進する＋アプリを開く理由を作る。
+      </p>
+      <div class="evidence">
+        <b>根拠:</b> マネーフォワードの家計診断機能が新規1.2倍、プレミアム1.6倍を実現 [Level A]。
+        Carvana Value Trackerは「売買意思がなくても登録可能」にすることでリーチ拡大 [Level A]。
+      </div>
+    </div>
+
+    <div class="rat-card">
+      <h3>&#128200; なぜデータ駆動のインサイトか？</h3>
+      <p>
+        既存のコストシミュレーションは「入力→結果表示」で終了。
+        入力済みデータを「提案」に変換することで、
+        ユーザーへの価値提供とマーケティング送客の両方を実現。
+      </p>
+      <div class="evidence">
+        <b>根拠:</b> Jerry（車スーパーアプリ、$450M評価）は保険コミッションを主収益に。
+        年平均$600/ユーザーの節約を実現し、500万ユーザーを獲得 [Level A]。
+        保険シミュレーション提供サイトで資料請求200%増の事例 [Level B]。
+      </div>
+    </div>
+
+    <div class="rat-card">
+      <h3>&#128176; なぜ保険送客が最優先か？</h3>
+      <p>
+        UcarPACは既にユーザーの車両情報（メーカー・年式・走行距離）と
+        保険料データを保有。この組み合わせで「あなたの保険料は高い」と
+        パーソナライズ提案が可能。送客1件=1,000-2,000円。
+      </p>
+      <div class="evidence">
+        <b>根拠:</b> 日本のアフィリエイト市場4,382億円。保険は高単価ジャンル [Level B]。
+        自動車データマネタイズ市場: $9B(2025)→$30B(2035)、保険カテゴリが最大シェア [Level B]。
+      </div>
+    </div>
+
+    <div class="rat-card">
+      <h3>&#128247; なぜOCR撮影で入力負荷を下げるか？</h3>
+      <p>
+        マネーフォワードの教訓: 「キーアクション（連携）」を完了しないと
+        継続率がガクンと下がる。コストデータの入力がUcarPACの
+        キーアクション。手動入力は最大の障壁。
+      </p>
+      <div class="evidence">
+        <b>根拠:</b> マネーフォワードの銀行連携率が「操作制限UI」で1.5倍に [Level A]。
+        レシートOCRで入力負荷90%削減の事例 [Level C]。
+        LinkedInプログレスバーで入力完了率55%向上 [Level B]。
+      </div>
+    </div>
+
+    <div class="rat-card">
+      <h3>&#128172; なぜLINE連携が必要か？</h3>
+      <p>
+        「アプリ削除」問題のバイパス。月間9,900万ユーザーのLINEを
+        補完チャネルとして活用。車検リマインドの自動送信は
+        カーディーラーで既に実用化・実績あり。
+      </p>
+      <div class="evidence">
+        <b>根拠:</b> 美容室MASHU: LINE経由予約5倍、リピート率91.9% [Level B]。
+        HMR社: Lステップで査定件数+54%、申込+27% [Level B]。
+        EFFACE: 自社アプリ→LINEミニアプリで利用率向上 [Level B]。
+      </div>
+    </div>
+
+    <div class="rat-card">
+      <h3>&#9888; なぜフル機能メンテ管理をしないか？</h3>
+      <p>
+        オートバックス（1000万DL）の成功は「整備予約との直結」が主因。
+        UcarPACにその物理基盤はない。Feature Bloatリスクも高い。
+        車検リマインダーに絞り、送客導線のみ設計。
+      </p>
+      <div class="evidence">
+        <b>根拠:</b> ソフトウェア機能の45%は「ほとんど/全く使われない」[Level B]。
+        challenger指摘: メンテ市場は飽和。後発参入の合理性なし [分析評価]。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Implementation Roadmap -->
+<div class="roadmap">
+  <h2>実装<span>ロードマップ</span></h2>
+  <div class="rm-timeline">
+    <div class="rm-phase" style="border-color:var(--red);">
+      <span class="rm-phase-tag" style="background:rgba(239,68,68,0.2); color:var(--red);">Phase 0</span>
+      <h3>内部データ分析</h3>
+      <div class="rm-desc">1-2週間 / 開発工数なし</div>
+      <ul>
+        <li>&#9679; <span>AppsFlyerアンインストール分布</span></li>
+        <li>&#9679; <span>コストシミュレーション利用率</span></li>
+        <li>&#9679; <span>ユーザーセグメント比率</span></li>
+        <li>&#9679; <span>価格データカバレッジ確認</span></li>
+      </ul>
+      <div class="rm-kpi">&#9888; Phase 0の結果で優先順位が逆転する可能性あり</div>
+    </div>
+
+    <div class="rm-phase" style="border-color:var(--green);">
+      <span class="rm-phase-tag" style="background:rgba(16,185,129,0.2); color:var(--green);">Phase 1</span>
+      <h3>コアバリュー強化</h3>
+      <div class="rm-desc">1-2ヶ月 / 低工数</div>
+      <ul>
+        <li>&#10003; <span>月次価格レポート通知</span></li>
+        <li>&#10003; <span>オンボーディング改善（4ステップ）</span></li>
+        <li>&#10003; <span>AIインサイト通知（保険・ローン）</span></li>
+        <li>&#10003; <span>LINE公式アカウント開設</span></li>
+      </ul>
+      <div class="rm-kpi"><b>目標:</b> 削除率60%→50% / 通知開封率15%以上</div>
+    </div>
+
+    <div class="rm-phase" style="border-color:var(--blue);">
+      <span class="rm-phase-tag" style="background:rgba(59,130,246,0.2); color:var(--blue);">Phase 2</span>
+      <h3>送客基盤構築</h3>
+      <div class="rm-desc">2-3ヶ月 / 中工数</div>
+      <ul>
+        <li>&#10003; <span>保険見積もり送客（アフィリエイト）</span></li>
+        <li>&#10003; <span>車検リマインダー+楽天Car車検送客</span></li>
+        <li>&#10003; <span>プログレスバー+V-Pointインセンティブ</span></li>
+        <li>&#10003; <span>保険証券OCR撮影</span></li>
+      </ul>
+      <div class="rm-kpi"><b>目標:</b> 送客CVR 5%以上 / データ入力率+30%</div>
+    </div>
+
+    <div class="rm-phase" style="border-color:var(--purple);">
+      <span class="rm-phase-tag" style="background:rgba(139,92,246,0.2); color:var(--purple);">Phase 3</span>
+      <h3>プラットフォーム化</h3>
+      <div class="rm-desc">3-6ヶ月 / 中-高工数</div>
+      <ul>
+        <li>&#10003; <span>コストトラッカー（タイムライン型）</span></li>
+        <li>&#10003; <span>サービスマーケットプレイス</span></li>
+        <li>&#10003; <span>マイカーカルテ</span></li>
+        <li>&#10003; <span>売却タイミングAI予測</span></li>
+      </ul>
+      <div class="rm-kpi"><b>目標:</b> MAU率20%以上 / 周辺収益月100万円</div>
+    </div>
+  </div>
+</div>
+
+<!-- Revenue Model -->
+<div class="revenue">
+  <h2>収益モデル<span>シミュレーション</span></h2>
+  <table class="rev-table">
+    <thead>
+      <tr>
+        <th>送客チャネル</th>
+        <th>単価</th>
+        <th>月間想定件数</th>
+        <th>月間収益</th>
+        <th>前提条件</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>保険一括見積もり</td>
+        <td>1,500円/件</td>
+        <td>300-800件</td>
+        <td class="highlight">45-120万円</td>
+        <td>MAU 1万、CTR 5-10%、完了率60%</td>
+      </tr>
+      <tr>
+        <td>車検予約</td>
+        <td>800円/件</td>
+        <td>50-150件</td>
+        <td class="highlight">4-12万円</td>
+        <td>車検対象ユーザーの10-30%</td>
+      </tr>
+      <tr>
+        <td>ローン借換え</td>
+        <td>5,000円/件</td>
+        <td>10-30件</td>
+        <td class="highlight">5-15万円</td>
+        <td>ローンありユーザーの2-5%</td>
+      </tr>
+      <tr>
+        <td>駐車場比較</td>
+        <td>500円/件</td>
+        <td>20-60件</td>
+        <td class="highlight">1-3万円</td>
+        <td>駐車場入力ユーザーの5%</td>
+      </tr>
+      <tr style="font-weight:700; border-top:2px solid rgba(255,255,255,0.2);">
+        <td>合計</td>
+        <td></td>
+        <td></td>
+        <td class="highlight" style="font-size:16px;">55-150万円/月</td>
+        <td>MAU 1万の場合（保守的推定）</td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="font-size:11px; opacity:0.4; margin-top:8px;">
+    ※ CVR・単価は業界平均からの推定値。実績データによる検証が必要 [Level E]。
+    セルフ査定→成約のプラットフォーム手数料収益は別途。
+  </p>
+</div>
+
+<!-- Existing Codebase Connection -->
+<div class="existing">
+  <h2>既存コードベース<span>との接続</span></h2>
+  <div class="ex-grid">
+    <div class="ex-item">
+      <div class="ex-status" style="background:rgba(16,185,129,0.15); color:var(--green);">&#10003;</div>
+      <div>
+        <h4>CostSimulation（6画面）</h4>
+        <p>税・保険・車検・駐車場・保証・ローン。データモデル実装済み</p>
+        <div class="arrow">→ コストトラッカー + AIインサイトのデータ基盤</div>
+      </div>
+    </div>
+    <div class="ex-item">
+      <div class="ex-status" style="background:rgba(16,185,129,0.15); color:var(--green);">&#10003;</div>
+      <div>
+        <h4>RefinanceSimulation（3画面）</h4>
+        <p>ローン残債・金利・借換えシミュレーション実装済み</p>
+        <div class="arrow">→ ローン借換えインサイト + 金融機関送客</div>
+      </div>
+    </div>
+    <div class="ex-item">
+      <div class="ex-status" style="background:rgba(16,185,129,0.15); color:var(--green);">&#10003;</div>
+      <div>
+        <h4>V-Point（ポイント制度）</h4>
+        <p>VpointAlignmentWebView.tsx で外部連携済み</p>
+        <div class="arrow">→ データ入力インセンティブ + ロイヤルティ強化</div>
+      </div>
+    </div>
+    <div class="ex-item">
+      <div class="ex-status" style="background:rgba(16,185,129,0.15); color:var(--green);">&#10003;</div>
+      <div>
+        <h4>QRコード車検証読取</h4>
+        <p>carRegistration/qrRequest.ts で実装済み</p>
+        <div class="arrow">→ 初期データ自動入力（入力率向上）</div>
+      </div>
+    </div>
+    <div class="ex-item">
+      <div class="ex-status" style="background:rgba(16,185,129,0.15); color:var(--green);">&#10003;</div>
+      <div>
+        <h4>AppsFlyer統合</h4>
+        <p>utils/appsFlyer.ts でトラッキング実装済み</p>
+        <div class="arrow">→ 送客CV計測 + アンインストール分析</div>
+      </div>
+    </div>
+    <div class="ex-item">
+      <div class="ex-status" style="background:rgba(16,185,129,0.15); color:var(--green);">&#10003;</div>
+      <div>
+        <h4>FriendReferral</h4>
+        <p>FriendReferralScreen.tsx 実装済み</p>
+        <div class="arrow">→ 紹介プログラム強化でオーガニック成長</div>
+      </div>
+    </div>
+    <div class="ex-item">
+      <div class="ex-status" style="background:rgba(245,158,11,0.15); color:var(--amber);">&#9679;</div>
+      <div>
+        <h4>deviceTokenApi</h4>
+        <p>プッシュ通知基盤は実装済み。戦略的活用が不足</p>
+        <div class="arrow">→ AIインサイト通知 + スマート通知設計</div>
+      </div>
+    </div>
+    <div class="ex-item">
+      <div class="ex-status" style="background:rgba(239,68,68,0.15); color:var(--red);">&#10005;</div>
+      <div>
+        <h4>LINE連携</h4>
+        <p>未実装</p>
+        <div class="arrow">→ LINE公式アカウント + ミニアプリ（新規開発）</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="text-align:center; padding:40px; opacity:0.3; font-size:12px;">
+  調査日: 2026-03-20 | ソース: 30件+ | 一次情報: 12件 | 調査ラウンド: 6回<br>
+  レポート全文: report/report.md | 調査データ: research/ | 分析: analysis/ | 反論検証: challenge/
+</div>
+
+</body>
+</html>
