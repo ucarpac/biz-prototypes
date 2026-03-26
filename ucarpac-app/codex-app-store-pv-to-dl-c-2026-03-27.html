@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+<html lang="ja">
+<!-- C案: ゲーミフィケーション・インタラクティブアプローチ。スワイプ、診断フロー、ステップ進行などの操作体験重視。マイクロアニメーション -->
+<script src="../auth.js"></script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>UcarPAC Store Screenshots Prototype</title>
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --text-disabled: #B3B3B3;
+      --text-placeholder: rgba(28,38,99,0.3);
+      --text-light-blue: #bfdbfe;
+      --text-under-blue: #0056BA;
+      --button-gray: #CACEE2;
+      --button-link1: #4099FF;
+      --button-link2: #40BFFF;
+      --back-white: #FAFAFA;
+      --light-gray: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --back-gray2: #e6e6e6;
+      --back-blue: #091355;
+      --back-dark-blue: #0a1348;
+      --back-light-pink: #ffd8e8;
+      --back-light-blue: #6fc2ff;
+      --error: #EB4646;
+      --shadow: rgba(0,0,0,0.11);
+      --ruled-line: #F2F2F2;
+      --border-gray: #7C7C7C;
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+      --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
+      --gradient-disabled: linear-gradient(90deg, #e5e5e5, #e5e5e5);
+      --gradient-hero: radial-gradient(circle at top left, rgba(248,76,162,0.28), transparent 35%), linear-gradient(180deg, #f8fbff 0%, #edf7ff 47%, #fff5fa 100%);
+      --font-sans: "Noto Sans JP", "Hiragino Sans", system-ui, sans-serif;
+      --font-number: "Righteous", "Noto Sans JP", sans-serif;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-7: 27px;
+      --space-8: 32px;
+      --radius-sm: 5px;
+      --radius-md: 12px;
+      --radius-card: 13px;
+      --radius-lg: 16px;
+      --radius-chip: 22px;
+      --radius-button: 30px;
+      --radius-button-lg: 43px;
+      --phone-w: min(100%, 375px);
+      --transition: 280ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(111,194,255,0.32), transparent 24%),
+        radial-gradient(circle at 85% 15%, rgba(248,76,162,0.20), transparent 20%),
+        linear-gradient(180deg, #f5fbff 0%, #fafafa 55%, #fff0f7 100%);
+      color: var(--text-black);
+      font-family: var(--font-sans);
+      min-height: 100%;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      padding: 20px 12px 40px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 430px;
+      position: relative;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding: 0 4px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(145deg, #1ddcff, #4db4ff 56%, #f84ca2 100%);
+      box-shadow: 0 10px 24px rgba(28, 38, 99, 0.16);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.92);
+    }
+
+    .brand-mark::before {
+      width: 22px;
+      height: 10px;
+      left: 10px;
+      top: 11px;
+      transform: rotate(-18deg);
+    }
+
+    .brand-mark::after {
+      width: 18px;
+      height: 8px;
+      left: 12px;
+      bottom: 10px;
+      opacity: 0.72;
+    }
+
+    .brand-copy strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1.2;
+      color: var(--dark-blue);
+    }
+
+    .brand-copy span {
+      display: block;
+      font-size: 11px;
+      color: var(--text-gray);
+      margin-top: 3px;
+    }
+
+    .kpi-chip {
+      border: none;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.88);
+      box-shadow: 0 8px 18px rgba(28,38,99,0.1);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font: inherit;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+
+    .kpi-chip:active {
+      transform: scale(0.98);
+    }
+
+    .kpi-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--pink);
+      box-shadow: 0 0 0 6px rgba(248,76,162,0.14);
+      animation: pulse 1.8s infinite;
+    }
+
+    .shell {
+      background: rgba(255,255,255,0.78);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.75);
+      border-radius: 28px;
+      box-shadow: 0 20px 50px rgba(28,38,99,0.12);
+      overflow: hidden;
+    }
+
+    .hero {
+      background: var(--gradient-hero);
+      padding: 20px 18px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      right: -60px;
+      top: -70px;
+      background: radial-gradient(circle, rgba(248,76,162,0.28), transparent 68%);
+      animation: float 5s ease-in-out infinite;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 190px;
+      height: 190px;
+      left: -90px;
+      bottom: -100px;
+      background: radial-gradient(circle, rgba(29,220,255,0.25), transparent 68%);
+      animation: float 6s ease-in-out infinite reverse;
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .badge.blue {
+      color: var(--dark-blue);
+      background: rgba(255,255,255,0.85);
+      border: 1px solid rgba(64,153,255,0.24);
+    }
+
+    .badge.pink {
+      color: var(--white);
+      background: var(--gradient-pink);
+      box-shadow: 0 8px 16px rgba(248,76,162,0.24);
+    }
+
+    .score-orb {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #ffffff, #eef8ff);
+      display: grid;
+      place-items: center;
+      box-shadow: inset 0 0 0 7px rgba(29,220,255,0.18), 0 12px 24px rgba(28,38,99,0.12);
+      position: relative;
+    }
+
+    .score-orb span {
+      font-family: var(--font-number);
+      color: var(--dark-blue);
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .hero h1 {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 32px;
+      line-height: 1.28;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero p {
+      margin: 10px 0 0;
+      color: var(--text-gray);
+      font-size: 14px;
+      line-height: 1.65;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-cta {
+      margin-top: 16px;
+      display: flex;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn {
+      appearance: none;
+      border: none;
+      border-radius: var(--radius-button);
+      min-height: 43px;
+      padding: 0 18px;
+      font-size: 14px;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform var(--transition), opacity var(--transition), box-shadow var(--transition);
+    }
+
+    .btn:active {
+      transform: translateY(1px) scale(0.985);
+    }
+
+    .btn-primary {
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+      box-shadow: 0 14px 24px rgba(77,180,255,0.28);
+      flex: 1;
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.84);
+      color: var(--dark-blue);
+      border: 1px solid rgba(28,38,99,0.08);
+    }
+
+    .progress-panel {
+      padding: 16px 18px 10px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0));
+    }
+
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .progress-head strong {
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--dark-blue);
+    }
+
+    .progress-head span {
+      color: var(--text-gray);
+      font-size: 12px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .step {
+      background: #fff;
+      border-radius: 16px;
+      padding: 12px 10px;
+      border: 1px solid rgba(28,38,99,0.07);
+      min-height: 74px;
+      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition), background var(--transition);
+    }
+
+    .step.active {
+      background: linear-gradient(180deg, rgba(29,220,255,0.12), rgba(248,76,162,0.08));
+      border-color: rgba(64,153,255,0.32);
+      box-shadow: 0 10px 18px rgba(28,38,99,0.08);
+      transform: translateY(-2px);
+    }
+
+    .step-index {
+      width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--back-gray);
+      color: var(--dark-blue);
+      font-size: 11px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .step.active .step-index {
+      background: var(--dark-blue);
+      color: #fff;
+    }
+
+    .step-title {
+      font-size: 12px;
+      line-height: 1.35;
+      font-weight: 700;
+      color: var(--text-black);
+    }
+
+    .step-sub {
+      margin-top: 4px;
+      font-size: 10px;
+      line-height: 1.4;
+      color: var(--text-gray);
+    }
+
+    .carousel-wrap {
+      padding: 12px 0 6px;
+    }
+
+    .carousel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 18px 14px;
+    }
+
+    .carousel-head strong {
+      color: var(--dark-blue);
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .carousel-head span {
+      color: var(--text-gray);
+      font-size: 12px;
+    }
+
+    .stage {
+      overflow: hidden;
+      position: relative;
+    }
+
+    .track {
+      display: flex;
+      width: 300%;
+      transition: transform 420ms cubic-bezier(.2,.82,.18,1);
+      touch-action: pan-y;
+    }
+
+    .slide {
+      width: 100%;
+      flex: 0 0 100%;
+      padding: 0 18px 20px;
+    }
+
+    .screen {
+      border-radius: 30px;
+      padding: 16px;
+      min-height: 620px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 16px 32px rgba(28,38,99,0.16);
+    }
+
+    .screen::before,
+    .screen::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.24;
+      filter: blur(2px);
+    }
+
+    .screen-a {
+      background: linear-gradient(180deg, #091355 0%, #1c2663 44%, #25379b 100%);
+    }
+
+    .screen-a::before {
+      width: 180px;
+      height: 180px;
+      background: #1ddcff;
+      right: -60px;
+      top: -40px;
+    }
+
+    .screen-a::after {
+      width: 160px;
+      height: 160px;
+      background: #F84CA2;
+      left: -50px;
+      bottom: 80px;
+    }
+
+    .screen-b {
+      background: linear-gradient(180deg, #fefcff 0%, #ecf7ff 48%, #fff1f8 100%);
+      color: var(--dark-blue);
+    }
+
+    .screen-b::before {
+      width: 180px;
+      height: 180px;
+      background: rgba(29,220,255,0.28);
+      right: -50px;
+      top: -30px;
+    }
+
+    .screen-b::after {
+      width: 190px;
+      height: 190px;
+      background: rgba(248,76,162,0.22);
+      left: -70px;
+      bottom: -40px;
+    }
+
+    .screen-c {
+      background: linear-gradient(180deg, #170f47 0%, #091355 52%, #1f195f 100%);
+    }
+
+    .screen-c::before {
+      width: 200px;
+      height: 200px;
+      background: rgba(248,76,162,0.22);
+      right: -60px;
+      top: 90px;
+    }
+
+    .screen-c::after {
+      width: 160px;
+      height: 160px;
+      background: rgba(29,220,255,0.2);
+      left: -50px;
+      top: -30px;
+    }
+
+    .screen-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .platform-tag,
+    .shot-index {
+      background: rgba(255,255,255,0.16);
+      color: #fff;
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      backdrop-filter: blur(8px);
+    }
+
+    .screen-b .platform-tag,
+    .screen-b .shot-index {
+      background: rgba(255,255,255,0.78);
+      color: var(--dark-blue);
+    }
+
+    .screen-kicker {
+      font-size: 12px;
+      line-height: 1.5;
+      opacity: 0.82;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 1;
+    }
+
+    .screen-title {
+      margin: 8px 0 0;
+      font-size: 36px;
+      line-height: 1.22;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .screen-sub {
+      margin: 12px 0 0;
+      font-size: 14px;
+      line-height: 1.72;
+      opacity: 0.9;
+      position: relative;
+      z-index: 1;
+    }
+
+    .metric-card {
+      margin-top: 18px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 24px;
+      padding: 14px;
+      position: relative;
+      z-index: 1;
+      backdrop-filter: blur(8px);
+    }
+
+    .screen-b .metric-card {
+      background: rgba(255,255,255,0.9);
+      border-color: rgba(28,38,99,0.06);
+      box-shadow: 0 12px 26px rgba(28,38,99,0.08);
+    }
+
+    .metric-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .metric-label {
+      font-size: 12px;
+      opacity: 0.76;
+    }
+
+    .metric-value {
+      font-family: var(--font-number);
+      font-size: 38px;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .metric-trend {
+      font-size: 12px;
+      font-weight: 800;
+      color: #9effc9;
+    }
+
+    .screen-b .metric-trend {
+      color: #0f8f5e;
+    }
+
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 116px;
+      margin-top: 8px;
+    }
+
+    .bar {
+      flex: 1;
+      border-radius: 14px 14px 6px 6px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(111,194,255,0.34));
+      position: relative;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .screen-b .bar {
+      background: linear-gradient(180deg, rgba(29,220,255,0.95), rgba(77,180,255,0.4));
+    }
+
+    .bar::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 24%;
+      background: rgba(248,76,162,0.18);
+    }
+
+    .bar span {
+      position: absolute;
+      left: 50%;
+      bottom: -22px;
+      transform: translateX(-50%);
+      font-size: 10px;
+      white-space: nowrap;
+      opacity: 0.84;
+    }
+
+    .bar .bar-value {
+      top: 8px;
+      bottom: auto;
+      font-size: 10px;
+      font-weight: 800;
+      color: inherit;
+      opacity: 1;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .pill {
+      padding: 10px 12px;
+      border-radius: var(--radius-chip);
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.16);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .screen-b .pill {
+      background: #fff;
+      border-color: rgba(28,38,99,0.08);
+      color: var(--dark-blue);
+    }
+
+    .carte {
+      margin-top: 18px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 14px;
+      color: var(--dark-blue);
+      box-shadow: 0 12px 26px rgba(28,38,99,0.12);
+      position: relative;
+      z-index: 1;
+    }
+
+    .carte-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .car-name {
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    .chip-mini {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--back-light-pink);
+      color: var(--pink);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .price-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .price-main strong {
+      font-family: var(--font-number);
+      display: block;
+      font-size: 32px;
+      line-height: 1.1;
+      color: var(--dark-blue);
+    }
+
+    .price-main span {
+      display: block;
+      color: var(--text-gray);
+      font-size: 12px;
+      margin-top: 3px;
+    }
+
+    .phone-mock {
+      width: 94px;
+      height: 178px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, #f5fbff, #edf1f4);
+      border: 3px solid #fff;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(28,38,99,0.06);
+    }
+
+    .phone-mock::before {
+      content: "";
+      position: absolute;
+      width: 38px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(28,38,99,0.16);
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .phone-screen {
+      position: absolute;
+      inset: 18px 8px 8px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #091355 0%, #1c2663 100%);
+      padding: 10px 8px;
+      color: #fff;
+    }
+
+    .line-graph {
+      height: 56px;
+      margin-top: 10px;
+      position: relative;
+    }
+
+    .line-graph svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .cta-card {
+      margin-top: 18px;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .cta-left {
+      flex: 1;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 22px;
+      padding: 14px;
+      backdrop-filter: blur(8px);
+    }
+
+    .screen-b .cta-left {
+      background: rgba(255,255,255,0.9);
+      border-color: rgba(28,38,99,0.06);
+    }
+
+    .cta-left strong {
+      display: block;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .cta-left span {
+      display: block;
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.6;
+      opacity: 0.88;
+    }
+
+    .floating-badge {
+      width: 96px;
+      border-radius: 24px;
+      background: #fff;
+      color: var(--dark-blue);
+      box-shadow: 0 14px 28px rgba(28,38,99,0.14);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      font-weight: 900;
+      font-size: 13px;
+      padding: 10px;
+      animation: bob 2.2s ease-in-out infinite;
+    }
+
+    .compare-board {
+      margin-top: 20px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 24px;
+      padding: 14px;
+      backdrop-filter: blur(10px);
+      position: relative;
+      z-index: 1;
+    }
+
+    .compare-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .compare-head strong {
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .compare-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .compare-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .compare-item.highlight {
+      background: linear-gradient(90deg, rgba(29,220,255,0.2), rgba(248,76,162,0.2));
+      border-color: rgba(255,255,255,0.18);
+    }
+
+    .compare-brand {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .compare-copy {
+      margin-top: 3px;
+      font-size: 11px;
+      opacity: 0.82;
+      line-height: 1.5;
+    }
+
+    .compare-value {
+      min-width: 76px;
+      text-align: center;
+      padding: 10px 10px;
+      border-radius: 999px;
+      font-family: var(--font-number);
+      font-size: 24px;
+      background: rgba(255,255,255,0.16);
+    }
+
+    .compare-item.highlight .compare-value {
+      background: #fff;
+      color: var(--pink);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 0 18px 18px;
+    }
+
+    .dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: none;
+      background: #d6ddf7;
+      cursor: pointer;
+      padding: 0;
+      transition: transform var(--transition), background var(--transition), width var(--transition);
+    }
+
+    .dot.active {
+      width: 28px;
+      border-radius: 999px;
+      background: var(--dark-blue);
+    }
+
+    .navs {
+      display: flex;
+      gap: 10px;
+    }
+
+    .nav-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: #fff;
+      color: var(--dark-blue);
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(28,38,99,0.1);
+      transition: transform var(--transition), background var(--transition);
+    }
+
+    .nav-btn:active {
+      transform: scale(0.96);
+    }
+
+    .lab {
+      padding: 0 18px 18px;
+    }
+
+    .lab-card {
+      background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+      border-radius: 22px;
+      padding: 16px;
+      box-shadow: 0 12px 24px rgba(28,38,99,0.07);
+      border: 1px solid rgba(28,38,99,0.06);
+    }
+
+    .lab-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .lab-head strong {
+      color: var(--dark-blue);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .lab-toggle {
+      display: inline-flex;
+      background: var(--back-gray);
+      border-radius: 999px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .lab-toggle button {
+      appearance: none;
+      border: none;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-gray);
+      background: transparent;
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    .lab-toggle button.active {
+      background: #fff;
+      color: var(--dark-blue);
+      box-shadow: 0 5px 12px rgba(28,38,99,0.08);
+    }
+
+    .result-board {
+      display: grid;
+      gap: 12px;
+    }
+
+    .result {
+      padding: 14px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid rgba(28,38,99,0.06);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    }
+
+    .result.active {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(28,38,99,0.08);
+      border-color: rgba(64,153,255,0.22);
+    }
+
+    .result strong {
+      display: block;
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .result span {
+      display: block;
+      margin-top: 4px;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .result-score {
+      font-family: var(--font-number);
+      font-size: 28px;
+      color: var(--pink);
+      white-space: nowrap;
+    }
+
+    .footer-note {
+      padding: 0 18px 22px;
+      color: var(--text-gray);
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    .spark {
+      display: inline-block;
+      animation: spark 1.2s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.2); opacity: 0.65; }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(12px); }
+    }
+
+    @keyframes bob {
+      0%, 100% { transform: translateY(0) rotate(-4deg); }
+      50% { transform: translateY(-7px) rotate(2deg); }
+    }
+
+    @keyframes spark {
+      from { transform: translateY(0) scale(1); }
+      to { transform: translateY(-2px) scale(1.08); }
+    }
+
+    @media (min-width: 768px) {
+      body {
+        padding-top: 28px;
+      }
+
+      .app {
+        max-width: 460px;
+      }
+
+      .screen {
+        min-height: 660px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div class="brand-copy">
+          <strong>UcarPAC App</strong>
+          <span>ストアCVR改善プロトタイプ</span>
+        </div>
+      </div>
+      <button class="kpi-chip" id="kpiChip" aria-label="KPIを表示">
+        <span class="kpi-dot"></span>
+        <span><strong>17.3%</strong> → 25%</span>
+      </button>
+    </div>
+
+    <main class="shell">
+      <section class="hero">
+        <div class="hero-top">
+          <div class="badge-row">
+            <div class="badge blue">個人情報なし</div>
+            <div class="badge blue">電話0本体験</div>
+            <div class="badge pink">8,000社入札</div>
+          </div>
+          <div class="score-orb"><span id="heroScore">83</span></div>
+        </div>
+        <h1>スワイプで比較。<br>DLしたくなる訴求を検証。</h1>
+        <p>
+          AI査定、出費管理、競合比較の3軸を操作しながら確認できるストアスクショ案。
+          マイクロアニメーションと進行導線で、瞬間理解と行動意欲を強めます。
+        </p>
+        <div class="hero-cta">
+          <button class="btn btn-primary" id="playFlow">診断スタート</button>
+          <button class="btn btn-secondary" id="shuffleShots">再シャッフル</button>
+        </div>
+      </section>
+
+      <section class="progress-panel">
+        <div class="progress-head">
+          <strong>訴求フロー進行</strong>
+          <span id="progressLabel">STEP 1 / 3</span>
+        </div>
+        <div class="steps">
+          <div class="step active" data-step="0">
+            <div class="step-index">1</div>
+            <div class="step-title">AI査定の強さ</div>
+            <div class="step-sub">今の相場を直感で理解</div>
+          </div>
+          <div class="step" data-step="1">
+            <div class="step-index">2</div>
+            <div class="step-title">出費と売り時</div>
+            <div class="step-sub">維持費と未来予測を同時表示</div>
+          </div>
+          <div class="step" data-step="2">
+            <div class="step-index">3</div>
+            <div class="step-title">競合との差</div>
+            <div class="step-sub">電話本数で明快に比較</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="carousel-wrap">
+        <div class="carousel-head">
+          <strong>ストアスクリーン候補</strong>
+          <span>左右スワイプ対応</span>
+        </div>
+
+        <div class="stage" id="stage">
+          <div class="track" id="track">
+            <article class="slide">
+              <section class="screen screen-a">
+                <div class="screen-top">
+                  <div class="platform-tag">iOS向け / スクショA</div>
+                  <div class="shot-index">AI査定特化</div>
+                </div>
+
+                <div class="screen-kicker">AI APPRAISAL EXPERIENCE</div>
+                <h2 class="screen-title">AIがあなたの愛車を<br>すぐ査定</h2>
+                <p class="screen-sub">
+                  トヨタ ハリアー Z 2021年式 / 31,800km を入力すると、
+                  その場で相場レンジと高値チャンスを可視化。
+                </p>
+
+                <div class="metric-card">
+                  <div class="metric-top">
+                    <div>
+                      <div class="metric-label">現在のAI査定レンジ</div>
+                      <div class="metric-value">298万円</div>
+                    </div>
+                    <div class="metric-trend">+12.4万円 高値圏</div>
+                  </div>
+                  <div class="bar-chart">
+                    <div class="bar" style="height:72%;">
+                      <span class="bar-value">274万</span>
+                      <span>下限</span>
+                    </div>
+                    <div class="bar" style="height:86%;">
+                      <span class="bar-value">298万</span>
+                      <span>中央値</span>
+                    </div>
+                    <div class="bar" style="height:96%;">
+                      <span class="bar-value">312万</span>
+                      <span>上限</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="pill-row">
+                  <div class="pill">個人情報不要</div>
+                  <div class="pill">最短30秒でチェック</div>
+                  <div class="pill">売却相談は後から</div>
+                </div>
+
+                <div class="carte">
+                  <div class="carte-head">
+                    <div class="car-name">トヨタ ハリアー Z Leather Package</div>
+                    <div class="chip-mini">注目車種</div>
+                  </div>
+                  <div class="price-row">
+                    <div class="price-main">
+                      <strong>312.0万円</strong>
+                      <span>最高額シナリオ / 8,000社オークション想定</span>
+                    </div>
+                    <div class="phone-mock">
+                      <div class="phone-screen">
+                        <div style="font-size:10px; opacity:.8;">未来予測</div>
+                        <div style="font-family:var(--font-number); font-size:20px; margin-top:2px;">3M</div>
+                        <div class="line-graph">
+                          <svg viewBox="0 0 100 56" aria-hidden="true">
+                            <path d="M0 42 C12 36, 18 36, 28 30 S46 18, 58 24 S80 40, 100 14" fill="none" stroke="rgba(29,220,255,0.96)" stroke-width="4" stroke-linecap="round"/>
+                            <circle cx="100" cy="14" r="4" fill="#F84CA2"/>
+                          </svg>
+                        </div>
+                        <div style="font-size:10px; opacity:.84;">今売るより <strong style="font-size:12px;">+4.8万</strong></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="cta-card">
+                  <div class="cta-left">
+                    <strong>今の価値を見て、売るタイミングはあとで決める。</strong>
+                    <span>まずは査定だけ。営業電話なしで相場チェック。</span>
+                  </div>
+                  <div class="floating-badge"><span class="spark">DL候補</span><br>1位</div>
+                </div>
+              </section>
+            </article>
+
+            <article class="slide">
+              <section class="screen screen-b">
+                <div class="screen-top">
+                  <div class="platform-tag">Android向け / スクショB</div>
+                  <div class="shot-index">出費管理 + 将来予測</div>
+                </div>
+
+                <div class="screen-kicker">COST + FUTURE FORECAST</div>
+                <h2 class="screen-title">維持費も、<br>売り時も見える</h2>
+                <p class="screen-sub">
+                  ホンダ N-BOX Custom 2022年式の出費を自動で整理。
+                  ガソリン、保険、車検と査定予測をひとつの体験に統合します。
+                </p>
+
+                <div class="metric-card">
+                  <div class="metric-top">
+                    <div>
+                      <div class="metric-label">年間維持費</div>
+                      <div class="metric-value">41.6万円</div>
+                    </div>
+                    <div class="metric-trend">来月の売却有利度 84</div>
+                  </div>
+                  <div class="bar-chart">
+                    <div class="bar" style="height:48%;">
+                      <span class="bar-value">8.4万</span>
+                      <span>保険</span>
+                    </div>
+                    <div class="bar" style="height:68%;">
+                      <span class="bar-value">11.2万</span>
+                      <span>ガソリン</span>
+                    </div>
+                    <div class="bar" style="height:90%;">
+                      <span class="bar-value">14.8万</span>
+                      <span>車検</span>
+                    </div>
+                    <div class="bar" style="height:58%;">
+                      <span class="bar-value">7.2万</span>
+                      <span>整備</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="pill-row">
+                  <div class="pill">家計簿感覚で登録</div>
+                  <div class="pill">3ヶ月先の査定予測</div>
+                  <div class="pill">プッシュで売り時通知</div>
+                </div>
+
+                <div class="carte">
+                  <div class="carte-head">
+                    <div class="car-name">ホンダ N-BOX Custom L Turbo</div>
+                    <div class="chip-mini" style="background:#e7f6ff;color:#0056BA;">上昇見込み</div>
+                  </div>
+                  <div class="price-row">
+                    <div class="price-main">
+                      <strong>167.5万円</strong>
+                      <span>2ヶ月後予測 / 今より +3.2万円</span>
+                    </div>
+                    <div class="phone-mock">
+                      <div class="phone-screen" style="background:linear-gradient(180deg,#ffffff,#f5fbff); color:var(--dark-blue);">
+                        <div style="font-size:10px; opacity:.72;">支出サマリー</div>
+                        <div style="font-family:var(--font-number); font-size:20px; margin-top:2px;">APR</div>
+                        <div class="line-graph">
+                          <svg viewBox="0 0 100 56" aria-hidden="true">
+                            <path d="M0 28 C10 20, 22 24, 34 18 S54 32, 66 26 S84 12, 100 10" fill="none" stroke="#1c2663" stroke-width="4" stroke-linecap="round"/>
+                            <circle cx="100" cy="10" r="4" fill="#F84CA2"/>
+                          </svg>
+                        </div>
+                        <div style="font-size:10px; opacity:.84;">維持費を含めた売却判断</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="cta-card">
+                  <div class="cta-left">
+                    <strong>資産管理アプリのように、車の価値変動を毎月チェック。</strong>
+                    <span>売却しない期間でもアプリ価値を維持して、離脱を防ぐ。</span>
+                  </div>
+                  <div class="floating-badge" style="color:var(--pink);">継続率<br>重視</div>
+                </div>
+              </section>
+            </article>
+
+            <article class="slide">
+              <section class="screen screen-c">
+                <div class="screen-top">
+                  <div class="platform-tag">比較訴求 / スクショC</div>
+                  <div class="shot-index">電話0本を強調</div>
+                </div>
+
+                <div class="screen-kicker">NO CALL COMPARISON</div>
+                <h2 class="screen-title">相場だけ知りたいのに、<br>電話は0本。</h2>
+                <p class="screen-sub">
+                  一括査定の不安を、電話本数でひと目比較。
+                  UcarPACはAI査定までは個人情報不要。まずは静かに相場確認。
+                </p>
+
+                <div class="compare-board">
+                  <div class="compare-head">
+                    <strong>競合との違い</strong>
+                    <span style="font-size:11px; opacity:.82;">初回相場チェック時</span>
+                  </div>
+
+                  <div class="compare-list">
+                    <div class="compare-item highlight">
+                      <div>
+                        <div class="compare-brand">UcarPAC App</div>
+                        <div class="compare-copy">AI査定、個人情報不要、あとから売却相談</div>
+                      </div>
+                      <div class="compare-value">0本</div>
+                    </div>
+
+                    <div class="compare-item">
+                      <div>
+                        <div class="compare-brand">MOTA</div>
+                        <div class="compare-copy">上位3社とやりとり、結果は翌日</div>
+                      </div>
+                      <div class="compare-value">3本</div>
+                    </div>
+
+                    <div class="compare-item">
+                      <div>
+                        <div class="compare-brand">ズバット</div>
+                        <div class="compare-copy">最大10社へ一括査定申込</div>
+                      </div>
+                      <div class="compare-value">10本</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="metric-card">
+                  <div class="metric-top">
+                    <div>
+                      <div class="metric-label">ユーザーが感じる安心感</div>
+                      <div class="metric-value">94%</div>
+                    </div>
+                    <div class="metric-trend">仮説: DL率を押し上げる訴求</div>
+                  </div>
+                  <div class="bar-chart">
+                    <div class="bar" style="height:96%;">
+                      <span class="bar-value">0本</span>
+                      <span>UcarPAC</span>
+                    </div>
+                    <div class="bar" style="height:42%;">
+                      <span class="bar-value">3本</span>
+                      <span>MOTA</span>
+                    </div>
+                    <div class="bar" style="height:22%;">
+                      <span class="bar-value">10本</span>
+                      <span>ズバット</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="pill-row">
+                  <div class="pill">AI査定だけなら営業連絡なし</div>
+                  <div class="pill">電話1社の売却導線</div>
+                  <div class="pill">8,000社オークション</div>
+                </div>
+
+                <div class="cta-card">
+                  <div class="cta-left">
+                    <strong>競合比較は「高く売れる」より先に「気軽に始められる」で勝つ。</strong>
+                    <span>ASOでは不安除去の明快さが、スクショ閲覧からDLまでの決断を縮めます。</span>
+                  </div>
+                  <div class="floating-badge">不安除去<br>特化</div>
+                </div>
+              </section>
+            </article>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="dots" id="dots">
+            <button class="dot active" data-index="0" aria-label="1枚目へ"></button>
+            <button class="dot" data-index="1" aria-label="2枚目へ"></button>
+            <button class="dot" data-index="2" aria-label="3枚目へ"></button>
+          </div>
+          <div class="navs">
+            <button class="nav-btn" id="prevBtn" aria-label="前へ">‹</button>
+            <button class="nav-btn" id="nextBtn" aria-label="次へ">›</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="lab">
+        <div class="lab-card">
+          <div class="lab-head">
+            <strong>どの訴求がDLを動かすか</strong>
+            <div class="lab-toggle">
+              <button class="active" data-mode="impact">瞬発力</button>
+              <button data-mode="retain">継続力</button>
+            </div>
+          </div>
+
+          <div class="result-board" id="resultBoard">
+            <div class="result active">
+              <div>
+                <strong>AI査定の即時理解</strong>
+                <span>価格レンジが数秒で伝わり、ストアでの離脱抑制に強い。</span>
+              </div>
+              <div class="result-score">92</div>
+            </div>
+            <div class="result">
+              <div>
+                <strong>出費管理 + 未来予測</strong>
+                <span>インストール後の継続価値まで見せられ、比較検討に強い。</span>
+              </div>
+              <div class="result-score">84</div>
+            </div>
+            <div class="result">
+              <div>
+                <strong>電話0本の比較訴求</strong>
+                <span>競合不安を一瞬で反転。特に未認知層向けに刺さる。</span>
+              </div>
+              <div class="result-score">89</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer-note">
+        プロトタイプ要素: 375px基準、インライン実装、スワイプ操作、診断風進行、マイクロアニメーション、具体的な車種・価格ダミーデータを反映。
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const track = document.getElementById("track");
+      const dots = Array.from(document.querySelectorAll(".dot"));
+      const steps = Array.from(document.querySelectorAll(".step"));
+      const progressLabel = document.getElementById("progressLabel");
+      const heroScore = document.getElementById("heroScore");
+      const playFlow = document.getElementById("playFlow");
+      const shuffleShots = document.getElementById("shuffleShots");
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const resultBoard = document.getElementById("resultBoard");
+      const modeButtons = Array.from(document.querySelectorAll(".lab-toggle button"));
+      const kpiChip = document.getElementById("kpiChip");
+
+      let index = 0;
+      let autoTimer = null;
+      let startX = 0;
+      let currentX = 0;
+      let dragging = false;
+
+      const scoreMap = [83, 87, 91];
+      const resultModes = {
+        impact: [
+          { title: "AI査定の即時理解", body: "価格レンジが数秒で伝わり、ストアでの離脱抑制に強い。", score: 92 },
+          { title: "出費管理 + 未来予測", body: "インストール後の継続価値まで見せられ、比較検討に強い。", score: 84 },
+          { title: "電話0本の比較訴求", body: "競合不安を一瞬で反転。特に未認知層向けに刺さる。", score: 89 }
+        ],
+        retain: [
+          { title: "出費管理 + 未来予測", body: "売らない期間でも使い続ける理由を作り、アンインストールを減らす。", score: 93 },
+          { title: "AI査定の即時理解", body: "初回利用の満足度が高く、再訪導線の入口を作りやすい。", score: 85 },
+          { title: "電話0本の比較訴求", body: "安心して試せるため初回転換に強いが、継続価値の補足が必要。", score: 78 }
+        ]
+      };
+
+      function updateSlide(nextIndex) {
+        index = (nextIndex + 3) % 3;
+        track.style.transform = "translateX(-" + (index * 33.333333) + "%)";
+        dots.forEach((dot, i) => dot.classList.toggle("active", i === index));
+        steps.forEach((step, i) => step.classList.toggle("active", i === index));
+        progressLabel.textContent = "STEP " + (index + 1) + " / 3";
+        heroScore.textContent = scoreMap[index];
+      }
+
+      function renderResults(mode) {
+        resultBoard.innerHTML = "";
+        resultModes[mode].forEach((item, i) => {
+          const row = document.createElement("div");
+          row.className = "result" + (i === 0 ? " active" : "");
+          row.innerHTML = `
+            <div>
+              <strong>${item.title}</strong>
+              <span>${item.body}</span>
+            </div>
+            <div class="result-score">${item.score}</div>
+          `;
+          resultBoard.appendChild(row);
+        });
+      }
+
+      function startAutoFlow() {
+        clearInterval(autoTimer);
+        autoTimer = setInterval(() => updateSlide(index + 1), 1700);
+        setTimeout(() => clearInterval(autoTimer), 5600);
+      }
+
+      function shuffleFlow() {
+        const next = Math.floor(Math.random() * 3);
+        updateSlide(next);
+      }
+
+      dots.forEach((dot) => {
+        dot.addEventListener("click", () => updateSlide(Number(dot.dataset.index)));
+      });
+
+      prevBtn.addEventListener("click", () => updateSlide(index - 1));
+      nextBtn.addEventListener("click", () => updateSlide(index + 1));
+      playFlow.addEventListener("click", startAutoFlow);
+      shuffleShots.addEventListener("click", shuffleFlow);
+
+      modeButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          modeButtons.forEach((b) => b.classList.toggle("active", b === button));
+          renderResults(button.dataset.mode);
+        });
+      });
+
+      kpiChip.addEventListener("click", () => {
+        const cycle = ["17.3% 現状", "21.4% 中間仮説", "25.0% KPI"];
+        const current = kpiChip.querySelector("span:last-child");
+        const now = cycle.indexOf(current.textContent);
+        current.textContent = cycle[(now + 1) % cycle.length];
+      });
+
+      const stage = document.getElementById("stage");
+
+      stage.addEventListener("touchstart", (e) => {
+        dragging = true;
+        startX = e.touches[0].clientX;
+        currentX = startX;
+      }, { passive: true });
+
+      stage.addEventListener("touchmove", (e) => {
+        if (!dragging) return;
+        currentX = e.touches[0].clientX;
+      }, { passive: true });
+
+      stage.addEventListener("touchend", () => {
+        if (!dragging) return;
+        const delta = currentX - startX;
+        if (Math.abs(delta) > 40) {
+          updateSlide(index + (delta < 0 ? 1 : -1));
+        }
+        dragging = false;
+      });
+
+      let mouseDown = false;
+      stage.addEventListener("mousedown", (e) => {
+        mouseDown = true;
+        startX = e.clientX;
+        currentX = startX;
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        if (!mouseDown) return;
+        currentX = e.clientX;
+      });
+
+      window.addEventListener("mouseup", () => {
+        if (!mouseDown) return;
+        const delta = currentX - startX;
+        if (Math.abs(delta) > 50) {
+          updateSlide(index + (delta < 0 ? 1 : -1));
+        }
+        mouseDown = false;
+      });
+
+      updateSlide(0);
+      renderResults("impact");
+    })();
+  </script>
+</body>
+</html>
