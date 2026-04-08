@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UcarPAC 事業データ徹底分析レポート — 2026年3月</title>
+<style>
+  :root {
+    --charcoal: #2D2D2D;
+    --slate: #64748B;
+    --mist: #F1F5F9;
+    --accent: #E1006E;
+    --accent-soft: #FCE7F3;
+    --green: #059669;
+    --green-soft: #D1FAE5;
+    --amber: #D97706;
+    --amber-soft: #FEF3C7;
+    --red: #DC2626;
+    --red-soft: #FEE2E2;
+    --blue: #2563EB;
+    --blue-soft: #DBEAFE;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'BIZ UDPGothic', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+    color: var(--charcoal);
+    background: #F8FAFC;
+    line-height: 1.7;
+  }
+  .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, var(--charcoal) 0%, #1a1a2e 100%);
+    color: white;
+    padding: 48px 40px;
+    border-radius: 16px;
+    margin-bottom: 32px;
+  }
+  .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 16px; color: #94A3B8; }
+  .header .meta { display: flex; gap: 24px; margin-top: 16px; font-size: 13px; color: #94A3B8; }
+  .header .meta span { background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 20px; }
+
+  /* Executive Summary */
+  .exec-summary {
+    background: white;
+    border-left: 4px solid var(--accent);
+    padding: 32px;
+    border-radius: 12px;
+    margin-bottom: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .exec-summary h2 { color: var(--accent); font-size: 20px; margin-bottom: 16px; }
+  .exec-summary .action-box {
+    background: var(--accent-soft);
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-top: 16px;
+    font-weight: 600;
+  }
+
+  /* KPI Cards */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .kpi-card {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  .kpi-card .label { font-size: 13px; color: var(--slate); margin-bottom: 4px; }
+  .kpi-card .value { font-size: 36px; font-weight: 700; }
+  .kpi-card .change { font-size: 13px; margin-top: 4px; }
+  .kpi-card .change.positive { color: var(--green); }
+  .kpi-card .change.negative { color: var(--red); }
+
+  /* Section */
+  .section {
+    background: white;
+    padding: 32px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .section h2 {
+    font-size: 20px;
+    color: var(--charcoal);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--mist);
+  }
+  .section h3 {
+    font-size: 16px;
+    color: var(--slate);
+    margin: 20px 0 12px;
+  }
+  .section p { margin-bottom: 12px; font-size: 15px; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  thead th {
+    background: var(--mist);
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--slate);
+    border-bottom: 2px solid #E2E8F0;
+  }
+  tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #F1F5F9;
+  }
+  tbody tr:hover { background: #FAFBFC; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .highlight { background: var(--accent-soft); font-weight: 600; }
+  .highlight-green { background: var(--green-soft); }
+  .highlight-amber { background: var(--amber-soft); }
+  .highlight-red { background: var(--red-soft); }
+
+  /* Insight Box */
+  .insight {
+    background: var(--blue-soft);
+    border-left: 3px solid var(--blue);
+    padding: 16px 20px;
+    border-radius: 0 8px 8px 0;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  .insight strong { color: var(--blue); }
+
+  .warning {
+    background: var(--amber-soft);
+    border-left: 3px solid var(--amber);
+    padding: 16px 20px;
+    border-radius: 0 8px 8px 0;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+
+  .critical {
+    background: var(--red-soft);
+    border-left: 3px solid var(--red);
+    padding: 16px 20px;
+    border-radius: 0 8px 8px 0;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+
+  /* Action Items */
+  .actions {
+    background: var(--green-soft);
+    padding: 24px;
+    border-radius: 12px;
+    margin: 16px 0;
+  }
+  .actions h3 { color: var(--green); margin-bottom: 12px; }
+  .actions ol { padding-left: 20px; }
+  .actions li { margin-bottom: 8px; font-size: 14px; }
+  .actions .impact { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+  .actions .impact.high { background: var(--accent-soft); color: var(--accent); }
+  .actions .impact.medium { background: var(--amber-soft); color: var(--amber); }
+
+  /* Chart placeholder */
+  .bar-chart { display: flex; align-items: end; gap: 8px; height: 200px; margin: 16px 0; padding: 0 20px; }
+  .bar-item { flex: 1; text-align: center; display: flex; flex-direction: column; justify-content: flex-end; }
+  .bar-item .bar {
+    background: var(--accent);
+    border-radius: 4px 4px 0 0;
+    min-height: 4px;
+    transition: height 0.3s;
+  }
+  .bar-item .bar.secondary { background: var(--blue); }
+  .bar-item .bar-label { font-size: 11px; color: var(--slate); margin-top: 6px; }
+  .bar-item .bar-value { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 32px;
+    color: var(--slate);
+    font-size: 13px;
+  }
+
+  /* Comparison Grid */
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .comparison-card {
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #E2E8F0;
+  }
+  .comparison-card.good { border-color: var(--green); background: var(--green-soft); }
+  .comparison-card.bad { border-color: var(--red); background: var(--red-soft); }
+  .comparison-card h4 { font-size: 14px; margin-bottom: 8px; }
+  .comparison-card .big-num { font-size: 32px; font-weight: 700; }
+
+  @media (max-width: 768px) {
+    .container { padding: 12px; }
+    .header { padding: 24px 20px; }
+    .section { padding: 20px; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .comparison-grid { grid-template-columns: 1fr; }
+    table { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<script>
+  window.PROTO_AUTH_CONFIG = {
+    title: "UcarPAC 事業データ徹底分析レポート",
+    subtitle: "事業分析レポート閲覧用の認証です。認証状態は 24 時間保持されます。"
+  };
+</script>
+<script src="../../auth.js"></script>
+<div style="max-width:1200px;margin:0 auto;padding:20px 20px 0;">
+  <a href="../" style="color:#2563EB;text-decoration:none;font-weight:700;">&larr; Reports に戻る</a>
+</div>
+<div class="container">
+
+<!-- ========== HEADER ========== -->
+<div class="header">
+  <h1>UcarPAC 事業データ徹底分析レポート</h1>
+  <div class="subtitle">業務DB（ucarpac_data + app_db）から広告・GA4・SC以外の全領域を深掘り</div>
+  <div class="meta">
+    <span>分析期間: 2025/01 - 2026/03</span>
+    <span>データソース: BigQuery ucarpac-uapp</span>
+    <span>作成日: 2026-03-19</span>
+    <span>クエリ数: 19本</span>
+  </div>
+</div>
+
+<!-- ========== EXECUTIVE SUMMARY ========== -->
+<div class="exec-summary">
+  <h2>エグゼクティブサマリー</h2>
+  <p>UcarPACの業務データを19本のBQクエリで徹底分析した結果、<strong>5つの重大な改善機会</strong>を特定しました。</p>
+  <ol style="padding-left: 20px; margin: 12px 0;">
+    <li><strong>架電回数の最適化</strong> — 3-4回が成約率14.5%でピーク。11回以上（6,035件）は3.7%に低下。架電コスト削減と成約率向上を同時に実現可能</li>
+    <li><strong>カーセンサー単独案件の選別強化</strong> — 単独（10.8%）は同時（0.2%）の54倍の成約率。単独1,298件が同時59,073件より多く成約している</li>
+    <li><strong>手数料上限の影響</strong> — 200万以上は手数料150,000円で頭打ち。100-200万帯が手数料総額6,027万で最大の収益源</li>
+    <li><strong>ファネル離脱の集中</strong> — お断り（3,951件）と未接続終了（3,021件）が最大離脱。成約の95%は出張査定と未査定承諾の2ルートのみ</li>
+    <li><strong>BID店カバレッジと地方成約率の相関</strong> — 入札数3.8本の沖縄は成約率4.7%、6.4本の愛知は12.0%。地方BID店拡大が直接的な改善レバー</li>
+  </ol>
+  <div class="action-box">
+    即アクション: 架電回数を最大7回に制限し、8回以上の案件を別ルート（SMS/メール）に切り替えることで、年間約3,000件の無駄な架電を削減しつつ成約率を維持
+  </div>
+</div>
+
+<!-- ========== KPI OVERVIEW ========== -->
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="label">UCP売上合計（2025/1〜、C2B）</div>
+    <div class="value" style="color: var(--accent);">3.90億</div>
+    <div class="change">2,717件 / 平均143,576円</div>
+  </div>
+  <div class="kpi-card">
+    <div class="label">最適架電回数</div>
+    <div class="value" style="color: var(--green);">3-4回</div>
+    <div class="change positive">成約率14.5% — 最高値</div>
+  </div>
+  <div class="kpi-card">
+    <div class="label">CS単独 vs 同時</div>
+    <div class="value" style="color: var(--blue);">54倍</div>
+    <div class="change">10.8% vs 0.2%</div>
+  </div>
+  <div class="kpi-card">
+    <div class="label">リピーター手数料LTV</div>
+    <div class="value" style="color: var(--amber);">32.8万</div>
+    <div class="change">5回以上利用者（129人）</div>
+  </div>
+</div>
+
+<!-- ========== 1. 売上構造 ========== -->
+<div class="section">
+  <h2>1. 売上構造の全貌（成約価格ベース）</h2>
+
+  <h3>1-1. UCP売上の正式計算式と価格帯別構成</h3>
+  <p>売上計算式（kpi_dashboard_service.rb準拠）:</p>
+  <div style="background: var(--mist); padding: 16px; border-radius: 8px; font-family: monospace; font-size: 14px; margin-bottom: 16px;">
+    incentive_part = 成約価格 × 0.1 / 1.1<br>
+    max_revenue = 手数料 + incentive_part<br>
+    <strong>売上 = max_revenue - (加算金 / 1.1) - (BIDクーポン / 1.1)</strong><br>
+    ※ 最低0円保証
+  </div>
+  <p><strong>UCP売上合計: 約3.90億円</strong>（C2B 2,717件、2025/1〜）</p>
+
+  <table>
+    <thead>
+      <tr><th>成約価格帯</th><th class="num">件数</th><th class="num">平均max_revenue</th><th class="num">平均加算金</th><th class="num">平均売上</th><th class="num">売上合計</th><th class="num">構成比</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>~50万</td><td class="num">1,029</td><td class="num">75,165</td><td class="num">14,636</td><td class="num">61,899</td><td class="num">6,369万</td><td class="num">16.3%</td></tr>
+      <tr><td>50-100万</td><td class="num">447</td><td class="num">154,706</td><td class="num">43,190</td><td class="num">115,442</td><td class="num">5,160万</td><td class="num">13.2%</td></tr>
+      <tr class="highlight"><td><strong>100-200万</strong></td><td class="num"><strong>467</strong></td><td class="num">260,690</td><td class="num">98,573</td><td class="num"><strong>171,079</strong></td><td class="num"><strong>7,989万</strong></td><td class="num"><strong>20.5%</strong></td></tr>
+      <tr><td>200-300万</td><td class="num">260</td><td class="num">375,362</td><td class="num">183,173</td><td class="num">208,841</td><td class="num">5,430万</td><td class="num">13.9%</td></tr>
+      <tr><td>300-500万</td><td class="num">289</td><td class="num">508,902</td><td class="num">293,328</td><td class="num">242,240</td><td class="num">7,001万</td><td class="num">17.9%</td></tr>
+      <tr><td>500万+</td><td class="num">225</td><td class="num">753,785</td><td class="num">486,871</td><td class="num">311,175</td><td class="num">7,001万</td><td class="num">17.9%</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight">
+    <strong>発見:</strong>
+    <ul style="margin-top: 8px; padding-left: 20px;">
+      <li><strong>100-200万帯が売上合計7,989万で最大（20.5%）</strong> — 件数467×高い1件あたり売上171,079のバランスが最良</li>
+      <li>300-500万帯と500万+帯はどちらも7,001万で同額 — 500万+は1件あたり売上311,175と最高だが件数225件で限定的</li>
+      <li>~50万帯は件数最多（1,029件）だが1件あたり61,899と低く、売上全体の16.3%</li>
+      <li><strong>加算金のインパクト:</strong> 500万+帯はmax_revenue 753,785のうち加算金で486,871（64.6%）が消化され、売上は311,175に圧縮。加算金を10%削減するだけで1件あたり約44,000の改善×225件＝年間約1,000万</li>
+    </ul>
+  </div>
+
+  <h3>1-2. セグメント別UCP売上</h3>
+  <table>
+    <thead>
+      <tr><th>セグメント</th><th class="num">成約件数</th><th class="num">平均売上</th><th class="num">売上合計</th><th class="num">構成比</th></tr>
+    </thead>
+    <tbody>
+      <tr class="highlight-green"><td><strong>SEO</strong></td><td class="num"><strong>1,457</strong></td><td class="num">150,964</td><td class="num"><strong>2.20億</strong></td><td class="num"><strong>56.3%</strong></td></tr>
+      <tr><td>Alliance</td><td class="num">319</td><td class="num"><strong>161,048</strong></td><td class="num">5,137万</td><td class="num">13.2%</td></tr>
+      <tr><td>Affiliate</td><td class="num">345</td><td class="num">138,245</td><td class="num">4,769万</td><td class="num">12.2%</td></tr>
+      <tr><td>Carsensor</td><td class="num">250</td><td class="num">111,786</td><td class="num">2,795万</td><td class="num">7.2%</td></tr>
+      <tr><td>Other</td><td class="num">153</td><td class="num">142,786</td><td class="num">2,185万</td><td class="num">5.6%</td></tr>
+      <tr><td>Referral</td><td class="num">52</td><td class="num">161,860</td><td class="num">842万</td><td class="num">2.2%</td></tr>
+      <tr><td>Ads</td><td class="num">24</td><td class="num">159,666</td><td class="num">383万</td><td class="num">1.0%</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight">
+    <strong>発見:</strong>
+    <ul style="margin-top: 8px; padding-left: 20px;">
+      <li><strong>SEOが売上の56.3%（2.20億）</strong>で圧倒的。件数×平均売上の両方がトップ</li>
+      <li><strong>1件あたり売上はAlliance（161,048）とReferral（161,860）が最高</strong> — 高額車が多い＋加算金比率が相対的に低い</li>
+      <li><strong>Carsensorは1件あたり111,786で最低</strong> — 低価格帯中心のため</li>
+      <li>Ads（24件）とReferral（52件）は件数が少なく売上構成比は各1-2%</li>
+    </ul>
+  </div>
+
+  <h3>1-3. 取引種別</h3>
+  <div class="comparison-grid">
+    <div class="comparison-card">
+      <h4>C2Bフロー（trading_kind=1）</h4>
+      <div class="big-num">2,717件</div>
+      <p>平均成約額: 166万円</p>
+    </div>
+    <div class="comparison-card">
+      <h4>買取フロー（trading_kind=NULL）</h4>
+      <div class="big-num">464件</div>
+      <p>平均成約額: 140万円（スプレッド方式）</p>
+      <p>平均マージン: 155,539円</p>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 2. ファネル離脱 ========== -->
+<div class="section">
+  <h2>2. ファネル離脱分析 — 成約の95%は2ルートのみ</h2>
+
+  <p>最終ステート分析（guest_state_master で名前解決済み）。成約に至るルートと離脱ポイントを可視化。</p>
+
+  <table>
+    <thead>
+      <tr><th>最終ステート</th><th>正式ラベル</th><th class="num">件数</th><th class="num">査定数</th><th class="num">成約数</th><th class="num">成約率</th><th>解釈</th></tr>
+    </thead>
+    <tbody>
+      <tr class="highlight-green"><td>assessment</td><td><strong>出張査定</strong></td><td class="num">4,618</td><td class="num">4,616</td><td class="num">1,399</td><td class="num"><strong>30.3%</strong></td><td>主力ルート。査定員が訪問→3割成約</td></tr>
+      <tr class="highlight-green"><td>not_assessment_deal</td><td><strong>未査定承諾</strong></td><td class="num">3,129</td><td class="num">2,526</td><td class="num">840</td><td class="num"><strong>26.8%</strong></td><td>出張査定なしで出品承諾。写真査定ルート</td></tr>
+      <tr class="highlight-red"><td>refuse</td><td><strong>お断り</strong></td><td class="num">3,951</td><td class="num">24</td><td class="num">0</td><td class="num">0.0%</td><td>架電後に顧客がお断り。最大離脱</td></tr>
+      <tr class="highlight-red"><td>end</td><td><strong>未接続終了</strong></td><td class="num">3,021</td><td class="num">4</td><td class="num">0</td><td class="num">0.0%</td><td>電話がつながらず終了</td></tr>
+      <tr class="highlight-amber"><td>not_assessment</td><td><strong>未査定対応中</strong></td><td class="num">2,784</td><td class="num">16</td><td class="num">3</td><td class="num">0.1%</td><td>出張査定なしルートで対応中のまま滞留</td></tr>
+      <tr><td>waiting</td><td><strong>連絡待ち</strong></td><td class="num">1,764</td><td class="num">16</td><td class="num">0</td><td class="num">0.0%</td><td>顧客からの連絡待ちのまま放置</td></tr>
+      <tr><td>not_assessment_end</td><td><strong>未査定未接続終了</strong></td><td class="num">1,335</td><td class="num">2</td><td class="num">1</td><td class="num">0.1%</td><td>未査定ルートで電話つながらず終了</td></tr>
+      <tr><td>not_assessment_refuse</td><td><strong>未査定お断り</strong></td><td class="num">1,070</td><td class="num">12</td><td class="num">0</td><td class="num">0.0%</td><td>未査定ルートで顧客がお断り</td></tr>
+      <tr><td>escapade</td><td><strong>いたずら</strong></td><td class="num">873</td><td class="num">0</td><td class="num">0</td><td class="num">0.0%</td><td>いたずら・虚偽申込と判定</td></tr>
+      <tr><td>overlap</td><td><strong>重複</strong></td><td class="num">495</td><td class="num">21</td><td class="num">0</td><td class="num">0.0%</td><td>重複申込</td></tr>
+      <tr><td>ss</td><td><strong>店舗査定</strong></td><td class="num">148</td><td class="num">148</td><td class="num">37</td><td class="num">25.0%</td><td>来店による査定。成約率高い</td></tr>
+      <tr><td>area</td><td><strong>エリア外</strong></td><td class="num">89</td><td class="num">0</td><td class="num">0</td><td class="num">0.0%</td><td>サービスエリア外</td></tr>
+      <tr><td>recycling_recall</td><td><strong>リサイクル再コール</strong></td><td class="num">198</td><td class="num">0</td><td class="num">0</td><td class="num">0.0%</td><td>リサイクル案件</td></tr>
+      <tr><td>recall</td><td><strong>再コール</strong></td><td class="num">265</td><td class="num">5</td><td class="num">0</td><td class="num">0.0%</td><td>再架電が必要だが未完了</td></tr>
+      <tr><td>recycling_partnership</td><td><strong>リサイクル連携</strong></td><td class="num">29</td><td class="num">0</td><td class="num">0</td><td class="num">0.0%</td><td>リサイクル業者連携</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight">
+    <strong>成約の95%は2ルート:</strong>
+    <ul style="margin-top: 8px; padding-left: 20px;">
+      <li><strong>出張査定</strong>（4,618件→成約1,399件、30.3%）— 査定員が訪問する正規ルート</li>
+      <li><strong>未査定承諾</strong>（3,129件→成約840件、26.8%）— 出張査定なしで出品に承諾するルート（写真・セルフ査定ベース）</li>
+    </ul>
+  </div>
+
+  <div class="critical">
+    <strong>最大の離脱:</strong> お断り（3,951件）と未接続終了（3,021件）の合計6,972件が成約ゼロ。全申込の約29%。「お断り」は接触できたが顧客が辞退。「未接続終了」はそもそも電話がつながらなかった案件。
+  </div>
+
+  <div class="warning">
+    <strong>注目:</strong>
+    <ul style="margin-top: 8px; padding-left: 20px;">
+      <li><strong>連絡待ち（1,764件）</strong>— 顧客からの折り返し待ちのまま全て成約ゼロ。一定期間後の再架電/SMS施策で回収余地あり</li>
+      <li><strong>未査定対応中（2,784件）</strong>— 写真査定ルートで対応中のまま滞留。承諾（not_assessment_deal）に進められれば成約率26.8%のルートに乗る</li>
+      <li><strong>いたずら（873件）</strong>— 全体の3.6%。CS同時査定由来が多い可能性</li>
+    </ul>
+  </div>
+</div>
+
+<div class="section">
+  <h2>2.5 直近運用モニタリング — 滞留ステートとリードタイム（2026年2月申込コホート）</h2>
+
+  <p>年間累積のファネル離脱とは別に、2026年2月の申込コホートだけを切り出して「今どこで止まっているか」を確認した。結論は、<strong>Alliance の未査定未接続終了</strong>と、<strong>査定後の halts（取引停止）</strong>が最大の滞留ポイント。</p>
+
+  <table>
+    <thead>
+      <tr><th>セグメント</th><th class="num">申込</th><th class="num">査定</th><th class="num">出品</th><th class="num">成約</th><th class="num">成約率</th><th class="num">申込→成約日数</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>SEO</td><td class="num">739</td><td class="num">219</td><td class="num">157</td><td class="num">67</td><td class="num">9.1%</td><td class="num">10.1日</td></tr>
+      <tr><td>Alliance</td><td class="num">5,644</td><td class="num">251</td><td class="num">171</td><td class="num">54</td><td class="num">1.0%</td><td class="num">9.7日</td></tr>
+      <tr><td>App</td><td class="num">240</td><td class="num">64</td><td class="num">53</td><td class="num">22</td><td class="num">9.2%</td><td class="num">13.2日</td></tr>
+      <tr><td>Ads</td><td class="num">583</td><td class="num">184</td><td class="num">131</td><td class="num">56</td><td class="num">9.6%</td><td class="num">12.3日</td></tr>
+      <tr><td>Affiliate</td><td class="num">323</td><td class="num">100</td><td class="num">77</td><td class="num">25</td><td class="num">7.7%</td><td class="num">9.6日</td></tr>
+      <tr><td>Referral</td><td class="num">27</td><td class="num">19</td><td class="num">16</td><td class="num">7</td><td class="num">25.9%</td><td class="num">15.1日</td></tr>
+    </tbody>
+  </table>
+
+  <div class="critical">
+    <strong>最大の滞留:</strong> Alliance では<strong>未査定未接続終了が4,670件、平均38.2日</strong>で突出。成約率の問題というより「最初の接続に失敗した案件が大量に残っている」構造で、通常の架電最適化とは別の回収施策が必要。
+  </div>
+
+  <div class="warning">
+    <strong>査定後の詰まり:</strong> item_state の最大ボトルネックは <strong>halts（取引停止）</strong>。Alliance 152件・平均32.9日、Ads 103件・平均31.0日、SEO 125件・平均28.8日で、出品後の止まり方が共通している。査定後に「どこで止まるか」を現場ステートで週次棚卸しする価値が高い。
+  </div>
+
+  <div class="insight">
+    <strong>補足:</strong> 2026年2月コホートでは Affiliate が申込→成約 9.6日で最短、Alliance も成約した案件だけ見れば 9.7日と速い。つまり Alliance の弱さは「成約後の速度」ではなく、<strong>成約ルートに乗る前の接続失敗・未査定滞留</strong>に集中している。
+  </div>
+</div>
+
+<!-- ========== 3. 架電回数最適化 ========== -->
+<div class="section">
+  <h2>3. 架電回数 — 最適回数は3-4回</h2>
+
+  <p>架電回数と成約率の関係を分析した結果、<strong>明確な逆U字カーブ</strong>が確認されました。</p>
+
+  <div class="bar-chart">
+    <div class="bar-item">
+      <div class="bar-value">5.1%</div>
+      <div class="bar" style="height: 35px;"></div>
+      <div class="bar-label">0回<br>333件</div>
+    </div>
+    <div class="bar-item">
+      <div class="bar-value">4.7%</div>
+      <div class="bar" style="height: 32px;"></div>
+      <div class="bar-label">1回<br>149件</div>
+    </div>
+    <div class="bar-item">
+      <div class="bar-value">9.1%</div>
+      <div class="bar" style="height: 63px;"></div>
+      <div class="bar-label">2回<br>4,759件</div>
+    </div>
+    <div class="bar-item">
+      <div class="bar-value" style="color: var(--accent); font-weight: 700;">14.5%</div>
+      <div class="bar" style="height: 100px; background: var(--accent);"></div>
+      <div class="bar-label"><strong>3-4回</strong><br>5,328件</div>
+    </div>
+    <div class="bar-item">
+      <div class="bar-value">14.0%</div>
+      <div class="bar" style="height: 97px;"></div>
+      <div class="bar-label">5-7回<br>4,223件</div>
+    </div>
+    <div class="bar-item">
+      <div class="bar-value">7.9%</div>
+      <div class="bar" style="height: 54px;"></div>
+      <div class="bar-label">8-10回<br>2,975件</div>
+    </div>
+    <div class="bar-item">
+      <div class="bar-value" style="color: var(--red);">3.7%</div>
+      <div class="bar" style="height: 26px; background: var(--red);"></div>
+      <div class="bar-label">11回+<br>6,035件</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>架電回数</th><th class="num">件数</th><th class="num">査定率</th><th class="num">成約率</th><th>評価</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>0回</td><td class="num">333</td><td class="num">16.8%</td><td class="num">5.1%</td><td>未接触</td></tr>
+      <tr><td>1回</td><td class="num">149</td><td class="num">16.8%</td><td class="num">4.7%</td><td>不十分</td></tr>
+      <tr><td>2回</td><td class="num">4,759</td><td class="num">27.3%</td><td class="num">9.1%</td><td>まだ伸びしろあり</td></tr>
+      <tr class="highlight"><td><strong>3-4回</strong></td><td class="num"><strong>5,328</strong></td><td class="num"><strong>46.9%</strong></td><td class="num"><strong>14.5%</strong></td><td><strong>最適ゾーン</strong></td></tr>
+      <tr><td>5-7回</td><td class="num">4,223</td><td class="num">46.1%</td><td class="num">14.0%</td><td>許容範囲</td></tr>
+      <tr class="highlight-amber"><td>8-10回</td><td class="num">2,975</td><td class="num">26.9%</td><td class="num">7.9%</td><td>過剰架電</td></tr>
+      <tr class="highlight-red"><td>11回以上</td><td class="num">6,035</td><td class="num">12.7%</td><td class="num">3.7%</td><td>非効率（コスト>収益）</td></tr>
+    </tbody>
+  </table>
+
+  <div class="critical">
+    <strong>重大発見:</strong> 11回以上架電している案件が<strong>6,035件</strong>（最大グループ）にもかかわらず、成約率はわずか3.7%。3-4回の14.5%と比べて<strong>4分の1以下</strong>。この6,035件に費やされている架電コストは、3回で見切りをつけてSMS/メールに切り替えることで大幅に削減可能。
+  </div>
+
+  <div class="warning">
+    <strong>注意:</strong> 架電回数と成約率の因果は単純ではない。「最初から反応が悪い案件ほど多く架電される」という逆因果の可能性もある。ただし8回以上で成約率が急落する傾向は、因果の方向に関わらず「8回以上の架電は投資対効果が低い」ことを示している。
+  </div>
+</div>
+
+<!-- ========== 4. カーセンサー同時/単独 ========== -->
+<div class="section">
+  <h2>4. カーセンサー同時 vs 単独 — 54倍の成約率差</h2>
+
+  <div class="comparison-grid">
+    <div class="comparison-card bad">
+      <h4>同時査定（一括査定）</h4>
+      <div class="big-num" style="color: var(--red);">0.2%</div>
+      <p>申込: 59,073件 / 成約: 98件</p>
+      <p>平均成約額: 163万円</p>
+      <p>平均手数料: 102,890円</p>
+    </div>
+    <div class="comparison-card good">
+      <h4>単独査定（UcarPACのみ）</h4>
+      <div class="big-num" style="color: var(--green);">10.8%</div>
+      <p>申込: 1,298件 / 成約: 140件</p>
+      <p>平均成約額: 84万円</p>
+      <p>平均手数料: 84,014円</p>
+    </div>
+  </div>
+
+  <div class="insight">
+    <strong>発見:</strong> 単独のほうが<strong>成約件数も多い</strong>（140件 vs 98件）。わずか2.1%の母数から60%の成約を生み出している。同時査定の59,073件は査定率2.2%、成約率0.2%と極端に低効率。
+  </div>
+
+  <div class="warning">
+    <strong>留意点:</strong> 単独の平均成約額（84万円）は同時（163万円）の約半分。低価格帯の車両が多い。手数料は84,014円 vs 102,890円と、1件あたり収益では同時のほうが高い。ただしボリューム効率（成約件数/オペレーションコスト）では単独が圧倒的。
+  </div>
+</div>
+
+<!-- ========== 5. 車両特性 ========== -->
+<div class="section">
+  <h2>5. 車両特性 — 走行距離3-5万kmが最適ゾーン</h2>
+
+  <table>
+    <thead>
+      <tr><th>走行距離帯</th><th class="num">申込</th><th class="num">成約率</th><th class="num">平均成約額</th><th class="num">推定手数料</th><th>評価</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>~1万km</td><td class="num">2,050</td><td class="num">6.9%</td><td class="num">372万</td><td class="num">150,000</td><td>高額だが成約しにくい</td></tr>
+      <tr class="highlight-green"><td>1-3万km</td><td class="num">3,727</td><td class="num"><strong>10.6%</strong></td><td class="num">336万</td><td class="num">150,000</td><td>高品質ゾーン</td></tr>
+      <tr class="highlight"><td><strong>3-5万km</strong></td><td class="num"><strong>3,991</strong></td><td class="num"><strong>11.1%</strong></td><td class="num">220万</td><td class="num">~140,000</td><td><strong>件数×成約率×手数料のバランス最良</strong></td></tr>
+      <tr><td>5-7万km</td><td class="num">3,590</td><td class="num">10.2%</td><td class="num">140万</td><td class="num">~120,000</td><td>標準的</td></tr>
+      <tr><td>7-10万km</td><td class="num">4,139</td><td class="num">9.8%</td><td class="num">83万</td><td class="num">~80,000</td><td>件数最多だが低単価</td></tr>
+      <tr><td>10-15万km</td><td class="num">4,065</td><td class="num">9.0%</td><td class="num">65万</td><td class="num">~60,000</td><td>低単価</td></tr>
+      <tr><td>15万km+</td><td class="num">2,239</td><td class="num">7.4%</td><td class="num">56万</td><td class="num">~50,000</td><td>低品質ゾーン</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight">
+    <strong>発見:</strong> 走行距離と成約率は逆U字の関係。3-5万kmが成約率11.1%でピーク。~1万km（ほぼ新車）は高額だが成約率6.9%と低い — 新車同等品はUcarPACのオークション形式では売りにくい。一方、15万km超は件数も成約率も低い。
+  </div>
+</div>
+
+<!-- ========== 6. オークション・BID店 ========== -->
+<div class="section">
+  <h2>6. オークション・BID店分析</h2>
+
+  <h3>6-1. 最高入札額 / 売切価格 比率 × 成約率</h3>
+  <p>売切価格（asking_price）= オーナーが設定する最低売却価格。超えたら売買契約成立。</p>
+
+  <table>
+    <thead>
+      <tr><th>最高入札額 / 売切価格</th><th class="num">オークション数</th><th class="num">成約数</th><th class="num">成約率</th><th class="num">平均最高入札</th><th class="num">平均売切価格</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>&lt;70%</td><td class="num">2,902</td><td class="num">504</td><td class="num">17.4%</td><td class="num">92万</td><td class="num">208万</td></tr>
+      <tr><td>70-90%</td><td class="num">3,461</td><td class="num">1,036</td><td class="num">29.9%</td><td class="num">306万</td><td class="num">377万</td></tr>
+      <tr class="highlight-green"><td>90-100%（あと少し）</td><td class="num">692</td><td class="num">620</td><td class="num"><strong>89.6%</strong></td><td class="num">273万</td><td class="num">294万</td></tr>
+      <tr class="highlight"><td><strong>100%以上（売切超え）</strong></td><td class="num"><strong>646</strong></td><td class="num"><strong>638</strong></td><td class="num"><strong>98.8%</strong></td><td class="num">102万</td><td class="num">90万</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight">
+    <strong>発見:</strong>
+    <ul style="margin-top: 8px; padding-left: 20px;">
+      <li><strong>売切超え = 98.8%成約</strong> — ビジネスルール通り、売切を超えればほぼ自動的に成約</li>
+      <li><strong>90-100%でも89.6%が成約</strong> — 売切にわずかに届かなくてもオーナーが妥協するケースが9割。スタッフの交渉力が効いている</li>
+      <li><strong>70-90%帯が最多（3,461件）で成約率29.9%</strong> — ここが成約率改善の主戦場。売切価格の適正化 or BID店拡大で入札額を引き上げる</li>
+      <li><strong>&lt;70%でも504件（17.4%）が成約</strong> — 売切と大きく乖離していてもスタッフ交渉でオーナーの期待値を調整し成約に至っている</li>
+    </ul>
+  </div>
+
+  <h3>6-2. BID店の落札効率Top10（異常値除外済み）</h3>
+  <p>明らかな異常値（アクセル販売推進: 6,707入札→落札1件）を除外。</p>
+
+  <div class="warning">
+    <strong>除外した異常BID店（1社）:</strong> アクセル販売推進（6,707入札→落札1件、落札率0.01%）。相場調査目的と判定。
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>BID店</th><th class="num">入札数</th><th class="num">落札数</th><th class="num">落札率</th><th class="num">平均落札額</th><th>特徴</th></tr>
+    </thead>
+    <tbody>
+      <tr class="highlight-green"><td><strong>HUJY</strong></td><td class="num">440</td><td class="num">126</td><td class="num"><strong>28.6%</strong></td><td class="num">88万</td><td>最高効率・中価格帯</td></tr>
+      <tr><td>アラジンファクトリー</td><td class="num">444</td><td class="num">85</td><td class="num">19.1%</td><td class="num">11万</td><td>低価格帯専門</td></tr>
+      <tr><td>サルト</td><td class="num">447</td><td class="num">76</td><td class="num">17.0%</td><td class="num">41万</td><td>低～中価格帯</td></tr>
+      <tr><td>フェニックス</td><td class="num">594</td><td class="num">97</td><td class="num">16.3%</td><td class="num">127万</td><td>中価格帯</td></tr>
+      <tr><td>大一自動車</td><td class="num">952</td><td class="num">154</td><td class="num">16.2%</td><td class="num">94万</td><td>量+効率</td></tr>
+      <tr><td>ディスク</td><td class="num">331</td><td class="num">53</td><td class="num">16.0%</td><td class="num">28万</td><td>低価格帯</td></tr>
+      <tr><td>ワールドスター</td><td class="num">883</td><td class="num">129</td><td class="num">14.6%</td><td class="num">318万</td><td>高級車専門</td></tr>
+      <tr><td>土岐三菱</td><td class="num">399</td><td class="num">57</td><td class="num">14.3%</td><td class="num">33万</td><td>低価格帯</td></tr>
+      <tr><td>吉野自動車</td><td class="num">698</td><td class="num">82</td><td class="num">11.7%</td><td class="num">221万</td><td>高級車</td></tr>
+      <tr><td>タイセイ</td><td class="num">4,112</td><td class="num">465</td><td class="num">11.3%</td><td class="num">240万</td><td>最大落札店・高級車</td></tr>
+      <tr><td>エイペクス</td><td class="num">2,446</td><td class="num">216</td><td class="num">8.8%</td><td class="num">250万</td><td>超高額車専門</td></tr>
+    </tbody>
+  </table>
+
+  <h3>6-3. 再出品の効果</h3>
+  <table>
+    <thead>
+      <tr><th>出品順</th><th class="num">オークション数</th><th class="num">成約</th><th class="num">成約率</th><th class="num">平均成約額</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>初回出品</td><td class="num">6,876</td><td class="num">2,463</td><td class="num">35.8%</td><td class="num">165万</td></tr>
+      <tr><td>2回目</td><td class="num">855</td><td class="num">245</td><td class="num">28.7%</td><td class="num">165万</td></tr>
+      <tr><td>3回目以降</td><td class="num">27</td><td class="num">9</td><td class="num">33.3%</td><td class="num">236万</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight">
+    <strong>発見:</strong> 再出品は成約率が7pt低下（35.8%→28.7%）するが、約3割はまだ成約する。成約額は初回と同等（165万）のため、再出品の価値はある。ただし3回目以降はわずか27件で統計的に不十分。
+  </div>
+
+  <h3>6-4. 入札本数帯 × 成約率（2026年2月運用観測）</h3>
+  <p>直近1か月で見ると、<strong>入札6本以上</strong>の案件がもっとも安定して強い。特に広告・アフィリエイトは、4-5本以下から6本以上へ引き上げられるかで成約率が変わる。</p>
+
+  <table>
+    <thead>
+      <tr><th>セグメント</th><th>入札本数帯</th><th class="num">オークション数</th><th class="num">成約数</th><th class="num">成約率</th><th class="num">平均入札本数</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Ads</td><td>2-3本</td><td class="num">8</td><td class="num">1</td><td class="num">12.5%</td><td class="num">3.0本</td></tr>
+      <tr><td>Ads</td><td>4-5本</td><td class="num">54</td><td class="num">17</td><td class="num">31.5%</td><td class="num">4.5本</td></tr>
+      <tr class="highlight-green"><td><strong>Ads</strong></td><td><strong>6本以上</strong></td><td class="num"><strong>73</strong></td><td class="num"><strong>26</strong></td><td class="num"><strong>35.6%</strong></td><td class="num"><strong>7.7本</strong></td></tr>
+      <tr><td>Affiliate</td><td>2-3本</td><td class="num">8</td><td class="num">3</td><td class="num">37.5%</td><td class="num">3.0本</td></tr>
+      <tr><td>Affiliate</td><td>4-5本</td><td class="num">34</td><td class="num">5</td><td class="num">14.7%</td><td class="num">4.5本</td></tr>
+      <tr class="highlight"><td><strong>Affiliate</strong></td><td><strong>6本以上</strong></td><td class="num"><strong>48</strong></td><td class="num"><strong>20</strong></td><td class="num"><strong>41.7%</strong></td><td class="num"><strong>7.7本</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight">
+    <strong>発見:</strong> Ads は 4-5本でも31.5%まで届くが、6本以上で35.6%まで伸びる。Affiliate は差がさらに大きく、4-5本の14.7%に対し6本以上は41.7%。<strong>「6本に届くか」が成約率の分岐点</strong>として使える。
+  </div>
+
+  <div class="warning">
+    <strong>運用示唆:</strong> 2026年2月の成約212件は passed BID join 100%で追えているため、BID密度を週次KPI化できる。入札4-5本以下で止まった案件を抽出し、BID店追加打診や再訴求の対象にする運用が妥当。
+  </div>
+</div>
+
+<!-- ========== 6.5 買取相場と入札の関係 ========== -->
+<div class="section">
+  <h2>6.5 買取相場価格 × 入札 × 成約の関係</h2>
+
+  <p>買取相場価格（floor_price=下限、ceiling_price=上限）はUCPが設定する相場レンジ。売切価格（asking_price）はオーナーが設定する最低売却価格。</p>
+
+  <table>
+    <thead>
+      <tr><th>入札の位置</th><th class="num">件数</th><th class="num">成約率</th><th class="num">平均入札</th><th class="num">平均相場下限</th><th class="num">平均相場上限</th><th class="num">平均売切</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>入札 &lt; 買取相場下限</td><td class="num">2,686</td><td class="num">35.4%</td><td class="num">171万</td><td class="num">211万</td><td class="num">227万</td><td class="num">240万</td></tr>
+      <tr class="highlight-green"><td><strong>買取相場下限 &le; 入札 &lt; 買取相場上限</strong></td><td class="num">278</td><td class="num"><strong>56.5%</strong></td><td class="num">220万</td><td class="num">213万</td><td class="num">230万</td><td class="num">270万</td></tr>
+      <tr><td>買取相場上限 &le; 入札 &lt; 売切</td><td class="num">290</td><td class="num">44.5%</td><td class="num">355万</td><td class="num">290万</td><td class="num">309万</td><td class="num">446万</td></tr>
+      <tr class="highlight"><td><strong>入札 &ge; 売切</strong></td><td class="num">66</td><td class="num"><strong>100%</strong></td><td class="num">152万</td><td class="num">116万</td><td class="num">130万</td><td class="num">137万</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight">
+    <strong>発見:</strong>
+    <ul style="margin-top: 8px; padding-left: 20px;">
+      <li><strong>買取相場レンジ内（下限〜上限）の入札が成約率56.5%で最高</strong> — 相場感の合致がスタッフ交渉の説得力に直結</li>
+      <li><strong>相場超え×売切未達（290件、44.5%）のほうが相場内より低い</strong> — これは高額車（平均売切446万）で売切が極端に高く設定されているケース。入札が相場を超えていても、オーナーの期待値が高すぎて成約しにくい</li>
+      <li>相場下限未達でも35.4%が成約 — スタッフ交渉力でカバーしている</li>
+      <li>フィルタ条件（floor/ceiling/asking全て>0）で3,320件のみ対象。残りはこれらの値が未設定</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ========== 6.6 買取加算金分析 ========== -->
+<div class="section">
+  <h2>6.6 買取加算金（additional_amount）分析 — UCP売上への直接インパクト</h2>
+
+  <p>買取加算金 = 成約を促進するためにUCPが売上を削ってユーザーに還元する調整金。<strong>加算金を減らす = UCPの売上が直接増える。</strong></p>
+
+  <h3>6.6-1. 加算金の全体像: 年間約3.2億円</h3>
+  <table>
+    <thead>
+      <tr><th>加算金帯</th><th class="num">件数</th><th class="num">平均加算金</th><th class="num">加算金合計</th><th class="num">平均成約額</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>加算金なし（0円）</td><td class="num">788</td><td class="num">0</td><td class="num">0</td><td class="num">84万</td></tr>
+      <tr><td>1〜1万円</td><td class="num">162</td><td class="num">6,326</td><td class="num">102万</td><td class="num">28万</td></tr>
+      <tr><td>1〜3万円</td><td class="num">276</td><td class="num">20,646</td><td class="num">570万</td><td class="num">36万</td></tr>
+      <tr><td>3〜5万円</td><td class="num">252</td><td class="num">40,678</td><td class="num">1,025万</td><td class="num">58万</td></tr>
+      <tr><td>5〜10万円</td><td class="num">319</td><td class="num">73,713</td><td class="num">2,351万</td><td class="num">105万</td></tr>
+      <tr class="highlight-red"><td><strong>10万円超</strong></td><td class="num"><strong>920</strong></td><td class="num"><strong>306,363</strong></td><td class="num"><strong>2.82億</strong></td><td class="num">349万</td></tr>
+    </tbody>
+  </table>
+
+  <div class="critical">
+    <strong>重大発見:</strong> 10万円超の加算金が920件（全成約の34%）で発生し、合計<strong>2.82億円</strong>。これだけで全加算金の87%を占める。高額車ほど加算金が大きい。
+  </div>
+
+  <h3>6.6-2. 加算金の原資 = 消費税相当額</h3>
+  <p>加算金は消費税相当額の中から拠出される。高額車ほど消費税が大きいため加算金も増えるが、<strong>赤字にはならない構造</strong>。改善余地は「消費税消化率」の低減にある。</p>
+
+  <table>
+    <thead>
+      <tr><th>成約価格帯</th><th class="num">件数</th><th class="num">平均消費税</th><th class="num">平均加算金</th><th class="num">消費税消化率</th><th class="num">消費税残り</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>~50万</td><td class="num">1,029</td><td class="num">27,838</td><td class="num">14,636</td><td class="num">52.6%</td><td class="num">13,203</td></tr>
+      <tr><td>50-100万</td><td class="num">447</td><td class="num">81,187</td><td class="num">43,190</td><td class="num">53.2%</td><td class="num">37,997</td></tr>
+      <tr><td>100-200万</td><td class="num">467</td><td class="num">158,041</td><td class="num">98,573</td><td class="num">62.4%</td><td class="num">59,468</td></tr>
+      <tr class="highlight-amber"><td>200-300万</td><td class="num">260</td><td class="num">263,005</td><td class="num">183,173</td><td class="num"><strong>69.6%</strong></td><td class="num">79,831</td></tr>
+      <tr class="highlight-amber"><td>300-500万</td><td class="num">289</td><td class="num">409,888</td><td class="num">293,328</td><td class="num"><strong>71.6%</strong></td><td class="num">116,560</td></tr>
+      <tr class="highlight-amber"><td>500万+</td><td class="num">225</td><td class="num">679,298</td><td class="num">486,871</td><td class="num"><strong>71.7%</strong></td><td class="num">192,426</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight">
+    <strong>発見:</strong> 低価格帯（~50万）は消費税の52.6%を加算金に使用。高額車（300万+）は71.6-71.7%まで消化。<strong>高額車ほど消費税消化率が高く、UCPに残る消費税相当額の余裕が少なくなる</strong>。消化率を全帯で5pt下げると約1,600万/年の改善。
+  </div>
+
+  <h3>6.6-3. 成約パターン: 加算金は何のために使われているか</h3>
+  <table>
+    <thead>
+      <tr><th>パターン</th><th class="num">件数</th><th class="num">構成比</th><th class="num">平均加算金</th><th class="num">加算金合計</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>入札>=売切（加算金ほぼ不要）</td><td class="num">636</td><td class="num">23%</td><td class="num">438</td><td class="num">28万</td></tr>
+      <tr class="highlight-amber"><td>入札&lt;売切だが加算金でブリッジ</td><td class="num">328</td><td class="num">12%</td><td class="num">143,496</td><td class="num">4,707万</td></tr>
+      <tr class="highlight-red"><td><strong>加算金足しても売切未達（スタッフ交渉で成約）</strong></td><td class="num"><strong>1,753</strong></td><td class="num"><strong>64%</strong></td><td class="num"><strong>156,872</strong></td><td class="num"><strong>2.75億</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight">
+    <strong>発見:</strong> 成約の64%（1,753件）は加算金を足しても売切に届いていない。つまり<strong>加算金はオーナーの期待値を下げるための「譲歩の材料」</strong>として機能している。売切到達のためのブリッジは12%のみ。残り23%は売切超えでそもそも加算金不要。
+  </div>
+
+  <h3>6.6-4. 担当者別の消費税消化率（価格帯正規化済み、役割別）</h3>
+  <p>車両単価が異なるため、消費税消化率（加算金/消費税）で正規化して比較。従来の出品担当に加えて、<strong>成約担当（契約管理スタッフ）</strong>でも分けて見ると役割差が見える。</p>
+
+  <h4>出品担当別（items.staff_id）</h4>
+  <h5>~100万帯</h5>
+  <table>
+    <thead>
+      <tr><th>担当者</th><th class="num">件数</th><th class="num">平均加算金</th><th class="num">消費税消化率</th><th class="num">平均成約額</th><th class="num">平均売上</th></tr>
+    </thead>
+    <tbody>
+      <tr class="highlight-green"><td><strong>小永吉</strong></td><td class="num">287</td><td class="num">22,437</td><td class="num"><strong>49.1%</strong></td><td class="num">38万</td><td class="num"><strong>82,855</strong></td></tr>
+      <tr><td>穂戸田</td><td class="num">475</td><td class="num">24,086</td><td class="num">51.8%</td><td class="num">39万</td><td class="num">81,524</td></tr>
+      <tr><td>水谷</td><td class="num">316</td><td class="num">25,873</td><td class="num">57.2%</td><td class="num">38万</td><td class="num">78,338</td></tr>
+      <tr class="highlight-red"><td><strong>蓮見</strong></td><td class="num">267</td><td class="num"><strong>28,128</strong></td><td class="num"><strong>62.3%</strong></td><td class="num">38万</td><td class="num">76,271</td></tr>
+    </tbody>
+  </table>
+
+  <h5>100-300万帯</h5>
+  <table>
+    <thead>
+      <tr><th>担当者</th><th class="num">件数</th><th class="num">平均加算金</th><th class="num">消費税消化率</th><th class="num">平均成約額</th><th class="num">平均売上</th></tr>
+    </thead>
+    <tbody>
+      <tr class="highlight-green"><td><strong>小永吉</strong></td><td class="num">160</td><td class="num">128,176</td><td class="num"><strong>64.3%</strong></td><td class="num">185万</td><td class="num"><strong>190,206</strong></td></tr>
+      <tr><td>穂戸田</td><td class="num">223</td><td class="num">128,763</td><td class="num">65.4%</td><td class="num">183万</td><td class="num">186,115</td></tr>
+      <tr><td>水谷</td><td class="num">153</td><td class="num">133,731</td><td class="num">70.8%</td><td class="num">175万</td><td class="num">172,564</td></tr>
+      <tr class="highlight-red"><td><strong>蓮見</strong></td><td class="num">149</td><td class="num"><strong>140,514</strong></td><td class="num"><strong>71.2%</strong></td><td class="num">184万</td><td class="num">174,917</td></tr>
+    </tbody>
+  </table>
+
+  <h5>300万+帯</h5>
+  <table>
+    <thead>
+      <tr><th>担当者</th><th class="num">件数</th><th class="num">平均加算金</th><th class="num">消費税消化率</th><th class="num">平均成約額</th><th class="num">平均売上</th></tr>
+    </thead>
+    <tbody>
+      <tr class="highlight-green"><td><strong>穂戸田</strong></td><td class="num">160</td><td class="num">338,477</td><td class="num"><strong>65.5%</strong></td><td class="num">502万</td><td class="num"><strong>298,614</strong></td></tr>
+      <tr><td>小永吉</td><td class="num">120</td><td class="num">365,927</td><td class="num">72.9%</td><td class="num">487万</td><td class="num">260,084</td></tr>
+      <tr><td>水谷</td><td class="num">100</td><td class="num">391,859</td><td class="num">73.4%</td><td class="num">519万</td><td class="num">265,372</td></tr>
+      <tr class="highlight-red"><td><strong>蓮見</strong></td><td class="num">108</td><td class="num"><strong>421,962</strong></td><td class="num"><strong>74.8%</strong></td><td class="num">549万</td><td class="num">265,362</td></tr>
+    </tbody>
+  </table>
+
+  <h4>成約担当別（items.contract_manager_staff_id）</h4>
+  <h5>~100万帯</h5>
+  <table>
+    <thead>
+      <tr><th>担当者</th><th class="num">件数</th><th class="num">平均加算金</th><th class="num">消費税消化率</th><th class="num">平均成約額</th><th class="num">平均売上</th></tr>
+    </thead>
+    <tbody>
+      <tr class="highlight-green"><td><strong>水谷</strong></td><td class="num">153</td><td class="num">12,585</td><td class="num"><strong>29.1%</strong></td><td class="num">36万</td><td class="num"><strong>87,444</strong></td></tr>
+      <tr><td>穂戸田</td><td class="num">267</td><td class="num">14,656</td><td class="num">30.9%</td><td class="num">40万</td><td class="num">91,809</td></tr>
+      <tr><td>蓮見</td><td class="num">260</td><td class="num">30,108</td><td class="num">63.7%</td><td class="num">40万</td><td class="num">77,645</td></tr>
+      <tr class="highlight-red"><td><strong>小永吉</strong></td><td class="num">616</td><td class="num"><strong>31,318</strong></td><td class="num"><strong>68.8%</strong></td><td class="num">38万</td><td class="num">74,118</td></tr>
+    </tbody>
+  </table>
+
+  <h5>100-300万帯</h5>
+  <table>
+    <thead>
+      <tr><th>担当者</th><th class="num">件数</th><th class="num">平均加算金</th><th class="num">消費税消化率</th><th class="num">平均成約額</th><th class="num">平均売上</th></tr>
+    </thead>
+    <tbody>
+      <tr class="highlight-green"><td><strong>水谷</strong></td><td class="num">69</td><td class="num">86,939</td><td class="num"><strong>45.2%</strong></td><td class="num">179万</td><td class="num"><strong>218,728</strong></td></tr>
+      <tr><td>穂戸田</td><td class="num">136</td><td class="num">99,707</td><td class="num">50.8%</td><td class="num">182万</td><td class="num">211,336</td></tr>
+      <tr><td>小永吉</td><td class="num">328</td><td class="num">149,268</td><td class="num">76.0%</td><td class="num">183万</td><td class="num">167,369</td></tr>
+      <tr class="highlight-red"><td><strong>蓮見</strong></td><td class="num">146</td><td class="num"><strong>152,536</strong></td><td class="num"><strong>77.3%</strong></td><td class="num">183万</td><td class="num">164,463</td></tr>
+    </tbody>
+  </table>
+
+  <h5>300万+帯</h5>
+  <table>
+    <thead>
+      <tr><th>担当者</th><th class="num">件数</th><th class="num">平均加算金</th><th class="num">消費税消化率</th><th class="num">平均成約額</th><th class="num">平均売上</th></tr>
+    </thead>
+    <tbody>
+      <tr class="highlight-green"><td><strong>穂戸田</strong></td><td class="num">84</td><td class="num">249,850</td><td class="num"><strong>46.7%</strong></td><td class="num">520万</td><td class="num"><strong>395,431</strong></td></tr>
+      <tr><td>水谷</td><td class="num">40</td><td class="num">294,175</td><td class="num">59.5%</td><td class="num">479万</td><td class="num">318,154</td></tr>
+      <tr><td>小永吉</td><td class="num">236</td><td class="num">415,337</td><td class="num">78.1%</td><td class="num">516万</td><td class="num">241,791</td></tr>
+      <tr class="highlight-red"><td><strong>蓮見</strong></td><td class="num">124</td><td class="num"><strong>418,846</strong></td><td class="num"><strong>78.6%</strong></td><td class="num">518万</td><td class="num">240,135</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight">
+    <strong>発見:</strong> 出品担当で見ると差は主に<strong>5-10pt程度</strong>だが、成約担当で見ると差がさらに広がる。特に300万+帯では<strong>穂戸田さん 46.7%</strong>に対し、小永吉さん 78.1%、蓮見さん 78.6%で、<strong>役割分離しないと改善余地の所在を見誤る</strong>。
+  </div>
+
+  <div class="warning">
+    <strong>留意点:</strong> 成約担当側で見えている列は `items.contract_manager_staff_id` ベースのため、「成約交渉そのもの」だけでなく契約管理工程の影響も含む可能性がある。また水谷さんの300万+帯は40件と小標本。したがって施策化は、<strong>出品担当/成約担当の両面で同じ傾向が出るか</strong>を確認してから進めるべき。
+  </div>
+
+  <div class="actions">
+    <h3>買取加算金の改善アクション</h3>
+    <ol>
+      <li><strong>出品担当と成約担当で別々に目標設定</strong> <span class="impact high">HIGH</span><br>
+        役割を混ぜると改善ポイントがぼやける。出品担当は高額帯の消費税消化率70%未満、成約担当は300万+帯でまず60%台前半を目安に置き、役割ごとに改善を追う</li>
+      <li><strong>穂戸田メソッドの標準化は成約担当側から優先</strong> <span class="impact high">HIGH</span><br>
+        成約担当では300万+帯で穂戸田さん46.7%に対し他担当は59.5-78.6%。まず高額帯の契約管理・成約工程から手法を抽出し、出品担当側の運用と分けて横展開する</li>
+      <li><strong>売切価格設定の適正化</strong> <span class="impact medium">MEDIUM</span><br>
+        売切が買取相場上限を大幅に超えるケース（C帯: 成約率44.5%）は、売切設定時にオーナーの期待値調整を強化</li>
+      <li><strong>加算金ゼロ成約の拡大</strong> <span class="impact medium">MEDIUM</span><br>
+        現在788件（29%）が加算金ゼロ。BID店拡大で入札額を引き上げ、売切到達率を高めることで加算金不要の成約を増やす</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ========== 6.7 セルフ vs 通常査定 ========== -->
+<div class="section">
+  <h2>6.7 セルフ査定 vs 通常査定</h2>
+  <p>判定方法: guest_transitionsに<code>not_assessment</code>系ステートを含む→セルフ、含まない→通常。</p>
+
+  <h3>6.7-1. ファネル比較</h3>
+  <table>
+    <thead>
+      <tr><th>区分</th><th class="num">申込</th><th class="num">査定率</th><th class="num">成約率</th><th class="num">出品→成約率</th><th class="num">平均成約額</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>通常査定</td><td class="num">15,961</td><td class="num">30.8%</td><td class="num"><strong>9.2%</strong></td><td class="num">35.7%</td><td class="num">188万</td></tr>
+      <tr><td>セルフ査定</td><td class="num">68,212</td><td class="num">6.1%</td><td class="num">1.5%</td><td class="num">33.0%</td><td class="num">147万</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight">
+    <strong>ポイント:</strong> セルフは申込の81%を占めるが成約率1.5%。ただし<strong>出品まで進めば成約率33%（通常の35.7%とほぼ同等）</strong>。ボトルネックは「申込→出品」の段階。セルフの6.1%しか査定に進まないのはCS一括査定の大量流入が原因。
+  </div>
+
+  <h3>6.7-2. 売上比較</h3>
+  <table>
+    <thead>
+      <tr><th>区分</th><th class="num">成約数</th><th class="num">平均売上</th><th class="num">売上合計</th><th class="num">消費税消化率</th></tr>
+    </thead>
+    <tbody>
+      <tr class="highlight-green"><td><strong>通常査定</strong></td><td class="num">1,473</td><td class="num"><strong>162,609</strong></td><td class="num"><strong>2.40億（65%）</strong></td><td class="num">64.4%</td></tr>
+      <tr><td>セルフ査定</td><td class="num">1,045</td><td class="num">123,215</td><td class="num">1.29億（35%）</td><td class="num"><strong>73.4%</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="warning">
+    <strong>注目:</strong> セルフは消費税消化率73.4%（通常64.4%より9pt高い）。つまり<strong>セルフは加算金をより多く使って成約させている</strong>。1件あたり売上も24%低い（123K vs 163K）。通常査定のほうがUCP収益性が高い。
+  </div>
+
+  <h3>6.7-3. セグメント×査定区分（CS除外の実態）</h3>
+  <table>
+    <thead>
+      <tr><th>区分</th><th>セグメント</th><th class="num">申込</th><th class="num">成約率</th></tr>
+    </thead>
+    <tbody>
+      <tr class="highlight-green"><td>セルフ</td><td><strong>Alliance</strong></td><td class="num">576</td><td class="num"><strong>18.2%</strong></td></tr>
+      <tr><td>通常</td><td>Alliance</td><td class="num">1,429</td><td class="num">14.0%</td></tr>
+      <tr><td>通常</td><td>Other</td><td class="num">1,399</td><td class="num">10.2%</td></tr>
+      <tr><td>セルフ</td><td>SEO</td><td class="num">5,831</td><td class="num"><strong>9.7%</strong></td></tr>
+      <tr><td>通常</td><td>Affiliate</td><td class="num">2,352</td><td class="num">9.0%</td></tr>
+      <tr><td>セルフ</td><td>Affiliate</td><td class="num">1,466</td><td class="num">8.7%</td></tr>
+      <tr><td>セルフ</td><td>Other</td><td class="num">955</td><td class="num">8.7%</td></tr>
+      <tr><td>通常</td><td>SEO</td><td class="num">9,794</td><td class="num">8.6%</td></tr>
+      <tr><td>通常</td><td>Carsensor</td><td class="num">987</td><td class="num">7.4%</td></tr>
+      <tr class="highlight-red"><td>セルフ</td><td><strong>Carsensor</strong></td><td class="num"><strong>59,384</strong></td><td class="num"><strong>0.3%</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight">
+    <strong>重大発見:</strong>
+    <ul style="margin-top: 8px; padding-left: 20px;">
+      <li><strong>セルフ×Allianceが成約率18.2%で全組み合わせ最高</strong> — アライアンス提携先のプリクオリファイ済みリードは、出張査定なしでも高品質</li>
+      <li><strong>セルフ×SEO（9.7%）は通常×SEO（8.6%）を上回る</strong> — セルフ申込のSEOユーザーは売却意思が固い自発的ユーザー</li>
+      <li><strong>セルフの低成約率（1.5%）はCS一括査定59,384件が支配的に押し下げているだけ</strong> — CS除外すれば8.8千件で成約率9.9%になり通常と遜色ない</li>
+      <li>通常×Carsensor（987件、7.4%）はCS単独に相当 — セルフ×CS（59,384件、0.3%）がCS同時</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ========== 6.8 評価点別オークション分析 ========== -->
+<div class="section">
+  <h2>6.8 車両評価点別の出品成約率・入札状況</h2>
+  <p>car_inspections.value（評価点）別。「-」はセルフ査定（出張査定なし）の出品。</p>
+
+  <table>
+    <thead>
+      <tr><th>評価点</th><th class="num">出品数</th><th class="num">成約</th><th class="num">出品→成約率</th><th class="num">平均入札数</th><th class="num">平均最高入札</th><th class="num">平均成約額</th><th class="num">平均売上</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>S（最高）</td><td class="num">36</td><td class="num">3</td><td class="num">8.3%</td><td class="num">4.8</td><td class="num">495万</td><td class="num">464万</td><td class="num">233,216</td></tr>
+      <tr><td>6（新車同等）</td><td class="num">67</td><td class="num">15</td><td class="num">22.4%</td><td class="num">4.6</td><td class="num">572万</td><td class="num">539万</td><td class="num">240,655</td></tr>
+      <tr><td>5（非常に良好）</td><td class="num">366</td><td class="num">70</td><td class="num">19.1%</td><td class="num">4.8</td><td class="num">526万</td><td class="num">484万</td><td class="num">235,925</td></tr>
+      <tr><td>4.5（良好）</td><td class="num">1,436</td><td class="num">484</td><td class="num">33.7%</td><td class="num">5.6</td><td class="num">325万</td><td class="num">308万</td><td class="num">209,507</td></tr>
+      <tr class="highlight-green"><td><strong>4（標準良好）</strong></td><td class="num"><strong>1,115</strong></td><td class="num"><strong>430</strong></td><td class="num"><strong>38.6%</strong></td><td class="num"><strong>6.6</strong></td><td class="num">145万</td><td class="num">140万</td><td class="num">153,155</td></tr>
+      <tr class="highlight-green"><td><strong>3.5（軽微な難）</strong></td><td class="num">749</td><td class="num">309</td><td class="num"><strong>41.3%</strong></td><td class="num"><strong>6.9</strong></td><td class="num">82万</td><td class="num">88万</td><td class="num">116,958</td></tr>
+      <tr class="highlight-green"><td><strong>3（難あり）</strong></td><td class="num">253</td><td class="num">111</td><td class="num"><strong>43.9%</strong></td><td class="num"><strong>6.9</strong></td><td class="num">40万</td><td class="num">45万</td><td class="num">81,154</td></tr>
+      <tr class="highlight-green"><td><strong>R（修復歴）</strong></td><td class="num">278</td><td class="num">127</td><td class="num"><strong>45.7%</strong></td><td class="num">6.6</td><td class="num">66万</td><td class="num">63万</td><td class="num">103,869</td></tr>
+      <tr class="highlight-amber"><td><strong>-（セルフ査定）</strong></td><td class="num"><strong>3,311</strong></td><td class="num"><strong>1,106</strong></td><td class="num">33.4%</td><td class="num">5.8</td><td class="num">185万</td><td class="num">138万</td><td class="num">116,145</td></tr>
+      <tr><td>現状</td><td class="num">147</td><td class="num">62</td><td class="num">42.2%</td><td class="num">6.2</td><td class="num">91万</td><td class="num">114万</td><td class="num">145,672</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight">
+    <strong>発見:</strong>
+    <ul style="margin-top: 8px; padding-left: 20px;">
+      <li><strong>逆直感: 評価点が低いほど出品→成約率が高い</strong> — S:8.3% → R:45.7%。高評価車は高額のため入札がつきにくい</li>
+      <li><strong>入札数も評価点と逆相関</strong> — S/6/5は平均4.6-4.8本、3/3.5は6.9本。低評価＝低価格帯にBID店が集まる</li>
+      <li><strong>「-」（セルフ査定）は出品数3,311件で最多</strong>。成約率33.4%は4.5と同等。通常査定なしでもオークションでは十分戦える</li>
+      <li><strong>1件あたり売上はS/6/5が23-24万で最高</strong> — 成約率は低いが成約すれば高収益。4以下は8-15万</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ========== 7. 地域 × BIDカバレッジ ========== -->
+<div class="section">
+  <h2>7. 地域分析 — BIDカバレッジと成約率の相関</h2>
+
+  <h3>成約率Top10 vs Bottom10</h3>
+  <table>
+    <thead>
+      <tr><th colspan="5" style="text-align:center; color: var(--green);">成約率 Top10</th></tr>
+      <tr><th>都道府県</th><th class="num">申込</th><th class="num">成約率</th><th class="num">平均入札数</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>神奈川</td><td class="num">1,959</td><td class="num">12.4%</td><td class="num">6.2</td></tr>
+      <tr><td>香川</td><td class="num">124</td><td class="num">12.1%</td><td class="num">6.2</td></tr>
+      <tr><td>愛知</td><td class="num">2,167</td><td class="num">12.0%</td><td class="num">6.4</td></tr>
+      <tr><td>東京</td><td class="num">3,019</td><td class="num">11.8%</td><td class="num">6.1</td></tr>
+      <tr><td>宮城</td><td class="num">416</td><td class="num">11.5%</td><td class="num">6.0</td></tr>
+      <tr><td>京都</td><td class="num">486</td><td class="num">11.3%</td><td class="num">6.4</td></tr>
+      <tr><td>千葉</td><td class="num">1,353</td><td class="num">10.9%</td><td class="num">6.1</td></tr>
+      <tr><td>福島</td><td class="num">247</td><td class="num">10.9%</td><td class="num">6.2</td></tr>
+      <tr><td>兵庫</td><td class="num">1,113</td><td class="num">10.7%</td><td class="num">6.5</td></tr>
+      <tr><td>大阪</td><td class="num">1,614</td><td class="num">10.5%</td><td class="num">6.3</td></tr>
+    </tbody>
+  </table>
+  <br>
+  <table>
+    <thead>
+      <tr><th colspan="5" style="text-align:center; color: var(--red);">成約率 Bottom10</th></tr>
+      <tr><th>都道府県</th><th class="num">申込</th><th class="num">成約率</th><th class="num">平均入札数</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>岩手</td><td class="num">140</td><td class="num">3.6%</td><td class="num">5.1</td></tr>
+      <tr><td>石川</td><td class="num">229</td><td class="num">3.9%</td><td class="num">5.8</td></tr>
+      <tr><td>宮崎</td><td class="num">120</td><td class="num">4.2%</td><td class="num">3.9</td></tr>
+      <tr><td>島根</td><td class="num">94</td><td class="num">4.3%</td><td class="num">4.9</td></tr>
+      <tr><td>鹿児島</td><td class="num">184</td><td class="num">4.3%</td><td class="num">4.3</td></tr>
+      <tr><td>青森</td><td class="num">92</td><td class="num">4.3%</td><td class="num">5.4</td></tr>
+      <tr><td>新潟</td><td class="num">255</td><td class="num">4.3%</td><td class="num">5.8</td></tr>
+      <tr><td>山口</td><td class="num">158</td><td class="num">4.4%</td><td class="num">4.6</td></tr>
+      <tr><td>沖縄</td><td class="num">170</td><td class="num">4.7%</td><td class="num">3.8</td></tr>
+      <tr><td>秋田</td><td class="num">105</td><td class="num">4.8%</td><td class="num">5.3</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight">
+    <strong>発見:</strong> Top10の平均入札数は6.0-6.5、Bottom10は3.8-5.8。<strong>入札数が6を超えると成約率10%超、5未満だと5%以下</strong>の傾向。ただし石川（5.8入札で3.9%）や新潟（5.8入札で4.3%）のように、入札数だけでは説明できない地域もある。陸送コストの影響も考慮が必要。
+  </div>
+</div>
+
+<!-- ========== 8. アライアンス ========== -->
+<div class="section">
+  <h2>8. アライアンス・紹介の深掘り</h2>
+
+  <h3>8-1. LP20（あいおいニッセイ vs その他）</h3>
+  <div class="comparison-grid">
+    <div class="comparison-card good">
+      <h4>あいおいニッセイ同和</h4>
+      <div class="big-num" style="color: var(--green);">25.3%</div>
+      <p>申込253件 / 成約64件</p>
+      <p>平均成約額: 88万円</p>
+      <p>手数料合計: 約508万円</p>
+    </div>
+    <div class="comparison-card">
+      <h4>LP20その他（紹介コード未マッチ）</h4>
+      <div class="big-num">16.5%</div>
+      <p>申込662件 / 成約109件</p>
+      <p>平均成約額: 361万円</p>
+      <p>手数料合計: 約1,460万円</p>
+    </div>
+  </div>
+
+  <div class="insight">
+    <strong>発見:</strong> あいおいニッセイは成約率25.3%と非常に高いが、平均成約額は88万円と低い（保険加入者=古い車の売却が多い）。一方、LP20でcompany未マッチの662件は成約額361万円と高く、1件あたり収益が高い。アライアンス戦略は「成約率」と「単価」のトレードオフを意識すべき。
+  </div>
+
+  <h3>8-2. リピーター LTV</h3>
+  <table>
+    <thead>
+      <tr><th>利用回数</th><th class="num">ユーザー数</th><th class="num">平均成約件数</th><th class="num">手数料LTV</th><th class="num">成約額LTV</th><th class="num">平均利用間隔</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>2回</td><td class="num">3,527</td><td class="num">0.9</td><td class="num">128,136</td><td class="num">183万</td><td class="num">789日（2.2年）</td></tr>
+      <tr><td>3-4回</td><td class="num">839</td><td class="num">1.5</td><td class="num">191,630</td><td class="num">317万</td><td class="num">1,206日（3.3年）</td></tr>
+      <tr class="highlight-green"><td><strong>5回以上</strong></td><td class="num"><strong>129</strong></td><td class="num"><strong>3.1</strong></td><td class="num"><strong>327,634</strong></td><td class="num"><strong>552万</strong></td><td class="num">1,404日（3.8年）</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight">
+    <strong>発見:</strong> リピーターは全体で4,495ユーザー。5回以上利用者（129人）の手数料LTVは327,634円で、初回のみ利用者の約3倍。平均利用間隔は2-4年。リピーター促進（成約後のフォローアップ）施策のROI計算根拠として活用可能。
+  </div>
+</div>
+
+<!-- ========== 9. 売却予定・スケジュール ========== -->
+<div class="section">
+  <h2>9. 顧客属性 — 売却予定とスケジュール</h2>
+
+  <h3>9-1. 売却予定（sell_id）— マスタ名解決済み</h3>
+  <table>
+    <thead>
+      <tr><th>売却予定</th><th class="num">件数</th><th class="num">成約率</th><th class="num">平均成約額</th><th class="num">売上合計</th></tr>
+    </thead>
+    <tbody>
+      <tr class="highlight-green"><td><strong>売却のみ</strong></td><td class="num">157</td><td class="num"><strong>17.2%</strong></td><td class="num">143万</td><td class="num">3,861万</td></tr>
+      <tr class="highlight-green"><td><strong>不要になったため</strong></td><td class="num">3,123</td><td class="num"><strong>14.5%</strong></td><td class="num">139万</td><td class="num">6.3億</td></tr>
+      <tr><td>乗り換え（決定済み）</td><td class="num">5,601</td><td class="num">14.0%</td><td class="num">211万</td><td class="num"><strong>16.5億</strong></td></tr>
+      <tr><td>乗り換え（新車）</td><td class="num">287</td><td class="num">12.2%</td><td class="num">230万</td><td class="num">8,060万</td></tr>
+      <tr class="highlight-amber"><td>乗り換え（検討中）</td><td class="num">4,279</td><td class="num">6.1%</td><td class="num">187万</td><td class="num">4.9億</td></tr>
+      <tr><td>乗り換え（中古車）</td><td class="num">291</td><td class="num">5.2%</td><td class="num">121万</td><td class="num">1,818万</td></tr>
+      <tr class="highlight-red"><td>乗り換え（どちらでも）</td><td class="num">77</td><td class="num">1.3%</td><td class="num">25万</td><td class="num">25万</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight">
+    <strong>発見:</strong> 売却意思が明確なほど成約率が高い。「売却のみ」17.2%、「不要になった」14.5%、「乗り換え決定済み」14.0%。一方「検討中」は6.1%、「どちらでも」は1.3%。<strong>売上では「乗り換え決定済み」が16.5億で圧倒的</strong> — 件数5,601×成約率14.0%×平均211万の三拍子。
+  </div>
+
+  <h3>9-2. 売却スケジュール（schedule_id）— マスタ名解決済み</h3>
+  <table>
+    <thead>
+      <tr><th>スケジュール</th><th class="num">件数</th><th class="num">成約率</th><th class="num">平均成約額</th><th class="num">売上合計</th></tr>
+    </thead>
+    <tbody>
+      <tr class="highlight-green"><td><strong>1か月以内</strong></td><td class="num"><strong>7,183</strong></td><td class="num"><strong>14.5%</strong></td><td class="num">182万</td><td class="num"><strong>19.1億</strong></td></tr>
+      <tr><td>2ヶ月以内</td><td class="num">1,855</td><td class="num">13.4%</td><td class="num">194万</td><td class="num">4.8億</td></tr>
+      <tr><td>なるべく早く</td><td class="num">250</td><td class="num">10.0%</td><td class="num">112万</td><td class="num">2,806万</td></tr>
+      <tr><td>3か月以上先</td><td class="num">63</td><td class="num">7.9%</td><td class="num">122万</td><td class="num">612万</td></tr>
+      <tr><td>3ヶ月以内</td><td class="num">1,534</td><td class="num">7.0%</td><td class="num">172万</td><td class="num">1.8億</td></tr>
+      <tr class="highlight-red"><td><strong>未定</strong></td><td class="num"><strong>2,746</strong></td><td class="num"><strong>5.1%</strong></td><td class="num">209万</td><td class="num">2.9億</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight">
+    <strong>発見:</strong> 「1か月以内」が件数・成約率・売上すべてで最大（7,183件、14.5%、19.1億）。「未定」は2,746件で成約率5.1%だが、<strong>成約した場合の平均額209万はむしろ高い</strong> — 高額車のオーナーほど「未定」で申し込む傾向。ナーチャリングすれば高額成約の余地。
+  </div>
+</div>
+
+<div class="section">
+  <h2>9.5 横断計測モニタリング — Ads / GA4 / 業務DB（2026年2月）</h2>
+
+  <p>広告費配分の意思決定には、媒体CVだけでなく<strong>GCLIDで突合した業務DB成約・売上</strong>まで重ねて見る必要がある。2026年2月は、Search のブランド指名系だけが明確な黒字寄与を示した。</p>
+
+  <table>
+    <thead>
+      <tr><th>キャンペーン</th><th>チャネル</th><th class="num">申込</th><th class="num">成約</th><th class="num">成約率</th><th class="num">売上</th><th class="num">広告費</th><th class="num">粗ROAS</th></tr>
+    </thead>
+    <tbody>
+      <tr class="highlight-green"><td><strong>GS001_ブランド</strong></td><td>SEARCH</td><td class="num">297</td><td class="num">39</td><td class="num"><strong>13.1%</strong></td><td class="num"><strong>610万</strong></td><td class="num">564万</td><td class="num"><strong>1081.5%</strong></td></tr>
+      <tr><td>GS002_Bigワード_2</td><td>SEARCH</td><td class="num">32</td><td class="num">1</td><td class="num">3.1%</td><td class="num">17万</td><td class="num">391万</td><td class="num">44.1%</td></tr>
+      <tr><td>GP_買取TOP</td><td>PMAX</td><td class="num">61</td><td class="num">0</td><td class="num">0.0%</td><td class="num">0</td><td class="num">335万</td><td class="num">0.0%</td></tr>
+      <tr><td>GDJ_202502</td><td>DEMAND GEN</td><td class="num">41</td><td class="num">0</td><td class="num">0.0%</td><td class="num">0</td><td class="num">122万</td><td class="num">0.0%</td></tr>
+    </tbody>
+  </table>
+
+  <div class="insight">
+    <strong>発見:</strong> <strong>GS001_ブランド</strong>だけで 297申込・39成約・粗ROAS 1081.5%。一方で PMAX / Demand Gen は申込は取れても、GCLID起点で見た成約売上は現時点で未確認。<strong>ブランド指名とそれ以外を同列に評価しない</strong>のが妥当。
+  </div>
+
+  <div class="warning">
+    <strong>計測差分の解釈:</strong> 2026年2月累計で GA4 CV 1,737 に対し、業務DBの申込は 6,741 件で <strong>差分 -5,004</strong>。ただし、GA4 は Web の「査定依頼完了」、業務DBは「申込作成」であり、カーセンサー同意案件のような<strong>メール起点・後登録の申込</strong>も含むため単純比較は不可。最大乖離日は 2026-02-22（GA4 CV 80 / 業務DB申込 345）だが、今後は <strong>Web起点申込 / 非Web起点申込 / 残差</strong> に分けて監視し、残差のみをタグ変更や計測漏れ候補として扱うべき。
+  </div>
+
+  <div class="critical">
+    <strong>データ品質上の論点:</strong> GCLIDを持つ申込 451件のうち ClickStats 突合は 447件で 99.1%と良好。一方で ad_media_code 未設定は 6,636件、うち Carsensor は 5,411件（同時 5,325 / 単独 86）。媒体コード欠損のままだと「媒体 × Carsensor同時/単独」の運用改善が止まる。
+  </div>
+</div>
+
+<!-- ========== 10. 検討済み反論（Devil's Advocate） ========== -->
+<div class="section">
+  <h2>10. 検討済み反論・ロジックの限界</h2>
+
+  <h3>反論1: 架電回数の因果問題</h3>
+  <p><strong>反論:</strong> 「架電回数が多い→成約率が低い」ではなく「反応が悪い案件に多く架電する」のでは？</p>
+  <p><strong>検討結果:</strong> 逆因果の可能性は認める。ただし、3-4回と5-7回で成約率がほぼ同等（14.5% vs 14.0%）で、8回以上で急落する傾向は、「7回を超えても追加の架電効果がない」ことを示唆。因果の方向に関わらず、8回以上の投資対効果は低い。</p>
+
+  <h3>反論2: CS単独の過大評価</h3>
+  <p><strong>反論:</strong> 単独の「成約率54倍」は印象的だが、単独1,298件は全CS申込の2%に過ぎない。この少数を「改善レバー」と呼ぶのは過大評価では？</p>
+  <p><strong>検討結果:</strong> 正しい指摘。単独の絶対数を増やす施策（カーセンサー上での単独誘導）が実現可能かは別問題。ただし「同時59,073件にかけるオペレーションコスト vs 単独1,298件にかけるコスト」の比較は有効。同時案件の査定率2.2%を改善するより、単独案件を増やす方がROIが高い可能性。</p>
+
+  <h3>反論3: 手数料上限は変更可能では？</h3>
+  <p><strong>反論:</strong> 200万以上で150,000円の上限は事業判断。上限撤廃すれば高額車の収益性は改善するのでは？</p>
+  <p><strong>検討結果:</strong> 手数料体系は経営判断であり、データ分析の範囲外。ただし、200万以上の成約774件 × (仮に200,000円 - 150,000円) = 3,870万円/年の増収ポテンシャルがあることは数値的に示せる。</p>
+
+  <h3>反論4: 地方の成約率低下はBIDカバレッジではなく車両品質の問題では？</h3>
+  <p><strong>反論:</strong> 地方は古い車・安い車が多く、BID店の問題ではないのでは？</p>
+  <p><strong>検討結果:</strong> 入札数が6を超える地域と5未満の地域で成約率に約2倍の差があり、入札数とは独立の「車両品質」要因だけでは説明できない。ただし地域×車両価格帯のクロス分析を追加すれば、より正確に切り分け可能。</p>
+
+  <h3>データの限界</h3>
+  <ul style="padding-left: 20px; margin-top: 12px;">
+    <li>age_id, car_displacementがほぼ空 — 年齢層・排気量分析は不可能</li>
+    <li>sell_id, schedule_idのマスタ名がBQ未同期 — IDの意味は推定</li>
+    <li>refuse/endの辞退理由がデータに含まれていない</li>
+    <li>全カラムSTRING型のため、数値精度に変換リスクあり</li>
+    <li>buyer_price/seller_priceがC2Bフローでは未入力 — 買取フローのみ有効</li>
+  </ul>
+</div>
+
+<!-- ========== ACTIONS ========== -->
+<div class="section">
+  <h2>11. 推奨アクション（優先順位付き）</h2>
+
+  <div class="actions">
+    <h3>改善アクション一覧</h3>
+    <ol>
+      <li>
+        <strong>架電回数上限の設定</strong>
+        <span class="impact high">HIGH</span><br>
+        7回を上限とし、8回以上の案件はSMS/メールに切り替え。年間約9,000件（8回以上）のオペレーションコストを削減。期待効果: 架電コスト30%削減、成約率維持。
+      </li>
+      <li>
+        <strong>CS単独案件の優先対応</strong>
+        <span class="impact high">HIGH</span><br>
+        カーセンサー案件のうち「単独」フラグを自動判定し、同時査定案件より優先的に架電・査定。期待効果: CS経由の成約率改善（現状0.5%→1%以上の可能性）。
+      </li>
+      <li>
+        <strong>waiting ステート案件の棚卸し</strong>
+        <span class="impact high">HIGH</span><br>
+        1,764件が「待機中」で放置。定期的な棚卸しと再架電/SMS施策を実施。成約率0%→数%の回収可能性。
+      </li>
+      <li>
+        <strong>Alliance の未査定未接続終了案件を別キューで回収</strong>
+        <span class="impact high">HIGH</span><br>
+        2026年2月申込コホートだけでも Alliance の not_assessment_end が4,670件・平均38.2日滞留。通常の架電回数最適化とは分け、初回接続失敗案件専用の再接続フロー（時間帯再抽選、SMS、再申込導線）を設計する。
+      </li>
+      <li>
+        <strong>地方BID店の拡大</strong>
+        <span class="impact medium">MEDIUM</span><br>
+        沖縄（3.8入札）、宮崎（3.9入札）、鹿児島（4.3入札）のBID店カバレッジ拡大。入札数を6に近づけることで成約率の底上げを狙う。
+      </li>
+      <li>
+        <strong>広告配分をブランド指名中心に再配分し、Web起点申込との差分を日次監視</strong>
+        <span class="impact high">HIGH</span><br>
+        2026年2月は GS001_ブランド が 39成約・粗ROAS 1081.5%で唯一明確な寄与。Bigワード、PMAX、Demand Gen は売上未確認。GS001を基準に予算再配分しつつ、GA4 CV と Web起点申込の差分、そして Carsensor 同意などの非Web起点申込件数を分けて日次モニタリングする。
+      </li>
+      <li>
+        <strong>下限価格設定の最適化</strong>
+        <span class="impact medium">MEDIUM</span><br>
+        入札額が下限の70%未満でも40%が成約。下限設定が高すぎるケースを検出し、適正化する仕組みの導入。
+      </li>
+      <li>
+        <strong>schedule_id=10（未定）案件のナーチャリング</strong>
+        <span class="impact medium">MEDIUM</span><br>
+        2,746件の「未定」案件に対し、相場情報のプッシュ通知・メール施策で売却意思を醸成。成約率5.1%→7%を目標。
+      </li>
+      <li>
+        <strong>sell_id / schedule_id マスタのBQ同期</strong>
+        <span class="impact medium">MEDIUM</span><br>
+        ETLでマスタテーブルを同期し、売却予定・スケジュールの分析を名前付きで実行可能にする。
+      </li>
+      <li>
+        <strong>リピーター促進プログラム</strong>
+        <span class="impact medium">MEDIUM</span><br>
+        成約後2年でフォローアップ（車検タイミング）。5回以上利用者のLTV 327,634円を根拠にリピーター特典を設計。
+      </li>
+    </ol>
+  </div>
+</div>
+
+<!-- ========== 仮説検証結果 ========== -->
+<div class="section">
+  <h2>12. 仮説検証結果</h2>
+
+  <table>
+    <thead>
+      <tr><th>仮説</th><th>結果</th><th>詳細</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>H1: 収益性は車両価格帯に依存</td>
+        <td class="highlight-green">部分的に確認</td>
+        <td>手数料上限のため200万以上は頭打ち。100-200万帯が収益最大。ただしセグメント差も大きい（SEOが53%）</td>
+      </tr>
+      <tr>
+        <td>H2: 最大ボトルネックは「申込→査定」</td>
+        <td class="highlight-green">確認</td>
+        <td>refuse+end+not_assessment+waiting = 11,520件（48%）が査定前に離脱。成約の95%はassessmentとnot_assessment_dealの2ルート</td>
+      </tr>
+      <tr>
+        <td>H3: 架電は3-5回が最適</td>
+        <td class="highlight-green">確認</td>
+        <td>3-4回が14.5%でピーク。5-7回も14.0%で許容範囲。8回以上で急落</td>
+      </tr>
+      <tr>
+        <td>H4: BID店偏在が地方の低成約率の主因</td>
+        <td class="highlight-amber">部分的に確認</td>
+        <td>入札数と成約率の相関は確認。ただし石川（5.8入札→3.9%）等、入札数だけでは説明できない例外あり</td>
+      </tr>
+      <tr>
+        <td>H5: CS単独は同時の2倍</td>
+        <td class="highlight"><strong>大幅超過</strong></td>
+        <td>実際は<strong>54倍</strong>（10.8% vs 0.2%）。予想を遥かに超える差</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ========== 出典 ========== -->
+<div class="section">
+  <h2>13. データソース・条件一覧</h2>
+
+  <table>
+    <thead>
+      <tr><th>クエリID</th><th>分析内容</th><th>条件</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Q01-Q04</td><td>収益構造</td><td>2025/01以降の成約。C2B=trading_kind=1、買取=NULL</td></tr>
+      <tr><td>Q05b</td><td>ファネル遷移</td><td>CS除外、kind_id!=2、sort_key最大で最終ステート判定</td></tr>
+      <tr><td>Q06</td><td>走行距離</td><td>CS除外、car_mileage 0-500,000の有効値のみ</td></tr>
+      <tr><td>Q09</td><td>sell_id</td><td>CS除外、sell_id非空</td></tr>
+      <tr><td>Q11</td><td>BID店</td><td>kind_id!=2、50件以上入札のBID店</td></tr>
+      <tr><td>Q12</td><td>入札/下限比率</td><td>floor_price>0の有効値のみ</td></tr>
+      <tr><td>Q13</td><td>架電回数</td><td>CS除外、call_count非空</td></tr>
+      <tr><td>Q14</td><td>CS同時/単独</td><td>LP66のみ、noteに「単独」含むかで分類</td></tr>
+      <tr><td>Q15</td><td>アライアンス</td><td>LP20のみ、companies結合</td></tr>
+      <tr><td>Q16</td><td>再出品</td><td>kind_id!=2、started_atで出品順序付け</td></tr>
+      <tr><td>Q17</td><td>都道府県</td><td>CS除外、addresses経由prefecture_master結合</td></tr>
+      <tr><td>Q18</td><td>schedule/next_car</td><td>CS除外、20件以上</td></tr>
+      <tr><td>Q19</td><td>リピーターLTV</td><td>user_id非空、2回以上申込ユーザー</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ========== FOOTER ========== -->
+<div class="footer">
+  <p>UcarPAC 事業データ徹底分析レポート | 2026-03-19 | BigQuery ucarpac-uapp | research-pipeline v1</p>
+  <p style="margin-top: 8px;">分析対象: ucarpac_data（業務DB）+ app_db | 除外: GA4, Google Ads, Search Console</p>
+</div>
+
+</div>
+</body>
+</html>
