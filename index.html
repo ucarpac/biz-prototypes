@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UcarPAC Prototype Hub</title>
+  <style>
+    :root {
+      --navy: #16233f;
+      --blue: #2455a6;
+      --cyan: #1ddcff;
+      --pink: #d61f69;
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --line: #dce4f2;
+      --text: #243447;
+      --muted: #66758c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+      background: linear-gradient(180deg, #e9f1ff 0%, var(--bg) 44%);
+      color: var(--text);
+    }
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 28px 18px 48px; }
+    .hero {
+      background: radial-gradient(circle at top right, rgba(29,220,255,0.18), transparent 24%), linear-gradient(135deg, #111827 0%, #1c2663 100%);
+      color: white;
+      border-radius: 22px;
+      padding: 34px;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+      margin-bottom: 22px;
+    }
+    .hero h1 { margin: 0 0 10px; font-size: 34px; line-height: 1.25; }
+    .hero p { margin: 0; color: #d4def7; max-width: 860px; line-height: 1.8; }
+    .meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+    .meta span {
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.08);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #dbe8ff;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+    .card {
+      display: block;
+      text-decoration: none;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 12px 28px rgba(22, 35, 63, 0.08);
+      color: inherit;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 16px 36px rgba(22, 35, 63, 0.12); }
+    .card-top {
+      padding: 22px 22px 16px;
+      color: white;
+    }
+    .card-top.prototype { background: linear-gradient(135deg, #2455a6, #1ddcff); }
+    .card-top.report { background: linear-gradient(135deg, #7c3aed, #d61f69); }
+    .card-body { padding: 18px 22px 22px; }
+    .eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 0.04em; opacity: 0.84; }
+    .title { margin-top: 8px; font-size: 24px; font-weight: 800; }
+    .desc { color: var(--muted); line-height: 1.8; font-size: 14px; min-height: 66px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .chip {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 800;
+      background: #eef4ff;
+      color: #335a94;
+      border: 1px solid #d9e5fb;
+    }
+    .note {
+      margin-top: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px 20px;
+      line-height: 1.8;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .note strong { color: var(--navy); }
+  </style>
+</head>
+<body>
+  <script>
+    window.PROTO_AUTH_CONFIG = {
+      title: "UcarPAC Prototype Hub",
+      subtitle: "社内共有ページです。パスワード認証後、24時間は再入力不要です。"
+    };
+  </script>
+  <script src="./auth.js"></script>
+  <div class="wrap">
+    <section class="hero">
+      <h1>UcarPAC Prototype Hub</h1>
+      <p>日々のプロトタイプと、分析レポート系を分けて閲覧できる社内共有ハブです。URL は絞りつつ、認証状態は 24 時間保持される構成にしています。</p>
+      <div class="meta">
+        <span>認証保持: 24時間</span>
+        <span>Sections: Daily Prototypes / Reports</span>
+        <span>Repo: biz-prototypes</span>
+      </div>
+    </section>
+
+    <div class="grid">
+      <a class="card" href="./ucarpac-app/">
+        <div class="card-top prototype">
+          <div class="eyebrow">Daily Prototypes</div>
+          <div class="title">UcarPAC App</div>
+        </div>
+        <div class="card-body">
+          <div class="desc">日々の UI プロトタイプ群をまとめた一覧です。売却導線、安心訴求、比較訴求、再訪設計などの個別案をここで確認できます。</div>
+          <div class="chips">
+            <span class="chip">Prototype</span>
+            <span class="chip">App UX</span>
+            <span class="chip">Daily</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="./reports/">
+        <div class="card-top report">
+          <div class="eyebrow">Reports</div>
+          <div class="title">Analysis Reports</div>
+        </div>
+        <div class="card-body">
+          <div class="desc">週次・月次の分析系レポートをまとめた一覧です。Auto KPI と個別分析レポートを同じ入口で管理し、運用上の探しやすさを優先しています。</div>
+          <div class="chips">
+            <span class="chip">Report</span>
+            <span class="chip">Auto KPI</span>
+            <span class="chip">Ad Hoc</span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="note">
+      <strong>運用メモ</strong><br>
+      これは GitHub Pages 上の軽量な社内共有ハブです。認証はクライアント側ゲートなので厳密な保護ではありませんが、URL 分離と 24 時間保持で日常運用しやすい形に寄せています。
+    </div>
+  </div>
+</body>
+</html>
