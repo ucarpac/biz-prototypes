@@ -425,6 +425,12 @@ ${COMPETITOR_CONTEXT}
 ## テーマ
 ${THEME_PROMPT}
 
+## 重要な制約
+- このタスクで新規作成・更新してよいのは、今回のHTML出力ファイル1つだけです
+- ops/auto-kpi/ 配下、generation-log.txt、kpi-history.jsonl、pending-*.txt、pending-*.jsonl、research-*.md は絶対に作成・更新しないでください
+- 補助ファイル、調査メモ、サマリー、差分メモは出力しないでください
+- 標準出力にはHTMLコードのみを出力してください。説明文や作業報告は不要です
+
 ${FEEDBACK_HINT:+## ユーザーフィードバック（参考にすること）
 ${FEEDBACK_HINT}
 
@@ -482,6 +488,18 @@ STRIPPY
 
 else
   log "選定結果ファイルが見つかりません（プロトタイプ生成スキップ）"
+fi
+
+# Codexが補助ファイルを置いた場合は削除して正常系に戻す
+cleanup_pending_artifacts() {
+  find "${OUTPUT_DIR}" -maxdepth 1 \( -name 'pending-generation-log-*.txt' -o -name 'pending-kpi-history-*.jsonl' -o -name 'research-*.md' \) -print0 2>/dev/null | while IFS= read -r -d '' f; do
+    rm -f "$f"
+    log "不要な補助ファイルを削除: $(basename "$f")"
+  done
+}
+
+if [[ -n "${OUTPUT_DIR:-}" && -d "${OUTPUT_DIR}" ]]; then
+  cleanup_pending_artifacts
 fi
 
 # === 競合ウォッチは独立スクリプト run_competitor_watch.sh に移行済み ===
