@@ -101,6 +101,39 @@
   }
   td:first-child { text-align: left; font-weight: 600; color: #fff; }
   tr:hover td { background: #1c1f2e; }
+
+  /* カスタムレジェンド（チェックボックス） */
+  .custom-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding: 10px 14px;
+    background: #1e2130;
+    border-radius: 8px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #9ca3af;
+    user-select: none;
+    transition: color 0.2s;
+  }
+  .legend-item:hover { color: #fff; }
+  .legend-item input {
+    cursor: pointer;
+    accent-color: #3b82f6;
+    width: 15px;
+    height: 15px;
+  }
+  .legend-color {
+    width: 12px;
+    height: 4px;
+    border-radius: 2px;
+  }
 </style>
 </head>
 <body>  <script>
@@ -178,42 +211,49 @@
 <!-- Chart 1A: 申込数・成約数 -->
 <div class="chart-card">
   <div class="chart-title">申込数・成約数（月次）</div>
+  <div id="legend-chart1a" class="custom-legend"></div>
   <canvas id="chart1a"></canvas>
 </div>
 
 <!-- Chart 1B: 広告費・売上・利益 -->
 <div class="chart-card">
   <div class="chart-title">広告費・売上・利益（月次）</div>
+  <div id="legend-chart1b" class="custom-legend"></div>
   <canvas id="chart1b"></canvas>
 </div>
 
 <!-- Chart 2: 申込CPA推移 -->
 <div class="chart-card">
   <div class="chart-title">申込CPA 推移（円）</div>
+  <div id="legend-chart2" class="custom-legend"></div>
   <canvas id="chart2"></canvas>
 </div>
 
 <!-- Chart 3: 成約CPA推移 -->
 <div class="chart-card">
   <div class="chart-title">成約CPA 推移（円）</div>
+  <div id="legend-chart3" class="custom-legend"></div>
   <canvas id="chart3"></canvas>
 </div>
 
 <!-- Chart DL: 新規DL数 -->
 <div class="chart-card">
   <div class="chart-title">新規DL数 推移</div>
+  <div id="legend-chart_dl" class="custom-legend"></div>
   <canvas id="chart_dl"></canvas>
 </div>
 
 <!-- Chart CPI: 平均CPI単価 -->
 <div class="chart-card">
   <div class="chart-title">平均CPI単価 推移</div>
+  <div id="legend-chart_cpi" class="custom-legend"></div>
   <canvas id="chart_cpi"></canvas>
 </div>
 
 <!-- Chart Funnel: 詳細ファネル転換率 -->
 <div class="chart-card">
   <div class="chart-title">詳細ファネル転換率 推移</div>
+  <div id="legend-chart_funnel" class="custom-legend"></div>
   <canvas id="chart_funnel"></canvas>
 </div>
 
@@ -268,16 +308,38 @@ const kpiTotalCVR       = 11.2;
 const GRID = '#252836';
 const TICK = '#6b7280';
 
-function makeScale(yLabel) {
-  return {
-    x: { ticks: { color: TICK }, grid: { color: GRID } },
-    y: { ticks: { color: TICK }, grid: { color: GRID },
-          title: { display: !!yLabel, text: yLabel, color: '#4b5563' } }
-  };
+function initCustomLegend(chart, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  chart.data.datasets.forEach((dataset, i) => {
+    const label = document.createElement('label');
+    label.className = 'legend-item';
+    
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = !chart.getDatasetVisibility(i) === false; // 明示的に表示状態を確認
+    
+    checkbox.addEventListener('change', () => {
+      chart.setDatasetVisibility(i, checkbox.checked);
+      chart.update();
+    });
+    
+    const colorBox = document.createElement('div');
+    colorBox.className = 'legend-color';
+    colorBox.style.background = dataset.borderColor || dataset.backgroundColor;
+    
+    const text = document.createTextNode(dataset.label);
+    
+    label.appendChild(checkbox);
+    label.appendChild(colorBox);
+    label.appendChild(text);
+    container.appendChild(label);
+  });
 }
 
 // Chart 1A: 申込数・成約数
-new Chart(document.getElementById('chart1a'), {
+const c1a = new Chart(document.getElementById('chart1a'), {
   data: {
     labels: months,
     datasets: [
@@ -294,7 +356,7 @@ new Chart(document.getElementById('chart1a'), {
   options: {
     responsive: true,
     interaction: { mode: 'index', intersect: false },
-    plugins: { legend: { labels: { color: '#9ca3af', padding: 16 } } },
+    plugins: { legend: { display: false } },
     scales: {
       x:  { ticks: { color: TICK }, grid: { color: GRID } },
       y:  { ticks: { color: TICK }, grid: { color: GRID },
@@ -302,9 +364,10 @@ new Chart(document.getElementById('chart1a'), {
     }
   }
 });
+initCustomLegend(c1a, 'legend-chart1a');
 
 // Chart 1B: 広告費・売上・利益
-new Chart(document.getElementById('chart1b'), {
+const c1b = new Chart(document.getElementById('chart1b'), {
   data: {
     labels: months,
     datasets: [
@@ -330,7 +393,7 @@ new Chart(document.getElementById('chart1b'), {
   options: {
     responsive: true,
     interaction: { mode: 'index', intersect: false },
-    plugins: { legend: { labels: { color: '#9ca3af', padding: 16 } } },
+    plugins: { legend: { display: false } },
     scales: {
       x:  { ticks: { color: TICK }, grid: { color: GRID } },
       y:  { position: 'left', ticks: { color: TICK, callback: v => v+'万' },
@@ -339,9 +402,10 @@ new Chart(document.getElementById('chart1b'), {
     }
   }
 });
+initCustomLegend(c1b, 'legend-chart1b');
 
 // Chart DL: 新規DL数
-new Chart(document.getElementById('chart_dl'), {
+const cDL = new Chart(document.getElementById('chart_dl'), {
   data: {
     labels: months,
     datasets: [
@@ -354,7 +418,7 @@ new Chart(document.getElementById('chart_dl'), {
   options: {
     responsive: true,
     interaction: { mode: 'index', intersect: false },
-    plugins: { legend: { labels: { color: '#9ca3af', padding: 16 } } },
+    plugins: { legend: { display: false } },
     scales: {
       x:  { ticks: { color: TICK }, grid: { color: GRID } },
       y:  { ticks: { color: TICK }, grid: { color: GRID },
@@ -362,9 +426,10 @@ new Chart(document.getElementById('chart_dl'), {
     }
   }
 });
+initCustomLegend(cDL, 'legend-chart_dl');
 
 // Chart CPI: 平均CPI単価
-new Chart(document.getElementById('chart_cpi'), {
+const cCPI = new Chart(document.getElementById('chart_cpi'), {
   type: 'line',
   data: {
     labels: months,
@@ -385,7 +450,7 @@ new Chart(document.getElementById('chart_cpi'), {
   options: {
     responsive: true,
     interaction: { mode: 'index', intersect: false },
-    plugins: { legend: { labels: { color: '#9ca3af', padding: 16 } } },
+    plugins: { legend: { display: false } },
     scales: {
       x:  { ticks: { color: TICK }, grid: { color: GRID } },
       y:  { ticks: { color: TICK, callback: v => '¥'+v.toLocaleString() }, grid: { color: GRID },
@@ -393,9 +458,10 @@ new Chart(document.getElementById('chart_cpi'), {
     }
   }
 });
+initCustomLegend(cCPI, 'legend-chart_cpi');
 
 // Chart 2: 申込CPA
-new Chart(document.getElementById('chart2'), {
+const c2 = new Chart(document.getElementById('chart2'), {
   type: 'line',
   data: {
     labels: months,
@@ -415,16 +481,17 @@ new Chart(document.getElementById('chart2'), {
   },
   options: {
     responsive: true,
-    plugins: { legend: { labels: { color: '#9ca3af' } } },
+    plugins: { legend: { display: false } },
     scales: {
       x: { ticks: { color: TICK }, grid: { color: GRID } },
       y: { ticks: { color: TICK, callback: v => '¥' + v.toLocaleString() }, grid: { color: GRID } }
     }
   }
 });
+initCustomLegend(c2, 'legend-chart2');
 
 // Chart 3: 成約CPA
-new Chart(document.getElementById('chart3'), {
+const c3 = new Chart(document.getElementById('chart3'), {
   type: 'line',
   data: {
     labels: months,
@@ -444,16 +511,17 @@ new Chart(document.getElementById('chart3'), {
   },
   options: {
     responsive: true,
-    plugins: { legend: { labels: { color: '#9ca3af' } } },
+    plugins: { legend: { display: false } },
     scales: {
       x: { ticks: { color: TICK }, grid: { color: GRID } },
       y: { ticks: { color: TICK, callback: v => '¥' + v.toLocaleString() }, grid: { color: GRID } }
     }
   }
 });
+initCustomLegend(c3, 'legend-chart3');
 
 // Chart Funnel: 詳細ファネル推移
-new Chart(document.getElementById('chart_funnel'), {
+const cFunnel = new Chart(document.getElementById('chart_funnel'), {
   type: 'line',
   data: {
     labels: months,
@@ -489,7 +557,7 @@ new Chart(document.getElementById('chart_funnel'), {
   },
   options: {
     responsive: true,
-    plugins: { legend: { labels: { color: '#9ca3af', padding: 16 } } },
+    plugins: { legend: { display: false } },
     scales: {
       x: { ticks: { color: TICK }, grid: { color: GRID } },
       y: { ticks: { color: TICK, callback: v => v + '%' }, grid: { color: GRID },
@@ -497,6 +565,7 @@ new Chart(document.getElementById('chart_funnel'), {
     }
   }
 });
+initCustomLegend(cFunnel, 'legend-chart_funnel');
 
 function superReload() {
     // クエリパラメータにタイムスタンプを付与してキャッシュを回避
