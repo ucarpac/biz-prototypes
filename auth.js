@@ -4,11 +4,14 @@
   const CONFIG = window.PROTO_AUTH_CONFIG || {};
   const STORAGE_KEY = "biz_proto_auth_v2";
   const COOKIE_KEY = "biz_proto_auth_v2";
-  const PASS_HASH = "8c66d6dd26cb71b9fb433e803b147abdcc2a9bbea0ccf14b87dadc2ced6393a7"; // ucarpac2026
+  const PASS_HASH_FULL   = "8c66d6dd26cb71b9fb433e803b147abdcc2a9bbea0ccf14b87dadc2ced6393a7"; // ucarpac2026
+  const PASS_HASH_AGENCY = "02a6db4e0dd34fc166a4035447c57305e23f8d43a724a0c93b477eabfa71ba58"; // agency2026
   const TTL_MS = (CONFIG.ttlMs || 24 * 60 * 60 * 1000);
   const TITLE = CONFIG.title || "UcarPAC Prototype Hub";
   const SUBTITLE = CONFIG.subtitle || "社内共有用パスワードを入力してください";
   const ACCENT = CONFIG.accent || "linear-gradient(135deg, #1ddcff, #4db4ff)";
+  // "full" = UCP内部（全ページ閲覧可）、"agency" = 代理店共有ページのみ閲覧可
+  const REQUIRED = CONFIG.required || "full";
 
   function getBasePath() {
     if (typeof location === "undefined") return "/";
@@ -49,18 +52,22 @@
 
   function hasValidAuth() {
     const stored = readState();
+    if (!stored || stored.value !== "ok") return false;
+    // 旧セッション（levelなし）は full として扱う（後方互換）
+    const level = stored.level || "full";
+    const allowed = level === "full" || (level === "agency" && REQUIRED === "agency");
+    if (!allowed) return false;
+    // cookie がなければ再セット
     const cookie = getCookie(COOKIE_KEY);
-    if (stored && stored.value === "ok" && cookie === "ok") return true;
-    if (stored && stored.value === "ok") {
+    if (!cookie) {
       setCookie(COOKIE_KEY, "ok", Math.max(0, stored.expiresAt - Date.now()));
-      return true;
     }
-    return false;
+    return true;
   }
 
-  function persistAuth() {
+  function persistAuth(level) {
     const expiresAt = Date.now() + TTL_MS;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ value: "ok", expiresAt }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ value: "ok", level: level, expiresAt }));
     setCookie(COOKIE_KEY, "ok", TTL_MS);
   }
 
@@ -188,8 +195,14 @@
       error.style.display = "none";
       try {
         const hash = await sha256(input.value);
-        if (hash === PASS_HASH) {
-          persistAuth();
+        if (hash === PASS_HASH_FULL) {
+          persistAuth("full");
+          overlay.remove();
+          document.body.style.overflow = "";
+          return;
+        }
+        if (hash === PASS_HASH_AGENCY && REQUIRED === "agency") {
+          persistAuth("agency");
           overlay.remove();
           document.body.style.overflow = "";
           return;
