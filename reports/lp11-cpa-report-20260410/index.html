@@ -154,19 +154,13 @@
     <div class="meta">
       <span>集計基準: 申込日ベース</span>
       <span>対象期間: 2025-07-01 〜 2026-03-31</span>
-      <span>データ取得: 2026年04月17日</span>
+      <span>データ取得: 2026年04月17日 16:07</span>
     </div>
   </div>
-  <div style="display: flex; gap: 8px;">
-    <button id="update-data-btn" class="reload-btn" style="border-color: #f59e0b; color: #f59e0b;" onclick="triggerDataUpdate()">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 11a7 7 0 0 1-7 7m0 0a7 7 0 0 1-7-7m7 7V4m0 0L8 8m4-4l4 4"/></svg>
-      最新データに更新 (BQ取得)
-    </button>
-    <button class="reload-btn" onclick="superReload()">
-      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h5M20 20v-5h-5"/><path d="M20 9A9 9 0 0 0 4.1 12M4 15a9 9 0 0 0 15.9-3"/></svg>
-      キャッシュクリア
-    </button>
-  </div>
+  <button class="reload-btn" onclick="superReload()">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h5M20 20v-5h-5"/><path d="M20 9A9 9 0 0 0 4.1 12M4 15a9 9 0 0 0 15.9-3"/></svg>
+    スーパーリロード (キャッシュをクリアして更新)
+  </button>
 </div>
 
 <div class="notice">
@@ -574,69 +568,10 @@ const cFunnel = new Chart(document.getElementById('chart_funnel'), {
 initCustomLegend(cFunnel, 'legend-chart_funnel');
 
 function superReload() {
+    // クエリパラメータにタイムスタンプを付与してキャッシュを回避
     const url = new URL(window.location.href);
     url.searchParams.set('reload', new Date().getTime());
     window.location.href = url.toString();
-}
-
-async function triggerDataUpdate() {
-    const btn = document.getElementById('update-data-btn');
-    const originalText = btn.innerHTML;
-    
-    // GitHub PATの取得（初回のみ）
-    let token = localStorage.getItem('GHP_TOKEN');
-    if (!token) {
-        token = prompt('GitHub Personal Access Tokenを入力してください（初期設定）:\n※ repoスコープが必要です。一度入力するとブラウザに保存されます。');
-        if (!token) return;
-        localStorage.setItem('GHP_TOKEN', token);
-    }
-
-    if (!confirm('BigQueryから最新データを取得し、レポートを再生成しますか？\n（完了まで3〜5分かかります）')) return;
-
-    btn.disabled = true;
-    btn.innerHTML = '⏳ 更新リクエスト送信中...';
-    btn.style.opacity = '0.6';
-
-    try {
-        const response = await fetch('https://api.github.com/repos/ucarpac/ucarpac-workspace/dispatches', {
-            method: 'POST',
-            headers: {
-                'Authorization': `token ${token}`,
-                'Accept': 'application/vnd.github.v3+json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                event_type: 'trigger-update'
-            })
-        });
-
-        if (response.ok) {
-            btn.innerHTML = '✅ 更新ジョブを開始しました';
-            alert('GitHub Actions での更新ジョブを開始しました。\nデータが反映されるまで数分待ってからページを再読み込みしてください。');
-            
-            // ジョブへのリンクを表示
-            const link = document.createElement('a');
-            link.href = 'https://github.com/ucarpac/ucarpac-workspace/actions';
-            link.target = '_blank';
-            link.style.display = 'block';
-            link.style.marginTop = '10px';
-            link.style.fontSize = '11px';
-            link.style.color = '#3b82f6';
-            link.innerText = '→ GitHubで進捗を確認する';
-            btn.parentNode.appendChild(link);
-        } else {
-            const err = await response.json();
-            throw new Error(err.message || '不明なエラー');
-        }
-    } catch (e) {
-        alert('エラーが発生しました: ' + e.message + '\nトークンが正しいか確認してください。');
-        btn.disabled = false;
-        btn.innerHTML = originalText;
-        btn.style.opacity = '1';
-        if (e.message.includes('Bad credentials')) {
-            localStorage.removeItem('GHP_TOKEN');
-        }
-    }
 }
 </script>
 </body>
