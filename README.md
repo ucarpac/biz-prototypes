@@ -1,40 +1,88 @@
 # biz-prototypes
 
 GitHub Pages で配信する UcarPAC の社内共有ハブです。
-日々のプロトタイプと分析レポートを分けて管理します。
+日々のプロトタイプ・分析レポートを UCP 内部と代理店共有で管理します。
 
 ## 構成
 
-- `index.html`
-  - ハブページ
-- `auth.js`
-  - 共通の簡易認証ゲート
-- `ucarpac-app/`
-  - 日々のプロトタイプ
-- `ops/`
-  - 継続更新の定点レポート
-- `reports/`
-  - 単発の分析レポート
+```
+index.html          ← UCP 内部向けハブ
+auth.js             ← 共通認証ゲート（2パスワード対応）
+ucarpac-app/        ← 日々のプロトタイプ一覧
+ops/                ← 継続更新の定点レポート（Auto KPI など）
+reports/            ← 単発の分析レポート（UCP 内部向け一覧）
+agency/             ← 代理店共有向けハブ
+```
 
 ## 公開 URL
 
-- Hub: `https://ucarpac.github.io/biz-prototypes/`
-- Reports: `https://ucarpac.github.io/biz-prototypes/reports/`
-- Auto KPI: `https://ucarpac.github.io/biz-prototypes/ops/auto-kpi/`
+| 対象 | URL |
+|------|-----|
+| UCP 内部ハブ | `https://ucarpac.github.io/biz-prototypes/` |
+| レポート一覧（内部） | `https://ucarpac.github.io/biz-prototypes/reports/` |
+| 代理店共有ハブ | `https://ucarpac.github.io/biz-prototypes/agency/` |
+| Auto KPI | `https://ucarpac.github.io/biz-prototypes/ops/auto-kpi/` |
+
+## 認証の仕組み
+
+`auth.js` は2つのアクセスレベルをサポートします。
+
+| レベル | パスワード | 閲覧できるページ |
+|--------|-----------|----------------|
+| `full` | ucarpac2026 | 全ページ |
+| `agency` | agency2026 | `required: "agency"` のページのみ |
+
+各ページの `<head>` 内で以下を設定します：
+
+```html
+<script>
+  window.PROTO_AUTH_CONFIG = {
+    title: "ページタイトル",
+    subtitle: "説明文",
+    required: "agency"   // 省略または "full" で UCP のみ閲覧可
+  };
+</script>
+<script src="../../auth.js"></script>  <!-- パスは階層に合わせる -->
+```
 
 ## 新しいレポートを追加するとき
 
-1. `reports/<slug>/index.html` を作る
-2. ページ先頭に `window.PROTO_AUTH_CONFIG` と `auth.js` を入れる
-3. `Reports に戻る` リンクを置く
-4. `reports/index.html` にカードを追加する
-5. `git fetch origin` 後に最新 `origin/main` 基準で反映する
-6. 公開 URL が `200` かと、一覧から辿れるかを確認する
+### 作業前に必ず最新を取得
 
-## 認証について
+```bash
+git fetch origin
+git rebase origin/main   # または git pull
+```
 
-- `auth.js` は簡易なクライアント側認証です
-- 認証状態は 24 時間保持します
-- 厳密な秘匿用途ではなく、社内共有を前提にしています
+### UCP 内部レポートとして追加
+
+1. `reports/<slug>/index.html` を作成（`slug` は `topic-YYYYMMDD-xxxxxxxx`）
+2. ページ先頭に `PROTO_AUTH_CONFIG`（`required` は省略）と `auth.js` を挿入
+3. `← Reports に戻る` リンクを配置（`href="../"`）
+4. `reports/index.html` にカードを追加
+
+### 代理店共有レポートとして追加
+
+上記に加えて：
+
+5. `PROTO_AUTH_CONFIG` に `required: "agency"` を追加
+6. `agency/index.html` にもカードを追加
+
+### push
+
+```bash
+git add <変更ファイル>
+git commit -m "Add <レポート名>"
+git push origin HEAD:main
+```
+
+## 代理店への共有方法
+
+URL とパスワードをセットで伝えます：
+
+```
+URL: https://ucarpac.github.io/biz-prototypes/agency/
+パスワード: agency2026
+```
 
 詳細ルールは `AGENTS.md` を参照してください。
