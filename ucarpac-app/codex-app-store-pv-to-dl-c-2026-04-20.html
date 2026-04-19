@@ -1,0 +1,2238 @@
+<!DOCTYPE html>
+<!-- C案: ゲーミフィケーション・インタラクティブアプローチ。スワイプ、診断フロー、ステップ進行などの操作体験重視。マイクロアニメーション -->
+<html lang="ja">
+<script>
+window.PROTO_AUTH_CONFIG = {
+  title: "UcarPAC App | ストアスクショ C案 2026-04-20",
+  description: "AI査定・出費管理・電話0本訴求を、スワイプと診断フローで検証するインタラクティブなストアスクショHTMLプロトタイプ"
+};
+</script>
+<script src="../auth.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>UcarPAC App | ストアスクショ C案 2026-04-20</title>
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --text-disabled: #B3B3B3;
+      --text-placeholder: rgba(28, 38, 99, 0.3);
+      --text-under-blue: #0056BA;
+      --button-gray: #CACEE2;
+      --button-link1: #4099FF;
+      --button-link2: #40BFFF;
+      --back-white: #FAFAFA;
+      --light-gray: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --back-gray2: #e6e6e6;
+      --back-blue: #091355;
+      --back-dark-blue: #0a1348;
+      --back-light-pink: #ffd8e8;
+      --back-light-blue: #6fc2ff;
+      --error: #EB4646;
+      --shadow: rgba(0, 0, 0, 0.11);
+      --ruled-line: #F2F2F2;
+      --border-gray: #7C7C7C;
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+      --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
+      --gradient-disabled: linear-gradient(90deg, #e5e5e5, #e5e5e5);
+      --gradient-shell:
+        radial-gradient(circle at 10% 10%, rgba(29, 220, 255, 0.22), transparent 22%),
+        radial-gradient(circle at 90% 8%, rgba(248, 76, 162, 0.16), transparent 20%),
+        radial-gradient(circle at 50% 90%, rgba(111, 194, 255, 0.12), transparent 28%),
+        linear-gradient(180deg, #f2f8ff 0%, #fcfdff 45%, #fff4fa 100%);
+      --gradient-panel: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(249, 251, 255, 0.86) 100%);
+      --gradient-a:
+        radial-gradient(circle at 78% 10%, rgba(248, 76, 162, 0.24), transparent 24%),
+        radial-gradient(circle at 14% 6%, rgba(29, 220, 255, 0.28), transparent 22%),
+        linear-gradient(180deg, #ffffff 0%, #eef8ff 46%, #fff3f8 100%);
+      --gradient-b:
+        radial-gradient(circle at 16% 10%, rgba(29, 220, 255, 0.18), transparent 24%),
+        radial-gradient(circle at 86% 6%, rgba(248, 76, 162, 0.14), transparent 20%),
+        linear-gradient(180deg, #0a1348 0%, #1d2e93 58%, #1c2663 100%);
+      --gradient-c:
+        radial-gradient(circle at 18% 10%, rgba(248, 76, 162, 0.18), transparent 22%),
+        radial-gradient(circle at 84% 8%, rgba(29, 220, 255, 0.18), transparent 22%),
+        linear-gradient(180deg, #fffefe 0%, #fff4fa 54%, #edf8ff 100%);
+      --font-sans: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-7: 27px;
+      --space-8: 32px;
+      --space-9: 38px;
+      --radius-sm: 5px;
+      --radius-md: 12px;
+      --radius-card: 13px;
+      --radius-lg: 16px;
+      --radius-chip: 22px;
+      --radius-button: 30px;
+      --radius-button-lg: 43px;
+      --radius-phone: 38px;
+      --phone-width: 375px;
+      --phone-height: 812px;
+      --shadow-light: 0 10px 28px rgba(28, 38, 99, 0.10);
+      --shadow-medium: 0 20px 54px rgba(28, 38, 99, 0.14);
+      --shadow-heavy: 0 32px 90px rgba(10, 19, 72, 0.20);
+      --transition: 320ms cubic-bezier(.2, .85, .2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--gradient-shell);
+      color: var(--text-black);
+      font-family: var(--font-sans);
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      filter: blur(52px);
+      opacity: 0.55;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      left: -110px;
+      top: 28px;
+      background: rgba(29, 220, 255, 0.22);
+    }
+
+    body::after {
+      right: -96px;
+      bottom: 22px;
+      background: rgba(248, 76, 162, 0.18);
+    }
+
+    button {
+      font: inherit;
+      background: none;
+      border: 0;
+      color: inherit;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      width: min(1200px, calc(100% - 24px));
+      margin: 0 auto;
+      padding: 18px 0 48px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 18px 16px 18px;
+      border-radius: 30px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow-medium);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -44px;
+      top: -44px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(248, 76, 162, 0.18), transparent 70%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 36px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--dark-blue);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      box-shadow: var(--shadow-light);
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--pink);
+      box-shadow: 0 0 0 7px rgba(248, 76, 162, 0.12);
+      animation: pulse 2.2s ease-in-out infinite;
+    }
+
+    h1 {
+      margin: 16px 0 10px;
+      max-width: 940px;
+      font-size: clamp(30px, 7.2vw, 56px);
+      line-height: 1.12;
+      letter-spacing: -0.05em;
+      font-weight: 900;
+      color: var(--dark-blue);
+    }
+
+    .lead {
+      margin: 0;
+      max-width: 920px;
+      color: #66708c;
+      font-size: 14px;
+      line-height: 1.9;
+    }
+
+    .lead strong {
+      color: var(--dark-blue);
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .hero-stat {
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px solid rgba(28, 38, 99, 0.08);
+      box-shadow: var(--shadow-light);
+    }
+
+    .hero-stat span {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--text-gray);
+    }
+
+    .hero-stat strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 28px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      color: var(--dark-blue);
+    }
+
+    .hero-stat small {
+      display: block;
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.7;
+      color: #57617a;
+    }
+
+    .layout {
+      display: grid;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .panel {
+      border-radius: 30px;
+      background: var(--gradient-panel);
+      border: 1px solid rgba(255, 255, 255, 0.88);
+      box-shadow: var(--shadow-medium);
+      backdrop-filter: blur(18px);
+    }
+
+    .stage-panel {
+      padding: 14px;
+      overflow: hidden;
+    }
+
+    .stage-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .stage-title {
+      display: grid;
+      gap: 6px;
+    }
+
+    .stage-title span {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-gray);
+      letter-spacing: 0.04em;
+    }
+
+    .stage-title strong {
+      color: var(--dark-blue);
+      font-size: 18px;
+      line-height: 1.4;
+    }
+
+    .stage-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .ghost-button,
+    .nav-button,
+    .chip-button,
+    .mini-chip {
+      min-height: 43px;
+      padding: 0 16px;
+      border-radius: var(--radius-button);
+      transition: transform var(--transition), box-shadow var(--transition), background var(--transition), color var(--transition), border-color var(--transition);
+    }
+
+    .ghost-button {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(28, 38, 99, 0.10);
+      color: var(--dark-blue);
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 8px 18px rgba(28, 38, 99, 0.07);
+    }
+
+    .nav-button {
+      min-width: 92px;
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+      font-size: 13px;
+      font-weight: 800;
+      box-shadow: 0 14px 26px rgba(77, 180, 255, 0.22);
+    }
+
+    .ghost-button:hover,
+    .nav-button:hover,
+    .chip-button:hover,
+    .mini-chip:hover {
+      transform: translateY(-1px);
+    }
+
+    .story-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .chip-button {
+      flex: 1 1 96px;
+      border: 1px solid rgba(28, 38, 99, 0.10);
+      background: rgba(255, 255, 255, 0.78);
+      color: var(--text-gray);
+      font-size: 13px;
+      font-weight: 800;
+      box-shadow: 0 8px 18px rgba(28, 38, 99, 0.06);
+    }
+
+    .chip-button.active {
+      background: var(--dark-blue);
+      color: var(--white);
+      border-color: transparent;
+      box-shadow: 0 16px 34px rgba(28, 38, 99, 0.22);
+    }
+
+    .viewer {
+      position: relative;
+      display: grid;
+      justify-items: center;
+      gap: 14px;
+      user-select: none;
+    }
+
+    .swipe-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(9, 19, 85, 0.06);
+      color: var(--dark-blue);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .swipe-hint::before,
+    .swipe-hint::after {
+      content: "";
+      width: 16px;
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(248, 76, 162, 0.55), rgba(29, 220, 255, 0.8));
+      animation: glide 1.8s ease-in-out infinite;
+    }
+
+    .phone-shell {
+      position: relative;
+      width: min(100%, var(--phone-width));
+      min-height: var(--phone-height);
+      border-radius: var(--radius-phone);
+      padding: 10px;
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(229, 236, 255, 0.88));
+      box-shadow: var(--shadow-heavy);
+      touch-action: pan-y;
+      overflow: hidden;
+    }
+
+    .phone-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(28, 38, 99, 0.12));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .phone-notch {
+      position: absolute;
+      left: 50%;
+      top: 8px;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 26px;
+      border-radius: 0 0 18px 18px;
+      background: rgba(11, 14, 38, 0.88);
+      z-index: 4;
+    }
+
+    .story-stage {
+      position: relative;
+      width: 100%;
+      min-height: calc(var(--phone-height) - 20px);
+      border-radius: 30px;
+      overflow: hidden;
+    }
+
+    .story-screen {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transform: translateX(12%) scale(0.97);
+      transition: opacity 360ms ease, transform 420ms cubic-bezier(.2, .85, .2, 1);
+      pointer-events: none;
+      padding: 18px 18px 22px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 14px;
+    }
+
+    .story-screen.active {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .story-screen.screen-a {
+      background: var(--gradient-a);
+    }
+
+    .story-screen.screen-b {
+      background: var(--gradient-b);
+      color: var(--white);
+    }
+
+    .story-screen.screen-c {
+      background: var(--gradient-c);
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 14px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .screen-b .status-bar {
+      color: rgba(255, 255, 255, 0.86);
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-icons span {
+      display: block;
+      height: 8px;
+      border-radius: 999px;
+      background: currentColor;
+      opacity: 0.85;
+    }
+
+    .status-icons span:nth-child(1) {
+      width: 12px;
+    }
+
+    .status-icons span:nth-child(2) {
+      width: 8px;
+      opacity: 0.6;
+    }
+
+    .status-icons span:nth-child(3) {
+      width: 18px;
+    }
+
+    .platform-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      min-height: 28px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--dark-blue);
+      font-size: 11px;
+      font-weight: 800;
+      box-shadow: 0 10px 20px rgba(28, 38, 99, 0.08);
+    }
+
+    .screen-b .platform-badge {
+      background: rgba(255, 255, 255, 0.14);
+      color: var(--white);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: none;
+    }
+
+    .store-copy {
+      display: grid;
+      gap: 10px;
+    }
+
+    .store-copy h2 {
+      margin: 0;
+      font-size: clamp(32px, 9vw, 46px);
+      line-height: 1.14;
+      letter-spacing: -0.05em;
+      font-weight: 900;
+    }
+
+    .screen-a .store-copy h2,
+    .screen-c .store-copy h2 {
+      color: var(--dark-blue);
+    }
+
+    .store-copy p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.8;
+      color: inherit;
+      opacity: 0.88;
+    }
+
+    .store-badges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .store-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
+      padding: 0 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      box-shadow: 0 12px 22px rgba(28, 38, 99, 0.10);
+    }
+
+    .store-badge.primary {
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+    }
+
+    .store-badge.pink {
+      background: var(--gradient-pink);
+      color: var(--white);
+    }
+
+    .store-badge.white {
+      background: rgba(255, 255, 255, 0.90);
+      color: var(--dark-blue);
+    }
+
+    .screen-b .store-badge.white {
+      background: rgba(255, 255, 255, 0.14);
+      color: var(--white);
+      box-shadow: none;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .store-canvas {
+      position: relative;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 24px 48px rgba(28, 38, 99, 0.16);
+    }
+
+    .screen-a .store-canvas,
+    .screen-c .store-canvas {
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(10px);
+    }
+
+    .screen-b .store-canvas {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .canvas-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px 0;
+    }
+
+    .app-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 38px;
+      padding: 0 14px 0 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.90);
+      color: var(--dark-blue);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .screen-b .app-chip {
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--white);
+    }
+
+    .app-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 9px;
+      background:
+        radial-gradient(circle at 26% 24%, rgba(255, 255, 255, 0.95), transparent 28%),
+        linear-gradient(135deg, #1ddcff 0%, #4db4ff 46%, #f84ca2 100%);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+    }
+
+    .counter-chip {
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: rgba(9, 19, 85, 0.08);
+      color: var(--dark-blue);
+      font-size: 11px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .screen-b .counter-chip {
+      background: rgba(255, 255, 255, 0.10);
+      color: var(--white);
+    }
+
+    .card-stack {
+      padding: 14px 16px 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .metric-card,
+    .compare-card,
+    .expense-card,
+    .forecast-card,
+    .mini-card {
+      border-radius: 24px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card {
+      background: linear-gradient(135deg, rgba(9, 19, 85, 0.96), rgba(28, 38, 99, 0.94));
+      color: var(--white);
+      box-shadow: 0 18px 34px rgba(9, 19, 85, 0.24);
+    }
+
+    .metric-card::after {
+      content: "";
+      position: absolute;
+      right: -14px;
+      bottom: -18px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 68%);
+    }
+
+    .metric-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .metric-value {
+      margin-top: 10px;
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    .metric-value strong {
+      font-size: 42px;
+      line-height: 1;
+      letter-spacing: -0.06em;
+      font-weight: 900;
+    }
+
+    .metric-value span {
+      font-size: 13px;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .line-chart {
+      margin-top: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .line-track {
+      height: 86px;
+      position: relative;
+      border-radius: 18px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.02)),
+        repeating-linear-gradient(180deg, transparent 0 20px, rgba(255, 255, 255, 0.08) 20px 21px);
+    }
+
+    .line-path {
+      position: absolute;
+      inset: 12px 12px 12px 12px;
+    }
+
+    .line-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .line-svg path {
+      fill: none;
+      stroke: #6fd7ff;
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 0 10px rgba(111, 215, 255, 0.36));
+      stroke-dasharray: 220;
+      stroke-dashoffset: 220;
+      animation: drawLine 1.4s ease forwards;
+    }
+
+    .line-svg circle {
+      fill: #ffffff;
+      stroke: #f84ca2;
+      stroke-width: 4;
+      animation: popIn 0.6s ease backwards;
+    }
+
+    .line-svg circle:nth-of-type(1) {
+      animation-delay: 0.20s;
+    }
+
+    .line-svg circle:nth-of-type(2) {
+      animation-delay: 0.35s;
+    }
+
+    .line-svg circle:nth-of-type(3) {
+      animation-delay: 0.50s;
+    }
+
+    .line-labels {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .mini-card {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(28, 38, 99, 0.07);
+      color: var(--dark-blue);
+      box-shadow: 0 12px 22px rgba(28, 38, 99, 0.08);
+    }
+
+    .mini-card span,
+    .expense-card span,
+    .forecast-card span,
+    .compare-card span {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-gray);
+      letter-spacing: 0.04em;
+    }
+
+    .mini-card strong,
+    .expense-card strong,
+    .forecast-card strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 24px;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+      color: var(--dark-blue);
+    }
+
+    .mini-card small,
+    .expense-card small,
+    .forecast-card small {
+      display: block;
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.7;
+      color: #5f6784;
+    }
+
+    .cta-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 16px 0;
+    }
+
+    .cta-note {
+      font-size: 12px;
+      font-weight: 700;
+      color: #5c6682;
+    }
+
+    .screen-b .cta-note {
+      color: rgba(255, 255, 255, 0.76);
+    }
+
+    .store-cta {
+      min-height: 50px;
+      padding: 0 18px;
+      border-radius: 999px;
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+      font-size: 14px;
+      font-weight: 900;
+      box-shadow: 0 16px 28px rgba(77, 180, 255, 0.20);
+    }
+
+    .expense-card,
+    .forecast-card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 18px 36px rgba(10, 19, 72, 0.18);
+    }
+
+    .screen-b .expense-card,
+    .screen-b .forecast-card {
+      background: rgba(255, 255, 255, 0.10);
+      color: var(--white);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .screen-b .expense-card span,
+    .screen-b .forecast-card span,
+    .screen-b .expense-card strong,
+    .screen-b .forecast-card strong,
+    .screen-b .expense-card small,
+    .screen-b .forecast-card small {
+      color: inherit;
+    }
+
+    .expense-list {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .expense-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .expense-row b {
+      font-size: 14px;
+    }
+
+    .expense-bar {
+      grid-column: 1 / -1;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      overflow: hidden;
+    }
+
+    .expense-bar i {
+      display: block;
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #1ddcff, #f84ca2);
+      animation: fillBar 1s ease forwards;
+    }
+
+    .expense-row:nth-child(1) .expense-bar i {
+      animation-delay: 0.12s;
+      width: 82%;
+    }
+
+    .expense-row:nth-child(2) .expense-bar i {
+      animation-delay: 0.24s;
+      width: 58%;
+    }
+
+    .expense-row:nth-child(3) .expense-bar i {
+      animation-delay: 0.36s;
+      width: 94%;
+    }
+
+    .expense-row:nth-child(4) .expense-bar i {
+      animation-delay: 0.48s;
+      width: 44%;
+    }
+
+    .forecast-track {
+      margin-top: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .forecast-row {
+      display: grid;
+      grid-template-columns: 48px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .forecast-pill {
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      overflow: hidden;
+    }
+
+    .forecast-pill i {
+      display: block;
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, rgba(29, 220, 255, 0.98), rgba(255, 255, 255, 0.9));
+      animation: fillBar 1s ease forwards;
+    }
+
+    .forecast-row:nth-child(1) .forecast-pill i {
+      animation-delay: 0.12s;
+      width: 100%;
+    }
+
+    .forecast-row:nth-child(2) .forecast-pill i {
+      animation-delay: 0.24s;
+      width: 94%;
+    }
+
+    .forecast-row:nth-child(3) .forecast-pill i {
+      animation-delay: 0.36s;
+      width: 88%;
+    }
+
+    .compare-grid {
+      padding: 14px 16px 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .compare-card {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(28, 38, 99, 0.08);
+      box-shadow: 0 14px 24px rgba(28, 38, 99, 0.08);
+    }
+
+    .compare-head {
+      display: grid;
+      gap: 8px;
+    }
+
+    .compare-head strong {
+      font-size: 24px;
+      line-height: 1.2;
+      letter-spacing: -0.04em;
+      color: var(--dark-blue);
+    }
+
+    .compare-table {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .compare-row {
+      display: grid;
+      grid-template-columns: 1.1fr 0.8fr 0.8fr;
+      gap: 8px;
+      align-items: center;
+      min-height: 54px;
+      padding: 0 12px;
+      border-radius: 18px;
+      background: rgba(9, 19, 85, 0.04);
+      font-size: 13px;
+    }
+
+    .compare-row.header {
+      min-height: 42px;
+      background: transparent;
+      padding: 0 4px;
+      color: var(--text-gray);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+    }
+
+    .compare-row .brand {
+      font-weight: 800;
+      color: var(--dark-blue);
+    }
+
+    .good,
+    .warn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 32px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .good {
+      background: rgba(29, 220, 255, 0.18);
+      color: var(--dark-blue);
+    }
+
+    .warn {
+      background: rgba(248, 76, 162, 0.14);
+      color: #b8196c;
+    }
+
+    .zero-call {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(248, 76, 162, 0.94), rgba(28, 38, 99, 0.96));
+      color: var(--white);
+      box-shadow: 0 18px 32px rgba(248, 76, 162, 0.20);
+    }
+
+    .zero-call strong {
+      display: block;
+      font-size: 32px;
+      line-height: 1;
+      letter-spacing: -0.05em;
+    }
+
+    .zero-call small {
+      display: block;
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.82);
+    }
+
+    .phone-bubble {
+      width: 72px;
+      height: 72px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.14);
+      position: relative;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+    }
+
+    .phone-bubble::before,
+    .phone-bubble::after {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border-radius: 18px;
+      border: 3px solid rgba(255, 255, 255, 0.92);
+    }
+
+    .phone-bubble::after {
+      inset: 26px 22px 22px 26px;
+      border-top: 0;
+      border-left: 0;
+      transform: rotate(45deg);
+      border-radius: 8px;
+      animation: ringOff 1.8s ease-in-out infinite;
+    }
+
+    .screen-footer {
+      padding-top: 2px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+    }
+
+    .screen-footer .caption {
+      color: rgba(28, 38, 99, 0.70);
+      font-weight: 700;
+    }
+
+    .screen-b .screen-footer .caption {
+      color: rgba(255, 255, 255, 0.72);
+    }
+
+    .indicator {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .indicator button {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(28, 38, 99, 0.16);
+      transition: transform var(--transition), background var(--transition), width var(--transition);
+    }
+
+    .indicator button.active {
+      width: 28px;
+      background: var(--dark-blue);
+      transform: scale(1.02);
+    }
+
+    .control-panel {
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .control-card {
+      padding: 16px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(28, 38, 99, 0.08);
+      box-shadow: var(--shadow-light);
+      display: grid;
+      gap: 12px;
+    }
+
+    .control-card h3 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--dark-blue);
+    }
+
+    .control-card p,
+    .control-card small {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.8;
+      color: #5d6783;
+    }
+
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .kpi-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: rgba(9, 19, 85, 0.06);
+      color: var(--dark-blue);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .kpi-track {
+      position: relative;
+      height: 14px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(9, 19, 85, 0.08), rgba(9, 19, 85, 0.04));
+      overflow: hidden;
+    }
+
+    .kpi-track::before,
+    .kpi-track::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: rgba(28, 38, 99, 0.20);
+      z-index: 2;
+    }
+
+    .kpi-track::before {
+      left: 69.2%;
+    }
+
+    .kpi-track::after {
+      left: calc(100% - 2px);
+      opacity: 0;
+    }
+
+    .kpi-fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 69.2%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #1ddcff, #4db4ff, #f84ca2);
+      box-shadow: 0 0 18px rgba(77, 180, 255, 0.26);
+      transition: width 480ms cubic-bezier(.2, .85, .2, 1);
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-gray);
+    }
+
+    .option-group {
+      display: grid;
+      gap: 10px;
+    }
+
+    .option-group label {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--dark-blue);
+      letter-spacing: 0.03em;
+    }
+
+    .mini-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mini-chip {
+      border: 1px solid rgba(28, 38, 99, 0.10);
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--text-gray);
+      font-size: 13px;
+      font-weight: 800;
+      min-height: 40px;
+      padding: 0 14px;
+      box-shadow: 0 8px 16px rgba(28, 38, 99, 0.05);
+    }
+
+    .mini-chip.active {
+      background: var(--dark-blue);
+      color: var(--white);
+      border-color: transparent;
+    }
+
+    .diagnosis-steps {
+      display: grid;
+      gap: 10px;
+    }
+
+    .step-row {
+      display: grid;
+      grid-template-columns: 30px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 52px;
+      padding: 0 12px;
+      border-radius: 18px;
+      background: rgba(9, 19, 85, 0.04);
+      transition: transform var(--transition), background var(--transition);
+    }
+
+    .step-row.active {
+      background: rgba(29, 220, 255, 0.14);
+      transform: translateX(2px);
+    }
+
+    .step-row.done {
+      background: rgba(248, 76, 162, 0.10);
+    }
+
+    .step-index {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: var(--white);
+      color: var(--dark-blue);
+      font-size: 12px;
+      font-weight: 900;
+      box-shadow: 0 8px 14px rgba(28, 38, 99, 0.10);
+    }
+
+    .step-body strong {
+      display: block;
+      font-size: 13px;
+      color: var(--dark-blue);
+    }
+
+    .step-body span {
+      display: block;
+      margin-top: 4px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #5f6784;
+    }
+
+    .step-state {
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--text-gray);
+    }
+
+    .step-row.active .step-state,
+    .step-row.done .step-state {
+      color: var(--dark-blue);
+    }
+
+    .recommend-card {
+      padding: 16px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(9, 19, 85, 0.96), rgba(28, 38, 99, 0.92));
+      color: var(--white);
+      display: grid;
+      gap: 10px;
+      box-shadow: 0 20px 34px rgba(9, 19, 85, 0.20);
+    }
+
+    .recommend-card span {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: rgba(255, 255, 255, 0.72);
+    }
+
+    .recommend-card strong {
+      font-size: 22px;
+      line-height: 1.3;
+      letter-spacing: -0.03em;
+    }
+
+    .recommend-card p {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.84);
+    }
+
+    .sparkle-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .sparkle {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .legend {
+      display: grid;
+      gap: 8px;
+      padding-top: 2px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: #5d6783;
+      line-height: 1.7;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      flex: 0 0 auto;
+    }
+
+    .legend-dot.a {
+      background: #1ddcff;
+    }
+
+    .legend-dot.b {
+      background: #f84ca2;
+    }
+
+    .legend-dot.c {
+      background: #1c2663;
+    }
+
+    .foot-note {
+      padding: 0 4px;
+      font-size: 11px;
+      line-height: 1.8;
+      color: #7a8098;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.18);
+      }
+    }
+
+    @keyframes glide {
+      0%, 100% {
+        transform: translateX(0);
+        opacity: 0.55;
+      }
+      50% {
+        transform: translateX(4px);
+        opacity: 1;
+      }
+    }
+
+    @keyframes drawLine {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes popIn {
+      0% {
+        transform: scale(0.2);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fillBar {
+      from {
+        max-width: 0;
+      }
+      to {
+        max-width: 100%;
+      }
+    }
+
+    @keyframes ringOff {
+      0%, 100% {
+        transform: rotate(45deg) scale(1);
+        opacity: 0.85;
+      }
+      50% {
+        transform: rotate(45deg) scale(1.12);
+        opacity: 0.32;
+      }
+    }
+
+    @media (min-width: 760px) {
+      .hero {
+        padding: 24px 24px 22px;
+      }
+
+      .hero-stats {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .layout {
+        grid-template-columns: minmax(0, 430px) minmax(320px, 1fr);
+        align-items: start;
+      }
+
+      .stage-panel {
+        padding: 18px;
+      }
+
+      .control-panel {
+        padding: 18px;
+      }
+    }
+
+    @media (min-width: 1080px) {
+      .page {
+        padding-top: 22px;
+      }
+
+      .layout {
+        grid-template-columns: minmax(0, 470px) minmax(0, 1fr);
+        gap: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">ASO検証 / ストアPV→DL率 改善テーマ</div>
+      <h1>スワイプで訴求を切り替える。<br>3枚のスクショで「今すぐ見たい」をつくる。</h1>
+      <p class="lead">
+        UcarPAC Appのストア詳細ページで、<strong>AI査定</strong>、<strong>出費管理+将来予測</strong>、
+        <strong>価格を見るまで電話0本</strong>の3訴求を比較できるインタラクティブなC案です。
+        モバイルファーストの構成で、ステップ進行とマイクロアニメーションにより体験価値を先に感じさせます。
+      </p>
+      <div class="hero-stats">
+        <article class="hero-stat">
+          <span>対象KPI</span>
+          <strong>17.3% → 25.0%</strong>
+          <small>ストア詳細ページの閲覧からダウンロードまでのCVR改善を検証する想定です。</small>
+        </article>
+        <article class="hero-stat">
+          <span>スクショA</span>
+          <strong>AI査定</strong>
+          <small>iOS向け。プリウスの概算価格と将来予測を中心に、個人情報不要を前面訴求。</small>
+        </article>
+        <article class="hero-stat">
+          <span>スクショB</span>
+          <strong>出費管理</strong>
+          <small>Android向け。月次の維持費と3か月先の価値推移を同時に見せる構成です。</small>
+        </article>
+        <article class="hero-stat">
+          <span>スクショC</span>
+          <strong>電話0本</strong>
+          <small>比較表で競合との差分を即理解させる訴求。価格を見るまでは営業電話なしを強調します。</small>
+        </article>
+      </div>
+    </section>
+
+    <section class="layout">
+      <div class="panel stage-panel">
+        <div class="stage-head">
+          <div class="stage-title">
+            <span>ストアスクショ ビューアー</span>
+            <strong>左右スワイプ、またはタブ切替でA/B/Cを確認</strong>
+          </div>
+          <div class="stage-actions">
+            <button class="ghost-button" id="shuffleButton" type="button">おすすめ順に並び替え</button>
+          </div>
+        </div>
+
+        <div class="story-tabs" role="tablist" aria-label="ストアスクショ切替">
+          <button class="chip-button active" type="button" data-screen="0" role="tab" aria-selected="true">A / AI査定</button>
+          <button class="chip-button" type="button" data-screen="1" role="tab" aria-selected="false">B / 出費管理</button>
+          <button class="chip-button" type="button" data-screen="2" role="tab" aria-selected="false">C / 電話0本</button>
+        </div>
+
+        <div class="viewer">
+          <div class="swipe-hint">スワイプで次の訴求へ</div>
+
+          <div class="phone-shell" id="phoneShell" aria-live="polite">
+            <div class="phone-notch"></div>
+            <div class="story-stage">
+              <section class="story-screen screen-a active" data-screen-index="0" aria-label="ストアスクショA iOS AI査定">
+                <div class="status-bar">
+                  <span>9:41</span>
+                  <div class="status-icons" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+
+                <div class="store-copy">
+                  <div class="platform-badge">iOS向けストアスクショ A</div>
+                  <h2>AIがあなたの愛車を<br>いま査定する</h2>
+                  <p>車種・年式・走行距離だけで、愛車の相場と売り時をすぐにチェック。個人情報の入力前でも価値が伝わる構成です。</p>
+                  <div class="store-badges">
+                    <span class="store-badge primary">個人情報不要</span>
+                    <span class="store-badge white">3分で概算チェック</span>
+                    <span class="store-badge pink">将来予測つき</span>
+                  </div>
+                </div>
+
+                <div class="store-canvas">
+                  <div class="canvas-header">
+                    <div class="app-chip">
+                      <span class="app-icon" aria-hidden="true"></span>
+                      UcarPAC App
+                    </div>
+                    <div class="counter-chip">愛車登録 1/3</div>
+                  </div>
+
+                  <div class="card-stack">
+                    <article class="metric-card">
+                      <div class="metric-top">
+                        <span>トヨタ プリウス Sツーリング / 2019年 / 48,200km</span>
+                        <span>査定中</span>
+                      </div>
+                      <div class="metric-value">
+                        <strong>184.3万円</strong>
+                        <span>今日のAI査定価格<br>前週比 +3.4万円</span>
+                      </div>
+                      <div class="line-chart">
+                        <div class="line-track">
+                          <div class="line-path">
+                            <svg class="line-svg" viewBox="0 0 300 90" preserveAspectRatio="none" aria-hidden="true">
+                              <path d="M4,68 C42,64 72,56 104,48 C140,40 176,28 210,26 C242,24 264,30 296,22"></path>
+                              <circle cx="20" cy="66" r="5"></circle>
+                              <circle cx="156" cy="38" r="5"></circle>
+                              <circle cx="284" cy="24" r="5"></circle>
+                            </svg>
+                          </div>
+                        </div>
+                        <div class="line-labels">
+                          <span>現在 184.3万円</span>
+                          <span>3か月後 181.8万円</span>
+                          <span>6か月後 176.2万円</span>
+                        </div>
+                      </div>
+                    </article>
+
+                    <div class="mini-grid">
+                      <article class="mini-card">
+                        <span>売り時サイン</span>
+                        <strong>今月は強め</strong>
+                        <small>ハイブリッド需要が高く、今週は入札の伸びが出やすい傾向です。</small>
+                      </article>
+                      <article class="mini-card">
+                        <span>次の操作</span>
+                        <strong>写真追加</strong>
+                        <small>内装とフロントの2枚を入れると精度がさらに上がります。</small>
+                      </article>
+                    </div>
+                  </div>
+
+                  <div class="cta-strip">
+                    <div class="cta-note">価格だけ見たい人にも伝わる、初速重視のスクショ構成</div>
+                    <button class="store-cta" type="button">AI査定をはじめる</button>
+                  </div>
+                </div>
+
+                <div class="screen-footer">
+                  <span class="caption">A: AI査定を最短で体験させるiOS訴求</span>
+                  <div class="indicator" aria-hidden="true">
+                    <button class="active" type="button"></button>
+                    <button type="button"></button>
+                    <button type="button"></button>
+                  </div>
+                </div>
+              </section>
+
+              <section class="story-screen screen-b" data-screen-index="1" aria-label="ストアスクショB Android 出費管理と将来予測">
+                <div class="status-bar">
+                  <span>12:08</span>
+                  <div class="status-icons" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+
+                <div class="store-copy">
+                  <div class="platform-badge">Android向けストアスクショ B</div>
+                  <h2>出費も、価値も。<br>毎月まとめて見える</h2>
+                  <p>ガソリンや保険を記録すると、維持費と将来予測がひとつながりで見える。売却検討前の継続利用を狙う構成です。</p>
+                  <div class="store-badges">
+                    <span class="store-badge white">維持費を見える化</span>
+                    <span class="store-badge white">将来予測グラフ</span>
+                    <span class="store-badge white">削除されにくい理由</span>
+                  </div>
+                </div>
+
+                <div class="store-canvas">
+                  <div class="canvas-header">
+                    <div class="app-chip">
+                      <span class="app-icon" aria-hidden="true"></span>
+                      UcarPAC ガレージ
+                    </div>
+                    <div class="counter-chip">4月のまとめ</div>
+                  </div>
+
+                  <div class="card-stack">
+                    <article class="expense-card">
+                      <span>今月の出費</span>
+                      <strong>46,980円</strong>
+                      <small>ホンダ ヴェゼル e:HEV / 2021年 / 月間走行 618km</small>
+                      <div class="expense-list">
+                        <div class="expense-row">
+                          <b>ガソリン</b>
+                          <strong>12,480円</strong>
+                          <div class="expense-bar"><i></i></div>
+                        </div>
+                        <div class="expense-row">
+                          <b>保険</b>
+                          <strong>8,300円</strong>
+                          <div class="expense-bar"><i></i></div>
+                        </div>
+                        <div class="expense-row">
+                          <b>駐車場</b>
+                          <strong>18,000円</strong>
+                          <div class="expense-bar"><i></i></div>
+                        </div>
+                        <div class="expense-row">
+                          <b>メンテナンス</b>
+                          <strong>8,200円</strong>
+                          <div class="expense-bar"><i></i></div>
+                        </div>
+                      </div>
+                    </article>
+
+                    <article class="forecast-card">
+                      <span>価値の見通し</span>
+                      <strong>6か月で -8.6万円予測</strong>
+                      <small>出費の積み上がりと価値の変化を同じ画面で把握し、売る判断につなげます。</small>
+                      <div class="forecast-track">
+                        <div class="forecast-row">
+                          <b>今月</b>
+                          <div class="forecast-pill"><i></i></div>
+                          <strong>228.0万円</strong>
+                        </div>
+                        <div class="forecast-row">
+                          <b>3M</b>
+                          <div class="forecast-pill"><i></i></div>
+                          <strong>223.7万円</strong>
+                        </div>
+                        <div class="forecast-row">
+                          <b>6M</b>
+                          <div class="forecast-pill"><i></i></div>
+                          <strong>219.4万円</strong>
+                        </div>
+                      </div>
+                    </article>
+                  </div>
+
+                  <div class="cta-strip">
+                    <div class="cta-note">出費管理が習慣化の理由になり、売却前も戻ってきやすい設計</div>
+                    <button class="store-cta" type="button">維持費を記録する</button>
+                  </div>
+                </div>
+
+                <div class="screen-footer">
+                  <span class="caption">B: 出費管理+将来予測で継続利用を訴求するAndroid訴求</span>
+                  <div class="indicator" aria-hidden="true">
+                    <button type="button"></button>
+                    <button class="active" type="button"></button>
+                    <button type="button"></button>
+                  </div>
+                </div>
+              </section>
+
+              <section class="story-screen screen-c" data-screen-index="2" aria-label="ストアスクショC 競合比較 電話0本">
+                <div class="status-bar">
+                  <span>9:41</span>
+                  <div class="status-icons" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+
+                <div class="store-copy">
+                  <div class="platform-badge">比較訴求 ストアスクショ C</div>
+                  <h2>価格を見るまでは<br>電話0本</h2>
+                  <p>「まずは相場だけ知りたい」に正面から答える比較スクショ。競合の不安を先に見せて、UcarPACの安心を即理解させます。</p>
+                  <div class="store-badges">
+                    <span class="store-badge primary">営業電話なしで概算</span>
+                    <span class="store-badge white">8,000社オークション</span>
+                    <span class="store-badge pink">1人で静かに比較</span>
+                  </div>
+                </div>
+
+                <div class="store-canvas">
+                  <div class="compare-grid">
+                    <article class="zero-call">
+                      <div>
+                        <span>比較ポイント</span>
+                        <strong>電話0本で相場確認</strong>
+                        <small>価格を見る段階では連絡不要。売ると決める前の心理ハードルを下げます。</small>
+                      </div>
+                      <div class="phone-bubble" aria-hidden="true"></div>
+                    </article>
+
+                    <article class="compare-card">
+                      <div class="compare-head">
+                        <span>競合比較</span>
+                        <strong>まず見るだけなら、UcarPACの負担がいちばん少ない</strong>
+                      </div>
+
+                      <div class="compare-table">
+                        <div class="compare-row header">
+                          <div>サービス</div>
+                          <div>価格を見るまで</div>
+                          <div>連絡負担</div>
+                        </div>
+                        <div class="compare-row">
+                          <div class="brand">UcarPAC</div>
+                          <div><span class="good">電話0本</span></div>
+                          <div><span class="good">個人情報不要</span></div>
+                        </div>
+                        <div class="compare-row">
+                          <div class="brand">一括査定系</div>
+                          <div><span class="warn">申込後に連絡</span></div>
+                          <div><span class="warn">複数社対応</span></div>
+                        </div>
+                        <div class="compare-row">
+                          <div class="brand">固定買取系</div>
+                          <div><span class="warn">相談前提</span></div>
+                          <div><span class="warn">店舗 or 電話</span></div>
+                        </div>
+                      </div>
+                    </article>
+
+                    <article class="compare-card">
+                      <span>さらに伝えること</span>
+                      <strong>本当に売る段階では、8,000社が競って最高額を狙える</strong>
+                      <small>価格確認フェーズの静かな体験と、売却フェーズの競争原理を同時に印象づける構成です。</small>
+                    </article>
+                  </div>
+
+                  <div class="cta-strip">
+                    <div class="cta-note">不安を先回りして潰し、比較検討中ユーザーの離脱を減らす意図</div>
+                    <button class="store-cta" type="button">相場だけ見る</button>
+                  </div>
+                </div>
+
+                <div class="screen-footer">
+                  <span class="caption">C: 競合比較で「電話0本」の安心を先に提示する訴求</span>
+                  <div class="indicator" aria-hidden="true">
+                    <button type="button"></button>
+                    <button type="button"></button>
+                    <button class="active" type="button"></button>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <div class="stage-actions">
+            <button class="ghost-button" id="prevButton" type="button">前の訴求</button>
+            <button class="nav-button" id="nextButton" type="button">次の訴求</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="panel control-panel">
+        <section class="control-card">
+          <div class="progress-head">
+            <h3>CVR改善メーター</h3>
+            <div class="kpi-badge" id="kpiLabel">現状 17.3%</div>
+          </div>
+          <div class="kpi-track" aria-hidden="true">
+            <div class="kpi-fill" id="kpiFill"></div>
+          </div>
+          <div class="progress-labels">
+            <span>現状 17.3%</span>
+            <span>目標 25.0%</span>
+          </div>
+          <small id="kpiMessage">Aは「AI査定」への即反応を狙う導線です。価格が気になる人の初回DLを押し上げる想定です。</small>
+        </section>
+
+        <section class="control-card">
+          <h3>訴求診断フロー</h3>
+          <p>想定ユーザー像を選ぶと、右のおすすめ訴求と進行ステップが切り替わります。ストア審査前の仮説整理用UIです。</p>
+
+          <div class="option-group">
+            <label>売却タイミング</label>
+            <div class="mini-chips" id="timingChips">
+              <button class="mini-chip active" type="button" data-value="soon">3か月以内</button>
+              <button class="mini-chip" type="button" data-value="later">半年以上先</button>
+              <button class="mini-chip" type="button" data-value="unknown">まだ未定</button>
+            </div>
+          </div>
+
+          <div class="option-group">
+            <label>気になっていること</label>
+            <div class="mini-chips" id="interestChips">
+              <button class="mini-chip active" type="button" data-value="price">価格が知りたい</button>
+              <button class="mini-chip" type="button" data-value="expense">維持費が気になる</button>
+              <button class="mini-chip" type="button" data-value="call">電話が不安</button>
+            </div>
+          </div>
+
+          <div class="diagnosis-steps" id="diagnosisSteps">
+            <div class="step-row done">
+              <div class="step-index">1</div>
+              <div class="step-body">
+                <strong>まずは興味で分岐</strong>
+                <span>価格 / 維持費 / 不安解消のどこから入るかを選定</span>
+              </div>
+              <div class="step-state">完了</div>
+            </div>
+            <div class="step-row active">
+              <div class="step-index">2</div>
+              <div class="step-body">
+                <strong>最初のスクショを決める</strong>
+                <span>初回の一枚目でDL理由を言い切れるかを確認</span>
+              </div>
+              <div class="step-state">進行中</div>
+            </div>
+            <div class="step-row">
+              <div class="step-index">3</div>
+              <div class="step-body">
+                <strong>継続価値を補足</strong>
+                <span>DL後に消されにくい理由を二枚目で追加する</span>
+              </div>
+              <div class="step-state">待機</div>
+            </div>
+            <div class="step-row">
+              <div class="step-index">4</div>
+              <div class="step-body">
+                <strong>不安の解除を明示</strong>
+                <span>比較またはFAQ要素で心理障壁を最後に除去する</span>
+              </div>
+              <div class="step-state">待機</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="recommend-card" id="recommendCard">
+          <span>RECOMMENDED STORY</span>
+          <strong id="recommendTitle">Aを先頭に。AI査定の即時価値をまず見せる。</strong>
+          <p id="recommendText">3か月以内に売却を考えるユーザーで、価格が気になる人にはA始まりが最も自然です。価格を見せてから、Bで継続利用理由、Cで不安解消へ進めます。</p>
+          <div class="sparkle-row">
+            <span class="sparkle" id="sparkle1">一枚目: AI査定</span>
+            <span class="sparkle" id="sparkle2">二枚目: 将来予測</span>
+            <span class="sparkle" id="sparkle3">三枚目: 電話0本</span>
+          </div>
+        </section>
+
+        <section class="control-card">
+          <h3>このC案の狙い</h3>
+          <div class="legend">
+            <div class="legend-item">
+              <span class="legend-dot a"></span>
+              スワイプとステップ進行で、静的な比較表だけよりも「触って理解した」感覚を残します。
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot b"></span>
+              訴求軸をA/B/Cで明確に分け、どの順番が最もDL意欲を上げるかの会話材料にします。
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot c"></span>
+              「価格を見るまでは電話0本」と文脈を付けることで、強いコピーと事業実態のズレを抑えます。
+            </div>
+          </div>
+          <p class="foot-note">
+            ダミーデータは、トヨタ プリウス 2019年 / ホンダ ヴェゼル 2021年を例にした現実的な価格帯・維持費レンジで構成しています。
+          </p>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var current = 0;
+      var screens = Array.from(document.querySelectorAll(".story-screen"));
+      var tabButtons = Array.from(document.querySelectorAll(".chip-button"));
+      var indicatorButtons = Array.from(document.querySelectorAll(".indicator button"));
+      var prevButton = document.getElementById("prevButton");
+      var nextButton = document.getElementById("nextButton");
+      var shuffleButton = document.getElementById("shuffleButton");
+      var phoneShell = document.getElementById("phoneShell");
+      var kpiFill = document.getElementById("kpiFill");
+      var kpiLabel = document.getElementById("kpiLabel");
+      var kpiMessage = document.getElementById("kpiMessage");
+
+      var timing = "soon";
+      var interest = "price";
+
+      var kpiByScreen = [
+        {
+          width: "69.2%",
+          label: "想定 20.8%",
+          message: "Aは「AI査定」への即反応を狙う導線です。価格が気になる人の初回DLを押し上げる想定です。"
+        },
+        {
+          width: "82%",
+          label: "想定 22.9%",
+          message: "Bは削除されにくい理由を補強します。維持費管理があることで、売却前ユーザーも残りやすくなります。"
+        },
+        {
+          width: "90%",
+          label: "想定 24.1%",
+          message: "Cは競合不安の先回りです。「電話0本」の文脈を付けることで、比較検討層の躊躇を下げる想定です。"
+        }
+      ];
+
+      var recommendationMap = {
+        "soon-price": {
+          screen: 0,
+          title: "Aを先頭に。AI査定の即時価値をまず見せる。",
+          text: "3か月以内に売却を考えるユーザーで、価格が気になる人にはA始まりが最も自然です。価格を見せてから、Bで継続利用理由、Cで不安解消へ進めます。",
+          sparkles: ["一枚目: AI査定", "二枚目: 将来予測", "三枚目: 電話0本"]
+        },
+        "soon-expense": {
+          screen: 1,
+          title: "Bを先頭に。維持費の痛みから売却動機を作る。",
+          text: "売却時期が近く、維持費も気にしている人にはBから入るほうが行動理由が強くなります。その後Aで価格の裏付けを付けます。",
+          sparkles: ["一枚目: 出費管理", "二枚目: AI査定", "三枚目: 電話0本"]
+        },
+        "soon-call": {
+          screen: 2,
+          title: "Cを先頭に。不安解除を最優先にする。",
+          text: "売る気持ちはあるが電話が不安な層には、最初にCで心理障壁を取り除く順番が有効です。安心した後にAで価格価値を提示します。",
+          sparkles: ["一枚目: 電話0本", "二枚目: AI査定", "三枚目: 出費管理"]
+        },
+        "later-price": {
+          screen: 0,
+          title: "A始まりで相場確認、Bで継続理由を補強。",
+          text: "半年以上先でも、まずは価格が気になる人にはAが入口です。Bで日常利用の理由を与えると、アプリを残す必然性が高まります。",
+          sparkles: ["一枚目: AI査定", "二枚目: 出費管理", "三枚目: 電話0本"]
+        },
+        "later-expense": {
+          screen: 1,
+          title: "Bを先頭に。資産管理アプリとしての価値を見せる。",
+          text: "まだ先の売却を考える人には、Bの出費管理がもっとも継続理由になります。売却は先でも、いま使う意味が伝わる順番です。",
+          sparkles: ["一枚目: 出費管理", "二枚目: 将来予測", "三枚目: AI査定"]
+        },
+        "later-call": {
+          screen: 2,
+          title: "Cを先頭にして、比較検討の警戒心を下げる。",
+          text: "まだ売らない人ほど営業接触を避けたいので、Cで電話0本の安心を最初に置く構成が有効です。その後Bで残る理由を付け足します。",
+          sparkles: ["一枚目: 電話0本", "二枚目: 出費管理", "三枚目: AI査定"]
+        },
+        "unknown-price": {
+          screen: 0,
+          title: "迷っている層にはAで相場を提示して判断材料を作る。",
+          text: "売るか未定の人は、まず価格が見えることで検討が進みます。Aで相場確認、Bで持ち続けるコスト、Cで不安解除の流れが適しています。",
+          sparkles: ["一枚目: AI査定", "二枚目: 出費管理", "三枚目: 電話0本"]
+        },
+        "unknown-expense": {
+          screen: 1,
+          title: "Bから入り、家計感覚でアプリ価値を理解させる。",
+          text: "迷っている段階では、売却より日常管理のほうが受け入れられやすいです。Bで習慣化、Aで価格確認へつなぐ順番が自然です。",
+          sparkles: ["一枚目: 出費管理", "二枚目: AI査定", "三枚目: 電話0本"]
+        },
+        "unknown-call": {
+          screen: 2,
+          title: "不安が主因ならCを最上段に置く。",
+          text: "検討が止まる理由が電話不安なら、最初にそれを解消しない限り他の訴求は届きません。Cで安心、Aで価値、Bで継続理由を積みます。",
+          sparkles: ["一枚目: 電話0本", "二枚目: AI査定", "三枚目: 出費管理"]
+        }
+      };
+
+      function setActiveScreen(index) {
+        current = (index + screens.length) % screens.length;
+
+        screens.forEach(function (screen, screenIndex) {
+          screen.classList.toggle("active", screenIndex === current);
+        });
+
+        tabButtons.forEach(function (button, buttonIndex) {
+          var isActive = buttonIndex === current;
+          button.classList.toggle("active", isActive);
+          button.setAttribute("aria-selected", isActive ? "true" : "false");
+        });
+
+        screens.forEach(function (screen) {
+          var dots = screen.querySelectorAll(".indicator button");
+          dots.forEach(function (dot, dotIndex) {
+            dot.classList.toggle("active", dotIndex === current);
+          });
+        });
+
+        var kpi = kpiByScreen[current];
+        kpiFill.style.width = kpi.width;
+        kpiLabel.textContent = kpi.label;
+        kpiMessage.textContent = kpi.message;
+      }
+
+      function setChoice(groupId, value) {
+        var group = document.getElementById(groupId);
+        Array.from(group.querySelectorAll(".mini-chip")).forEach(function (chip) {
+          chip.classList.toggle("active", chip.dataset.value === value);
+        });
+      }
+
+      function updateDiagnosis() {
+        var key = timing + "-" + interest;
+        var recommendation = recommendationMap[key];
+        document.getElementById("recommendTitle").textContent = recommendation.title;
+        document.getElementById("recommendText").textContent = recommendation.text;
+        document.getElementById("sparkle1").textContent = recommendation.sparkles[0];
+        document.getElementById("sparkle2").textContent = recommendation.sparkles[1];
+        document.getElementById("sparkle3").textContent = recommendation.sparkles[2];
+
+        var steps = Array.from(document.querySelectorAll("#diagnosisSteps .step-row"));
+        steps.forEach(function (step, index) {
+          step.classList.remove("active", "done");
+          var state = step.querySelector(".step-state");
+          if (index === 0) {
+            step.classList.add("done");
+            state.textContent = "完了";
+          } else if (index === 1) {
+            step.classList.add("done");
+            state.textContent = "完了";
+          } else if (index === 2) {
+            step.classList.add("active");
+            state.textContent = "進行中";
+          } else {
+            state.textContent = "待機";
+          }
+        });
+
+        setActiveScreen(recommendation.screen);
+      }
+
+      tabButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          setActiveScreen(Number(button.dataset.screen));
+        });
+      });
+
+      prevButton.addEventListener("click", function () {
+        setActiveScreen(current - 1);
+      });
+
+      nextButton.addEventListener("click", function () {
+        setActiveScreen(current + 1);
+      });
+
+      shuffleButton.addEventListener("click", function () {
+        updateDiagnosis();
+      });
+
+      document.getElementById("timingChips").addEventListener("click", function (event) {
+        var chip = event.target.closest(".mini-chip");
+        if (!chip) {
+          return;
+        }
+        timing = chip.dataset.value;
+        setChoice("timingChips", timing);
+        updateDiagnosis();
+      });
+
+      document.getElementById("interestChips").addEventListener("click", function (event) {
+        var chip = event.target.closest(".mini-chip");
+        if (!chip) {
+          return;
+        }
+        interest = chip.dataset.value;
+        setChoice("interestChips", interest);
+        updateDiagnosis();
+      });
+
+      var startX = 0;
+      var deltaX = 0;
+      var isPointerDown = false;
+
+      phoneShell.addEventListener("pointerdown", function (event) {
+        isPointerDown = true;
+        startX = event.clientX;
+        deltaX = 0;
+      });
+
+      phoneShell.addEventListener("pointermove", function (event) {
+        if (!isPointerDown) {
+          return;
+        }
+        deltaX = event.clientX - startX;
+      });
+
+      function finishSwipe() {
+        if (!isPointerDown) {
+          return;
+        }
+        if (deltaX > 42) {
+          setActiveScreen(current - 1);
+        } else if (deltaX < -42) {
+          setActiveScreen(current + 1);
+        }
+        isPointerDown = false;
+        deltaX = 0;
+      }
+
+      phoneShell.addEventListener("pointerup", finishSwipe);
+      phoneShell.addEventListener("pointercancel", finishSwipe);
+      phoneShell.addEventListener("pointerleave", finishSwipe);
+
+      window.addEventListener("keydown", function (event) {
+        if (event.key === "ArrowLeft") {
+          setActiveScreen(current - 1);
+        }
+        if (event.key === "ArrowRight") {
+          setActiveScreen(current + 1);
+        }
+      });
+
+      setActiveScreen(0);
+      updateDiagnosis();
+    })();
+  </script>
+</body>
+</html>
