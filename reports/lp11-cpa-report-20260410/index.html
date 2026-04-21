@@ -161,7 +161,7 @@
     <div class="meta">
       <span>集計基準: 申込日ベース</span>
       <span>対象期間: 2025-07-01 〜 2026-04-21</span>
-      <span>データ取得: 2026年04月21日 17:19</span>
+      <span>データ取得: 2026年04月21日 17:37</span>
     </div>
   </div>
   <button class="reload-btn" onclick="superReload()">
@@ -234,8 +234,15 @@
   </div>
 </div>
 
-<!-- KPIカード直下: 新規DL数 推移 -->
+<!-- KPIカード直結: 広告費・売上・利益 -->
 <div class="chart-card" style="margin-top:0;">
+  <div class="chart-title">広告費・売上・利益（月次）</div>
+  <div id="legend-chart1b" class="custom-legend"></div>
+  <canvas id="chart1b"></canvas>
+</div>
+
+<!-- 新規DL数 推移 -->
+<div class="chart-card">
   <div class="chart-title">新規DL数 推移</div>
   <div id="legend-chart_dl" class="custom-legend"></div>
   <canvas id="chart_dl" style="max-height:180px;"></canvas>
@@ -293,20 +300,6 @@
   <div class="chart-title">申込数・成約数（月次）</div>
   <div id="legend-chart1a" class="custom-legend"></div>
   <canvas id="chart1a"></canvas>
-</div>
-
-<!-- Chart 1B: 広告費・売上・利益 -->
-<div class="chart-card">
-  <div class="chart-title">広告費・売上・利益（月次）</div>
-  <div id="legend-chart1b" class="custom-legend"></div>
-  <canvas id="chart1b"></canvas>
-</div>
-
-<!-- Chart Funnel: 詳細ファネル転換率 -->
-<div class="chart-card">
-  <div class="chart-title">詳細ファネル転換率 推移（当月除外）</div>
-  <div id="legend-chart_funnel" class="custom-legend"></div>
-  <canvas id="chart_funnel"></canvas>
 </div>
 
 
@@ -451,19 +444,19 @@ const c1b = new Chart(document.getElementById('chart1b'), {
       {
         type: 'line', label: '広告費（万円）', data: costsMan,
         borderColor: '#818cf8', backgroundColor: 'rgba(129,140,248,0.12)',
-        fill: true, tension: 0.4, pointRadius: 5, yAxisID: 'y', order: 0
+        fill: false, tension: 0.4, pointRadius: 4, yAxisID: 'y', order: 1
       },
       {
-        type: 'line', label: '売上（万円）', data: profitMan,
-        borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.08)',
-        fill: false, tension: 0.4, pointRadius: 5, borderDash: [5,3],
-        yAxisID: 'y', order: 0
+        type: 'line', label: '売上（万円）', data: revenueMan,
+        borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.1)',
+        fill: false, tension: 0.4, pointRadius: 4, yAxisID: 'y', order: 1
       },
       {
-        type: 'line', label: '利益（万円）', data: clearProfitMan,
-        borderColor: '#fbbf24', backgroundColor: 'rgba(251,191,36,0.08)',
-        fill: false, tension: 0.4, pointRadius: 5, borderDash: [2,2],
-        yAxisID: 'y', order: 0
+        type: 'bar', label: '利益（万円）', data: clearProfitMan,
+        backgroundColor: clearProfitMan.map(v => v >= 0 ? 'rgba(59,130,246,0.6)' : 'rgba(239,68,68,0.6)'),
+        borderColor: clearProfitMan.map(v => v >= 0 ? '#3b82f6' : '#ef4444'),
+        borderWidth: 1,
+        yAxisID: 'y', order: 2
       }
     ]
   },
