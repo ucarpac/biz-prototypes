@@ -161,7 +161,7 @@
     <div class="meta">
       <span>集計基準: 申込日ベース</span>
       <span>対象期間: 2025-07-01 〜 2026-04-21</span>
-      <span>データ取得: 2026年04月21日 19:11</span>
+      <span>データ取得: 2026年04月21日 19:29</span>
     </div>
   </div>
   <button class="reload-btn" onclick="superReload()">
@@ -202,17 +202,17 @@
   <div class="kpi-card purple">
     <div class="kpi-label">今月(2026/04) CPI (Android)</div>
     <div class="kpi-value">
-      ¥581
+      ¥580
     </div>
-    <div><span class="kpi-badge good">▼ 19.8%</span></div>
+    <div><span class="kpi-badge good">▼ 19.9%</span></div>
     <div class="kpi-sub">前月(2026/03): ¥724</div>
   </div>
   <div class="kpi-card purple">
     <div class="kpi-label">今月(2026/04) CPI (iOS)</div>
     <div class="kpi-value">
-      ¥1,158
+      ¥1,145
     </div>
-    <div><span class="kpi-badge bad">▲ 24.8%</span></div>
+    <div><span class="kpi-badge bad">▲ 23.4%</span></div>
     <div class="kpi-sub">前月(2026/03): ¥928</div>
   </div>
   <div class="kpi-card amber">
@@ -343,8 +343,8 @@ const contracts   = [8, 10, 17, 9, 11, 11, 15, 24, 14, 4];
 const cvrData     = [12.3, 11.1, 13.2, 8.1, 7.6, 6.8, 6.2, 9.8, 6.0, 3.9];
 const installsData= [5979, 5541, 4695, 4547, 4006, 3793, 6512, 8012, 6293, 3457];
 const cpiData            = [null, 46, 298, 328, 471, 511, 344, 407, 489, 366];
-const gadsAndroidCpiData = [null, 465, 491, 525, 406, 328, 295, 417, 724, 581];
-const gadsIosCpiData     = [null, 421, 441, 514, 576, 727, 771, 755, 928, 1158];
+const gadsAndroidCpiData = [null, 465, 491, 525, 406, 328, 295, 417, 724, 580];
+const gadsIosCpiData     = [null, 421, 441, 514, 576, 727, 771, 755, 928, 1145];
 const asaCpiData         = [1616, null, null, null, null, null, null, null, null, null];
 const costsMan    = [0.0, 25.3, 140.1, 149.1, 188.5, 193.6, 224.0, 326.0, 307.8, 126.7];
 const revenueMan  = [107.3, 151.0, 291.2, 105.1, 149.0, 187.0, 252.7, 246.8, 162.5, 154.1];
@@ -369,6 +369,7 @@ const avgCohortRate    = 1.86;
 
 // 既存ユーザーデータ
 const oldAppsRate       = [0.0, 0.0, 0.01, 0.13, 0.12, 0.13, 0.14, 0.19, 0.27, 0.15, 0.16, 0.07];
+const avgOldAppsRate    = 0.11;
 
 // KPI目標値
 const kpiListingRate    = 28.0;
@@ -738,8 +739,19 @@ const cOldApps = new Chart(document.getElementById('chart_old_apps'), {
         fill: true, 
         tension: 0.4, 
         pointRadius: oldAppsPointRadius, 
-        pointBackgroundColor: oldAppsPointColors,
         pointBorderColor: oldAppsPointColors,
+        yAxisID: 'y',
+        order: 1
+      },
+      {
+        type: 'line',
+        label: '全期間平均申込率 (%)',
+        data: cohortMonths.map(() => avgOldAppsRate),
+        borderColor: '#6b7280',
+        borderDash: [6, 4],
+        borderWidth: 1.5,
+        pointRadius: 0,
+        fill: false,
         yAxisID: 'y',
         order: 1
       }
