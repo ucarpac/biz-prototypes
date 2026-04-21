@@ -161,7 +161,7 @@
     <div class="meta">
       <span>集計基準: 申込日ベース</span>
       <span>対象期間: 2025-07-01 〜 2026-04-21</span>
-      <span>データ取得: 2026年04月21日 16:25</span>
+      <span>データ取得: 2026年04月21日 16:28</span>
     </div>
   </div>
   <button class="reload-btn" onclick="superReload()">
@@ -407,6 +407,11 @@ const c1a = new Chart(document.getElementById('chart1a'), {
       {
         type: 'bar', label: '成約数', data: contracts,
         backgroundColor: 'rgba(52,211,153,0.85)', yAxisID: 'y', order: 1
+      },
+      {
+        type: 'line', label: '申込成約率 (%)', data: cvrData,
+        borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.1)',
+        yAxisID: 'y1', order: 0, tension: 0.4, pointRadius: 4
       }
     ]
   },
@@ -417,7 +422,11 @@ const c1a = new Chart(document.getElementById('chart1a'), {
     scales: {
       x:  { ticks: { color: TICK }, grid: { color: GRID } },
       y:  { ticks: { color: TICK }, grid: { color: GRID },
-             title: { display: true, text: '件数', color: '#4b5563' } }
+             title: { display: true, text: '件数', color: '#4b5563' } },
+      y1: { position: 'right', ticks: { color: TICK, callback: v => v + '%' }, 
+             grid: { display: false },
+             title: { display: true, text: '成約率 (%)', color: '#4b5563' },
+             min: 0 }
     }
   }
 });
