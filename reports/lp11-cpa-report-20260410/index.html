@@ -161,7 +161,7 @@
     <div class="meta">
       <span>集計基準: 申込日ベース</span>
       <span>対象期間: 2025-07-01 〜 2026-04-21</span>
-      <span>データ取得: 2026年04月21日 12:43</span>
+      <span>データ取得: 2026年04月21日 12:48</span>
     </div>
   </div>
   <button class="reload-btn" onclick="superReload()">
@@ -240,9 +240,9 @@
 
   <!-- Chart Old Apps: 登録1ヶ月後申込率 -->
   <div class="chart-card" style="margin-bottom:0;">
-    <div class="chart-title">申込者のうち、登録後1ヶ月以上経過している割合（申込月別）</div>
+    <div class="chart-title">アプリ登録コホート: 登録から1ヶ月以上経過しての申込率（登録月別）</div>
     <div class="notice" style="margin-bottom:14px; margin-top:0;">
-      ⚠️ 分母: 当該月の申込数 ｜ 分子: 当該月の申込のうち、登録日から30日を超過している申込
+      ⚠️ 分母: 各月のアプリ全登録者数 ｜ 分子: 登録から30日を超過して査定申込みを開始した人数
     </div>
     <div id="legend-chart_old_apps" class="custom-legend"></div>
     <canvas id="chart_old_apps"></canvas>
@@ -355,11 +355,7 @@ const cohortIncomplete = ['false', 'false', 'false', 'false', 'false', 'false', 
 const avgCohortRate    = 1.86;
 
 // 既存ユーザーデータ
-const oldAppsMonths     = ['2025/07', '2025/08', '2025/09', '2025/10', '2025/11', '2025/12', '2026/01', '2026/02', '2026/03', '2026/04'];
-const oldAppsTotal      = [24, 90, 127, 111, 142, 151, 233, 243, 229, 101];
-const oldAppsAfter1m    = [0, 14, 15, 17, 21, 31, 45, 43, 47, 22];
-const oldAppsRate       = [0.0, 15.6, 11.8, 15.3, 14.8, 20.5, 19.3, 17.7, 20.5, 21.8];
-const oldAppsIncomplete = ['false', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'true'];
+const oldAppsRate       = [0.76, 0.61, 0.72, 0.58, 0.68, 0.75, 1.0, 0.63, 0.46, 0.22, 0.07, 0.0];
 
 // KPI目標値
 const kpiListingRate    = 28.0;
@@ -693,12 +689,12 @@ const cCohort = new Chart(document.getElementById('chart_cohort'), {
 initCustomLegend(cCohort, 'legend-chart_cohort');
 
 // Chart Old Apps: 既存ユーザー申込割合
-const oldAppsPointColors = oldAppsIncomplete.map(inc => inc === "true" ? 'rgba(168,85,247,0.35)' : '#a855f7');
-const oldAppsPointRadius = oldAppsIncomplete.map(inc => inc === "true" ? 4 : 5);
+const oldAppsPointColors = cohortIncomplete.map(inc => inc === "true" ? 'rgba(168,85,247,0.35)' : '#a855f7');
+const oldAppsPointRadius = cohortIncomplete.map(inc => inc === "true" ? 4 : 5);
 
 const cOldApps = new Chart(document.getElementById('chart_old_apps'), {
   data: {
-    labels: oldAppsMonths,
+    labels: cohortMonths,
     datasets: [
       {
         type: 'line', 
@@ -711,16 +707,8 @@ const cOldApps = new Chart(document.getElementById('chart_old_apps'), {
         pointRadius: oldAppsPointRadius, 
         pointBackgroundColor: oldAppsPointColors,
         pointBorderColor: oldAppsPointColors,
-        yAxisID: 'yRate',
+        yAxisID: 'y',
         order: 1
-      },
-      {
-        type: 'bar', 
-        label: '該当申込数（人）', 
-        data: oldAppsAfter1m,
-        backgroundColor: 'rgba(56,189,248,0.25)', 
-        yAxisID: 'yUsers', 
-        order: 2
       }
     ]
   },
@@ -730,14 +718,10 @@ const cOldApps = new Chart(document.getElementById('chart_old_apps'), {
     plugins: { legend: { display: false } },
     scales: {
       x: { ticks: { color: TICK }, grid: { color: GRID } },
-      yRate: { position: 'left', beginAtZero: true, 
+      y: { position: 'left', beginAtZero: true, 
                ticks: { color: TICK, callback: v => v + '%' }, 
                grid: { color: GRID },
-               title: { display: true, text: '割合 (%)', color: '#4b5563' } },
-      yUsers: { position: 'right', beginAtZero: true, 
-                ticks: { color: TICK, stepSize: 10 }, 
-                grid: { drawOnChartArea: false },
-                title: { display: true, text: '人数', color: '#4b5563' } }
+               title: { display: true, text: '申込率 (%)', color: '#4b5563' } }
     }
   }
 });
