@@ -155,7 +155,7 @@
     <div class="meta">
       <span>集計基準: 申込日ベース</span>
       <span>対象期間: 2025-07-01 〜 2026-04-21</span>
-      <span>データ取得: 2026年04月21日 10:23</span>
+      <span>データ取得: 2026年04月21日 10:34</span>
     </div>
   </div>
   <button class="reload-btn" onclick="superReload()">
@@ -222,7 +222,7 @@
 <div class="chart-card">
   <div class="chart-title">アプリ登録コホート: 登録から1ヶ月以内の申込率（登録月別）</div>
   <div class="notice" style="margin-bottom:14px; margin-top:0;">
-    ⚠️ 分母: 各月のアプリ全登録者数（UUID発行数） ｜ 分子: 登録から30日以内に査定申込フローを開始した人数 ｜ 薄い点は1ヶ月窓が完全に閉じていない参考値
+    ⚠️ 分母: 各月のアプリ全登録者数 ｜ 分子: 登録から30日以内に査定申込フローを開始した人数 ｜ 薄い点は1ヶ月窓が完全に閉じていない参考値
   </div>
   <div id="legend-chart_cohort" class="custom-legend"></div>
   <canvas id="chart_cohort"></canvas>
@@ -256,9 +256,9 @@
   <canvas id="chart3"></canvas>
 </div>
 
-<!-- Chart DL: 新規DL数 -->
+<!-- Chart DL: 新規DL数 & 登録者数 -->
 <div class="chart-card">
-  <div class="chart-title">新規DL数 推移</div>
+  <div class="chart-title">新規DL数・登録者数 推移</div>
   <div id="legend-chart_dl" class="custom-legend"></div>
   <canvas id="chart_dl"></canvas>
 </div>
@@ -317,6 +317,7 @@ const applyCPA    = [0.0, 2811.0, 11029.0, 13431.0, 13274.0, 12823.0, 9612.0, 13
 const contractCPA = [0.0, 25295.0, 87539.0, 165652.0, 209437.0, 193634.0, 159971.0, 148189.0, 279858.0, 305626.0];
 const listingRates = [41.7, 25.6, 26.8, 20.7, 20.4, 21.2, 20.6, 22.2, 21.0, 10.9];
 const conListingRates = [30.0, 43.5, 47.1, 39.1, 31.0, 31.2, 29.2, 40.7, 22.9, 36.4];
+const regUsersData = [4191, 4275, 4438, 4005, 4805, 3839, 4748, 5881, 4263, 2518];
 const avgCVR      = 8.1;
 const avgCPI      = 514.0;
 const avgACPA     = 11327.0;
@@ -433,7 +434,7 @@ const c1b = new Chart(document.getElementById('chart1b'), {
 });
 initCustomLegend(c1b, 'legend-chart1b');
 
-// Chart DL: 新規DL数
+// Chart DL: 新規DL数 & 登録者数
 const cDL = new Chart(document.getElementById('chart_dl'), {
   data: {
     labels: months,
@@ -441,6 +442,10 @@ const cDL = new Chart(document.getElementById('chart_dl'), {
       {
         type: 'bar', label: '新規DL数', data: installsData,
         backgroundColor: 'rgba(167,139,250,0.7)', yAxisID: 'y'
+      },
+      {
+        type: 'bar', label: '登録者数', data: regUsersData,
+        backgroundColor: 'rgba(99,102,241,0.6)', yAxisID: 'y'
       }
     ]
   },
@@ -629,14 +634,6 @@ const cCohort = new Chart(document.getElementById('chart_cohort'), {
         fill: false,
         yAxisID: 'y',
         order: 1
-      },
-      {
-        type: 'bar',
-        label: '登録者数（人・右軸）',
-        data: cohortTotal,
-        backgroundColor: 'rgba(99,102,241,0.35)',
-        yAxisID: 'y2',
-        order: 2
       }
     ]
   },
@@ -652,12 +649,6 @@ const cCohort = new Chart(document.getElementById('chart_cohort'), {
         grid: { color: GRID },
         title: { display: true, text: '申込率 (%)', color: '#4b5563' },
         min: 0
-      },
-      y2: {
-        position: 'right',
-        ticks: { color: TICK },
-        grid: { drawOnChartArea: false },
-        title: { display: true, text: '登録者数 (人)', color: '#4b5563' }
       }
     }
   }
