@@ -161,7 +161,7 @@
     <div class="meta">
       <span>集計基準: 申込日ベース</span>
       <span>対象期間: 2025-07-01 〜 2026-04-21</span>
-      <span>データ取得: 2026年04月21日 17:38</span>
+      <span>データ取得: 2026年04月21日 17:42</span>
     </div>
   </div>
   <button class="reload-btn" onclick="superReload()">
@@ -346,7 +346,7 @@ const gadsAndroidCpiData = [null, 465, 491, 525, 406, 328, 295, 417, 724, 579];
 const gadsIosCpiData     = [null, 421, 441, 514, 576, 727, 771, 755, 928, 1148];
 const asaCpiData         = [1616, null, null, null, null, null, null, null, null, null];
 const costsMan    = [0.0, 25.3, 140.1, 149.1, 188.5, 193.6, 224.0, 326.0, 307.8, 122.3];
-const revenueMan  = [483.9, 1712.4, 2945.6, 1538.3, 1795.8, 3459.6, 4911.8, 2902.0, 1656.8, 1837.6];
+const revenueMan  = [31.3, 114.5, 162.3, 79.6, 89.6, 112.4, 152.2, 205.5, 103.5, 50.5];
 const profitMan   = [31.3, 114.5, 162.3, 79.6, 89.6, 112.4, 152.2, 205.5, 103.5, 50.5];
 const clearProfitMan = [31.3, 89.2, 22.2, -69.5, -98.9, -81.2, -71.8, -120.5, -204.3, -71.8];
 const applyCPA    = [0.0, 2811.0, 11029.0, 13431.0, 13274.0, 12823.0, 9612.0, 13416.0, 13443.0, 12104.0];
@@ -450,21 +450,20 @@ const c1b = new Chart(document.getElementById('chart1b'), {
     labels: months,
     datasets: [
       {
-        type: 'line', label: '広告費（万円）', data: costsMan,
-        borderColor: '#818cf8', backgroundColor: 'rgba(129,140,248,0.12)',
-        fill: false, tension: 0.4, pointRadius: 4, yAxisID: 'y', order: 1
+        type: 'bar', label: '広告費（万円）', data: costsMan,
+        backgroundColor: 'rgba(129,140,248,0.7)',
+        borderColor: '#818cf8', borderWidth: 1
       },
       {
-        type: 'line', label: '売上（万円）', data: revenueMan,
-        borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.1)',
-        fill: false, tension: 0.4, pointRadius: 4, yAxisID: 'y', order: 1
+        type: 'bar', label: '売上（万円）', data: revenueMan,
+        backgroundColor: 'rgba(245,158,11,0.7)',
+        borderColor: '#f59e0b', borderWidth: 1
       },
       {
         type: 'bar', label: '利益（万円）', data: clearProfitMan,
-        backgroundColor: clearProfitMan.map(v => v >= 0 ? 'rgba(59,130,246,0.6)' : 'rgba(239,68,68,0.6)'),
+        backgroundColor: clearProfitMan.map(v => v >= 0 ? 'rgba(59,130,246,0.7)' : 'rgba(239,68,68,0.7)'),
         borderColor: clearProfitMan.map(v => v >= 0 ? '#3b82f6' : '#ef4444'),
-        borderWidth: 1,
-        yAxisID: 'y', order: 2
+        borderWidth: 1
       }
     ]
   },
@@ -473,10 +472,16 @@ const c1b = new Chart(document.getElementById('chart1b'), {
     interaction: { mode: 'index', intersect: false },
     plugins: { legend: { display: false } },
     scales: {
-      x:  { ticks: { color: TICK }, grid: { color: GRID } },
-      y:  { position: 'left', ticks: { color: TICK, callback: v => v+'万' },
-             grid: { color: GRID },
-             title: { display: true, text: '万円', color: '#4b5563' } }
+      x:  { 
+        ticks: { color: TICK }, 
+        grid: { color: GRID },
+        stacked: false
+      },
+      y:  { 
+        ticks: { color: TICK, callback: v => v+'万' },
+        grid: { color: GRID },
+        title: { display: true, text: '万円', color: '#4b5563' }
+      }
     }
   }
 });
