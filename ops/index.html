@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>運用監視レポート - UcarPAC</title>
+  <style>
+    :root {
+      --navy: #16233f;
+      --blue: #2455a6;
+      --cyan: #1ddcff;
+      --green: #047857;
+      --green-light: #10b981;
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --line: #dce4f2;
+      --text: #243447;
+      --muted: #66758c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+      background: linear-gradient(180deg, #e4f5ef 0%, var(--bg) 44%);
+      color: var(--text);
+    }
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 28px 18px 48px; }
+    .back { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 14px; font-weight: 600; text-decoration: none; margin-bottom: 18px; }
+    .back:hover { color: var(--navy); }
+    .hero {
+      background: radial-gradient(circle at top right, rgba(16,185,129,0.2), transparent 24%), linear-gradient(135deg, #052e16 0%, #047857 100%);
+      color: white;
+      border-radius: 22px;
+      padding: 34px;
+      box-shadow: 0 20px 50px rgba(4, 120, 87, 0.18);
+      margin-bottom: 22px;
+    }
+    .hero h1 { margin: 0 0 10px; font-size: 30px; line-height: 1.25; }
+    .hero p { margin: 0; color: #a7f3d0; max-width: 800px; line-height: 1.8; font-size: 15px; }
+    .meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+    .meta span {
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.1);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #d1fae5;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+    .card {
+      display: block;
+      text-decoration: none;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 12px 28px rgba(22, 35, 63, 0.08);
+      color: inherit;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 16px 36px rgba(22, 35, 63, 0.12); }
+    .card-top { padding: 22px 22px 16px; color: white; }
+    .card-top.kpi { background: linear-gradient(135deg, #047857, #10b981); }
+    .card-top.competitor { background: linear-gradient(135deg, #1e40af, #3b82f6); }
+    .card-top.appsflyer { background: linear-gradient(135deg, #7c3aed, #a78bfa); }
+    .card-body { padding: 18px 22px 22px; }
+    .eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 0.04em; opacity: 0.84; }
+    .title { margin-top: 8px; font-size: 22px; font-weight: 800; }
+    .desc { color: var(--muted); line-height: 1.8; font-size: 14px; min-height: 60px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .chip {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 800;
+      background: #eef4ff;
+      color: #335a94;
+      border: 1px solid #d9e5fb;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    window.PROTO_AUTH_CONFIG = {
+      title: "運用監視レポート",
+      subtitle: "社内共有ページです。パスワード認証後、24時間は再入力不要です。"
+    };
+  </script>
+  <script src="../auth.js"></script>
+  <div class="wrap">
+    <a class="back" href="../">&#8592; Hub に戻る</a>
+    <section class="hero">
+      <h1>運用監視レポート</h1>
+      <p>週次 KPI ダッシュボード・競合定点観測・AppsFlyer データを一元管理する継続運用ハブです。</p>
+      <div class="meta">
+        <span>自動生成: 週次</span>
+        <span>Sections: Auto KPI / 競合Watch / AppsFlyer</span>
+      </div>
+    </section>
+
+    <div class="grid">
+      <a class="card" href="./auto-kpi/">
+        <div class="card-top kpi">
+          <div class="eyebrow">Weekly Auto</div>
+          <div class="title">Auto KPI</div>
+        </div>
+        <div class="card-body">
+          <div class="desc">週次で自動生成される KPI ダッシュボードです。インストール数・CPI・ROAS などの主要指標を時系列で確認できます。</div>
+          <div class="chips">
+            <span class="chip">週次</span>
+            <span class="chip">自動生成</span>
+            <span class="chip">KPI</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="./competitor-watch/">
+        <div class="card-top competitor">
+          <div class="eyebrow">Periodic</div>
+          <div class="title">競合ウォッチ</div>
+        </div>
+        <div class="card-body">
+          <div class="desc">競合アプリの動向・ASO・広告出稿状況を定点観測したレポートです。時系列で比較しながら確認できます。</div>
+          <div class="chips">
+            <span class="chip">競合分析</span>
+            <span class="chip">ASO</span>
+            <span class="chip">定点観測</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card" href="./appsflyer/">
+        <div class="card-top appsflyer">
+          <div class="eyebrow">Attribution</div>
+          <div class="title">AppsFlyer</div>
+        </div>
+        <div class="card-body">
+          <div class="desc">AppsFlyer の広告アトリビューションデータを可視化したレポートです。チャネル別 CPI・ROAS・リテンションを確認できます。</div>
+          <div class="chips">
+            <span class="chip">AppsFlyer</span>
+            <span class="chip">アトリビューション</span>
+            <span class="chip">広告効果</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>
