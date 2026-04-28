@@ -1,19 +1,19 @@
 $deep-research-max
-目的: ストアPV→DL率の改善（ASO） の検証材料を更新（2026-04-27時点）
-成果物: prototypes/ops/auto-kpi/research-2026-04-27.md
+目的: AI査定体験の改善 の検証材料を更新（2026-04-29時点）
+成果物: prototypes/ops/auto-kpi/research-2026-04-29.md
 条件: 主要主張に出典URLと日付を付ける
 
 /overnight-work
-contexts/ucarpac-app.md と contexts/competitors.md を読み込んで。
+contexts/ucarpac-app.md を読み込んで。
 
 【モード】日次差分
-【切り口】ストアPV→DL率の改善（ASO）
-【対象KPI】ストアPV→DL率（現状17.3%、KPI 25%）
-【目的】ストア詳細ページの閲覧→DLのCVRを25%目標まで引き上げる
+【切り口】AI査定体験の改善
+【対象KPI】AI査定開始→完了率
+【目的】AI査定の結果表示までの体験を改善し、「価値を体感」させる率を上げる
 
 以下の画面を作って:
-1. ストアスクショA - AI査定機能を全面に出したスクショ（iOS向け）
-2. ストアスクショB - 出費管理+将来予測を訴求したスクショ（Android向け）
-3. ストアスクショC - 競合比較「電話0本」を訴求したスクショ
+1. 査定結果画面A - 金額+相場グラフ+「高く売れるタイミング」を提示
+2. 査定結果画面B - 類似車両の実績価格との比較で精度を実感させる
+3. 査定→申込導線 - 「この価格で売りたい」ワンタップ申込ボタン
 
 完了後: index更新、generation-log追記、結果をkpi-historyに反映する。
