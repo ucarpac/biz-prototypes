@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="ja">
+<script src="../auth.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UcarPAC 通知最適化プロトタイプ</title>
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --text-disabled: #B3B3B3;
+      --text-placeholder: rgba(28,38,99,0.3);
+      --button-gray: #CACEE2;
+      --button-link: #4099FF;
+      --back-white: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --back-blue: #091355;
+      --back-light-pink: #ffd8e8;
+      --error: #EB4646;
+      --ruled-line: #F2F2F2;
+      --border-gray: #7C7C7C;
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+      --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
+      --gradient-disabled: linear-gradient(90deg, #e5e5e5, #e5e5e5);
+      --font-sans: 'Noto Sans JP', 'Hiragino Sans', system-ui, sans-serif;
+      --font-number: 'Righteous', 'Noto Sans JP', sans-serif;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --radius-sm: 5px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-chip: 22px;
+      --radius-button: 30px;
+      --shadow-light: 0 0 14px rgba(0,0,0,0.11);
+      --shadow-medium: 0 8px 24px rgba(28,38,99,0.13);
+      --warm: #fff3e8;
+      --warm-deep: #ffb26d;
+      --warm-line: #ffd0aa;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--back-gray);
+      color: var(--text-black);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 18% 4%, rgba(255,216,232,0.78), transparent 34%),
+        radial-gradient(circle at 86% 8%, rgba(255,178,109,0.28), transparent 30%),
+        linear-gradient(180deg, #fffaf7 0%, #FAFAFA 42%, #EDF1F4 100%);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: var(--back-white);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 40px rgba(28,38,99,0.10);
+    }
+
+    .status-bar {
+      height: 24px;
+      background: #fffaf7;
+    }
+
+    .header {
+      padding: 12px 20px 16px;
+      background: #fffaf7;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid rgba(242,242,242,0.9);
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand {
+      color: var(--dark-blue);
+      font-size: 18px;
+      line-height: 27px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .date-chip {
+      color: var(--pink);
+      background: var(--back-light-pink);
+      border-radius: var(--radius-chip);
+      padding: 6px 12px;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .hero {
+      padding: 12px 20px 22px;
+      background: linear-gradient(180deg, #fffaf7 0%, #ffffff 100%);
+      position: relative;
+    }
+
+    .hero-card {
+      width: 100%;
+      min-height: 210px;
+      border-radius: 16px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,243,232,0.96)),
+        repeating-linear-gradient(-8deg, rgba(248,76,162,0.06), rgba(248,76,162,0.06) 1px, transparent 1px, transparent 9px);
+      box-shadow: var(--shadow-medium);
+      padding: 20px 18px;
+      border: 1px solid rgba(255,208,170,0.7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      right: -28px;
+      top: -28px;
+      width: 116px;
+      height: 116px;
+      border-radius: 50%;
+      background: rgba(248,76,162,0.10);
+    }
+
+    .hand-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--dark-blue);
+      background: var(--white);
+      border: 1px dashed var(--warm-deep);
+      border-radius: var(--radius-chip);
+      padding: 6px 12px;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      transform: rotate(-2deg);
+      position: relative;
+      z-index: 1;
+    }
+
+    .hand-label-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--pink);
+    }
+
+    .hero-title {
+      margin: 16px 0 8px;
+      color: var(--dark-blue);
+      font-size: 28px;
+      line-height: 42px;
+      font-weight: 700;
+      letter-spacing: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-copy {
+      margin: 0;
+      color: var(--text-gray);
+      font-size: 14px;
+      line-height: 21px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-illustration {
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .mini-car {
+      width: 118px;
+      height: 62px;
+      position: relative;
+      flex: 0 0 auto;
+      animation: softDrive 3.4s ease-in-out infinite;
+    }
+
+    .mini-car-body {
+      position: absolute;
+      left: 8px;
+      bottom: 12px;
+      width: 98px;
+      height: 34px;
+      border-radius: 24px 28px 14px 14px;
+      background: linear-gradient(135deg, #ffffff, #ffe9d7);
+      border: 2px solid var(--warm-deep);
+    }
+
+    .mini-car-top {
+      position: absolute;
+      left: 34px;
+      bottom: 39px;
+      width: 46px;
+      height: 22px;
+      border-radius: 22px 22px 5px 5px;
+      background: linear-gradient(135deg, #ffffff, #ffd8e8);
+      border: 2px solid var(--warm-deep);
+      border-bottom: 0;
+    }
+
+    .mini-wheel {
+      position: absolute;
+      bottom: 5px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--dark-blue);
+      border: 4px solid #ffffff;
+      box-shadow: 0 0 0 1px var(--warm-deep);
+    }
+
+    .mini-wheel.left {
+      left: 25px;
+    }
+
+    .mini-wheel.right {
+      right: 21px;
+    }
+
+    .price-bubble {
+      min-width: 130px;
+      border-radius: 12px;
+      background: var(--white);
+      box-shadow: var(--shadow-light);
+      padding: 10px 12px;
+      border: 1px solid var(--ruled-line);
+    }
+
+    .price-bubble-label {
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+    }
+
+    .price-bubble-main {
+      margin-top: 2px;
+      color: var(--pink);
+      font-size: 22px;
+      line-height: 33px;
+      font-weight: 700;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      padding: 0 20px 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      background: var(--back-white);
+    }
+
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab {
+      min-height: 43px;
+      padding: 0 16px;
+      border-radius: var(--radius-chip);
+      background: var(--white);
+      color: var(--text-black);
+      border: 1px solid var(--ruled-line);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+    }
+
+    .tab.active {
+      background: var(--dark-blue);
+      color: var(--white);
+      border-color: var(--dark-blue);
+      transform: translateY(-1px);
+    }
+
+    .content {
+      padding: 0 20px 96px;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeUp 0.28s ease both;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .section-title {
+      margin: 6px 0 12px;
+      color: var(--dark-blue);
+      font-size: 20px;
+      line-height: 30px;
+      font-weight: 700;
+    }
+
+    .section-note {
+      margin: 0 0 16px;
+      color: var(--text-gray);
+      font-size: 14px;
+      line-height: 21px;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .metric-card {
+      background: var(--white);
+      border-radius: 13px;
+      padding: 16px;
+      box-shadow: var(--shadow-light);
+      border: 1px solid #CDDCED;
+      min-height: 102px;
+    }
+
+    .metric-label {
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+    }
+
+    .metric-value {
+      margin-top: 6px;
+      color: var(--dark-blue);
+      font-size: 26px;
+      line-height: 39px;
+      font-weight: 700;
+    }
+
+    .metric-sub {
+      color: var(--pink);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+    }
+
+    .phone-preview {
+      background: var(--back-blue);
+      border-radius: 28px;
+      padding: 16px 12px 22px;
+      box-shadow: 0 12px 26px rgba(9,19,85,0.24);
+      margin-bottom: 20px;
+    }
+
+    .phone-top {
+      width: 64px;
+      height: 5px;
+      border-radius: 99px;
+      background: rgba(255,255,255,0.25);
+      margin: 0 auto 14px;
+    }
+
+    .notification-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: var(--shadow-light);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .notification-card.pulse {
+      animation: notifyPulse 0.55s ease;
+    }
+
+    .notification-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .app-mark {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--dark-blue);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+    }
+
+    .app-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--gradient-pink);
+      color: var(--white);
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .notify-time {
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+    }
+
+    .notification-title {
+      color: var(--text-black);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .notification-body {
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+      margin: 0;
+    }
+
+    .variant-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .variant-button {
+      width: 100%;
+      text-align: left;
+      background: var(--white);
+      border: 1px solid var(--ruled-line);
+      border-radius: 13px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-light);
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .variant-button.active {
+      border-color: var(--pink);
+      transform: translateY(-1px);
+    }
+
+    .variant-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .variant-name {
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+    }
+
+    .variant-rate {
+      color: var(--pink);
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .variant-copy {
+      margin: 8px 0 0;
+      color: var(--text-black);
+      font-size: 13px;
+      line-height: 19.5px;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      border-radius: var(--radius-chip);
+      padding: 0 10px;
+      background: var(--back-light-pink);
+      color: var(--pink);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+    }
+
+    .settings-card {
+      background: var(--white);
+      border-radius: 13px;
+      padding: 16px;
+      box-shadow: var(--shadow-light);
+      border: 1px solid #CDDCED;
+      margin-bottom: 16px;
+    }
+
+    .setting-block {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--ruled-line);
+    }
+
+    .setting-block:first-child {
+      padding-top: 0;
+    }
+
+    .setting-block:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .setting-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .setting-title {
+      color: var(--dark-blue);
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 700;
+    }
+
+    .setting-desc {
+      margin: 4px 0 0;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .switch {
+      width: 54px;
+      height: 30px;
+      border-radius: 30px;
+      background: var(--button-gray);
+      padding: 3px;
+      transition: background 0.2s ease;
+      flex: 0 0 auto;
+    }
+
+    .switch.on {
+      background: var(--pink);
+    }
+
+    .switch-knob {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--white);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+      transition: transform 0.2s ease;
+    }
+
+    .switch.on .switch-knob {
+      transform: translateX(24px);
+    }
+
+    .chip-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .chip {
+      min-height: 43px;
+      border-radius: var(--radius-chip);
+      padding: 0 14px;
+      background: var(--white);
+      color: var(--text-black);
+      border: 1px solid var(--ruled-line);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .chip.active {
+      background: var(--dark-blue);
+      color: var(--white);
+      border-color: var(--dark-blue);
+    }
+
+    .comfort-meter {
+      margin-top: 16px;
+      background: #fff7f0;
+      border-radius: 12px;
+      padding: 14px;
+      border: 1px solid var(--warm-line);
+    }
+
+    .comfort-label {
+      display: flex;
+      justify-content: space-between;
+      color: var(--dark-blue);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .meter-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 99px;
+      background: #ffe0c4;
+      overflow: hidden;
+    }
+
+    .meter-fill {
+      height: 100%;
+      width: 72%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--warm-deep), var(--pink));
+      transition: width 0.25s ease;
+    }
+
+    .journey-card {
+      background: var(--white);
+      border-radius: 13px;
+      padding: 16px;
+      box-shadow: var(--shadow-light);
+      border: 1px solid #CDDCED;
+      margin-bottom: 16px;
+    }
+
+    .car-summary {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .car-thumb {
+      width: 78px;
+      height: 56px;
+      border-radius: 12px;
+      background:
+        linear-gradient(135deg, rgba(255,216,232,0.75), rgba(255,243,232,0.9));
+      position: relative;
+      border: 1px solid var(--warm-line);
+      flex: 0 0 auto;
+    }
+
+    .car-thumb::before {
+      content: "";
+      position: absolute;
+      left: 13px;
+      right: 12px;
+      bottom: 14px;
+      height: 20px;
+      border-radius: 18px 20px 8px 8px;
+      background: var(--white);
+      border: 2px solid var(--pink);
+    }
+
+    .car-thumb::after {
+      content: "";
+      position: absolute;
+      left: 27px;
+      top: 14px;
+      width: 24px;
+      height: 14px;
+      border-radius: 14px 14px 3px 3px;
+      background: #fff7f0;
+      border: 2px solid var(--pink);
+      border-bottom: 0;
+    }
+
+    .car-name {
+      color: var(--dark-blue);
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 700;
+    }
+
+    .car-meta {
+      margin-top: 2px;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .timeline {
+      position: relative;
+      display: grid;
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 14px;
+      top: 16px;
+      bottom: 16px;
+      width: 2px;
+      background: var(--ruled-line);
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 12px;
+      align-items: start;
+      position: relative;
+    }
+
+    .step-dot {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--button-gray);
+      color: var(--white);
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      z-index: 1;
+      transition: background 0.2s ease;
+    }
+
+    .step.done .step-dot {
+      background: var(--pink);
+    }
+
+    .step.current .step-dot {
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+      animation: dotBeat 1.4s ease-in-out infinite;
+    }
+
+    .step-title {
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+    }
+
+    .step-desc {
+      margin-top: 2px;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .forecast {
+      margin-top: 16px;
+      background: #fff7f0;
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--warm-line);
+    }
+
+    .forecast-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .forecast-title {
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+    }
+
+    .forecast-price {
+      color: var(--pink);
+      font-size: 22px;
+      line-height: 33px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .chart {
+      height: 132px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      align-items: end;
+      padding-top: 10px;
+    }
+
+    .bar-wrap {
+      display: grid;
+      gap: 6px;
+      justify-items: center;
+      align-items: end;
+      height: 100%;
+    }
+
+    .bar {
+      width: 28px;
+      border-radius: 14px 14px 4px 4px;
+      background: linear-gradient(180deg, var(--pink), var(--warm-deep));
+      min-height: 34px;
+      transition: height 0.35s ease;
+    }
+
+    .bar-label {
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+    }
+
+    .cta-panel {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      width: 100%;
+      max-width: 430px;
+      transform: translateX(-50%);
+      background: rgba(250,250,250,0.96);
+      border-top: 1px solid var(--ruled-line);
+      padding: 12px 20px 18px;
+      z-index: 20;
+      backdrop-filter: blur(12px);
+    }
+
+    .primary-button {
+      width: 100%;
+      min-height: 43px;
+      border-radius: var(--radius-button);
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+      box-shadow: 0 8px 18px rgba(77,180,255,0.28);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .primary-button:active {
+      transform: scale(0.98);
+      box-shadow: 0 4px 10px rgba(77,180,255,0.24);
+    }
+
+    .pink-button {
+      width: 100%;
+      min-height: 43px;
+      border-radius: var(--radius-button);
+      background: var(--gradient-pink);
+      color: var(--white);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+      box-shadow: 0 8px 18px rgba(248,76,162,0.22);
+      margin-top: 10px;
+    }
+
+    .source-card {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 12px;
+      background: var(--white);
+      border: 1px dashed var(--warm-deep);
+    }
+
+    .source-title {
+      color: var(--dark-blue);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .source-text {
+      color: var(--text-gray);
+      font-size: 11px;
+      line-height: 16.5px;
+      margin: 0;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 88px;
+      width: calc(100% - 40px);
+      max-width: 390px;
+      transform: translateX(-50%) translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+      background: var(--dark-blue);
+      color: var(--white);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 13px;
+      line-height: 19.5px;
+      font-weight: 700;
+      box-shadow: 0 10px 24px rgba(28,38,99,0.26);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      z-index: 30;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes softDrive {
+      0%, 100% {
+        transform: translateX(0) rotate(-1deg);
+      }
+      50% {
+        transform: translateX(5px) rotate(1deg);
+      }
+    }
+
+    @keyframes notifyPulse {
+      0% {
+        transform: scale(1);
+      }
+      45% {
+        transform: scale(1.025);
+        box-shadow: 0 0 0 5px rgba(248,76,162,0.14);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes dotBeat {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(29,220,255,0.32);
+      }
+      50% {
+        box-shadow: 0 0 0 8px rgba(29,220,255,0);
+      }
+    }
+
+    @media (min-width: 700px) {
+      body {
+        padding: 28px 0;
+      }
+
+      .page {
+        border-radius: 28px;
+        min-height: calc(100vh - 56px);
+      }
+
+      .cta-panel {
+        border-radius: 0 0 28px 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="status-bar"></div>
+
+    <header class="header">
+      <div class="header-row">
+        <div class="brand">UcarPAC</div>
+        <div class="date-chip">2026.05.01 検証案</div>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-card">
+        <div class="hand-label">
+          <span class="hand-label-dot"></span>
+          売り時を、そっとお知らせ
+        </div>
+        <h1 class="hero-title">不安なタイミングに、安心できる通知を。</h1>
+        <p class="hero-copy">
+          相場上昇・維持費・オークション準備を、押しつけずに届ける通知体験。通知タップからAI査定、申込まで迷わず進めます。
+        </p>
+        <div class="hero-illustration" aria-hidden="true">
+          <div class="mini-car">
+            <div class="mini-car-top"></div>
+            <div class="mini-car-body"></div>
+            <div class="mini-wheel left"></div>
+            <div class="mini-wheel right"></div>
+          </div>
+          <div class="price-bubble">
+            <div class="price-bubble-label">トヨタ ハリアー</div>
+            <div class="price-bubble-main">+12万円</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <nav class="tabs" aria-label="画面切り替え">
+      <button class="tab active" data-screen="copy">通知文言テスト</button>
+      <button class="tab" data-screen="settings">通知設定UI</button>
+      <button class="tab" data-screen="journey">通知→査定導線</button>
+    </nav>
+
+    <section class="content">
+      <section class="screen active" id="screen-copy">
+        <h2 class="section-title">通知文言テスト</h2>
+        <p class="section-note">
+          「自分の車に関係がある」と感じやすい文言を比較。開封率と通知経由申込数を同時に見ます。
+        </p>
+
+        <div class="metric-row">
+          <div class="metric-card">
+            <div class="metric-label">想定開封率</div>
+            <div class="metric-value" id="openRate">18.6%</div>
+            <div class="metric-sub" id="openLift">前回比 +4.2pt</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">通知経由申込</div>
+            <div class="metric-value" id="applyCount">42件</div>
+            <div class="metric-sub" id="applyLift">前回比 +11件</div>
+          </div>
+        </div>
+
+        <div class="phone-preview">
+          <div class="phone-top"></div>
+          <div class="notification-card" id="notificationPreview">
+            <div class="notification-head">
+              <div class="app-mark">
+                <div class="app-icon">U</div>
+                UcarPAC
+              </div>
+              <div class="notify-time">今</div>
+            </div>
+            <div class="notification-title" id="notifyTitle">愛車の相場が12万円UPしました</div>
+            <p class="notification-body" id="notifyBody">
+              ハリアー Z レザーパッケージの売り時サインです。個人情報なしでAI査定を更新できます。
+            </p>
+          </div>
+        </div>
+
+        <div class="variant-list">
+          <button class="variant-button active" data-title="愛車の相場が12万円UPしました" data-body="ハリアー Z レザーパッケージの売り時サインです。個人情報なしでAI査定を更新できます。" data-rate="18.6%" data-open="+4.2pt" data-count="42件" data-apply="+11件">
+            <div class="variant-top">
+              <div class="variant-name">A. 価格上昇を知らせる</div>
+              <div class="variant-rate">18.6%</div>
+            </div>
+            <p class="variant-copy">愛車の相場が12万円UPしました</p>
+            <div class="badge-row">
+              <span class="badge">相場変動</span>
+              <span class="badge">売り時訴求</span>
+            </div>
+          </button>
+
+          <button class="variant-button" data-title="今売るべき？3ヶ月後の予測が出ました" data-body="プリウス S ツーリングの将来相場をAIが更新。焦らず、売る時期を比べられます。" data-rate="16.9%" data-open="+2.5pt" data-count="35件" data-apply="+7件">
+            <div class="variant-top">
+              <div class="variant-name">B. 将来予測で寄り添う</div>
+              <div class="variant-rate">16.9%</div>
+            </div>
+            <p class="variant-copy">今売るべき？3ヶ月後の予測が出ました</p>
+            <div class="badge-row">
+              <span class="badge">将来予測</span>
+              <span class="badge">安心感</span>
+            </div>
+          </button>
+
+          <button class="variant-button" data-title="車検前に、いまの価値を確認しませんか" data-body="CX-5 XDの維持費タイミングに合わせて査定を更新。営業電話なしでチェックできます。" data-rate="15.4%" data-open="+1.8pt" data-count="31件" data-apply="+5件">
+            <div class="variant-top">
+              <div class="variant-name">C. 維持費タイミング</div>
+              <div class="variant-rate">15.4%</div>
+            </div>
+            <p class="variant-copy">車検前に、いまの価値を確認しませんか</p>
+            <div class="badge-row">
+              <span class="badge">出費管理</span>
+              <span class="badge">車検前</span>
+            </div>
+          </button>
+        </div>
+
+        <div class="source-card">
+          <div class="source-title">主要主張の記録欄</div>
+          <p class="source-text">
+            2026-05-01時点の検証材料として、通知文言別に開封率・通知経由申込数・AI査定更新率を記録。出典URLと取得日はresearch-2026-05-01.mdへ紐付ける想定。
+          </p>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-settings">
+        <h2 class="section-title">通知設定UI</h2>
+        <p class="section-note">
+          通知を受け取る理由と頻度をユーザー自身が選べる画面。安心感を優先し、通知疲れを抑えます。
+        </p>
+
+        <div class="settings-card">
+          <div class="setting-block">
+            <div class="setting-head">
+              <div>
+                <div class="setting-title">相場が動いたとき</div>
+                <p class="setting-desc">愛車の査定額に変化があった場合だけ通知します。</p>
+              </div>
+              <button class="switch on" data-switch="market" aria-label="相場通知">
+                <span class="switch-knob"></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="setting-block">
+            <div class="setting-head">
+              <div>
+                <div class="setting-title">車検・維持費の前</div>
+                <p class="setting-desc">出費が大きくなる前に、売却検討のきっかけを届けます。</p>
+              </div>
+              <button class="switch on" data-switch="cost" aria-label="維持費通知">
+                <span class="switch-knob"></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="setting-block">
+            <div class="setting-head">
+              <div>
+                <div class="setting-title">オークション進捗</div>
+                <p class="setting-desc">入札更新・最高額更新・締切前だけ通知します。</p>
+              </div>
+              <button class="switch on" data-switch="auction" aria-label="オークション通知">
+                <span class="switch-knob"></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="setting-block">
+            <div class="setting-title">通知頻度</div>
+            <p class="setting-desc">売却を急いでいない人にも負担が少ない頻度を選べます。</p>
+            <div class="chip-row" id="frequencyChips">
+              <button class="chip">週1回</button>
+              <button class="chip active">大きな変化だけ</button>
+              <button class="chip">月1回</button>
+            </div>
+          </div>
+
+          <div class="comfort-meter">
+            <div class="comfort-label">
+              <span>通知の安心度</span>
+              <span id="comfortScore">72%</span>
+            </div>
+            <div class="meter-track">
+              <div class="meter-fill" id="comfortFill"></div>
+            </div>
+          </div>
+        </div>
+
+        <button class="primary-button" id="saveSettings">この設定で通知を受け取る</button>
+
+        <div class="source-card">
+          <div class="source-title">KPI反映メモ</div>
+          <p class="source-text">
+            通知許諾率、通知オフ率、通知頻度変更率をkpi-historyに追記。通知頻度を選ばせることで、長期検討ユーザーのアンインストール抑制も観測する。
+          </p>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-journey">
+        <h2 class="section-title">通知→査定導線</h2>
+        <p class="section-note">
+          通知タップ後に迷わず査定更新へ進み、売却相談までつながるシームレスな導線です。
+        </p>
+
+        <div class="journey-card">
+          <div class="car-summary">
+            <div class="car-thumb" aria-hidden="true"></div>
+            <div>
+              <div class="car-name">トヨタ ハリアー Z</div>
+              <div class="car-meta">2021年式・走行 32,400km・ブラック</div>
+            </div>
+          </div>
+
+          <div class="timeline">
+            <div class="step done" id="step1">
+              <div class="step-dot">1</div>
+              <div>
+                <div class="step-title">通知タップ</div>
+                <div class="step-desc">相場上昇の通知からアプリを再起動</div>
+              </div>
+            </div>
+
+            <div class="step current" id="step2">
+              <div class="step-dot">2</div>
+              <div>
+                <div class="step-title">AI査定を更新</div>
+                <div class="step-desc">写真追加なしでも、最新相場で再計算</div>
+              </div>
+            </div>
+
+            <div class="step" id="step3">
+              <div class="step-dot">3</div>
+              <div>
+                <div class="step-title">売却相談へ</div>
+                <div class="step-desc">電話は1社のみ。8,000店の入札へ進む</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="forecast">
+            <div class="forecast-head">
+              <div>
+                <div class="forecast-title">AI査定の将来予測</div>
+                <div class="car-meta">通知タップ後に最新データへ更新</div>
+              </div>
+              <div class="forecast-price" id="forecastPrice">286万円</div>
+            </div>
+
+            <div class="chart">
+              <div class="bar-wrap">
+                <div class="bar" style="height: 82px;"></div>
+                <div class="bar-label">現在</div>
+              </div>
+              <div class="bar-wrap">
+                <div class="bar" style="height: 74px;"></div>
+                <div class="bar-label">3ヶ月</div>
+              </div>
+              <div class="bar-wrap">
+                <div class="bar" style="height: 62px;"></div>
+                <div class="bar-label">6ヶ月</div>
+              </div>
+              <div class="bar-wrap">
+                <div class="bar" style="height: 48px;"></div>
+                <div class="bar-label">12ヶ月</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="primary-button" id="updateAssessment">AI査定を更新する</button>
+        <button class="pink-button" id="applySale">売却相談へ進む</button>
+
+        <div class="source-card">
+          <div class="source-title">導線検証メモ</div>
+          <p class="source-text">
+            通知開封後のAI査定更新率、査定結果閲覧率、申込完了率を日次差分で確認。通知経由ユーザーは「戻ってきてUcarPACを選ぶ」フェーズとして分離集計する。
+          </p>
+        </div>
+      </section>
+    </section>
+
+    <div class="cta-panel">
+      <button class="primary-button" id="mainAction">選択中の通知をテスト配信</button>
+    </div>
+
+    <div class="toast" id="toast">テスト状態を更新しました</div>
+  </main>
+
+  <script>
+    window.PROTO_AUTH_CONFIG = {
+      title: 'UcarPAC 通知最適化プロトタイプ',
+      description: 'プッシュ通知の開封率と通知経由申込数を検証するHTMLプロトタイプ',
+      storageHours: 24
+    };
+
+    const tabs = document.querySelectorAll('.tab');
+    const screens = document.querySelectorAll('.screen');
+    const mainAction = document.getElementById('mainAction');
+    const toast = document.getElementById('toast');
+
+    const actionLabels = {
+      copy: '選択中の通知をテスト配信',
+      settings: '通知設定の保存を検証',
+      journey: '通知タップ導線を再生'
+    };
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      window.setTimeout(() => {
+        toast.classList.remove('show');
+      }, 1800);
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.screen;
+
+        tabs.forEach((item) => item.classList.remove('active'));
+        tab.classList.add('active');
+
+        screens.forEach((screen) => {
+          screen.classList.toggle('active', screen.id === `screen-${target}`);
+        });
+
+        mainAction.textContent = actionLabels[target];
+      });
+    });
+
+    const variantButtons = document.querySelectorAll('.variant-button');
+    const notificationPreview = document.getElementById('notificationPreview');
+    const notifyTitle = document.getElementById('notifyTitle');
+    const notifyBody = document.getElementById('notifyBody');
+    const openRate = document.getElementById('openRate');
+    const openLift = document.getElementById('openLift');
+    const applyCount = document.getElementById('applyCount');
+    const applyLift = document.getElementById('applyLift');
+
+    variantButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        variantButtons.forEach((item) => item.classList.remove('active'));
+        button.classList.add('active');
+
+        notifyTitle.textContent = button.dataset.title;
+        notifyBody.textContent = button.dataset.body;
+        openRate.textContent = button.dataset.rate;
+        openLift.textContent = `前回比 ${button.dataset.open}`;
+        applyCount.textContent = button.dataset.count;
+        applyLift.textContent = `前回比 ${button.dataset.apply}`;
+
+        notificationPreview.classList.remove('pulse');
+        void notificationPreview.offsetWidth;
+        notificationPreview.classList.add('pulse');
+
+        showToast('通知文言のプレビューを更新しました');
+      });
+    });
+
+    const switches = document.querySelectorAll('.switch');
+    const comfortScore = document.getElementById('comfortScore');
+    const comfortFill = document.getElementById('comfortFill');
+
+    function updateComfort() {
+      const enabledCount = document.querySelectorAll('.switch.on').length;
+      const activeFrequency = document.querySelector('#frequencyChips .chip.active').textContent;
+      let score = 48 + enabledCount * 12;
+
+      if (activeFrequency === '大きな変化だけ') {
+        score += 12;
+      }
+
+      if (activeFrequency === '月1回') {
+        score += 8;
+      }
+
+      score = Math.min(score, 96);
+      comfortScore.textContent = `${score}%`;
+      comfortFill.style.width = `${score}%`;
+    }
+
+    switches.forEach((item) => {
+      item.addEventListener('click', () => {
+        item.classList.toggle('on');
+        updateComfort();
+        showToast('通知の受け取り設定を変更しました');
+      });
+    });
+
+    const frequencyChips = document.querySelectorAll('#frequencyChips .chip');
+
+    frequencyChips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        frequencyChips.forEach((item) => item.classList.remove('active'));
+        chip.classList.add('active');
+        updateComfort();
+        showToast('通知頻度を変更しました');
+      });
+    });
+
+    document.getElementById('saveSettings').addEventListener('click', () => {
+      showToast('通知設定を保存しました');
+    });
+
+    const updateAssessment = document.getElementById('updateAssessment');
+    const applySale = document.getElementById('applySale');
+    const step2 = document.getElementById('step2');
+    const step3 = document.getElementById('step3');
+    const forecastPrice = document.getElementById('forecastPrice');
+
+    updateAssessment.addEventListener('click', () => {
+      step2.classList.remove('current');
+      step2.classList.add('done');
+      step3.classList.add('current');
+      forecastPrice.textContent = '298万円';
+      showToast('AI査定を最新相場で更新しました');
+    });
+
+    applySale.addEventListener('click', () => {
+      step3.classList.remove('current');
+      step3.classList.add('done');
+      showToast('売却相談の申込導線に進みました');
+    });
+
+    mainAction.addEventListener('click', () => {
+      const activeTab = document.querySelector('.tab.active').dataset.screen;
+
+      if (activeTab === 'copy') {
+        notificationPreview.classList.remove('pulse');
+        void notificationPreview.offsetWidth;
+        notificationPreview.classList.add('pulse');
+        showToast('テスト通知を配信しました');
+      }
+
+      if (activeTab === 'settings') {
+        showToast('generation-logとkpi-historyへの反映対象です');
+      }
+
+      if (activeTab === 'journey') {
+        step2.classList.add('current');
+        showToast('通知タップからAI査定への導線を再生しました');
+      }
+    });
+  </script>
+</body>
+</html>

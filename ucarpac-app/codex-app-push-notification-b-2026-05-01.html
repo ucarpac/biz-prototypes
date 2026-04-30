@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<script src="../auth.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UcarPAC App 通知最適化ダッシュボード</title>
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --text-disabled: #B3B3B3;
+      --text-placeholder: rgba(28,38,99,0.3);
+      --button-gray: #CACEE2;
+      --button-link: #4099FF;
+      --back-white: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --back-blue: #091355;
+      --back-light-pink: #ffd8e8;
+      --error: #EB4646;
+      --ruled-line: #F2F2F2;
+      --border-gray: #7C7C7C;
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+      --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
+      --gradient-disabled: linear-gradient(90deg, #e5e5e5, #e5e5e5);
+      --font-sans: 'Noto Sans JP', 'Hiragino Sans', system-ui, sans-serif;
+      --font-number: 'Noto Sans JP', system-ui, sans-serif;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --radius-sm: 5px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-chip: 22px;
+      --radius-button: 30px;
+      --shadow: 0 4px 18px rgba(0,0,0,0.11);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--back-white);
+      color: var(--text-black);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+
+    button,
+    input {
+      font-family: inherit;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background: var(--back-gray);
+      overflow: hidden;
+    }
+
+    .hero {
+      position: relative;
+      padding: 20px 16px 28px;
+      color: var(--white);
+      background: radial-gradient(circle at 88% 12%, rgba(248,76,162,0.42), transparent 32%),
+                  linear-gradient(145deg, #091355 0%, #1c2663 58%, #0a1348 100%);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .date-pill {
+      padding: 6px 12px;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: var(--radius-chip);
+      color: #bfdbfe;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      line-height: 42px;
+      font-weight: 700;
+    }
+
+    .hero p {
+      margin: 0;
+      color: #dbeafe;
+      font-size: 14px;
+      line-height: 21px;
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .metric-card {
+      padding: 14px;
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.16);
+      backdrop-filter: blur(8px);
+    }
+
+    .metric-label {
+      display: block;
+      color: #bfdbfe;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .metric-value {
+      display: block;
+      margin-top: 4px;
+      font-size: 24px;
+      line-height: 36px;
+      font-weight: 800;
+    }
+
+    .metric-delta {
+      display: block;
+      margin-top: 2px;
+      color: #8ff2ff;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .content {
+      padding: 16px;
+    }
+
+    .section {
+      margin-bottom: 16px;
+      padding: 16px;
+      border-radius: var(--radius-md);
+      background: var(--white);
+      box-shadow: var(--shadow);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 18px;
+      line-height: 27px;
+      font-weight: 700;
+    }
+
+    .section-sub {
+      margin: 2px 0 0;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: var(--radius-chip);
+      background: var(--back-light-pink);
+      color: var(--pink);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .chart-box {
+      padding: 12px;
+      border-radius: var(--radius-md);
+      background: #f8fbff;
+      border: 1px solid #e4ecf7;
+    }
+
+    .chart-caption {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 8px;
+      color: var(--text-gray);
+      font-size: 11px;
+    }
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-gray);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+
+    .dot.pink {
+      background: var(--pink);
+    }
+
+    .dot.blue {
+      background: #4099FF;
+    }
+
+    .dot.cyan {
+      background: #1ddcff;
+    }
+
+    .variant-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .variant-card {
+      border: 1px solid #edf1f4;
+      border-radius: var(--radius-md);
+      padding: 12px;
+      background: var(--white);
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .variant-card.active {
+      border-color: var(--pink);
+      box-shadow: 0 8px 22px rgba(248,76,162,0.18);
+      transform: translateY(-2px);
+    }
+
+    .variant-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .variant-name {
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+    }
+
+    .variant-score {
+      color: var(--pink);
+      font-size: 18px;
+      line-height: 27px;
+      font-weight: 800;
+    }
+
+    .push-preview {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 13px;
+      background: #f4f7fb;
+      border: 1px solid #e2e9f2;
+    }
+
+    .push-title {
+      display: block;
+      color: var(--dark-blue);
+      font-size: 13px;
+      line-height: 19.5px;
+      font-weight: 700;
+    }
+
+    .push-body {
+      display: block;
+      margin-top: 2px;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .progress-wrap {
+      margin-top: 10px;
+    }
+
+    .progress-line {
+      height: 8px;
+      overflow: hidden;
+      border-radius: 99px;
+      background: #edf1f4;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--gradient-primary);
+      transition: width 0.6s ease;
+    }
+
+    .progress-fill.pink {
+      background: var(--gradient-pink);
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 5px;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 14px;
+      padding: 4px;
+      border-radius: var(--radius-chip);
+      background: var(--back-gray);
+    }
+
+    .tab {
+      height: 34px;
+      border: 0;
+      border-radius: 18px;
+      background: transparent;
+      color: var(--text-gray);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .tab.active {
+      background: var(--dark-blue);
+      color: var(--white);
+    }
+
+    .setting-panel {
+      display: none;
+    }
+
+    .setting-panel.active {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--ruled-line);
+    }
+
+    .setting-row:last-child {
+      border-bottom: 0;
+    }
+
+    .setting-label {
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+    }
+
+    .setting-help {
+      margin-top: 2px;
+      color: var(--text-gray);
+      font-size: 11px;
+      line-height: 16.5px;
+    }
+
+    .switch {
+      position: relative;
+      width: 52px;
+      height: 30px;
+      flex: 0 0 auto;
+    }
+
+    .switch input {
+      display: none;
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      border-radius: 99px;
+      background: #d7dbea;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .slider:before {
+      content: "";
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--white);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      transition: transform 0.2s ease;
+    }
+
+    .switch input:checked + .slider {
+      background: var(--pink);
+    }
+
+    .switch input:checked + .slider:before {
+      transform: translateX(22px);
+    }
+
+    .frequency {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      min-height: 43px;
+      border: 1px solid var(--ruled-line);
+      border-radius: var(--radius-chip);
+      background: var(--white);
+      color: var(--text-black);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .chip.active {
+      border-color: var(--dark-blue);
+      background: var(--dark-blue);
+      color: var(--white);
+    }
+
+    .route {
+      display: grid;
+      gap: 10px;
+    }
+
+    .route-step {
+      display: grid;
+      grid-template-columns: 42px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid #e6edf5;
+      background: #fbfdff;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .route-step.current {
+      border-color: #40BFFF;
+      background: #effaff;
+    }
+
+    .step-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .step-title {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+    }
+
+    .step-desc {
+      margin: 2px 0 0;
+      color: var(--text-gray);
+      font-size: 11px;
+      line-height: 16.5px;
+    }
+
+    .step-rate {
+      color: var(--pink);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 800;
+    }
+
+    .primary-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 43px;
+      margin-top: 14px;
+      border: 0;
+      border-radius: var(--radius-button);
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(64,153,255,0.24);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .primary-button:active {
+      transform: scale(0.98);
+      box-shadow: 0 4px 12px rgba(64,153,255,0.18);
+    }
+
+    .pink-button {
+      background: var(--gradient-pink);
+      color: var(--white);
+      box-shadow: 0 8px 18px rgba(248,76,162,0.24);
+    }
+
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: var(--radius-md);
+      font-size: 11px;
+      line-height: 16.5px;
+    }
+
+    .compare-table th {
+      padding: 9px 6px;
+      background: var(--dark-blue);
+      color: var(--white);
+      text-align: left;
+      font-weight: 700;
+    }
+
+    .compare-table td {
+      padding: 9px 6px;
+      border-bottom: 1px solid var(--ruled-line);
+      background: #fff;
+      color: var(--text-black);
+      font-weight: 700;
+    }
+
+    .compare-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .winner {
+      color: var(--pink);
+    }
+
+    .source-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .source-list li {
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      background: #f7f9fc;
+      color: var(--text-gray);
+      font-size: 11px;
+      line-height: 16.5px;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      width: calc(100% - 32px);
+      max-width: 398px;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      background: var(--dark-blue);
+      color: var(--white);
+      font-size: 13px;
+      line-height: 19.5px;
+      font-weight: 700;
+      box-shadow: 0 12px 28px rgba(28,38,99,0.28);
+      transform: translate(-50%, 120%);
+      opacity: 0;
+      transition: transform 0.28s ease, opacity 0.28s ease;
+      z-index: 10;
+    }
+
+    .toast.show {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+
+    .mini-phone {
+      position: relative;
+      margin: 2px auto 14px;
+      padding: 12px;
+      border-radius: 24px;
+      background: #111827;
+      box-shadow: inset 0 0 0 2px #273244, 0 12px 28px rgba(0,0,0,0.14);
+    }
+
+    .phone-screen {
+      min-height: 170px;
+      padding: 12px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #eef7ff 0%, #ffffff 100%);
+    }
+
+    .notification-bubble {
+      padding: 10px;
+      border-radius: 13px;
+      background: rgba(255,255,255,0.94);
+      border: 1px solid #e5edf7;
+      box-shadow: 0 8px 20px rgba(28,38,99,0.12);
+      animation: slideNotice 0.55s ease both;
+    }
+
+    .car-price {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      background: var(--white);
+      border: 1px solid #eaf0f7;
+    }
+
+    .car-name {
+      color: var(--text-gray);
+      font-size: 11px;
+      line-height: 16.5px;
+      font-weight: 700;
+    }
+
+    .price-main {
+      color: var(--dark-blue);
+      font-size: 30px;
+      line-height: 45px;
+      font-weight: 900;
+    }
+
+    .price-main span {
+      font-size: 15px;
+      line-height: 22.5px;
+    }
+
+    .price-note {
+      color: var(--pink);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 800;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideNotice {
+      from {
+        opacity: 0;
+        transform: translateY(-18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (min-width: 720px) {
+      body {
+        background: #dfe7f1;
+      }
+
+      .app {
+        max-width: 960px;
+        display: grid;
+        grid-template-columns: 390px 1fr;
+      }
+
+      .hero {
+        min-height: 100vh;
+      }
+
+      .content {
+        max-height: 100vh;
+        overflow-y: auto;
+        padding: 24px;
+      }
+
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .section.full {
+        grid-column: 1 / -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="hero">
+      <div class="topbar">
+        <div class="brand">UcarPAC App</div>
+        <div class="date-pill">2026.05.01 更新</div>
+      </div>
+      <h1>プッシュ通知最適化<br>検証ダッシュボード</h1>
+      <p>通知の開封率を上げ、通知経由の再起動からAI査定、売却相談までの転換を増やすためのプロトタイプ。</p>
+      <div class="hero-metrics">
+        <div class="metric-card">
+          <span class="metric-label">通知開封率</span>
+          <span class="metric-value" id="openRate">18.6%</span>
+          <span class="metric-delta">前週比 +3.2pt</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">通知経由申込</span>
+          <span class="metric-value" id="applyCount">124件</span>
+          <span class="metric-delta">前週比 +28件</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">AI査定再起動</span>
+          <span class="metric-value">41.3%</span>
+          <span class="metric-delta">通知タップ後</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">最有力文言</span>
+          <span class="metric-value">相場UP</span>
+          <span class="metric-delta">開封率 24.8%</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="dashboard-grid">
+        <section class="section full">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">KPI推移</h2>
+              <p class="section-sub">通知文言テスト導入後の開封率と通知経由申込数</p>
+            </div>
+            <span class="badge">日次差分</span>
+          </div>
+          <div class="chart-box">
+            <svg viewBox="0 0 330 170" width="100%" height="170" role="img" aria-label="通知KPI推移グラフ">
+              <rect x="0" y="0" width="330" height="170" rx="12" fill="#f8fbff"></rect>
+              <line x1="34" y1="130" x2="312" y2="130" stroke="#dce5ef" stroke-width="1"></line>
+              <line x1="34" y1="96" x2="312" y2="96" stroke="#dce5ef" stroke-width="1"></line>
+              <line x1="34" y1="62" x2="312" y2="62" stroke="#dce5ef" stroke-width="1"></line>
+              <line x1="34" y1="28" x2="312" y2="28" stroke="#dce5ef" stroke-width="1"></line>
+              <text x="8" y="133" fill="#737373" font-size="10">0</text>
+              <text x="8" y="99" fill="#737373" font-size="10">10</text>
+              <text x="8" y="65" fill="#737373" font-size="10">20</text>
+              <text x="8" y="31" fill="#737373" font-size="10">30</text>
+              <polyline points="42,108 86,101 130,98 174,86 218,76 262,68 306,58" fill="none" stroke="#F84CA2" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></polyline>
+              <polyline points="42,121 86,118 130,113 174,106 218,99 262,91 306,82" fill="none" stroke="#4099FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></polyline>
+              <circle cx="42" cy="108" r="5" fill="#F84CA2"></circle>
+              <circle cx="86" cy="101" r="5" fill="#F84CA2"></circle>
+              <circle cx="130" cy="98" r="5" fill="#F84CA2"></circle>
+              <circle cx="174" cy="86" r="5" fill="#F84CA2"></circle>
+              <circle cx="218" cy="76" r="5" fill="#F84CA2"></circle>
+              <circle cx="262" cy="68" r="5" fill="#F84CA2"></circle>
+              <circle cx="306" cy="58" r="6" fill="#F84CA2" stroke="#ffffff" stroke-width="2"></circle>
+              <circle cx="42" cy="121" r="5" fill="#4099FF"></circle>
+              <circle cx="86" cy="118" r="5" fill="#4099FF"></circle>
+              <circle cx="130" cy="113" r="5" fill="#4099FF"></circle>
+              <circle cx="174" cy="106" r="5" fill="#4099FF"></circle>
+              <circle cx="218" cy="99" r="5" fill="#4099FF"></circle>
+              <circle cx="262" cy="91" r="5" fill="#4099FF"></circle>
+              <circle cx="306" cy="82" r="6" fill="#4099FF" stroke="#ffffff" stroke-width="2"></circle>
+              <text x="38" y="153" fill="#737373" font-size="10">4/25</text>
+              <text x="126" y="153" fill="#737373" font-size="10">4/27</text>
+              <text x="214" y="153" fill="#737373" font-size="10">4/29</text>
+              <text x="292" y="153" fill="#737373" font-size="10">5/1</text>
+            </svg>
+            <div class="legend">
+              <span class="legend-item"><span class="dot pink"></span>開封率</span>
+              <span class="legend-item"><span class="dot blue"></span>通知経由申込指数</span>
+            </div>
+            <div class="chart-caption">
+              <span>対象: 直近7日</span>
+              <span>主要KPI更新済み</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">1. 通知文言テスト</h2>
+              <p class="section-sub">相場変動・売り時・出費削減の訴求を比較</p>
+            </div>
+            <span class="badge">A/B/C</span>
+          </div>
+          <div class="variant-list">
+            <article class="variant-card active" data-rate="24.8" data-apply="124">
+              <div class="variant-top">
+                <span class="variant-name">A: 相場UP訴求</span>
+                <span class="variant-score">24.8%</span>
+              </div>
+              <div class="push-preview">
+                <span class="push-title">愛車の相場が12万円UP</span>
+                <span class="push-body">プリウス SのAI査定額が上昇中。今の価格を確認しませんか？</span>
+              </div>
+              <div class="progress-wrap">
+                <div class="progress-line"><div class="progress-fill pink" style="width: 82%;"></div></div>
+                <div class="progress-labels"><span>開封率</span><span>申込 124件</span></div>
+              </div>
+            </article>
+            <article class="variant-card" data-rate="19.2" data-apply="96">
+              <div class="variant-top">
+                <span class="variant-name">B: 売り時訴求</span>
+                <span class="variant-score">19.2%</span>
+              </div>
+              <div class="push-preview">
+                <span class="push-title">今月は売却チャンスです</span>
+                <span class="push-body">3ヶ月後予測より18万円高い見込み。AI査定で確認できます。</span>
+              </div>
+              <div class="progress-wrap">
+                <div class="progress-line"><div class="progress-fill" style="width: 63%;"></div></div>
+                <div class="progress-labels"><span>開封率</span><span>申込 96件</span></div>
+              </div>
+            </article>
+            <article class="variant-card" data-rate="15.7" data-apply="72">
+              <div class="variant-top">
+                <span class="variant-name">C: 出費管理訴求</span>
+                <span class="variant-score">15.7%</span>
+              </div>
+              <div class="push-preview">
+                <span class="push-title">今月の維持費は28,400円</span>
+                <span class="push-body">ガソリン代と保険料を自動集計。年間コストを見直しましょう。</span>
+              </div>
+              <div class="progress-wrap">
+                <div class="progress-line"><div class="progress-fill" style="width: 52%;"></div></div>
+                <div class="progress-labels"><span>開封率</span><span>申込 72件</span></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">通知プレビュー</h2>
+              <p class="section-sub">タップ後はAI査定結果へ直接遷移</p>
+            </div>
+          </div>
+          <div class="mini-phone">
+            <div class="phone-screen">
+              <div class="notification-bubble" id="notificationBubble">
+                <span class="push-title">愛車の相場が12万円UP</span>
+                <span class="push-body">プリウス SのAI査定額が上昇中。今の価格を確認しませんか？</span>
+              </div>
+              <div class="car-price">
+                <div class="car-name">トヨタ プリウス S 2019年式</div>
+                <div class="price-main">148<span>万円</span></div>
+                <div class="price-note">前回査定 136万円 → +12万円</div>
+              </div>
+            </div>
+          </div>
+          <button class="primary-button pink-button" id="simulateNotice">通知タップを再現</button>
+        </section>
+
+        <section class="section full">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">2. 通知設定UI</h2>
+              <p class="section-sub">頻度と種類をユーザーが選べることで解除率を抑制</p>
+            </div>
+            <span class="badge">解除率対策</span>
+          </div>
+          <div class="tabs">
+            <button class="tab active" data-tab="price">相場</button>
+            <button class="tab" data-tab="expense">出費</button>
+            <button class="tab" data-tab="auction">売却</button>
+          </div>
+          <div class="setting-panel active" id="panel-price">
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">相場変動通知</div>
+                <div class="setting-help">査定額が5万円以上変動したら通知</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">売り時アラート</div>
+                <div class="setting-help">将来予測より現在価格が高い時だけ通知</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="frequency">
+              <button class="chip">毎日</button>
+              <button class="chip active">週2回</button>
+              <button class="chip">大きな変動時</button>
+            </div>
+          </div>
+          <div class="setting-panel" id="panel-expense">
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">月間出費サマリー</div>
+                <div class="setting-help">ガソリン・保険・車検費用を月末に通知</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">維持費上昇アラート</div>
+                <div class="setting-help">前月比20%以上の増加を検知</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="frequency">
+              <button class="chip active">月1回</button>
+              <button class="chip">週1回</button>
+              <button class="chip">記録後のみ</button>
+            </div>
+          </div>
+          <div class="setting-panel" id="panel-auction">
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">入札更新通知</div>
+                <div class="setting-help">最高額が更新された時にリアルタイム通知</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div>
+                <div class="setting-label">締切前リマインド</div>
+                <div class="setting-help">オークション終了3時間前に通知</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="frequency">
+              <button class="chip">すべて</button>
+              <button class="chip active">重要のみ</button>
+              <button class="chip">締切前のみ</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">3. 通知→査定導線</h2>
+              <p class="section-sub">通知タップから申込まで3ステップに圧縮</p>
+            </div>
+          </div>
+          <div class="route">
+            <div class="route-step current">
+              <div class="step-icon">1</div>
+              <div>
+                <h3 class="step-title">通知タップ</h3>
+                <p class="step-desc">相場UP通知からアプリ再起動</p>
+              </div>
+              <div class="step-rate">100%</div>
+            </div>
+            <div class="route-step">
+              <div class="step-icon">2</div>
+              <div>
+                <h3 class="step-title">AI査定結果</h3>
+                <p class="step-desc">価格・将来予測を即表示</p>
+              </div>
+              <div class="step-rate">41%</div>
+            </div>
+            <div class="route-step">
+              <div class="step-icon">3</div>
+              <div>
+                <h3 class="step-title">売却相談</h3>
+                <p class="step-desc">電話1社・8,000社入札を訴求</p>
+              </div>
+              <div class="step-rate">9.8%</div>
+            </div>
+          </div>
+          <button class="primary-button" id="advanceRoute">導線を進める</button>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">競合比較</h2>
+              <p class="section-sub">通知で訴求する差別化軸</p>
+            </div>
+          </div>
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>訴求軸</th>
+                <th>UcarPAC</th>
+                <th>競合</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>AI査定</td>
+                <td class="winner">あり</td>
+                <td>なし</td>
+              </tr>
+              <tr>
+                <td>将来予測</td>
+                <td class="winner">あり</td>
+                <td>なし</td>
+              </tr>
+              <tr>
+                <td>電話対応</td>
+                <td class="winner">1社のみ</td>
+                <td>最大10社</td>
+              </tr>
+              <tr>
+                <td>入札規模</td>
+                <td class="winner">8,000社</td>
+                <td>最大2,000社等</td>
+              </tr>
+              <tr>
+                <td>アプリ管理</td>
+                <td class="winner">あり</td>
+                <td>Web中心</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="section full">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">検証メモ</h2>
+              <p class="section-sub">主要主張・日付・参照URLを成果物へ転記する前提</p>
+            </div>
+            <span class="badge">research-2026-05-01</span>
+          </div>
+          <ul class="source-list">
+            <li>2026-05-01時点: UcarPACの通知文言は「相場が○万円UP」の具体額提示が最も高い開封率を示す仮説。出典URL: 社内KPI履歴 / prototypes/ops/auto-kpi/kpi-history</li>
+            <li>2026-05-01時点: 競合比較ではAI査定・将来予測・出費管理が差別化訴求。出典URL: competitors.md / contexts/ucarpac-app.md</li>
+            <li>2026-05-01時点: 通知設定UIは頻度と種類の自己選択により通知解除率を抑制する検証対象。出典URL: generation-log / 日次差分ログ</li>
+          </ul>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast">通知からAI査定結果へ遷移しました</div>
+
+  <script>
+    window.PROTO_AUTH_CONFIG = {
+      title: 'UcarPAC App 通知最適化ダッシュボード',
+      description: 'プッシュ通知の開封率と通知経由申込数を改善するためのHTMLプロトタイプ'
+    };
+
+    const variantCards = document.querySelectorAll('.variant-card');
+    const notificationBubble = document.getElementById('notificationBubble');
+    const openRate = document.getElementById('openRate');
+    const applyCount = document.getElementById('applyCount');
+    const toast = document.getElementById('toast');
+    const tabs = document.querySelectorAll('.tab');
+    const panels = document.querySelectorAll('.setting-panel');
+    const chips = document.querySelectorAll('.chip');
+    const routeSteps = document.querySelectorAll('.route-step');
+    const advanceRoute = document.getElementById('advanceRoute');
+    const simulateNotice = document.getElementById('simulateNotice');
+
+    let currentStep = 0;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 1800);
+    }
+
+    variantCards.forEach((card) => {
+      card.addEventListener('click', () => {
+        variantCards.forEach((item) => item.classList.remove('active'));
+        card.classList.add('active');
+
+        const title = card.querySelector('.push-title').textContent;
+        const body = card.querySelector('.push-body').textContent;
+        const rate = card.dataset.rate;
+        const apply = card.dataset.apply;
+
+        notificationBubble.innerHTML = '<span class="push-title">' + title + '</span><span class="push-body">' + body + '</span>';
+        notificationBubble.style.animation = 'none';
+        notificationBubble.offsetHeight;
+        notificationBubble.style.animation = 'slideNotice 0.55s ease both';
+
+        openRate.textContent = rate + '%';
+        applyCount.textContent = apply + '件';
+        showToast('通知文言を「' + title + '」に切り替えました');
+      });
+    });
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((item) => item.classList.remove('active'));
+        panels.forEach((panel) => panel.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        const group = chip.parentElement.querySelectorAll('.chip');
+        group.forEach((item) => item.classList.remove('active'));
+        chip.classList.add('active');
+        showToast('通知頻度を「' + chip.textContent + '」に設定しました');
+      });
+    });
+
+    advanceRoute.addEventListener('click', () => {
+      currentStep = (currentStep + 1) % routeSteps.length;
+      routeSteps.forEach((step, index) => {
+        step.classList.toggle('current', index === currentStep);
+      });
+
+      const labels = ['通知タップを確認しました', 'AI査定結果を表示しました', '売却相談CTAを表示しました'];
+      showToast(labels[currentStep]);
+    });
+
+    simulateNotice.addEventListener('click', () => {
+      currentStep = 1;
+      routeSteps.forEach((step, index) => {
+        step.classList.toggle('current', index === currentStep);
+      });
+      notificationBubble.style.animation = 'none';
+      notificationBubble.offsetHeight;
+      notificationBubble.style.animation = 'slideNotice 0.55s ease both';
+      showToast('通知タップからAI査定画面へ遷移しました');
+    });
+
+    document.querySelectorAll('.switch input').forEach((input) => {
+      input.addEventListener('change', () => {
+        const label = input.closest('.setting-row').querySelector('.setting-label').textContent;
+        showToast(label + 'を' + (input.checked ? 'ON' : 'OFF') + 'にしました');
+      });
+    });
+  </script>
+</body>
+</html>

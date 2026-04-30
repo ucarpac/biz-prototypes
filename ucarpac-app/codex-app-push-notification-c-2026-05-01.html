@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="ja">
+<script src="../auth.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UcarPAC 通知最適化プロトタイプ</title>
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --text-disabled: #B3B3B3;
+      --text-placeholder: rgba(28,38,99,0.3);
+      --button-gray: #CACEE2;
+      --button-link: #4099FF;
+      --back-white: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --back-blue: #091355;
+      --back-dark-blue: #0a1348;
+      --back-light-pink: #ffd8e8;
+      --error: #EB4646;
+      --ruled-line: #F2F2F2;
+      --border-gray: #7C7C7C;
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+      --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
+      --gradient-disabled: linear-gradient(90deg, #e5e5e5, #e5e5e5);
+      --font-sans: 'Noto Sans JP', 'Hiragino Sans', system-ui, sans-serif;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --radius-sm: 5px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-chip: 22px;
+      --radius-button: 30px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--back-gray);
+      color: var(--text-black);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+
+    button {
+      font-family: inherit;
+      border: 0;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background: var(--back-white);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .header {
+      background: var(--back-blue);
+      color: var(--white);
+      padding: 20px 20px 28px;
+      border-bottom-left-radius: 24px;
+      border-bottom-right-radius: 24px;
+      position: relative;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .logo {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .date-pill {
+      padding: 6px 12px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.12);
+      font-size: 12px;
+      font-weight: 700;
+      color: #bfdbfe;
+    }
+
+    .hero-title {
+      margin: 0;
+      font-size: 22px;
+      line-height: 33px;
+      font-weight: 700;
+    }
+
+    .hero-text {
+      margin: 8px 0 0;
+      color: #bfdbfe;
+      font-size: 14px;
+      line-height: 21px;
+    }
+
+    .hero-score {
+      margin-top: 18px;
+      padding: 14px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 13px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .score-item {
+      min-width: 0;
+    }
+
+    .score-label {
+      font-size: 10px;
+      line-height: 15px;
+      color: #bfdbfe;
+      font-weight: 700;
+    }
+
+    .score-value {
+      margin-top: 2px;
+      font-size: 24px;
+      line-height: 36px;
+      color: var(--white);
+      font-weight: 700;
+    }
+
+    .score-value span {
+      color: var(--pink);
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 16px 16px 0;
+    }
+
+    .tab {
+      height: 43px;
+      border-radius: 22px;
+      background: var(--white);
+      color: var(--text-black);
+      border: 1px solid var(--ruled-line);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      transition: transform .2s ease, background .2s ease, color .2s ease;
+    }
+
+    .tab.active {
+      background: var(--dark-blue);
+      color: var(--white);
+      transform: translateY(-2px);
+    }
+
+    .screen {
+      display: none;
+      padding: 18px 16px 96px;
+      animation: fadeIn .28s ease;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      color: var(--dark-blue);
+      font-size: 18px;
+      line-height: 27px;
+      font-weight: 700;
+    }
+
+    .section-note {
+      margin: -4px 0 16px;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .car-card {
+      width: 100%;
+      min-height: 128px;
+      padding: 16px;
+      border-radius: 13px;
+      background: var(--white);
+      box-shadow: 0 0 12px rgba(0,0,0,0.11);
+      border: 1px solid #CDDCED;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .car-image {
+      width: 92px;
+      height: 92px;
+      border-radius: 12px;
+      background:
+        radial-gradient(circle at 74% 22%, rgba(255,255,255,0.8) 0 8px, transparent 9px),
+        linear-gradient(135deg, #dfe8f4, #8fb2d8);
+      position: relative;
+      flex: 0 0 auto;
+      overflow: hidden;
+    }
+
+    .car-image:before {
+      content: "";
+      position: absolute;
+      left: 13px;
+      right: 13px;
+      top: 38px;
+      height: 26px;
+      border-radius: 18px 18px 8px 8px;
+      background: var(--dark-blue);
+    }
+
+    .car-image:after {
+      content: "";
+      position: absolute;
+      left: 25px;
+      right: 25px;
+      bottom: 20px;
+      height: 9px;
+      border-radius: 10px;
+      background: var(--pink);
+      box-shadow: -20px 0 0 #222, 20px 0 0 #222;
+    }
+
+    .car-info {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .car-name {
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 700;
+      color: var(--dark-blue);
+      margin-bottom: 4px;
+    }
+
+    .car-meta {
+      font-size: 12px;
+      line-height: 18px;
+      color: var(--text-gray);
+      margin-bottom: 10px;
+    }
+
+    .price-line {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .price {
+      font-size: 26px;
+      line-height: 39px;
+      font-weight: 700;
+      color: var(--pink);
+    }
+
+    .yen {
+      color: var(--dark-blue);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .badge {
+      padding: 5px 9px;
+      border-radius: 22px;
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+      background: var(--back-light-pink);
+      color: var(--pink);
+    }
+
+    .badge.blue {
+      background: #dceeff;
+      color: var(--button-link);
+    }
+
+    .notification-stage {
+      height: 320px;
+      position: relative;
+      margin-bottom: 18px;
+    }
+
+    .notif-card {
+      position: absolute;
+      inset: 0;
+      padding: 18px;
+      background: var(--white);
+      border-radius: 13px;
+      box-shadow: 0 0 16px rgba(0,0,0,0.11);
+      border: 1px solid #CDDCED;
+      touch-action: pan-y;
+      transition: transform .28s ease, opacity .28s ease;
+    }
+
+    .notif-card:nth-child(2) {
+      transform: scale(.96) translateY(14px);
+      opacity: .7;
+      z-index: 2;
+    }
+
+    .notif-card:nth-child(3) {
+      transform: scale(.92) translateY(28px);
+      opacity: .4;
+      z-index: 1;
+    }
+
+    .notif-card.top {
+      z-index: 3;
+    }
+
+    .notif-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .notif-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: var(--gradient-pink);
+      color: var(--white);
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+    }
+
+    .notif-app {
+      font-size: 12px;
+      line-height: 18px;
+      color: var(--text-gray);
+      font-weight: 700;
+    }
+
+    .notif-time {
+      margin-left: auto;
+      font-size: 10px;
+      line-height: 15px;
+      color: var(--text-disabled);
+      font-weight: 700;
+    }
+
+    .notif-title {
+      margin: 0 0 8px;
+      font-size: 20px;
+      line-height: 30px;
+      color: var(--dark-blue);
+      font-weight: 700;
+    }
+
+    .notif-body {
+      margin: 0 0 14px;
+      font-size: 14px;
+      line-height: 21px;
+      color: var(--text-black);
+    }
+
+    .notif-kpi {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 14px 0;
+    }
+
+    .kpi-box {
+      padding: 10px;
+      border-radius: 12px;
+      background: var(--back-gray);
+    }
+
+    .kpi-label {
+      font-size: 10px;
+      line-height: 15px;
+      color: var(--text-gray);
+      font-weight: 700;
+    }
+
+    .kpi-value {
+      font-size: 18px;
+      line-height: 27px;
+      color: var(--dark-blue);
+      font-weight: 700;
+    }
+
+    .swipe-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .reject,
+    .accept {
+      height: 43px;
+      border-radius: 30px;
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+    }
+
+    .reject {
+      background: var(--gradient-disabled);
+      color: var(--text-gray);
+    }
+
+    .accept {
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+    }
+
+    .game-meter {
+      margin: 18px 0 8px;
+      padding: 14px;
+      background: var(--white);
+      border-radius: 13px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.08);
+    }
+
+    .meter-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      color: var(--dark-blue);
+    }
+
+    .meter-bar {
+      height: 10px;
+      border-radius: 10px;
+      background: var(--back-gray);
+      overflow: hidden;
+    }
+
+    .meter-fill {
+      width: 42%;
+      height: 100%;
+      border-radius: 10px;
+      background: var(--gradient-primary);
+      transition: width .35s ease;
+    }
+
+    .hint {
+      margin: 8px 0 0;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+      text-align: center;
+    }
+
+    .settings-card {
+      background: var(--white);
+      border-radius: 13px;
+      padding: 16px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.11);
+      margin-bottom: 14px;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--ruled-line);
+    }
+
+    .setting-row:last-child {
+      border-bottom: 0;
+    }
+
+    .setting-title {
+      font-size: 14px;
+      line-height: 21px;
+      color: var(--dark-blue);
+      font-weight: 700;
+    }
+
+    .setting-desc {
+      margin-top: 2px;
+      font-size: 12px;
+      line-height: 18px;
+      color: var(--text-gray);
+    }
+
+    .switch {
+      width: 52px;
+      height: 30px;
+      border-radius: 22px;
+      background: var(--button-gray);
+      padding: 3px;
+      flex: 0 0 auto;
+      transition: background .2s ease;
+    }
+
+    .switch:before {
+      content: "";
+      display: block;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--white);
+      box-shadow: 0 2px 6px rgba(0,0,0,.18);
+      transition: transform .2s ease;
+    }
+
+    .switch.on {
+      background: var(--pink);
+    }
+
+    .switch.on:before {
+      transform: translateX(22px);
+    }
+
+    .frequency {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      min-height: 43px;
+      border-radius: 22px;
+      border: 1px solid var(--ruled-line);
+      background: var(--white);
+      color: var(--text-black);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      transition: background .2s ease, color .2s ease, transform .2s ease;
+    }
+
+    .chip.active {
+      background: var(--dark-blue);
+      color: var(--white);
+      transform: translateY(-2px);
+    }
+
+    .preview-phone {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 16px;
+      background: var(--back-blue);
+      color: var(--white);
+    }
+
+    .preview-title {
+      font-size: 12px;
+      line-height: 18px;
+      color: #bfdbfe;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .preview-bubble {
+      background: rgba(255,255,255,.92);
+      color: var(--text-black);
+      border-radius: 13px;
+      padding: 12px;
+      animation: pulseBubble 1.8s ease infinite;
+    }
+
+    @keyframes pulseBubble {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.015); }
+    }
+
+    .flow-card {
+      background: var(--white);
+      border-radius: 13px;
+      padding: 16px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.11);
+      margin-bottom: 16px;
+    }
+
+    .progress {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    .progress-dot {
+      height: 8px;
+      border-radius: 8px;
+      background: var(--back-gray);
+      overflow: hidden;
+    }
+
+    .progress-dot.active {
+      background: var(--pink);
+    }
+
+    .step {
+      display: none;
+      min-height: 322px;
+    }
+
+    .step.active {
+      display: block;
+      animation: stepIn .28s ease;
+    }
+
+    @keyframes stepIn {
+      from { opacity: 0; transform: translateX(18px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .phone-notice {
+      padding: 14px;
+      border-radius: 13px;
+      background: var(--back-gray);
+      margin-bottom: 16px;
+    }
+
+    .phone-notice-title {
+      font-size: 14px;
+      line-height: 21px;
+      color: var(--dark-blue);
+      font-weight: 700;
+    }
+
+    .phone-notice-text {
+      margin-top: 4px;
+      font-size: 12px;
+      line-height: 18px;
+      color: var(--text-gray);
+    }
+
+    .result-panel {
+      text-align: center;
+      padding: 18px 14px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #fff, #fff3f8);
+      border: 1px solid #ffd8e8;
+    }
+
+    .result-label {
+      font-size: 12px;
+      line-height: 18px;
+      color: var(--text-gray);
+      font-weight: 700;
+    }
+
+    .result-price {
+      font-size: 40px;
+      line-height: 54px;
+      font-weight: 700;
+      color: var(--pink);
+    }
+
+    .graph {
+      height: 150px;
+      margin: 18px 0 8px;
+      border-radius: 12px;
+      background:
+        linear-gradient(to top, rgba(28,38,99,.06) 1px, transparent 1px) 0 0 / 100% 30px,
+        var(--white);
+      position: relative;
+      border: 1px solid var(--ruled-line);
+      overflow: hidden;
+    }
+
+    .graph svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .graph-labels {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+    }
+
+    .flow-actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .primary-btn,
+    .pink-btn,
+    .white-btn {
+      height: 43px;
+      border-radius: 30px;
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+      transition: transform .16s ease;
+    }
+
+    .primary-btn:active,
+    .pink-btn:active,
+    .white-btn:active {
+      transform: scale(.98);
+    }
+
+    .primary-btn {
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+    }
+
+    .pink-btn {
+      background: var(--gradient-pink);
+      color: var(--white);
+    }
+
+    .white-btn {
+      background: var(--white);
+      color: var(--dark-blue);
+      border: 1px solid var(--text-black);
+    }
+
+    .auction-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .auction-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: var(--back-gray);
+    }
+
+    .dealer {
+      font-size: 12px;
+      line-height: 18px;
+      color: var(--dark-blue);
+      font-weight: 700;
+    }
+
+    .bid {
+      font-size: 14px;
+      line-height: 21px;
+      color: var(--pink);
+      font-weight: 700;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: rgba(255,255,255,.96);
+      border-top: 1px solid var(--ruled-line);
+      padding: 8px 8px 10px;
+      z-index: 20;
+    }
+
+    .nav-btn {
+      height: 48px;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+    }
+
+    .nav-btn.active {
+      background: var(--back-light-pink);
+      color: var(--pink);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 72px;
+      transform: translateX(-50%) translateY(20px);
+      width: calc(100% - 32px);
+      max-width: 398px;
+      padding: 12px 14px;
+      border-radius: 13px;
+      background: var(--dark-blue);
+      color: var(--white);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .24s ease, transform .24s ease;
+      z-index: 30;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (min-width: 431px) {
+      body {
+        background: linear-gradient(180deg, #dfe8f4, #fafafa);
+      }
+
+      .app {
+        box-shadow: 0 0 30px rgba(28,38,99,.18);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <div class="header-top">
+        <div class="logo">UcarPAC AI Notify</div>
+        <div class="date-pill">2026.05.01</div>
+      </div>
+      <h1 class="hero-title">通知から査定、申込までを<br>1本のゲーム進行にする</h1>
+      <p class="hero-text">相場変動・売り時・維持費アラートを、ユーザーが選べる頻度で届ける検証画面。</p>
+      <div class="hero-score">
+        <div class="score-item">
+          <div class="score-label">通知開封率 仮説</div>
+          <div class="score-value"><span>+18</span>%</div>
+        </div>
+        <div class="score-item">
+          <div class="score-label">通知経由申込 仮説</div>
+          <div class="score-value"><span>1.6</span>x</div>
+        </div>
+      </div>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab active" data-screen="copy">文言テスト</button>
+      <button class="tab" data-screen="setting">通知設定</button>
+      <button class="tab" data-screen="flow">査定導線</button>
+    </nav>
+
+    <section class="screen active" id="copy">
+      <h2 class="section-title">通知文言テスト</h2>
+      <p class="section-note">右に送ると採用、左に送ると見送り。開封したくなる通知をスワイプで選ぶ。</p>
+
+      <article class="car-card">
+        <div class="car-image"></div>
+        <div class="car-info">
+          <div class="car-name">トヨタ ハリアー Z</div>
+          <div class="car-meta">2021年式 / 36,400km / パールホワイト</div>
+          <div class="price-line">
+            <div class="price">312</div>
+            <div class="yen">万円</div>
+          </div>
+          <div class="badge-row">
+            <span class="badge">個人情報不要</span>
+            <span class="badge blue">電話1社のみ</span>
+          </div>
+        </div>
+      </article>
+
+      <div class="notification-stage" id="notificationStage">
+        <article class="notif-card top" data-score="22" data-title="愛車の相場が12万円UPしました">
+          <div class="notif-head">
+            <div class="notif-icon">AI</div>
+            <div class="notif-app">UcarPAC</div>
+            <div class="notif-time">今</div>
+          </div>
+          <h3 class="notif-title">愛車の相場が12万円UPしました</h3>
+          <p class="notif-body">ハリアー Zの相場が先週より上昇。今のAI査定価格を30秒で確認できます。</p>
+          <div class="notif-kpi">
+            <div class="kpi-box">
+              <div class="kpi-label">想定開封率</div>
+              <div class="kpi-value">18.4%</div>
+            </div>
+            <div class="kpi-box">
+              <div class="kpi-label">申込期待</div>
+              <div class="kpi-value">高</div>
+            </div>
+          </div>
+          <div class="swipe-actions">
+            <button class="reject">見送り</button>
+            <button class="accept">採用</button>
+          </div>
+        </article>
+
+        <article class="notif-card" data-score="16" data-title="今売ると6か月後より28万円高い予測">
+          <div class="notif-head">
+            <div class="notif-icon">AI</div>
+            <div class="notif-app">UcarPAC</div>
+            <div class="notif-time">今</div>
+          </div>
+          <h3 class="notif-title">今売ると6か月後より28万円高い予測</h3>
+          <p class="notif-body">AIが相場推移を更新。売り時スコアが80を超えました。</p>
+          <div class="notif-kpi">
+            <div class="kpi-box">
+              <div class="kpi-label">想定開封率</div>
+              <div class="kpi-value">16.9%</div>
+            </div>
+            <div class="kpi-box">
+              <div class="kpi-label">申込期待</div>
+              <div class="kpi-value">中</div>
+            </div>
+          </div>
+          <div class="swipe-actions">
+            <button class="reject">見送り</button>
+            <button class="accept">採用</button>
+          </div>
+        </article>
+
+        <article class="notif-card" data-score="12" data-title="8,000店の入札チャンスを確認">
+          <div class="notif-head">
+            <div class="notif-icon">AI</div>
+            <div class="notif-app">UcarPAC</div>
+            <div class="notif-time">今</div>
+          </div>
+          <h3 class="notif-title">8,000店の入札チャンスを確認</h3>
+          <p class="notif-body">あなたの条件に近い車で高額入札が出ています。電話はUcarPACの1社だけ。</p>
+          <div class="notif-kpi">
+            <div class="kpi-box">
+              <div class="kpi-label">想定開封率</div>
+              <div class="kpi-value">14.2%</div>
+            </div>
+            <div class="kpi-box">
+              <div class="kpi-label">申込期待</div>
+              <div class="kpi-value">中</div>
+            </div>
+          </div>
+          <div class="swipe-actions">
+            <button class="reject">見送り</button>
+            <button class="accept">採用</button>
+          </div>
+        </article>
+      </div>
+
+      <div class="game-meter">
+        <div class="meter-top">
+          <span>通知レベル</span>
+          <span id="meterText">42 / 100</span>
+        </div>
+        <div class="meter-bar">
+          <div class="meter-fill" id="meterFill"></div>
+        </div>
+      </div>
+      <p class="hint">カードをドラッグ、またはボタンで文言を評価できます。</p>
+    </section>
+
+    <section class="screen" id="setting">
+      <h2 class="section-title">通知設定UI</h2>
+      <p class="section-note">通知頻度と種類をユーザーが選択。不要通知を減らして、長期利用を守る。</p>
+
+      <div class="settings-card">
+        <div class="setting-row">
+          <div>
+            <div class="setting-title">相場変動通知</div>
+            <div class="setting-desc">3万円以上の変動だけ通知</div>
+          </div>
+          <button class="switch on" data-switch="相場変動通知"></button>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-title">売り時スコア通知</div>
+            <div class="setting-desc">AIが売却タイミングを判定</div>
+          </div>
+          <button class="switch on" data-switch="売り時スコア通知"></button>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-title">維持費アラート</div>
+            <div class="setting-desc">保険・車検・給油費の変化</div>
+          </div>
+          <button class="switch" data-switch="維持費アラート"></button>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-title">オークション進捗</div>
+            <div class="setting-desc">入札・最高額更新を即時通知</div>
+          </div>
+          <button class="switch on" data-switch="オークション進捗"></button>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h3 class="section-title">通知頻度</h3>
+        <div class="frequency">
+          <button class="chip" data-frequency="控えめ">控えめ</button>
+          <button class="chip active" data-frequency="標準">標準</button>
+          <button class="chip" data-frequency="積極的">積極的</button>
+        </div>
+        <div class="preview-phone">
+          <div class="preview-title">通知プレビュー</div>
+          <div class="preview-bubble" id="previewBubble">
+            ハリアー Zの相場が12万円UP。今のAI査定価格を確認できます。
+          </div>
+        </div>
+      </div>
+
+      <button class="primary-btn" id="saveSettings">この設定で通知を最適化</button>
+    </section>
+
+    <section class="screen" id="flow">
+      <h2 class="section-title">通知→査定導線</h2>
+      <p class="section-note">通知タップ後に迷わせず、AI査定更新から申込までステップ進行でつなぐ。</p>
+
+      <div class="flow-card">
+        <div class="progress">
+          <div class="progress-dot active"></div>
+          <div class="progress-dot"></div>
+          <div class="progress-dot"></div>
+          <div class="progress-dot"></div>
+        </div>
+
+        <div class="step active">
+          <div class="phone-notice">
+            <div class="phone-notice-title">通知をタップ</div>
+            <div class="phone-notice-text">「愛車の相場が12万円UPしました」から直接AI査定へ遷移。</div>
+          </div>
+          <div class="result-panel">
+            <div class="result-label">前回査定</div>
+            <div class="result-price">300</div>
+            <div class="yen">万円</div>
+          </div>
+          <div class="flow-actions">
+            <button class="primary-btn next-step">AI査定を更新</button>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="result-panel">
+            <div class="result-label">最新AI査定</div>
+            <div class="result-price">312</div>
+            <div class="yen">万円</div>
+            <div class="badge-row" style="justify-content:center;">
+              <span class="badge">+12万円</span>
+              <span class="badge blue">売り時スコア 86</span>
+            </div>
+          </div>
+          <div class="graph">
+            <svg viewBox="0 0 320 150" preserveAspectRatio="none">
+              <path d="M0 112 C52 98 84 92 126 78 C172 62 210 74 252 54 C284 40 304 36 320 30" fill="none" stroke="#F84CA2" stroke-width="5" stroke-linecap="round"/>
+              <path d="M0 112 C52 98 84 92 126 78 C172 62 210 74 252 54 C284 40 304 36 320 30 L320 150 L0 150 Z" fill="rgba(248,76,162,.14)"/>
+            </svg>
+          </div>
+          <div class="graph-labels">
+            <span>前月</span>
+            <span>今日</span>
+            <span>3か月後</span>
+            <span>6か月後</span>
+          </div>
+          <div class="flow-actions">
+            <button class="primary-btn next-step">8,000店の入札見込みを見る</button>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="phone-notice">
+            <div class="phone-notice-title">入札見込み</div>
+            <div class="phone-notice-text">近い条件の成約データから、上位入札の見込みを表示。</div>
+          </div>
+          <div class="auction-list">
+            <div class="auction-row">
+              <div class="dealer">関東輸出専門店</div>
+              <div class="bid">318万円</div>
+            </div>
+            <div class="auction-row">
+              <div class="dealer">大阪SUV買取センター</div>
+              <div class="bid">315万円</div>
+            </div>
+            <div class="auction-row">
+              <div class="dealer">名古屋高年式専門店</div>
+              <div class="bid">309万円</div>
+            </div>
+          </div>
+          <div class="flow-actions">
+            <button class="primary-btn next-step">電話1社で売却相談へ</button>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="result-panel">
+            <div class="result-label">申込準備完了</div>
+            <div class="result-price">1</div>
+            <div class="yen">社のみ対応</div>
+            <div class="badge-row" style="justify-content:center;">
+              <span class="badge">営業電話ラッシュなし</span>
+              <span class="badge blue">手数料無料</span>
+            </div>
+          </div>
+          <div class="flow-actions">
+            <button class="pink-btn" id="applyButton">査定申し込みへ進む</button>
+            <button class="white-btn" id="resetFlow">もう一度確認</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-screen="copy">文言</button>
+      <button class="nav-btn" data-screen="setting">設定</button>
+      <button class="nav-btn" data-screen="flow">導線</button>
+    </nav>
+
+    <div class="toast" id="toast">設定を更新しました</div>
+  </main>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const navButtons = document.querySelectorAll('.nav-btn');
+    const screens = document.querySelectorAll('.screen');
+    const toast = document.getElementById('toast');
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 1800);
+    }
+
+    function setScreen(id) {
+      tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.screen === id));
+      navButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.screen === id));
+      screens.forEach(screen => screen.classList.toggle('active', screen.id === id));
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => setScreen(tab.dataset.screen));
+    });
+
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', () => setScreen(btn.dataset.screen));
+    });
+
+    const stage = document.getElementById('notificationStage');
+    const meterFill = document.getElementById('meterFill');
+    const meterText = document.getElementById('meterText');
+    let meter = 42;
+
+    function refreshCards() {
+      const cards = [...stage.querySelectorAll('.notif-card')];
+      cards.forEach((card, index) => {
+        card.classList.toggle('top', index === 0);
+        card.style.zIndex = String(3 - index);
+        if (index === 0) {
+          card.style.transform = 'translateX(0) rotate(0deg) scale(1)';
+          card.style.opacity = '1';
+        }
+        if (index === 1) {
+          card.style.transform = 'scale(.96) translateY(14px)';
+          card.style.opacity = '.7';
+        }
+        if (index === 2) {
+          card.style.transform = 'scale(.92) translateY(28px)';
+          card.style.opacity = '.4';
+        }
+      });
+      bindTopCard();
+    }
+
+    function updateMeter(delta) {
+      meter = Math.max(0, Math.min(100, meter + delta));
+      meterFill.style.width = meter + '%';
+      meterText.textContent = meter + ' / 100';
+    }
+
+    function decideCard(card, accepted) {
+      const title = card.dataset.title;
+      const score = Number(card.dataset.score || 0);
+      card.style.transform = accepted ? 'translateX(120%) rotate(12deg)' : 'translateX(-120%) rotate(-12deg)';
+      card.style.opacity = '0';
+      updateMeter(accepted ? score : -6);
+      showToast(accepted ? '採用: ' + title : '見送りました');
+      setTimeout(() => {
+        stage.appendChild(card);
+        refreshCards();
+      }, 260);
+    }
+
+    function bindTopCard() {
+      const top = stage.querySelector('.notif-card.top');
+      if (!top || top.dataset.bound === 'true') return;
+      top.dataset.bound = 'true';
+
+      let startX = 0;
+      let currentX = 0;
+      let dragging = false;
+
+      top.addEventListener('pointerdown', event => {
+        dragging = true;
+        startX = event.clientX;
+        top.setPointerCapture(event.pointerId);
+      });
+
+      top.addEventListener('pointermove', event => {
+        if (!dragging) return;
+        currentX = event.clientX - startX;
+        top.style.transform = `translateX(${currentX}px) rotate(${currentX / 16}deg)`;
+      });
+
+      top.addEventListener('pointerup', () => {
+        if (!dragging) return;
+        dragging = false;
+        if (currentX > 80) {
+          decideCard(top, true);
+        } else if (currentX < -80) {
+          decideCard(top, false);
+        } else {
+          top.style.transform = 'translateX(0) rotate(0deg)';
+        }
+        currentX = 0;
+      });
+
+      top.querySelector('.accept').addEventListener('click', () => decideCard(top, true));
+      top.querySelector('.reject').addEventListener('click', () => decideCard(top, false));
+    }
+
+    refreshCards();
+
+    const switches = document.querySelectorAll('.switch');
+    const previewBubble = document.getElementById('previewBubble');
+
+    switches.forEach(item => {
+      item.addEventListener('click', () => {
+        item.classList.toggle('on');
+        const state = item.classList.contains('on') ? 'オン' : 'オフ';
+        showToast(item.dataset.switch + 'を' + state + 'にしました');
+      });
+    });
+
+    const frequencyMessages = {
+      '控えめ': '重要な相場変動だけ通知します。ハリアー Zの価格が大きく動いた時にお知らせします。',
+      '標準': 'ハリアー Zの相場が12万円UP。今のAI査定価格を確認できます。',
+      '積極的': '売り時スコア86。相場UP、入札見込み、維持費変化をまとめて確認できます。'
+    };
+
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.chip').forEach(item => item.classList.remove('active'));
+        chip.classList.add('active');
+        previewBubble.textContent = frequencyMessages[chip.dataset.frequency];
+        showToast('通知頻度を' + chip.dataset.frequency + 'に変更しました');
+      });
+    });
+
+    document.getElementById('saveSettings').addEventListener('click', () => {
+      showToast('通知設定を保存しました。次回通知から反映されます');
+    });
+
+    const steps = document.querySelectorAll('.step');
+    const dots = document.querySelectorAll('.progress-dot');
+    let currentStep = 0;
+
+    function renderStep() {
+      steps.forEach((step, index) => step.classList.toggle('active', index === currentStep));
+      dots.forEach((dot, index) => dot.classList.toggle('active', index <= currentStep));
+    }
+
+    document.querySelectorAll('.next-step').forEach(button => {
+      button.addEventListener('click', () => {
+        currentStep = Math.min(steps.length - 1, currentStep + 1);
+        renderStep();
+        if (currentStep === 1) showToast('AI査定を更新しました');
+        if (currentStep === 2) showToast('入札見込みを取得しました');
+        if (currentStep === 3) showToast('申込前の確認まで到達しました');
+      });
+    });
+
+    document.getElementById('applyButton').addEventListener('click', () => {
+      showToast('通知経由申込として計測されました');
+    });
+
+    document.getElementById('resetFlow').addEventListener('click', () => {
+      currentStep = 0;
+      renderStep();
+      showToast('導線を最初に戻しました');
+    });
+  </script>
+</body>
+</html>
