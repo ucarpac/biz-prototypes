@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="ja">
+<!-- C案: ゲーミフィケーション・インタラクティブアプローチ。スワイプ、診断フロー、ステップ進行などの操作体験重視。マイクロアニメーション -->
+<script src="../auth.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UcarPAC 出費管理クエスト</title>
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --text-disabled: #B3B3B3;
+      --text-placeholder: rgba(28,38,99,0.3);
+      --button-gray: #CACEE2;
+      --button-link: #4099FF;
+      --back-white: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --back-blue: #091355;
+      --back-light-pink: #ffd8e8;
+      --error: #EB4646;
+      --ruled-line: #F2F2F2;
+      --border-gray: #7C7C7C;
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+      --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
+      --gradient-disabled: linear-gradient(90deg, #e5e5e5, #e5e5e5);
+      --font-sans: 'Noto Sans JP', 'Hiragino Sans', system-ui, sans-serif;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --radius-sm: 5px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-chip: 22px;
+      --radius-button: 30px;
+      --shadow: 0 4px 18px rgba(0,0,0,0.11);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      background: var(--back-gray);
+      color: var(--text-black);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button,
+    input {
+      font-family: inherit;
+    }
+
+    .app {
+      width: 100%;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(248,76,162,0.15), transparent 34%),
+        linear-gradient(180deg, #ffffff 0%, #edf1f4 42%, #fafafa 100%);
+      overflow-x: hidden;
+    }
+
+    .phone {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 12px 16px 96px;
+      position: relative;
+    }
+
+    .status {
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--dark-blue);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 0 4px;
+    }
+
+    .status-icons {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .signal {
+      width: 18px;
+      height: 10px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      align-items: end;
+    }
+
+    .signal span {
+      display: block;
+      width: 3px;
+      background: var(--dark-blue);
+      border-radius: 2px;
+    }
+
+    .signal span:nth-child(1) { height: 4px; }
+    .signal span:nth-child(2) { height: 6px; }
+    .signal span:nth-child(3) { height: 8px; }
+    .signal span:nth-child(4) { height: 10px; }
+
+    .battery {
+      width: 22px;
+      height: 10px;
+      border: 1.5px solid var(--dark-blue);
+      border-radius: 3px;
+      position: relative;
+    }
+
+    .battery::after {
+      content: "";
+      position: absolute;
+      right: -4px;
+      top: 2px;
+      width: 2px;
+      height: 4px;
+      background: var(--dark-blue);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .battery-fill {
+      width: 70%;
+      height: 100%;
+      background: var(--dark-blue);
+      border-radius: 1px;
+    }
+
+    .hero {
+      margin-top: 10px;
+      background: var(--back-blue);
+      color: var(--white);
+      border-radius: 18px;
+      padding: 20px 18px 18px;
+      box-shadow: 0 16px 36px rgba(9,19,85,0.22);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: auto -60px -80px auto;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba(29,220,255,0.22);
+      filter: blur(4px);
+    }
+
+    .hero-top {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: var(--radius-chip);
+      background: rgba(255,255,255,0.13);
+      color: #bfdbfe;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .level-badge {
+      min-width: 74px;
+      padding: 6px 10px;
+      border-radius: var(--radius-chip);
+      background: var(--gradient-pink);
+      text-align: center;
+      color: var(--white);
+      font-size: 12px;
+      font-weight: 700;
+      animation: pulse 1.8s infinite;
+    }
+
+    .hero h1 {
+      position: relative;
+      margin: 14px 0 6px;
+      font-size: 24px;
+      line-height: 36px;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      position: relative;
+      margin: 0;
+      color: #dbeafe;
+      font-size: 13px;
+      line-height: 19.5px;
+    }
+
+    .car-row {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 16px;
+      padding: 12px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 13px;
+    }
+
+    .car-icon {
+      width: 74px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(160deg, #ffffff, #d9ecff);
+      position: relative;
+      flex: 0 0 auto;
+      box-shadow: inset 0 -6px 0 rgba(28,38,99,0.1);
+    }
+
+    .car-icon::before {
+      content: "";
+      position: absolute;
+      left: 13px;
+      top: 14px;
+      width: 48px;
+      height: 17px;
+      background: var(--dark-blue);
+      border-radius: 18px 18px 6px 6px;
+    }
+
+    .car-icon::after {
+      content: "";
+      position: absolute;
+      left: 12px;
+      bottom: 6px;
+      width: 10px;
+      height: 10px;
+      background: #404040;
+      border-radius: 50%;
+      box-shadow: 39px 0 0 #404040;
+    }
+
+    .car-meta strong {
+      display: block;
+      color: var(--white);
+      font-size: 15px;
+      line-height: 22.5px;
+    }
+
+    .car-meta span {
+      display: block;
+      color: #bfdbfe;
+      font-size: 11px;
+      line-height: 16.5px;
+    }
+
+    .quest-meter {
+      margin-top: 16px;
+      position: relative;
+    }
+
+    .meter-label {
+      display: flex;
+      justify-content: space-between;
+      color: #bfdbfe;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+
+    .meter-track {
+      height: 10px;
+      background: rgba(255,255,255,0.18);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .meter-fill {
+      width: 68%;
+      height: 100%;
+      border-radius: 999px;
+      background: var(--gradient-primary);
+      animation: grow 900ms ease-out both;
+    }
+
+    .tabs {
+      margin: 18px 0 14px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      padding: 8px 0;
+      background: linear-gradient(180deg, rgba(250,250,250,0.96), rgba(250,250,250,0.72));
+      backdrop-filter: blur(8px);
+    }
+
+    .tab {
+      border: 0;
+      border-radius: var(--radius-chip);
+      min-height: 43px;
+      background: var(--white);
+      color: var(--text-black);
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      transition: transform 160ms ease, background 160ms ease, color 160ms ease;
+    }
+
+    .tab.active {
+      background: var(--dark-blue);
+      color: var(--white);
+    }
+
+    .tab:active {
+      transform: scale(0.96);
+    }
+
+    .screen-stack {
+      position: relative;
+    }
+
+    .screen {
+      display: none;
+      animation: slideIn 280ms ease both;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .card {
+      width: 100%;
+      background: var(--white);
+      border-radius: 13px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(205,220,237,0.7);
+    }
+
+    .card-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .card-title h2 {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 18px;
+      line-height: 27px;
+    }
+
+    .card-title small {
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      padding: 5px 12px;
+      border-radius: var(--radius-chip);
+      background: var(--back-light-pink);
+      color: var(--pink);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .countdown {
+      display: grid;
+      grid-template-columns: 122px 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .ring {
+      width: 122px;
+      height: 122px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background:
+        conic-gradient(var(--pink) 0 74%, #edf1f4 74% 100%);
+      position: relative;
+      animation: rotateIn 600ms ease both;
+    }
+
+    .ring::before {
+      content: "";
+      width: 92px;
+      height: 92px;
+      background: var(--white);
+      border-radius: 50%;
+      position: absolute;
+    }
+
+    .ring-content {
+      position: relative;
+      text-align: center;
+      color: var(--dark-blue);
+    }
+
+    .ring-number {
+      display: block;
+      font-size: 32px;
+      line-height: 40px;
+      font-weight: 900;
+    }
+
+    .ring-label {
+      display: block;
+      font-size: 11px;
+      line-height: 16.5px;
+      font-weight: 700;
+      color: var(--text-gray);
+    }
+
+    .count-info h3 {
+      margin: 0 0 4px;
+      font-size: 16px;
+      line-height: 24px;
+      color: var(--text-black);
+    }
+
+    .count-info p {
+      margin: 0 0 10px;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .mini-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .mini-stat {
+      background: var(--back-gray);
+      border-radius: 12px;
+      padding: 10px;
+      min-height: 64px;
+    }
+
+    .mini-stat span {
+      display: block;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+    }
+
+    .mini-stat strong {
+      display: block;
+      color: var(--dark-blue);
+      font-size: 18px;
+      line-height: 27px;
+      margin-top: 2px;
+    }
+
+    .primary-button,
+    .pink-button,
+    .white-button {
+      border: 0;
+      min-height: 43px;
+      border-radius: var(--radius-button);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+      padding: 0 18px;
+      transition: transform 140ms ease, filter 140ms ease;
+    }
+
+    .primary-button {
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+    }
+
+    .pink-button {
+      background: var(--gradient-pink);
+      color: var(--white);
+    }
+
+    .white-button {
+      background: var(--white);
+      color: var(--dark-blue);
+      border: 1px solid var(--text-black);
+    }
+
+    .primary-button:active,
+    .pink-button:active,
+    .white-button:active {
+      transform: scale(0.96);
+      filter: brightness(0.98);
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .button-row button {
+      flex: 1;
+    }
+
+    .swipe-card {
+      touch-action: pan-y;
+      transform: translateX(0);
+      transition: transform 220ms ease, box-shadow 220ms ease;
+    }
+
+    .swipe-card.swiped {
+      transform: translateX(-86px);
+      box-shadow: 0 4px 18px rgba(248,76,162,0.2);
+    }
+
+    .swipe-hint {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      color: var(--text-gray);
+      font-size: 11px;
+      line-height: 16.5px;
+      font-weight: 700;
+    }
+
+    .report-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .total-expense span {
+      display: block;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+    }
+
+    .total-expense strong {
+      display: block;
+      color: var(--dark-blue);
+      font-size: 33px;
+      line-height: 49.5px;
+      font-weight: 900;
+    }
+
+    .toggle {
+      display: flex;
+      padding: 4px;
+      border-radius: 22px;
+      background: var(--back-gray);
+      gap: 4px;
+    }
+
+    .toggle button {
+      width: 54px;
+      min-height: 34px;
+      border: 0;
+      border-radius: 18px;
+      background: transparent;
+      color: var(--text-gray);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .toggle button.active {
+      background: var(--pink);
+      color: var(--white);
+    }
+
+    .bar-chart {
+      height: 156px;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      align-items: end;
+      gap: 8px;
+      margin-top: 16px;
+      padding: 12px 6px 0;
+      border-bottom: 2px solid var(--ruled-line);
+    }
+
+    .bar-wrap {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .bar {
+      width: 100%;
+      max-width: 32px;
+      border-radius: 8px 8px 0 0;
+      background: var(--gradient-primary);
+      position: relative;
+      animation: barUp 600ms ease both;
+    }
+
+    .bar.pink {
+      background: var(--gradient-pink);
+    }
+
+    .bar::before {
+      content: attr(data-value);
+      position: absolute;
+      top: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--dark-blue);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .bar-label {
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+    }
+
+    .compare {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 12px;
+      background: linear-gradient(90deg, rgba(29,220,255,0.12), rgba(248,76,162,0.1));
+    }
+
+    .compare-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .compare-top strong {
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+    }
+
+    .compare-top span {
+      color: var(--pink);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 900;
+    }
+
+    .compare-line {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(28,38,99,0.13);
+      overflow: hidden;
+      margin-bottom: 7px;
+    }
+
+    .compare-fill {
+      height: 100%;
+      width: 72%;
+      background: var(--gradient-pink);
+      border-radius: 999px;
+      animation: grow 800ms ease both;
+    }
+
+    .compare-caption {
+      color: var(--text-gray);
+      font-size: 11px;
+      line-height: 16.5px;
+      margin: 0;
+    }
+
+    .category-list {
+      margin-top: 14px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .category {
+      display: grid;
+      grid-template-columns: 32px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border-radius: 12px;
+      background: var(--back-white);
+      border: 1px solid var(--ruled-line);
+    }
+
+    .category-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--white);
+      font-size: 14px;
+      font-weight: 900;
+      background: var(--dark-blue);
+    }
+
+    .category:nth-child(2) .category-icon {
+      background: var(--pink);
+    }
+
+    .category:nth-child(3) .category-icon {
+      background: #4099FF;
+    }
+
+    .category-name {
+      color: var(--text-black);
+      font-size: 13px;
+      line-height: 19.5px;
+      font-weight: 700;
+    }
+
+    .category-sub {
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+    }
+
+    .category-price {
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 900;
+    }
+
+    .sim-card {
+      background: var(--back-blue);
+      color: var(--white);
+      border: 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .sim-card::after {
+      content: "";
+      position: absolute;
+      right: -40px;
+      top: 34px;
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      border: 24px solid rgba(29,220,255,0.13);
+    }
+
+    .sim-card .card-title h2 {
+      color: var(--white);
+    }
+
+    .sim-card .card-title small {
+      color: #bfdbfe;
+    }
+
+    .sim-result {
+      position: relative;
+      margin-top: 6px;
+    }
+
+    .sim-result span {
+      display: block;
+      color: #bfdbfe;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+    }
+
+    .sim-result strong {
+      display: block;
+      color: var(--white);
+      font-size: 33px;
+      line-height: 49.5px;
+      font-weight: 900;
+    }
+
+    .sim-result b {
+      color: var(--pink);
+    }
+
+    .timeline {
+      position: relative;
+      margin: 18px 0 12px;
+      height: 88px;
+    }
+
+    .timeline-line {
+      position: absolute;
+      top: 42px;
+      left: 0;
+      right: 0;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.16);
+      overflow: hidden;
+    }
+
+    .timeline-fill {
+      height: 100%;
+      width: 58%;
+      border-radius: 999px;
+      background: var(--gradient-primary);
+      transition: width 220ms ease;
+    }
+
+    .break-point {
+      position: absolute;
+      top: 22px;
+      left: 58%;
+      transform: translateX(-50%);
+      text-align: center;
+      transition: left 220ms ease;
+    }
+
+    .break-dot {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--pink);
+      display: grid;
+      place-items: center;
+      color: var(--white);
+      font-weight: 900;
+      box-shadow: 0 10px 20px rgba(248,76,162,0.28);
+      animation: bounce 1.6s infinite;
+    }
+
+    .break-point small {
+      display: block;
+      margin-top: 5px;
+      color: #bfdbfe;
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .slider-box {
+      position: relative;
+      padding: 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+      margin-top: 12px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      color: #bfdbfe;
+      font-size: 11px;
+      line-height: 16.5px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--pink);
+    }
+
+    .sim-stats {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .sim-stat {
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+    }
+
+    .sim-stat span {
+      display: block;
+      color: #bfdbfe;
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+    }
+
+    .sim-stat strong {
+      display: block;
+      color: var(--white);
+      font-size: 18px;
+      line-height: 27px;
+      font-weight: 900;
+      margin-top: 2px;
+    }
+
+    .mission-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .mission {
+      display: grid;
+      grid-template-columns: 38px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border-radius: 13px;
+      background: var(--white);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(205,220,237,0.75);
+      transition: transform 160ms ease, border 160ms ease;
+    }
+
+    .mission.done {
+      border-color: rgba(248,76,162,0.45);
+      transform: translateY(-2px);
+    }
+
+    .mission-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--back-gray);
+      color: var(--dark-blue);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: 15px;
+    }
+
+    .mission.done .mission-icon {
+      background: var(--pink);
+      color: var(--white);
+    }
+
+    .mission-title {
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 900;
+    }
+
+    .mission-sub {
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+    }
+
+    .mission-point {
+      color: var(--pink);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 900;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      bottom: 14px;
+      transform: translateX(-50%);
+      width: min(398px, calc(100% - 32px));
+      height: 64px;
+      background: rgba(255,255,255,0.94);
+      border-radius: 24px;
+      box-shadow: 0 12px 36px rgba(28,38,99,0.18);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      align-items: center;
+      z-index: 20;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(205,220,237,0.8);
+    }
+
+    .nav-item {
+      border: 0;
+      background: transparent;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+      display: grid;
+      gap: 3px;
+      place-items: center;
+    }
+
+    .nav-icon {
+      width: 25px;
+      height: 25px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      color: inherit;
+    }
+
+    .nav-item.active {
+      color: var(--pink);
+    }
+
+    .nav-item.active .nav-icon {
+      background: var(--back-light-pink);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 90px;
+      transform: translate(-50%, 20px);
+      width: min(330px, calc(100% - 48px));
+      padding: 12px 14px;
+      border-radius: 13px;
+      background: var(--dark-blue);
+      color: var(--white);
+      font-size: 13px;
+      line-height: 19.5px;
+      font-weight: 700;
+      box-shadow: 0 12px 28px rgba(28,38,99,0.28);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+      z-index: 30;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .confetti {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 40;
+    }
+
+    .piece {
+      position: absolute;
+      top: -12px;
+      width: 8px;
+      height: 12px;
+      border-radius: 2px;
+      animation: fall 900ms ease-in forwards;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+
+    @keyframes grow {
+      from { width: 0; }
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(18px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes rotateIn {
+      from { transform: rotate(-24deg) scale(0.92); opacity: 0; }
+      to { transform: rotate(0) scale(1); opacity: 1; }
+    }
+
+    @keyframes barUp {
+      from { height: 0; }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh) rotate(280deg);
+        opacity: 0;
+      }
+    }
+
+    @media (min-width: 700px) {
+      .phone {
+        max-width: 760px;
+        padding: 18px 22px 110px;
+      }
+
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        align-items: start;
+      }
+
+      .wide {
+        grid-column: 1 / -1;
+      }
+
+      .hero h1 {
+        font-size: 32px;
+        line-height: 48px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <main class="phone">
+      <div class="status">
+        <span>9:41</span>
+        <div class="status-icons">
+          <div class="signal"><span></span><span></span><span></span><span></span></div>
+          <span>5G</span>
+          <div class="battery"><div class="battery-fill"></div></div>
+        </div>
+      </div>
+
+      <section class="hero">
+        <div class="hero-top">
+          <span class="eyebrow">出費管理クエスト</span>
+          <span class="level-badge" id="levelBadge">Lv. 7</span>
+        </div>
+        <h1>毎月の出費から、売り時を見つける</h1>
+        <p>車検・維持費・売却額をつなげて、次に開く理由がある出費管理へ。</p>
+        <div class="car-row">
+          <div class="car-icon"></div>
+          <div class="car-meta">
+            <strong>トヨタ ハリアー Z 2020年式</strong>
+            <span>走行距離 48,200km / AI査定額 2,420,000円</span>
+          </div>
+        </div>
+        <div class="quest-meter">
+          <div class="meter-label">
+            <span>今月の活用スコア</span>
+            <span id="scoreText">68%</span>
+          </div>
+          <div class="meter-track"><div class="meter-fill" id="scoreFill"></div></div>
+        </div>
+      </section>
+
+      <nav class="tabs" aria-label="機能切り替え">
+        <button class="tab active" data-screen="inspection">車検</button>
+        <button class="tab" data-screen="report">レポート</button>
+        <button class="tab" data-screen="simulation">分岐</button>
+      </nav>
+
+      <div class="screen-stack">
+        <section class="screen active" id="inspection">
+          <div class="dashboard-grid">
+            <article class="card swipe-card wide" id="inspectionCard">
+              <div class="card-title">
+                <h2>車検リマインド</h2>
+                <small>2026年10月18日まで</small>
+              </div>
+              <div class="countdown">
+                <div class="ring">
+                  <div class="ring-content">
+                    <span class="ring-number">167</span>
+                    <span class="ring-label">日</span>
+                  </div>
+                </div>
+                <div class="count-info">
+                  <h3>車検前の売却検討ゾーンに入りました</h3>
+                  <p>車検見積もり 148,000円。今のAI査定額は2,420,000円です。</p>
+                  <span class="chip">車検前に売る提案あり</span>
+                </div>
+              </div>
+              <div class="button-row">
+                <button class="primary-button" id="inspectAction">車検前に売る</button>
+                <button class="white-button" id="inspectKeep">乗り続ける</button>
+              </div>
+              <div class="swipe-hint">カードを左へスワイプして売却相談を予約</div>
+            </article>
+
+            <article class="card">
+              <div class="card-title">
+                <h2>期限クエスト</h2>
+                <small>残り2件</small>
+              </div>
+              <div class="mission-list">
+                <div class="mission done">
+                  <div class="mission-icon">✓</div>
+                  <div>
+                    <div class="mission-title">車検期限を確認</div>
+                    <div class="mission-sub">次回の通知設定が完了</div>
+                  </div>
+                  <div class="mission-point">+20</div>
+                </div>
+                <div class="mission" id="missionQuote">
+                  <div class="mission-icon">2</div>
+                  <div>
+                    <div class="mission-title">車検費用を入力</div>
+                    <div class="mission-sub">見積もり金額で売り時を更新</div>
+                  </div>
+                  <div class="mission-point">+30</div>
+                </div>
+                <div class="mission" id="missionSell">
+                  <div class="mission-icon">3</div>
+                  <div>
+                    <div class="mission-title">売却タイミング診断</div>
+                    <div class="mission-sub">3問でおすすめ月を確認</div>
+                  </div>
+                  <div class="mission-point">+50</div>
+                </div>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="card-title">
+                <h2>車検前アラート</h2>
+                <small>個人情報不要</small>
+              </div>
+              <div class="mini-stats">
+                <div class="mini-stat">
+                  <span>車検予測費用</span>
+                  <strong>14.8万円</strong>
+                </div>
+                <div class="mini-stat">
+                  <span>半年後査定予測</span>
+                  <strong>232万円</strong>
+                </div>
+                <div class="mini-stat">
+                  <span>今売る差額</span>
+                  <strong>+24万円</strong>
+                </div>
+                <div class="mini-stat">
+                  <span>電話対応</span>
+                  <strong>1社のみ</strong>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="screen" id="report">
+          <div class="dashboard-grid">
+            <article class="card wide">
+              <div class="report-header">
+                <div class="total-expense">
+                  <span id="reportLabel">2026年4月の出費</span>
+                  <strong id="expenseTotal">¥52,800</strong>
+                </div>
+                <div class="toggle">
+                  <button class="active" data-range="month">月次</button>
+                  <button data-range="year">年次</button>
+                </div>
+              </div>
+
+              <div class="bar-chart" id="barChart">
+                <div class="bar-wrap"><div class="bar" style="height:58%" data-value="4.1万"></div><div class="bar-label">11月</div></div>
+                <div class="bar-wrap"><div class="bar" style="height:44%" data-value="3.2万"></div><div class="bar-label">12月</div></div>
+                <div class="bar-wrap"><div class="bar" style="height:72%" data-value="5.3万"></div><div class="bar-label">1月</div></div>
+                <div class="bar-wrap"><div class="bar" style="height:50%" data-value="3.6万"></div><div class="bar-label">2月</div></div>
+                <div class="bar-wrap"><div class="bar" style="height:64%" data-value="4.7万"></div><div class="bar-label">3月</div></div>
+                <div class="bar-wrap"><div class="bar pink" style="height:78%" data-value="5.3万"></div><div class="bar-label">4月</div></div>
+              </div>
+
+              <div class="compare">
+                <div class="compare-top">
+                  <strong>同車種ユーザー比較</strong>
+                  <span>上位28%</span>
+                </div>
+                <div class="compare-line"><div class="compare-fill"></div></div>
+                <p class="compare-caption">ハリアー同年式ユーザー平均 61,400円/月より8,600円低く維持できています。</p>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="card-title">
+                <h2>カテゴリ内訳</h2>
+                <small>2026年4月</small>
+              </div>
+              <div class="category-list">
+                <div class="category">
+                  <div class="category-icon">G</div>
+                  <div>
+                    <div class="category-name">ガソリン</div>
+                    <div class="category-sub">3回 / 142L</div>
+                  </div>
+                  <div class="category-price">¥25,560</div>
+                </div>
+                <div class="category">
+                  <div class="category-icon">P</div>
+                  <div>
+                    <div class="category-name">駐車場</div>
+                    <div class="category-sub">月極</div>
+                  </div>
+                  <div class="category-price">¥18,000</div>
+                </div>
+                <div class="category">
+                  <div class="category-icon">M</div>
+                  <div>
+                    <div class="category-name">メンテ</div>
+                    <div class="category-sub">オイル交換</div>
+                  </div>
+                  <div class="category-price">¥9,240</div>
+                </div>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="card-title">
+                <h2>月次チェックイン</h2>
+                <small>継続3ヶ月</small>
+              </div>
+              <div class="mission-list">
+                <div class="mission done">
+                  <div class="mission-icon">✓</div>
+                  <div>
+                    <div class="mission-title">今月の出費を記録</div>
+                    <div class="mission-sub">3カテゴリ以上入力済み</div>
+                  </div>
+                  <div class="mission-point">+25</div>
+                </div>
+                <div class="mission" id="missionCompare">
+                  <div class="mission-icon">2</div>
+                  <div>
+                    <div class="mission-title">同車種比較を見る</div>
+                    <div class="mission-sub">維持費の位置を確認</div>
+                  </div>
+                  <div class="mission-point">+20</div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="screen" id="simulation">
+          <div class="dashboard-grid">
+            <article class="card sim-card wide">
+              <div class="card-title">
+                <h2>損益分岐シミュレーション</h2>
+                <small>AI査定連動</small>
+              </div>
+              <div class="sim-result">
+                <span>このペースで乗り続けると</span>
+                <strong>あと <b id="breakMonths">18</b> ヶ月で出費が売却額減少を上回ります</strong>
+              </div>
+
+              <div class="timeline">
+                <div class="timeline-line"><div class="timeline-fill" id="timelineFill"></div></div>
+                <div class="break-point" id="breakPoint">
+                  <div class="break-dot">18</div>
+                  <small>分岐点</small>
+                </div>
+              </div>
+
+              <div class="slider-box">
+                <div class="slider-label">
+                  <span>月間維持費</span>
+                  <span id="monthlyCost">52,800円</span>
+                </div>
+                <input type="range" min="30000" max="90000" step="1000" value="52800" id="costSlider">
+              </div>
+
+              <div class="sim-stats">
+                <div class="sim-stat">
+                  <span>現在のAI査定額</span>
+                  <strong>242万円</strong>
+                </div>
+                <div class="sim-stat">
+                  <span>12ヶ月後予測</span>
+                  <strong id="futureValue">226万円</strong>
+                </div>
+                <div class="sim-stat">
+                  <span>年間維持費</span>
+                  <strong id="annualCost">63.4万円</strong>
+                </div>
+                <div class="sim-stat">
+                  <span>推奨アクション</span>
+                  <strong id="recommend">車検前相談</strong>
+                </div>
+              </div>
+
+              <div class="button-row">
+                <button class="pink-button" id="simulateSave">診断を保存</button>
+                <button class="primary-button" id="auctionButton">8,000社に相談</button>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="card-title">
+                <h2>3問診断</h2>
+                <small id="stepLabel">1/3</small>
+              </div>
+              <div id="diagnosisBody">
+                <h3 style="margin:0 0 8px;color:var(--dark-blue);font-size:16px;line-height:24px;">次の車検を通す予定ですか？</h3>
+                <p style="margin:0 0 14px;color:var(--text-gray);font-size:12px;line-height:18px;">回答に合わせて売却おすすめ月を更新します。</p>
+                <div class="button-row">
+                  <button class="white-button diag-answer">まだ迷う</button>
+                  <button class="primary-button diag-answer">通さない</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <nav class="bottom-nav" aria-label="下部ナビゲーション">
+      <button class="nav-item">
+        <span class="nav-icon">⌂</span>
+        <span>ホーム</span>
+      </button>
+      <button class="nav-item active">
+        <span class="nav-icon">¥</span>
+        <span>出費</span>
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon">AI</span>
+        <span>査定</span>
+      </button>
+      <button class="nav-item">
+        <span class="nav-icon">≡</span>
+        <span>設定</span>
+      </button>
+    </nav>
+
+    <div class="toast" id="toast">更新しました</div>
+    <div class="confetti" id="confetti"></div>
+  </div>
+
+  <script>
+    window.PROTO_AUTH_CONFIG = {
+      title: 'UcarPAC 出費管理クエスト',
+      description: '出費管理の付加価値向上検証プロトタイプ',
+      expiresHours: 24
+    };
+
+    const tabs = document.querySelectorAll('.tab');
+    const screens = document.querySelectorAll('.screen');
+    const toast = document.getElementById('toast');
+    const confetti = document.getElementById('confetti');
+    const scoreText = document.getElementById('scoreText');
+    const scoreFill = document.getElementById('scoreFill');
+    const levelBadge = document.getElementById('levelBadge');
+
+    let score = 68;
+    let level = 7;
+    let diagnosisStep = 1;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      window.setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    function addScore(point) {
+      score = Math.min(100, score + point);
+      scoreText.textContent = score + '%';
+      scoreFill.style.width = score + '%';
+
+      if (score >= 90 && level === 7) {
+        level = 8;
+        levelBadge.textContent = 'Lv. 8';
+        launchConfetti();
+      }
+    }
+
+    function launchConfetti() {
+      confetti.innerHTML = '';
+      const colors = ['#F84CA2', '#1ddcff', '#4db4ff', '#1c2663', '#ffd8e8'];
+      for (let i = 0; i < 28; i++) {
+        const piece = document.createElement('span');
+        piece.className = 'piece';
+        piece.style.left = Math.random() * 100 + '%';
+        piece.style.background = colors[i % colors.length];
+        piece.style.animationDelay = Math.random() * 220 + 'ms';
+        confetti.appendChild(piece);
+      }
+      window.setTimeout(() => confetti.innerHTML = '', 1200);
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(item => item.classList.remove('active'));
+        screens.forEach(screen => screen.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.screen).classList.add('active');
+      });
+    });
+
+    document.getElementById('inspectAction').addEventListener('click', () => {
+      document.getElementById('missionSell').classList.add('done');
+      document.querySelector('#missionSell .mission-icon').textContent = '✓';
+      addScore(8);
+      showToast('車検前の売却相談を候補に追加しました');
+    });
+
+    document.getElementById('inspectKeep').addEventListener('click', () => {
+      document.getElementById('missionQuote').classList.add('done');
+      document.querySelector('#missionQuote .mission-icon').textContent = '✓';
+      addScore(5);
+      showToast('乗り続ける前提で車検費用を反映しました');
+    });
+
+    document.getElementById('missionCompare').addEventListener('click', () => {
+      document.getElementById('missionCompare').classList.add('done');
+      document.querySelector('#missionCompare .mission-icon').textContent = '✓';
+      addScore(6);
+      showToast('同車種ユーザー比較を確認しました');
+    });
+
+    const inspectionCard = document.getElementById('inspectionCard');
+    let startX = 0;
+    let currentX = 0;
+    let dragging = false;
+
+    inspectionCard.addEventListener('touchstart', event => {
+      startX = event.touches[0].clientX;
+      dragging = true;
+    }, { passive: true });
+
+    inspectionCard.addEventListener('touchmove', event => {
+      if (!dragging) return;
+      currentX = event.touches[0].clientX - startX;
+      if (currentX < 0) {
+        inspectionCard.style.transform = `translateX(${Math.max(currentX, -92)}px)`;
+      }
+    }, { passive: true });
+
+    inspectionCard.addEventListener('touchend', () => {
+      dragging = false;
+      if (currentX < -64) {
+        inspectionCard.classList.add('swiped');
+        document.getElementById('missionSell').classList.add('done');
+        document.querySelector('#missionSell .mission-icon').textContent = '✓';
+        addScore(10);
+        showToast('売却相談予約の下書きを作成しました');
+      } else {
+        inspectionCard.style.transform = '';
+      }
+      currentX = 0;
+    });
+
+    inspectionCard.addEventListener('dblclick', () => {
+      inspectionCard.classList.toggle('swiped');
+      showToast('スワイプ操作のプレビューを切り替えました');
+    });
+
+    document.querySelectorAll('.toggle button').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.toggle button').forEach(item => item.classList.remove('active'));
+        button.classList.add('active');
+
+        const label = document.getElementById('reportLabel');
+        const total = document.getElementById('expenseTotal');
+        const chart = document.getElementById('barChart');
+
+        if (button.dataset.range === 'year') {
+          label.textContent = '2026年の累計出費';
+          total.textContent = '¥312,400';
+          chart.innerHTML = `
+            <div class="bar-wrap"><div class="bar" style="height:42%" data-value="4.1万"></div><div class="bar-label">11月</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:36%" data-value="3.2万"></div><div class="bar-label">12月</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:66%" data-value="5.3万"></div><div class="bar-label">1月</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:48%" data-value="3.6万"></div><div class="bar-label">2月</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:58%" data-value="4.7万"></div><div class="bar-label">3月</div></div>
+            <div class="bar-wrap"><div class="bar pink" style="height:78%" data-value="5.3万"></div><div class="bar-label">4月</div></div>
+          `;
+          showToast('年次サマリーに切り替えました');
+        } else {
+          label.textContent = '2026年4月の出費';
+          total.textContent = '¥52,800';
+          chart.innerHTML = `
+            <div class="bar-wrap"><div class="bar" style="height:58%" data-value="4.1万"></div><div class="bar-label">11月</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:44%" data-value="3.2万"></div><div class="bar-label">12月</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:72%" data-value="5.3万"></div><div class="bar-label">1月</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:50%" data-value="3.6万"></div><div class="bar-label">2月</div></div>
+            <div class="bar-wrap"><div class="bar" style="height:64%" data-value="4.7万"></div><div class="bar-label">3月</div></div>
+            <div class="bar-wrap"><div class="bar pink" style="height:78%" data-value="5.3万"></div><div class="bar-label">4月</div></div>
+          `;
+          showToast('月次サマリーに切り替えました');
+        }
+      });
+    });
+
+    const slider = document.getElementById('costSlider');
+    const monthlyCost = document.getElementById('monthlyCost');
+    const annualCost = document.getElementById('annualCost');
+    const breakMonths = document.getElementById('breakMonths');
+    const timelineFill = document.getElementById('timelineFill');
+    const breakPoint = document.getElementById('breakPoint');
+    const futureValue = document.getElementById('futureValue');
+    const recommend = document.getElementById('recommend');
+
+    slider.addEventListener('input', () => {
+      const value = Number(slider.value);
+      const annual = value * 12;
+      const months = Math.max(8, Math.round(950000 / value));
+      const position = Math.min(86, Math.max(32, months * 3.2));
+
+      monthlyCost.textContent = value.toLocaleString('ja-JP') + '円';
+      annualCost.textContent = (annual / 10000).toFixed(1) + '万円';
+      breakMonths.textContent = months;
+      document.querySelector('.break-dot').textContent = months;
+      timelineFill.style.width = position + '%';
+      breakPoint.style.left = position + '%';
+
+      if (value >= 70000) {
+        futureValue.textContent = '221万円';
+        recommend.textContent = '早めに相談';
+      } else if (value <= 42000) {
+        futureValue.textContent = '230万円';
+        recommend.textContent = '半年後再診断';
+      } else {
+        futureValue.textContent = '226万円';
+        recommend.textContent = '車検前相談';
+      }
+    });
+
+    document.getElementById('simulateSave').addEventListener('click', () => {
+      addScore(7);
+      showToast('損益分岐シミュレーションを保存しました');
+    });
+
+    document.getElementById('auctionButton').addEventListener('click', () => {
+      launchConfetti();
+      addScore(12);
+      showToast('8,000社オークション相談の候補を作成しました');
+    });
+
+    document.querySelectorAll('.diag-answer').forEach(button => {
+      button.addEventListener('click', () => {
+        diagnosisStep += 1;
+        const label = document.getElementById('stepLabel');
+        const body = document.getElementById('diagnosisBody');
+
+        if (diagnosisStep === 2) {
+          label.textContent = '2/3';
+          body.innerHTML = `
+            <h3 style="margin:0 0 8px;color:var(--dark-blue);font-size:16px;line-height:24px;">半年以内に大きな出費予定はありますか？</h3>
+            <p style="margin:0 0 14px;color:var(--text-gray);font-size:12px;line-height:18px;">タイヤ交換、保険更新、車検をまとめて判断します。</p>
+            <div class="button-row">
+              <button class="white-button diag-answer-next">ない</button>
+              <button class="primary-button diag-answer-next">ある</button>
+            </div>
+          `;
+          bindDiagnosisNext();
+        } else if (diagnosisStep === 3) {
+          finishDiagnosis();
+        }
+      });
+    });
+
+    function bindDiagnosisNext() {
+      document.querySelectorAll('.diag-answer-next').forEach(button => {
+        button.addEventListener('click', finishDiagnosis);
+      });
+    }
+
+    function finishDiagnosis() {
+      diagnosisStep = 3;
+      document.getElementById('stepLabel').textContent = '3/3';
+      document.getElementById('diagnosisBody').innerHTML = `
+        <h3 style="margin:0 0 8px;color:var(--dark-blue);font-size:16px;line-height:24px;">おすすめは2026年9月の売却相談</h3>
+        <p style="margin:0 0 14px;color:var(--text-gray);font-size:12px;line-height:18px;">車検期限の1ヶ月前に、査定額と出費の差額が最大になりやすい見込みです。</p>
+        <button class="pink-button" style="width:100%;" id="finishButton">診断結果を保存</button>
+      `;
+      document.getElementById('finishButton').addEventListener('click', () => {
+        addScore(10);
+        launchConfetti();
+        showToast('診断結果を保存しました');
+      });
+      addScore(6);
+      showToast('売却おすすめ月を更新しました');
+    }
+  </script>
+</body>
+</html>
