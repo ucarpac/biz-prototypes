@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="ja">
+<script src="../auth.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UcarPAC App ASO Store Screenshots Prototype</title>
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --text-disabled: #B3B3B3;
+      --text-placeholder: rgba(28,38,99,0.3);
+      --button-gray: #CACEE2;
+      --button-link: #4099FF;
+      --back-white: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --back-blue: #091355;
+      --back-dark-blue: #0a1348;
+      --back-light-pink: #ffd8e8;
+      --back-light-blue: #6fc2ff;
+      --error: #EB4646;
+      --ruled-line: #F2F2F2;
+      --border-gray: #7C7C7C;
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+      --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
+      --gradient-disabled: linear-gradient(90deg, #e5e5e5, #e5e5e5);
+      --font-sans: 'Noto Sans JP', 'Hiragino Sans', system-ui, sans-serif;
+      --font-number: 'Righteous', 'Noto Sans JP', sans-serif;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --radius-sm: 5px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-chip: 22px;
+      --radius-button: 30px;
+      --shadow-light: 0 0 16px rgba(0,0,0,0.11);
+      --shadow-medium: 0 8px 24px rgba(0,0,0,0.11);
+      --shadow-heavy: 0 20px 56px rgba(28,38,99,0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--back-white);
+      color: var(--text-black);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 50% -10%, rgba(248,76,162,0.18), transparent 34%),
+        linear-gradient(180deg, #ffffff 0%, var(--back-gray) 100%);
+      overflow-x: hidden;
+    }
+
+    button {
+      font-family: inherit;
+      border: 0;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 16px 12px 32px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 4px 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: var(--gradient-pink);
+      box-shadow: 0 8px 18px rgba(248,76,162,0.22);
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      left: 9px;
+      top: 9px;
+      width: 16px;
+      height: 12px;
+      border: 3px solid var(--white);
+      border-top: 0;
+      border-radius: 4px 4px 8px 8px;
+    }
+
+    .brand-text {
+      min-width: 0;
+    }
+
+    .brand-name {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 18px;
+      line-height: 27px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .brand-sub {
+      margin: 0;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+    }
+
+    .goal-chip {
+      flex: 0 0 auto;
+      padding: 8px 12px;
+      border-radius: var(--radius-chip);
+      background: var(--back-blue);
+      color: var(--text-light-blue, #bfdbfe);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+      box-shadow: var(--shadow-light);
+    }
+
+    .hero {
+      padding: 10px 4px 18px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 24px;
+      line-height: 36px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      margin: 8px 0 0;
+      color: var(--text-gray);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 400;
+    }
+
+    .control-panel {
+      width: 100%;
+      max-width: 351px;
+      margin: 0 auto 16px;
+      padding: 16px;
+      border-radius: 13px;
+      background: var(--white);
+      box-shadow: var(--shadow-light);
+      border: 1px solid #CDDCED;
+    }
+
+    .progress-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .progress-label {
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+    }
+
+    .progress-count {
+      color: var(--pink);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+    }
+
+    .progress-track {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--back-gray);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 33.333%;
+      height: 100%;
+      border-radius: 999px;
+      background: var(--gradient-primary);
+      transition: width 320ms ease;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .tab-button {
+      min-height: 43px;
+      border-radius: var(--radius-chip);
+      background: var(--white);
+      color: var(--text-black);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      border: 1px solid var(--ruled-line);
+      transition: transform 180ms ease, background 180ms ease, color 180ms ease;
+    }
+
+    .tab-button.active {
+      background: var(--dark-blue);
+      color: var(--white);
+      transform: translateY(-2px);
+    }
+
+    .stage {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      padding-bottom: 10px;
+    }
+
+    .screens {
+      display: flex;
+      gap: 16px;
+      transition: transform 360ms cubic-bezier(.2,.8,.2,1);
+      touch-action: pan-y;
+      user-select: none;
+    }
+
+    .screen-card {
+      min-width: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 0 2px;
+    }
+
+    .store-shot {
+      width: min(100%, 375px);
+      min-height: 812px;
+      border-radius: 28px;
+      overflow: hidden;
+      background: var(--white);
+      box-shadow: var(--shadow-heavy);
+      border: 10px solid #101522;
+      position: relative;
+    }
+
+    .phone-status {
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      color: var(--dark-blue);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+      background: var(--white);
+    }
+
+    .status-dots {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .status-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--dark-blue);
+      opacity: 0.75;
+    }
+
+    .shot-inner {
+      min-height: 784px;
+      padding: 18px 16px 22px;
+      position: relative;
+    }
+
+    .shot-a .shot-inner {
+      background:
+        linear-gradient(180deg, rgba(255,216,232,0.64) 0%, #ffffff 42%, #f6fbff 100%);
+    }
+
+    .shot-b .shot-inner {
+      background:
+        linear-gradient(180deg, #ffffff 0%, #eef8ff 46%, #ffffff 100%);
+    }
+
+    .shot-c .shot-inner {
+      background:
+        linear-gradient(180deg, #091355 0%, #18277d 42%, #ffffff 42%, #ffffff 100%);
+    }
+
+    .store-label {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 6px 12px;
+      border-radius: var(--radius-chip);
+      background: var(--back-blue);
+      color: var(--white);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+    }
+
+    .shot-c .store-label {
+      background: var(--white);
+      color: var(--dark-blue);
+    }
+
+    .shot-title {
+      margin: 16px 0 0;
+      color: var(--dark-blue);
+      font-size: 32px;
+      line-height: 48px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .shot-c .shot-title {
+      color: var(--white);
+    }
+
+    .shot-lead {
+      margin: 8px 0 0;
+      color: var(--text-gray);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+    }
+
+    .shot-c .shot-lead {
+      color: var(--text-light-blue, #bfdbfe);
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 6px 10px;
+      border-radius: var(--radius-chip);
+      background: var(--white);
+      color: var(--dark-blue);
+      border: 1px solid #CDDCED;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(28,38,99,0.07);
+    }
+
+    .badge.pink {
+      background: var(--pink);
+      color: var(--white);
+      border-color: var(--pink);
+    }
+
+    .mock-app {
+      margin: 18px auto 0;
+      width: 90%;
+      max-width: 351px;
+      border-radius: 18px;
+      background: var(--white);
+      box-shadow: var(--shadow-medium);
+      overflow: hidden;
+      border: 1px solid #CDDCED;
+    }
+
+    .mock-app-head {
+      padding: 16px;
+      background: var(--back-blue);
+      color: var(--white);
+    }
+
+    .mock-app-head.light {
+      background: var(--white);
+      color: var(--dark-blue);
+      border-bottom: 1px solid var(--ruled-line);
+    }
+
+    .mock-kicker {
+      margin: 0;
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+      opacity: 0.78;
+    }
+
+    .mock-title {
+      margin: 4px 0 0;
+      font-size: 18px;
+      line-height: 27px;
+      font-weight: 700;
+    }
+
+    .car-card {
+      margin: 16px;
+      padding: 16px;
+      border-radius: 13px;
+      background: var(--white);
+      border: 1px solid #CDDCED;
+      box-shadow: var(--shadow-light);
+    }
+
+    .car-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .car-thumb {
+      width: 86px;
+      height: 58px;
+      border-radius: 12px;
+      background:
+        linear-gradient(160deg, #dfe8ff, #ffffff 58%),
+        var(--back-gray);
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .car-thumb::before {
+      content: "";
+      position: absolute;
+      left: 11px;
+      right: 11px;
+      bottom: 15px;
+      height: 18px;
+      border-radius: 10px 14px 7px 7px;
+      background: var(--dark-blue);
+    }
+
+    .car-thumb::after {
+      content: "";
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 28px;
+      height: 14px;
+      border-radius: 12px 12px 2px 2px;
+      background: #6fc2ff;
+    }
+
+    .wheel {
+      position: absolute;
+      bottom: 10px;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #101522;
+    }
+
+    .wheel.left {
+      left: 22px;
+    }
+
+    .wheel.right {
+      right: 22px;
+    }
+
+    .car-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .car-name {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 700;
+    }
+
+    .car-spec {
+      margin: 2px 0 0;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+    }
+
+    .price-panel {
+      margin: 0 16px 16px;
+      padding: 16px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #ffffff, #f7fbff);
+      border: 1px solid #CDDCED;
+    }
+
+    .price-label {
+      margin: 0;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+    }
+
+    .price-main {
+      margin: 4px 0 0;
+      color: var(--pink);
+      font-family: var(--font-number);
+      font-size: 40px;
+      line-height: 54px;
+      font-weight: 700;
+    }
+
+    .price-main span {
+      color: var(--dark-blue);
+      font-family: var(--font-sans);
+      font-size: 18px;
+      line-height: 27px;
+    }
+
+    .range-bar {
+      margin-top: 10px;
+      height: 12px;
+      border-radius: 999px;
+      background: var(--back-gray);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .range-fill {
+      height: 100%;
+      width: 74%;
+      border-radius: 999px;
+      background: var(--gradient-primary);
+      animation: growBar 1200ms ease both;
+    }
+
+    .range-pin {
+      position: absolute;
+      left: 69%;
+      top: -4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--pink);
+      border: 3px solid var(--white);
+      box-shadow: 0 4px 12px rgba(248,76,162,0.28);
+      animation: pulsePin 1400ms ease-in-out infinite;
+    }
+
+    .cta-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 240px;
+      min-height: 43px;
+      margin: 16px auto 0;
+      border-radius: var(--radius-button);
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+      box-shadow: 0 8px 18px rgba(77,180,255,0.26);
+      transition: transform 160ms ease, filter 160ms ease;
+    }
+
+    .cta-button:active {
+      transform: scale(0.97);
+      filter: brightness(0.98);
+    }
+
+    .stepper {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin: 16px 16px 0;
+    }
+
+    .step {
+      min-height: 42px;
+      border-radius: 12px;
+      background: var(--back-gray);
+      display: grid;
+      place-items: center;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+      transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+    }
+
+    .step.active {
+      background: var(--dark-blue);
+      color: var(--white);
+      transform: translateY(-2px);
+    }
+
+    .chart-card {
+      margin: 16px;
+      padding: 16px;
+      border-radius: 12px;
+      background: var(--white);
+      box-shadow: var(--shadow-light);
+      border: 1px solid #CDDCED;
+    }
+
+    .chart-title {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 700;
+    }
+
+    .chart-sub {
+      margin: 2px 0 0;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+    }
+
+    .chart {
+      margin-top: 14px;
+      height: 138px;
+      position: relative;
+      background:
+        linear-gradient(to top, #edf1f4 1px, transparent 1px) 0 0 / 100% 34px,
+        linear-gradient(180deg, #ffffff, #f8fcff);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .chart svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .chart-path {
+      fill: none;
+      stroke: #F84CA2;
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 420;
+      stroke-dashoffset: 420;
+      animation: drawLine 1600ms ease forwards;
+    }
+
+    .chart-path.future {
+      stroke: #4db4ff;
+      stroke-dasharray: 8 8;
+      animation-delay: 500ms;
+    }
+
+    .chart-caption {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+    }
+
+    .expense-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 16px;
+    }
+
+    .expense-tile {
+      min-height: 88px;
+      border-radius: 12px;
+      padding: 12px;
+      background: var(--white);
+      box-shadow: var(--shadow-light);
+      border: 1px solid #CDDCED;
+    }
+
+    .expense-label {
+      margin: 0;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+    }
+
+    .expense-value {
+      margin: 4px 0 0;
+      color: var(--dark-blue);
+      font-size: 22px;
+      line-height: 33px;
+      font-weight: 700;
+    }
+
+    .expense-value.pink {
+      color: var(--pink);
+    }
+
+    .ring {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      background: conic-gradient(var(--pink) 0 58%, #4db4ff 58% 82%, var(--back-gray) 82% 100%);
+      margin: 8px auto 0;
+      position: relative;
+      animation: spinIn 900ms ease both;
+    }
+
+    .ring::after {
+      content: "58%";
+      position: absolute;
+      inset: 10px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--white);
+      color: var(--dark-blue);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+    }
+
+    .compare-board {
+      margin: 22px auto 0;
+      width: 90%;
+      max-width: 351px;
+      border-radius: 18px;
+      background: var(--white);
+      box-shadow: var(--shadow-heavy);
+      overflow: hidden;
+    }
+
+    .compare-header {
+      padding: 16px;
+      background: var(--gradient-pink);
+      color: var(--white);
+      text-align: center;
+    }
+
+    .compare-header p {
+      margin: 0;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+    }
+
+    .compare-header strong {
+      display: block;
+      margin-top: 2px;
+      font-size: 32px;
+      line-height: 48px;
+      font-weight: 700;
+    }
+
+    .compare-list {
+      padding: 10px 16px 16px;
+    }
+
+    .compare-row {
+      display: grid;
+      grid-template-columns: 1fr 82px 82px;
+      align-items: center;
+      min-height: 50px;
+      gap: 8px;
+      border-bottom: 1px solid var(--ruled-line);
+      color: var(--text-black);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+    }
+
+    .compare-row:last-child {
+      border-bottom: 0;
+    }
+
+    .compare-cell {
+      text-align: center;
+      min-height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: var(--back-gray);
+      color: var(--text-gray);
+    }
+
+    .compare-cell.win {
+      background: var(--dark-blue);
+      color: var(--white);
+      animation: pop 600ms ease both;
+    }
+
+    .zero-call {
+      margin: 18px 16px 0;
+      border-radius: 16px;
+      padding: 14px;
+      background: var(--back-blue);
+      color: var(--white);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .zero-call::before {
+      content: "";
+      position: absolute;
+      right: -24px;
+      top: -24px;
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: rgba(29,220,255,0.18);
+    }
+
+    .zero-call p {
+      margin: 0;
+      position: relative;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+    }
+
+    .zero-call strong {
+      display: block;
+      margin-top: 2px;
+      position: relative;
+      color: var(--back-light-blue);
+      font-size: 26px;
+      line-height: 39px;
+      font-weight: 700;
+    }
+
+    .floating-score {
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+      font-size: 18px;
+      line-height: 27px;
+      font-weight: 700;
+      box-shadow: 0 10px 22px rgba(77,180,255,0.3);
+      animation: floatScore 1800ms ease-in-out infinite;
+    }
+
+    .source-note {
+      margin: 16px auto 0;
+      width: 90%;
+      max-width: 351px;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 400;
+    }
+
+    .swipe-hint {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      margin-top: 14px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--text-disabled);
+      transition: width 180ms ease, background 180ms ease;
+    }
+
+    .dot.active {
+      width: 22px;
+      background: var(--pink);
+    }
+
+    .bottom-actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 16px auto 0;
+      width: 100%;
+      max-width: 351px;
+    }
+
+    .round-action {
+      width: 43px;
+      height: 43px;
+      border-radius: 50%;
+      background: var(--white);
+      color: var(--dark-blue);
+      border: 1px solid #CDDCED;
+      box-shadow: var(--shadow-light);
+      font-size: 18px;
+      line-height: 27px;
+      font-weight: 700;
+    }
+
+    .diagnosis {
+      width: 100%;
+      max-width: 351px;
+      margin: 16px auto 0;
+      padding: 16px;
+      border-radius: 13px;
+      background: var(--white);
+      box-shadow: var(--shadow-light);
+      border: 1px solid #CDDCED;
+    }
+
+    .diagnosis-title {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 700;
+    }
+
+    .diagnosis-copy {
+      margin: 4px 0 0;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 400;
+    }
+
+    .choice-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .choice {
+      min-height: 43px;
+      border-radius: var(--radius-chip);
+      background: var(--white);
+      color: var(--text-black);
+      border: 1px solid var(--ruled-line);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+    }
+
+    .choice.selected {
+      background: var(--pink);
+      color: var(--white);
+      transform: translateY(-2px);
+    }
+
+    .diagnosis-result {
+      margin-top: 12px;
+      min-height: 48px;
+      border-radius: 12px;
+      padding: 12px;
+      background: var(--back-gray);
+      color: var(--dark-blue);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 220ms ease, transform 220ms ease;
+    }
+
+    .diagnosis-result.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @keyframes growBar {
+      from {
+        width: 0;
+      }
+      to {
+        width: 74%;
+      }
+    }
+
+    @keyframes pulsePin {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.18);
+      }
+    }
+
+    @keyframes drawLine {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes spinIn {
+      from {
+        transform: rotate(-120deg) scale(0.82);
+        opacity: 0;
+      }
+      to {
+        transform: rotate(0deg) scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes pop {
+      from {
+        transform: scale(0.92);
+        opacity: 0.4;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes floatScore {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+
+    @media (min-width: 820px) {
+      .page {
+        padding-top: 24px;
+      }
+
+      .hero {
+        text-align: center;
+      }
+
+      .hero h1 {
+        font-size: 32px;
+        line-height: 48px;
+      }
+
+      .screens {
+        gap: 24px;
+      }
+
+      .screen-card {
+        min-width: calc((100% - 48px) / 3);
+      }
+
+      .stage.desktop .screens {
+        transform: translateX(0) !important;
+      }
+
+      .bottom-actions,
+      .swipe-hint {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div class="brand-text">
+          <p class="brand-name">UcarPAC App</p>
+          <p class="brand-sub">ASO Store PV → DL Prototype</p>
+        </div>
+      </div>
+      <div class="goal-chip">17.3% → 25%</div>
+    </header>
+
+    <section class="hero">
+      <h1>ストアスクショでDL前の不安をゲーム感覚で解消</h1>
+      <p>AI査定、出費管理、電話0本の価値を3枚のストア画像で順番に体験させる検証案。</p>
+    </section>
+
+    <section class="control-panel" aria-label="スクショ選択">
+      <div class="progress-row">
+        <span class="progress-label">ASO訴求ステップ</span>
+        <span class="progress-count" id="progressCount">1 / 3</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="tabs">
+        <button class="tab-button active" type="button" data-index="0">AI査定</button>
+        <button class="tab-button" type="button" data-index="1">出費管理</button>
+        <button class="tab-button" type="button" data-index="2">電話0本</button>
+      </div>
+    </section>
+
+    <section class="stage" id="stage" aria-label="ストアスクショプレビュー">
+      <div class="screens" id="screens">
+        <article class="screen-card">
+          <div class="store-shot shot-a">
+            <div class="phone-status">
+              <span>9:41</span>
+              <span class="status-dots">
+                <span class="status-dot"></span>
+                <span class="status-dot"></span>
+                <span class="status-dot"></span>
+              </span>
+            </div>
+            <div class="shot-inner">
+              <span class="store-label">iOS Store Screenshot A</span>
+              <h2 class="shot-title">AIが<br>あなたの愛車を査定</h2>
+              <p class="shot-lead">個人情報なしで、今の相場をすぐ確認。</p>
+              <div class="badge-row">
+                <span class="badge pink">個人情報不要</span>
+                <span class="badge">約30秒でチェック</span>
+              </div>
+
+              <div class="mock-app">
+                <div class="mock-app-head">
+                  <p class="mock-kicker">AI査定スコア</p>
+                  <p class="mock-title">入力あと1問で精度アップ</p>
+                </div>
+                <div class="car-card">
+                  <div class="car-row">
+                    <div class="car-thumb">
+                      <span class="wheel left"></span>
+                      <span class="wheel right"></span>
+                    </div>
+                    <div class="car-meta">
+                      <p class="car-name">トヨタ ハリアー</p>
+                      <p class="car-spec">2020年式 / Z / 42,000km</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="price-panel">
+                  <p class="price-label">AI査定価格</p>
+                  <p class="price-main">248<span>万円</span></p>
+                  <div class="range-bar">
+                    <div class="range-fill"></div>
+                    <div class="range-pin"></div>
+                  </div>
+                </div>
+                <div class="stepper">
+                  <div class="step active">車種</div>
+                  <div class="step active">年式</div>
+                  <div class="step active">距離</div>
+                  <div class="step">写真</div>
+                </div>
+                <button class="cta-button" type="button" data-pulse="査定精度 +12%">AI査定を進める</button>
+              </div>
+
+              <p class="source-note">検証主張: 個人情報不要の相場確認はDL前不安の低減に寄与。参照: Apple App Store スクリーンショット最適化ガイド確認日 2026-05-06 / https://developer.apple.com/app-store/product-page/</p>
+              <div class="floating-score">+12%</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="screen-card">
+          <div class="store-shot shot-b">
+            <div class="phone-status">
+              <span>9:41</span>
+              <span class="status-dots">
+                <span class="status-dot"></span>
+                <span class="status-dot"></span>
+                <span class="status-dot"></span>
+              </span>
+            </div>
+            <div class="shot-inner">
+              <span class="store-label">Android Store Screenshot B</span>
+              <h2 class="shot-title">維持費も<br>売り時も見える</h2>
+              <p class="shot-lead">出費管理と将来予測で、愛車を資産として把握。</p>
+              <div class="badge-row">
+                <span class="badge pink">将来予測</span>
+                <span class="badge">月別出費</span>
+                <span class="badge">売り時通知</span>
+              </div>
+
+              <div class="mock-app">
+                <div class="mock-app-head light">
+                  <p class="mock-kicker">今月の愛車レポート</p>
+                  <p class="mock-title">売却予測と出費をまとめて確認</p>
+                </div>
+                <div class="chart-card">
+                  <p class="chart-title">相場予測</p>
+                  <p class="chart-sub">2026年5月時点のAI予測</p>
+                  <div class="chart">
+                    <svg viewBox="0 0 310 138" role="img" aria-label="相場予測グラフ">
+                      <path class="chart-path" d="M18 96 C52 78, 70 74, 100 66 S152 42, 184 54" />
+                      <path class="chart-path future" d="M184 54 C216 62, 238 74, 292 88" />
+                      <circle cx="184" cy="54" r="6" fill="#F84CA2"></circle>
+                    </svg>
+                  </div>
+                  <div class="chart-caption">
+                    <span>現在 248万円</span>
+                    <span>6ヶ月後 226万円</span>
+                  </div>
+                </div>
+
+                <div class="expense-grid">
+                  <div class="expense-tile">
+                    <p class="expense-label">今月の出費</p>
+                    <p class="expense-value">38,600円</p>
+                  </div>
+                  <div class="expense-tile">
+                    <p class="expense-label">価値維持スコア</p>
+                    <div class="ring"></div>
+                  </div>
+                  <div class="expense-tile">
+                    <p class="expense-label">年間維持費予測</p>
+                    <p class="expense-value pink">46.8万円</p>
+                  </div>
+                  <div class="expense-tile">
+                    <p class="expense-label">おすすめ</p>
+                    <p class="expense-value">秋前</p>
+                  </div>
+                </div>
+                <button class="cta-button" type="button" data-pulse="売り時を保存">売り時を診断</button>
+              </div>
+
+              <p class="source-note">検証主張: 資産推移グラフと出費可視化は継続利用理由を作る。参照: Google Play ストア掲載情報ガイド確認日 2026-05-06 / https://support.google.com/googleplay/android-developer/answer/9866151</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="screen-card">
+          <div class="store-shot shot-c">
+            <div class="phone-status">
+              <span>9:41</span>
+              <span class="status-dots">
+                <span class="status-dot"></span>
+                <span class="status-dot"></span>
+                <span class="status-dot"></span>
+              </span>
+            </div>
+            <div class="shot-inner">
+              <span class="store-label">Store Screenshot C</span>
+              <h2 class="shot-title">査定前の<br>営業電話0本</h2>
+              <p class="shot-lead">まずはAI査定。売ると決めるまで個人情報なし。</p>
+              <div class="badge-row">
+                <span class="badge pink">電話0本</span>
+                <span class="badge">売却時も電話1社</span>
+                <span class="badge">8,000店が競う</span>
+              </div>
+
+              <div class="compare-board">
+                <div class="compare-header">
+                  <p>競合比較で伝える安心感</p>
+                  <strong>電話0本</strong>
+                </div>
+                <div class="compare-list">
+                  <div class="compare-row">
+                    <span>相場チェック</span>
+                    <span class="compare-cell win">UcarPAC</span>
+                    <span class="compare-cell">一括査定</span>
+                  </div>
+                  <div class="compare-row">
+                    <span>DL後すぐAI査定</span>
+                    <span class="compare-cell win">あり</span>
+                    <span class="compare-cell">なし</span>
+                  </div>
+                  <div class="compare-row">
+                    <span>査定前の電話</span>
+                    <span class="compare-cell win">0本</span>
+                    <span class="compare-cell">複数社</span>
+                  </div>
+                  <div class="compare-row">
+                    <span>売却時の連絡先</span>
+                    <span class="compare-cell win">1社</span>
+                    <span class="compare-cell">最大10社</span>
+                  </div>
+                </div>
+                <div class="zero-call">
+                  <p>ストアで最初に払拭する不安</p>
+                  <strong>電話ラッシュなし</strong>
+                </div>
+                <button class="cta-button" type="button" data-pulse="安心訴求を保存">安心して相場を見る</button>
+              </div>
+
+              <p class="source-note">検証主張: 競合比較はDL前の心理的障壁を下げる。参照: Google Play カスタムストア掲載情報確認日 2026-05-06 / https://support.google.com/googleplay/android-developer/answer/1078870</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <div class="swipe-hint" aria-label="ページ位置">
+      <span class="dot active"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </div>
+
+    <div class="bottom-actions">
+      <button class="round-action" type="button" id="prevButton" aria-label="前へ">‹</button>
+      <button class="round-action" type="button" id="nextButton" aria-label="次へ">›</button>
+    </div>
+
+    <section class="diagnosis" aria-label="ASO診断">
+      <p class="diagnosis-title">DLしたくなる理由を選ぶ</p>
+      <p class="diagnosis-copy">選択に合わせてスクショの訴求順を確認できます。</p>
+      <div class="choice-row">
+        <button class="choice" type="button" data-target="0" data-result="AI査定を1枚目に置き、価格を見たい動機を最短で作ります。">相場を知りたい</button>
+        <button class="choice" type="button" data-target="1" data-result="出費管理を2枚目に置き、売却前でも使い続ける理由を伝えます。">維持費を見たい</button>
+        <button class="choice" type="button" data-target="2" data-result="電話0本を強調し、一括査定への不安をDL前に解消します。">電話が不安</button>
+        <button class="choice" type="button" data-target="2" data-result="8,000店のオークションと電話1社で、売却時の納得感を補強します。">高く売りたい</button>
+      </div>
+      <div class="diagnosis-result" id="diagnosisResult">選択するとASO訴求の仮説が表示されます。</div>
+    </section>
+  </main>
+
+  <script>
+    window.PROTO_AUTH_CONFIG = {
+      title: 'UcarPAC App ASO Prototype',
+      description: 'ストアPVからDL率25%を目指すスクリーンショット検証プロトタイプ',
+      expiresHours: 24
+    };
+
+    const screens = document.getElementById('screens');
+    const stage = document.getElementById('stage');
+    const tabs = Array.from(document.querySelectorAll('.tab-button'));
+    const dots = Array.from(document.querySelectorAll('.dot'));
+    const progressFill = document.getElementById('progressFill');
+    const progressCount = document.getElementById('progressCount');
+    const prevButton = document.getElementById('prevButton');
+    const nextButton = document.getElementById('nextButton');
+    const choices = Array.from(document.querySelectorAll('.choice'));
+    const diagnosisResult = document.getElementById('diagnosisResult');
+    const ctaButtons = Array.from(document.querySelectorAll('[data-pulse]'));
+
+    let currentIndex = 0;
+    let startX = 0;
+    let currentX = 0;
+    let dragging = false;
+
+    function isDesktop() {
+      return window.matchMedia('(min-width: 820px)').matches;
+    }
+
+    function updateView(index) {
+      currentIndex = Math.max(0, Math.min(2, index));
+      if (!isDesktop()) {
+        screens.style.transform = 'translateX(' + (-currentIndex * 100) + '%)';
+      } else {
+        screens.style.transform = 'translateX(0)';
+      }
+
+      tabs.forEach(function(tab, tabIndex) {
+        tab.classList.toggle('active', tabIndex === currentIndex);
+      });
+
+      dots.forEach(function(dot, dotIndex) {
+        dot.classList.toggle('active', dotIndex === currentIndex);
+      });
+
+      progressFill.style.width = ((currentIndex + 1) / 3 * 100) + '%';
+      progressCount.textContent = (currentIndex + 1) + ' / 3';
+    }
+
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        updateView(Number(tab.dataset.index));
+      });
+    });
+
+    prevButton.addEventListener('click', function() {
+      updateView(currentIndex - 1);
+    });
+
+    nextButton.addEventListener('click', function() {
+      updateView(currentIndex + 1);
+    });
+
+    stage.addEventListener('pointerdown', function(event) {
+      if (isDesktop()) return;
+      dragging = true;
+      startX = event.clientX;
+      currentX = event.clientX;
+      screens.style.transition = 'none';
+    });
+
+    stage.addEventListener('pointermove', function(event) {
+      if (!dragging || isDesktop()) return;
+      currentX = event.clientX;
+      const diff = currentX - startX;
+      const base = -currentIndex * stage.clientWidth;
+      screens.style.transform = 'translateX(' + (base + diff) + 'px)';
+    });
+
+    stage.addEventListener('pointerup', function() {
+      if (!dragging || isDesktop()) return;
+      dragging = false;
+      screens.style.transition = 'transform 360ms cubic-bezier(.2,.8,.2,1)';
+      const diff = currentX - startX;
+      if (diff < -46) {
+        updateView(currentIndex + 1);
+      } else if (diff > 46) {
+        updateView(currentIndex - 1);
+      } else {
+        updateView(currentIndex);
+      }
+    });
+
+    stage.addEventListener('pointercancel', function() {
+      if (!dragging) return;
+      dragging = false;
+      screens.style.transition = 'transform 360ms cubic-bezier(.2,.8,.2,1)';
+      updateView(currentIndex);
+    });
+
+    choices.forEach(function(choice) {
+      choice.addEventListener('click', function() {
+        choices.forEach(function(item) {
+          item.classList.remove('selected');
+        });
+        choice.classList.add('selected');
+        diagnosisResult.textContent = choice.dataset.result;
+        diagnosisResult.classList.add('show');
+        updateView(Number(choice.dataset.target));
+      });
+    });
+
+    ctaButtons.forEach(function(button) {
+      button.addEventListener('click', function() {
+        const original = button.textContent;
+        button.textContent = button.dataset.pulse;
+        button.style.background = 'var(--gradient-pink)';
+        button.style.color = 'var(--white)';
+        setTimeout(function() {
+          button.textContent = original;
+          button.style.background = 'var(--gradient-primary)';
+          button.style.color = 'var(--dark-blue)';
+        }, 1200);
+      });
+    });
+
+    window.addEventListener('resize', function() {
+      stage.classList.toggle('desktop', isDesktop());
+      updateView(currentIndex);
+    });
+
+    stage.classList.toggle('desktop', isDesktop());
+    updateView(0);
+  </script>
+</body>
+</html>
