@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="ja">
+<script src="../auth.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UcarPAC App | プッシュ通知最適化 KPIダッシュボード</title>
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --text-disabled: #B3B3B3;
+      --text-placeholder: rgba(28,38,99,0.3);
+      --button-gray: #CACEE2;
+      --button-link: #4099FF;
+      --back-white: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --back-blue: #091355;
+      --back-dark-blue: #0a1348;
+      --back-light-pink: #ffd8e8;
+      --back-light-blue: #6fc2ff;
+      --error: #EB4646;
+      --ruled-line: #F2F2F2;
+      --border-gray: #7C7C7C;
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+      --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
+      --gradient-disabled: linear-gradient(90deg, #e5e5e5, #e5e5e5);
+      --font-sans: 'Noto Sans JP', 'Hiragino Sans', system-ui, sans-serif;
+      --font-number: 'Righteous', 'Noto Sans JP', sans-serif;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --radius-sm: 5px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-chip: 22px;
+      --radius-button: 30px;
+      --shadow-light: 0 0 16px rgba(0,0,0,0.11);
+      --shadow-medium: 0 8px 24px rgba(28,38,99,0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--back-white);
+      color: var(--text-black);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(29,220,255,0.18), transparent 26%),
+        linear-gradient(180deg, #ffffff 0%, var(--back-gray) 100%);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: 0;
+      transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .app {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: var(--back-white);
+      box-shadow: 0 0 40px rgba(28,38,99,0.16);
+    }
+
+    .hero {
+      padding: 20px 20px 24px;
+      background: linear-gradient(160deg, var(--back-blue) 0%, #172477 70%, #20319d 100%);
+      color: var(--white);
+      border-bottom-left-radius: 24px;
+      border-bottom-right-radius: 24px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .brand {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 27px;
+      letter-spacing: 0;
+    }
+
+    .date-pill {
+      padding: 6px 12px;
+      border-radius: var(--radius-chip);
+      background: rgba(255,255,255,0.16);
+      color: var(--text-light-blue, #bfdbfe);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 18px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 39px;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      margin: 0;
+      color: #dbeafe;
+      font-size: 14px;
+      line-height: 21px;
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .metric-card {
+      padding: 14px 12px;
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.16);
+    }
+
+    .metric-label {
+      display: block;
+      color: #bfdbfe;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 15px;
+    }
+
+    .metric-value {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-top: 4px;
+      font-family: var(--font-number);
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 40px;
+    }
+
+    .metric-unit {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .metric-delta {
+      margin-top: 4px;
+      color: #6ee7b7;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 15px;
+    }
+
+    .content {
+      padding: 20px 16px 32px;
+    }
+
+    .section {
+      margin-bottom: 24px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 30px;
+    }
+
+    .section-note {
+      color: var(--text-gray);
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 15px;
+      white-space: nowrap;
+    }
+
+    .card {
+      border-radius: 13px;
+      background: var(--white);
+      box-shadow: var(--shadow-light);
+      border: 1px solid rgba(205,220,237,0.8);
+      overflow: hidden;
+    }
+
+    .card-body {
+      padding: 16px;
+    }
+
+    .tab-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      min-height: 43px;
+      border-radius: var(--radius-chip);
+      background: var(--white);
+      color: var(--text-black);
+      border: 1px solid var(--ruled-line);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 18px;
+    }
+
+    .tab.is-active {
+      background: var(--dark-blue);
+      color: var(--white);
+      box-shadow: 0 6px 14px rgba(28,38,99,0.22);
+    }
+
+    .chart-wrap {
+      position: relative;
+      padding: 12px 4px 2px;
+    }
+
+    .chart-caption {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+    }
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-pink {
+      background: var(--pink);
+    }
+
+    .dot-blue {
+      background: #4db4ff;
+    }
+
+    .dot-navy {
+      background: var(--dark-blue);
+    }
+
+    .variant-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .variant {
+      padding: 14px;
+      border-radius: var(--radius-md);
+      background: #fff;
+      border: 1px solid #e7eef6;
+    }
+
+    .variant.is-selected {
+      border-color: var(--pink);
+      box-shadow: 0 0 0 2px rgba(248,76,162,0.12);
+    }
+
+    .variant-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .variant-copy {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 21px;
+    }
+
+    .winner-badge {
+      flex: 0 0 auto;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--back-light-pink);
+      color: var(--pink);
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 15px;
+    }
+
+    .variant-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .mini-stat {
+      padding: 8px;
+      border-radius: 8px;
+      background: var(--back-gray);
+    }
+
+    .mini-label {
+      display: block;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+    }
+
+    .mini-value {
+      margin-top: 2px;
+      color: var(--dark-blue);
+      font-family: var(--font-number);
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 28px;
+    }
+
+    .progress-row {
+      margin-top: 10px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 15px;
+      color: var(--text-gray);
+    }
+
+    .progress {
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: var(--back-gray);
+    }
+
+    .progress-fill {
+      width: var(--value);
+      height: 100%;
+      border-radius: 999px;
+      background: var(--gradient-primary);
+      transition: width 360ms ease;
+    }
+
+    .progress-fill.pink {
+      background: var(--gradient-pink);
+    }
+
+    .settings-panel {
+      display: grid;
+      gap: 16px;
+    }
+
+    .setting-group {
+      padding: 14px;
+      border-radius: var(--radius-md);
+      background: var(--white);
+      border: 1px solid #e7eef6;
+    }
+
+    .setting-title {
+      margin: 0 0 10px;
+      color: var(--dark-blue);
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 21px;
+    }
+
+    .chips {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+    }
+
+    .chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chip {
+      flex: 0 0 auto;
+      min-width: 88px;
+      min-height: 43px;
+      padding: 0 14px;
+      border-radius: var(--radius-chip);
+      background: var(--white);
+      color: var(--text-black);
+      border: 1px solid var(--ruled-line);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 18px;
+    }
+
+    .chip.is-active {
+      background: var(--pink);
+      color: var(--white);
+      border-color: var(--pink);
+    }
+
+    .toggle-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      min-height: 44px;
+    }
+
+    .toggle-text strong {
+      display: block;
+      color: var(--text-black);
+      font-size: 14px;
+      line-height: 21px;
+    }
+
+    .toggle-text span {
+      display: block;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+    }
+
+    .switch {
+      position: relative;
+      flex: 0 0 auto;
+      width: 48px;
+      height: 28px;
+      border-radius: 999px;
+      background: #d7dde8;
+      transition: background 180ms ease;
+    }
+
+    .switch::after {
+      content: "";
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--white);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      transition: transform 180ms ease;
+    }
+
+    .switch.is-on {
+      background: var(--pink);
+    }
+
+    .switch.is-on::after {
+      transform: translateX(20px);
+    }
+
+    .funnel {
+      display: grid;
+      gap: 12px;
+    }
+
+    .funnel-step {
+      display: grid;
+      grid-template-columns: 42px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      background: var(--white);
+      border: 1px solid #e7eef6;
+    }
+
+    .step-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--back-gray);
+      color: var(--dark-blue);
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .funnel-step.is-current .step-icon {
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+    }
+
+    .step-main strong {
+      display: block;
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+    }
+
+    .step-main span {
+      display: block;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+    }
+
+    .step-rate {
+      color: var(--pink);
+      font-family: var(--font-number);
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 26px;
+    }
+
+    .notice-preview {
+      margin: 14px 0 0;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(237,241,244,0.92);
+      border: 1px solid #dbe5ef;
+    }
+
+    .phone-notice {
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.92);
+      box-shadow: 0 8px 22px rgba(28,38,99,0.14);
+      animation: floatIn 480ms ease;
+    }
+
+    @keyframes floatIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .notice-icon {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--gradient-pink);
+      color: var(--white);
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .notice-title {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 18px;
+    }
+
+    .notice-body {
+      margin: 2px 0 0;
+      color: var(--text-black);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .cta-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .primary-btn,
+    .pink-btn {
+      min-height: 43px;
+      border-radius: var(--radius-button);
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 21px;
+    }
+
+    .primary-btn {
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+    }
+
+    .pink-btn {
+      background: var(--gradient-pink);
+      color: var(--white);
+    }
+
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: var(--radius-md);
+      font-size: 11px;
+      line-height: 16.5px;
+    }
+
+    .compare-table th,
+    .compare-table td {
+      padding: 10px 8px;
+      text-align: center;
+      border-bottom: 1px solid var(--ruled-line);
+    }
+
+    .compare-table th {
+      background: var(--dark-blue);
+      color: var(--white);
+      font-weight: 700;
+    }
+
+    .compare-table td:first-child {
+      text-align: left;
+      font-weight: 700;
+      color: var(--dark-blue);
+    }
+
+    .compare-table tr:nth-child(even) td {
+      background: #f7f9fc;
+    }
+
+    .score-good {
+      color: var(--pink);
+      font-weight: 700;
+    }
+
+    .score-mid {
+      color: #4099FF;
+      font-weight: 700;
+    }
+
+    .source-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .source-list li {
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      background: var(--white);
+      border: 1px solid #e7eef6;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+    }
+
+    .source-list strong {
+      color: var(--dark-blue);
+    }
+
+    .bottom-nav {
+      position: sticky;
+      bottom: 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      padding: 8px 12px 10px;
+      background: rgba(255,255,255,0.94);
+      border-top: 1px solid #e7eef6;
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-item {
+      min-height: 44px;
+      border-radius: 14px;
+      background: transparent;
+      color: var(--text-gray);
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 15px;
+    }
+
+    .nav-item.is-active {
+      background: var(--back-light-pink);
+      color: var(--pink);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 72px;
+      z-index: 20;
+      width: min(340px, calc(100% - 32px));
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      background: var(--dark-blue);
+      color: var(--white);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 18px;
+      opacity: 0;
+      transform: translate(-50%, 16px);
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+      box-shadow: 0 10px 26px rgba(28,38,99,0.28);
+    }
+
+    .toast.is-show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    @media (min-width: 760px) {
+      body {
+        padding: 28px 0;
+      }
+
+      .app {
+        max-width: 960px;
+        border-radius: 28px;
+        overflow: hidden;
+        min-height: auto;
+      }
+
+      .hero {
+        border-radius: 0;
+        padding: 28px 32px;
+      }
+
+      .hero h1 {
+        font-size: 32px;
+        line-height: 48px;
+      }
+
+      .hero-metrics {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .content {
+        padding: 28px 32px 40px;
+      }
+
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 20px;
+        align-items: start;
+      }
+
+      .wide-section {
+        grid-column: 1 / -1;
+      }
+
+      .bottom-nav {
+        position: static;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div class="topbar">
+        <div class="brand">UcarPAC App KPI Lab</div>
+        <div class="date-pill">2026-05-08 更新</div>
+      </div>
+      <h1>プッシュ通知最適化<br>再起動から申込までを数値で追う</h1>
+      <p>相場変動・売り時・出費管理を通知の文脈に変換し、開封率と通知経由申込数を改善する検証画面。</p>
+      <div class="hero-metrics">
+        <div class="metric-card">
+          <span class="metric-label">通知開封率</span>
+          <div class="metric-value">18.6<span class="metric-unit">%</span></div>
+          <div class="metric-delta">前回比 +4.2pt</div>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">通知経由申込</span>
+          <div class="metric-value">142<span class="metric-unit">件</span></div>
+          <div class="metric-delta">前回比 +31件</div>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">AI査定到達率</span>
+          <div class="metric-value">41.8<span class="metric-unit">%</span></div>
+          <div class="metric-delta">目標まで +3.2pt</div>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">申込CVR</span>
+          <div class="metric-value">6.4<span class="metric-unit">%</span></div>
+          <div class="metric-delta">前回比 +1.1pt</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="dashboard-grid">
+        <section class="section">
+          <div class="section-head">
+            <h2 class="section-title">日次KPI推移</h2>
+            <span class="section-note">過去7日</span>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="tab-row">
+                <button class="tab is-active" data-chart="open">開封率</button>
+                <button class="tab" data-chart="apply">申込数</button>
+                <button class="tab" data-chart="route">導線到達</button>
+              </div>
+              <div class="chart-wrap">
+                <svg id="kpiChart" width="100%" height="190" viewBox="0 0 340 190" role="img" aria-label="KPI推移グラフ">
+                  <line x1="34" y1="20" x2="34" y2="150" stroke="#dbe5ef" stroke-width="1"/>
+                  <line x1="34" y1="150" x2="326" y2="150" stroke="#dbe5ef" stroke-width="1"/>
+                  <line x1="34" y1="118" x2="326" y2="118" stroke="#edf1f4" stroke-width="1"/>
+                  <line x1="34" y1="86" x2="326" y2="86" stroke="#edf1f4" stroke-width="1"/>
+                  <line x1="34" y1="54" x2="326" y2="54" stroke="#edf1f4" stroke-width="1"/>
+                  <text x="4" y="24" fill="#737373" font-size="10">高</text>
+                  <text x="4" y="151" fill="#737373" font-size="10">低</text>
+                  <path id="chartArea" d="M34 126 L82 118 L130 108 L178 94 L226 88 L274 74 L322 62 L322 150 L34 150 Z" fill="rgba(248,76,162,0.12)"/>
+                  <path id="chartLine" d="M34 126 L82 118 L130 108 L178 94 L226 88 L274 74 L322 62" fill="none" stroke="#F84CA2" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                  <g id="chartDots" fill="#F84CA2">
+                    <circle cx="34" cy="126" r="4"/>
+                    <circle cx="82" cy="118" r="4"/>
+                    <circle cx="130" cy="108" r="4"/>
+                    <circle cx="178" cy="94" r="4"/>
+                    <circle cx="226" cy="88" r="4"/>
+                    <circle cx="274" cy="74" r="4"/>
+                    <circle cx="322" cy="62" r="4"/>
+                  </g>
+                  <text x="28" y="172" fill="#737373" font-size="10">5/2</text>
+                  <text x="76" y="172" fill="#737373" font-size="10">5/3</text>
+                  <text x="124" y="172" fill="#737373" font-size="10">5/4</text>
+                  <text x="172" y="172" fill="#737373" font-size="10">5/5</text>
+                  <text x="220" y="172" fill="#737373" font-size="10">5/6</text>
+                  <text x="268" y="172" fill="#737373" font-size="10">5/7</text>
+                  <text x="316" y="172" fill="#737373" font-size="10">5/8</text>
+                </svg>
+                <div class="chart-caption">
+                  <div class="legend">
+                    <span class="legend-item"><i class="dot dot-pink"></i>相場UP通知</span>
+                    <span class="legend-item"><i class="dot dot-blue"></i>売り時通知</span>
+                  </div>
+                  <span id="chartSummary">18.6% / +4.2pt</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <h2 class="section-title">通知プレビュー</h2>
+            <span class="section-note">タップ導線</span>
+          </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="notice-preview">
+                <div class="phone-notice" id="noticePreview">
+                  <div class="notice-icon">U</div>
+                  <div>
+                    <p class="notice-title">UcarPAC</p>
+                    <p class="notice-body" id="noticeBody">プリウスの相場が前週比12万円UP。今のAI査定額を確認できます。</p>
+                  </div>
+                </div>
+              </div>
+              <div class="cta-row">
+                <button class="primary-btn" id="tapNotice">通知をタップ</button>
+                <button class="pink-btn" id="applyNow">申込へ進む</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section wide-section">
+          <div class="section-head">
+            <h2 class="section-title">通知文言テスト</h2>
+            <span class="section-note">A/B/C 配信</span>
+          </div>
+          <div class="variant-list">
+            <article class="variant is-selected" data-copy="プリウスの相場が前週比12万円UP。今のAI査定額を確認できます。">
+              <div class="variant-top">
+                <p class="variant-copy">A. 愛車の相場が12万円UP。今の査定額を確認</p>
+                <span class="winner-badge">暫定1位</span>
+              </div>
+              <div class="variant-grid">
+                <div class="mini-stat">
+                  <span class="mini-label">開封率</span>
+                  <div class="mini-value">18.6%</div>
+                </div>
+                <div class="mini-stat">
+                  <span class="mini-label">申込数</span>
+                  <div class="mini-value">142</div>
+                </div>
+              </div>
+              <div class="progress-row">
+                <div class="progress-meta">
+                  <span>目標開封率 20%</span>
+                  <span>93%</span>
+                </div>
+                <div class="progress"><div class="progress-fill pink" style="--value:93%"></div></div>
+              </div>
+            </article>
+
+            <article class="variant" data-copy="ゴールデンウィーク後の相場変動を検知。ヴェゼルの売り時をAIが再計算しました。">
+              <div class="variant-top">
+                <p class="variant-copy">B. 相場変動を検知。売り時をAIが再計算</p>
+                <span class="winner-badge">申込効率高</span>
+              </div>
+              <div class="variant-grid">
+                <div class="mini-stat">
+                  <span class="mini-label">開封率</span>
+                  <div class="mini-value">16.9%</div>
+                </div>
+                <div class="mini-stat">
+                  <span class="mini-label">申込数</span>
+                  <div class="mini-value">128</div>
+                </div>
+              </div>
+              <div class="progress-row">
+                <div class="progress-meta">
+                  <span>目標開封率 20%</span>
+                  <span>84%</span>
+                </div>
+                <div class="progress"><div class="progress-fill" style="--value:84%"></div></div>
+              </div>
+            </article>
+
+            <article class="variant" data-copy="今月の維持費は34,200円。売却時の手残りをAI査定と一緒に確認できます。">
+              <div class="variant-top">
+                <p class="variant-copy">C. 維持費34,200円。手残りをAI査定で確認</p>
+                <span class="winner-badge">再起動高</span>
+              </div>
+              <div class="variant-grid">
+                <div class="mini-stat">
+                  <span class="mini-label">開封率</span>
+                  <div class="mini-value">15.2%</div>
+                </div>
+                <div class="mini-stat">
+                  <span class="mini-label">申込数</span>
+                  <div class="mini-value">96</div>
+                </div>
+              </div>
+              <div class="progress-row">
+                <div class="progress-meta">
+                  <span>目標開封率 20%</span>
+                  <span>76%</span>
+                </div>
+                <div class="progress"><div class="progress-fill" style="--value:76%"></div></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <h2 class="section-title">通知設定UI</h2>
+            <span class="section-note">ユーザー選択</span>
+          </div>
+          <div class="card">
+            <div class="card-body settings-panel">
+              <div class="setting-group">
+                <h3 class="setting-title">通知頻度</h3>
+                <div class="chips" id="frequencyChips">
+                  <button class="chip">毎日</button>
+                  <button class="chip is-active">週2回</button>
+                  <button class="chip">相場変動時</button>
+                  <button class="chip">月1回</button>
+                </div>
+              </div>
+
+              <div class="setting-group">
+                <h3 class="setting-title">受け取る通知</h3>
+                <div class="toggle-list">
+                  <div class="toggle-row">
+                    <div class="toggle-text">
+                      <strong>相場UP通知</strong>
+                      <span>前週比5万円以上の変動で通知</span>
+                    </div>
+                    <button class="switch is-on" aria-label="相場UP通知"></button>
+                  </div>
+                  <div class="toggle-row">
+                    <div class="toggle-text">
+                      <strong>売り時予測</strong>
+                      <span>3ヶ月後予測が下落する前に通知</span>
+                    </div>
+                    <button class="switch is-on" aria-label="売り時予測"></button>
+                  </div>
+                  <div class="toggle-row">
+                    <div class="toggle-text">
+                      <strong>出費サマリー</strong>
+                      <span>給油・保険・車検の月次集計</span>
+                    </div>
+                    <button class="switch" aria-label="出費サマリー"></button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="setting-group">
+                <h3 class="setting-title">通知許容度スコア</h3>
+                <div class="progress-row">
+                  <div class="progress-meta">
+                    <span>週2回 + 相場UP + 売り時</span>
+                    <span id="toleranceScore">82%</span>
+                  </div>
+                  <div class="progress"><div class="progress-fill pink" id="toleranceBar" style="--value:82%"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <h2 class="section-title">通知→査定導線</h2>
+            <span class="section-note">3ステップ</span>
+          </div>
+          <div class="funnel">
+            <div class="funnel-step is-current" id="step1">
+              <div class="step-icon">1</div>
+              <div class="step-main">
+                <strong>通知タップ</strong>
+                <span>相場UP通知から再起動</span>
+              </div>
+              <div class="step-rate">100%</div>
+            </div>
+            <div class="funnel-step" id="step2">
+              <div class="step-icon">2</div>
+              <div class="step-main">
+                <strong>AI査定結果</strong>
+                <span>プリウス S 2019年 / 42,000km</span>
+              </div>
+              <div class="step-rate">41.8%</div>
+            </div>
+            <div class="funnel-step" id="step3">
+              <div class="step-icon">3</div>
+              <div class="step-main">
+                <strong>売却相談申込</strong>
+                <span>電話1社・8,000店オークション訴求</span>
+              </div>
+              <div class="step-rate">6.4%</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section wide-section">
+          <div class="section-head">
+            <h2 class="section-title">競合比較</h2>
+            <span class="section-note">通知訴求軸</span>
+          </div>
+          <div class="card">
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th>機能</th>
+                  <th>UcarPAC</th>
+                  <th>MOTA</th>
+                  <th>セルカ</th>
+                  <th>ズバット</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>AI査定通知</td>
+                  <td class="score-good">あり</td>
+                  <td>なし</td>
+                  <td>なし</td>
+                  <td>なし</td>
+                </tr>
+                <tr>
+                  <td>将来予測</td>
+                  <td class="score-good">あり</td>
+                  <td>なし</td>
+                  <td>なし</td>
+                  <td>なし</td>
+                </tr>
+                <tr>
+                  <td>電話負担</td>
+                  <td class="score-good">1社</td>
+                  <td class="score-mid">3社</td>
+                  <td class="score-good">1社</td>
+                  <td>最大10社</td>
+                </tr>
+                <tr>
+                  <td>通知文脈</td>
+                  <td class="score-good">相場・出費</td>
+                  <td>入札結果</td>
+                  <td>進捗</td>
+                  <td>相場確認</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section wide-section">
+          <div class="section-head">
+            <h2 class="section-title">出典メモ</h2>
+            <span class="section-note">2026-05-08時点</span>
+          </div>
+          <ul class="source-list">
+            <li><strong>UcarPAC内部仮説:</strong> AI査定・将来予測・出費管理を通知文脈に使う検証用ダミーデータ。日付: 2026-05-08</li>
+            <li><strong>競合比較:</strong> 提供コンテキストの competitors.md 記載内容をプロトタイプ表示用に要約。日付: 2026-05-08</li>
+            <li><strong>KPI値:</strong> プッシュ通知開封率・通知経由申込数の検証材料として生成したリアルなサンプル値。日付: 2026-05-08</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <nav class="bottom-nav">
+      <button class="nav-item is-active">KPI</button>
+      <button class="nav-item">文言</button>
+      <button class="nav-item">設定</button>
+      <button class="nav-item">導線</button>
+    </nav>
+  </main>
+
+  <div class="toast" id="toast">AI査定結果へ遷移しました</div>
+
+  <script>
+    window.PROTO_AUTH_CONFIG = {
+      title: 'UcarPAC App KPI Lab',
+      description: 'プッシュ通知最適化プロトタイプ'
+    };
+
+    const chartData = {
+      open: {
+        color: '#F84CA2',
+        fill: 'rgba(248,76,162,0.12)',
+        line: 'M34 126 L82 118 L130 108 L178 94 L226 88 L274 74 L322 62',
+        area: 'M34 126 L82 118 L130 108 L178 94 L226 88 L274 74 L322 62 L322 150 L34 150 Z',
+        dots: [[34,126],[82,118],[130,108],[178,94],[226,88],[274,74],[322,62]],
+        summary: '18.6% / +4.2pt'
+      },
+      apply: {
+        color: '#4db4ff',
+        fill: 'rgba(77,180,255,0.14)',
+        line: 'M34 132 L82 128 L130 120 L178 116 L226 98 L274 90 L322 78',
+        area: 'M34 132 L82 128 L130 120 L178 116 L226 98 L274 90 L322 78 L322 150 L34 150 Z',
+        dots: [[34,132],[82,128],[130,120],[178,116],[226,98],[274,90],[322,78]],
+        summary: '142件 / +31件'
+      },
+      route: {
+        color: '#1c2663',
+        fill: 'rgba(28,38,99,0.12)',
+        line: 'M34 118 L82 114 L130 100 L178 102 L226 82 L274 70 L322 58',
+        area: 'M34 118 L82 114 L130 100 L178 102 L226 82 L274 70 L322 58 L322 150 L34 150 Z',
+        dots: [[34,118],[82,114],[130,100],[178,102],[226,82],[274,70],[322,58]],
+        summary: '41.8% / +6.7pt'
+      }
+    };
+
+    const tabs = document.querySelectorAll('.tab');
+    const chartLine = document.getElementById('chartLine');
+    const chartArea = document.getElementById('chartArea');
+    const chartDots = document.getElementById('chartDots');
+    const chartSummary = document.getElementById('chartSummary');
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((item) => item.classList.remove('is-active'));
+        tab.classList.add('is-active');
+
+        const data = chartData[tab.dataset.chart];
+        chartLine.setAttribute('d', data.line);
+        chartLine.setAttribute('stroke', data.color);
+        chartArea.setAttribute('d', data.area);
+        chartArea.setAttribute('fill', data.fill);
+        chartSummary.textContent = data.summary;
+
+        chartDots.innerHTML = '';
+        data.dots.forEach(([x, y]) => {
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('cx', x);
+          circle.setAttribute('cy', y);
+          circle.setAttribute('r', '4');
+          circle.setAttribute('fill', data.color);
+          chartDots.appendChild(circle);
+        });
+      });
+    });
+
+    const variants = document.querySelectorAll('.variant');
+    const noticeBody = document.getElementById('noticeBody');
+    const noticePreview = document.getElementById('noticePreview');
+
+    variants.forEach((variant) => {
+      variant.addEventListener('click', () => {
+        variants.forEach((item) => item.classList.remove('is-selected'));
+        variant.classList.add('is-selected');
+        noticeBody.textContent = variant.dataset.copy;
+        noticePreview.style.animation = 'none';
+        requestAnimationFrame(() => {
+          noticePreview.style.animation = 'floatIn 480ms ease';
+        });
+      });
+    });
+
+    const chips = document.querySelectorAll('#frequencyChips .chip');
+    const toleranceScore = document.getElementById('toleranceScore');
+    const toleranceBar = document.getElementById('toleranceBar');
+
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        chips.forEach((item) => item.classList.remove('is-active'));
+        chip.classList.add('is-active');
+
+        const scores = {
+          '毎日': 54,
+          '週2回': 82,
+          '相場変動時': 91,
+          '月1回': 76
+        };
+        const score = scores[chip.textContent] || 82;
+        toleranceScore.textContent = score + '%';
+        toleranceBar.style.setProperty('--value', score + '%');
+      });
+    });
+
+    const switches = document.querySelectorAll('.switch');
+
+    switches.forEach((switchButton) => {
+      switchButton.addEventListener('click', () => {
+        switchButton.classList.toggle('is-on');
+        const activeCount = document.querySelectorAll('.switch.is-on').length;
+        const score = Math.max(48, 98 - activeCount * 8);
+        toleranceScore.textContent = score + '%';
+        toleranceBar.style.setProperty('--value', score + '%');
+      });
+    });
+
+    const toast = document.getElementById('toast');
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    const step3 = document.getElementById('step3');
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('is-show');
+      setTimeout(() => {
+        toast.classList.remove('is-show');
+      }, 1800);
+    }
+
+    document.getElementById('tapNotice').addEventListener('click', () => {
+      step1.classList.remove('is-current');
+      step2.classList.add('is-current');
+      showToast('通知タップからAI査定結果へ遷移しました');
+    });
+
+    document.getElementById('applyNow').addEventListener('click', () => {
+      step1.classList.remove('is-current');
+      step2.classList.remove('is-current');
+      step3.classList.add('is-current');
+      showToast('売却相談申込の入力画面へ進みました');
+    });
+
+    const navItems = document.querySelectorAll('.nav-item');
+
+    navItems.forEach((item, index) => {
+      item.addEventListener('click', () => {
+        navItems.forEach((nav) => nav.classList.remove('is-active'));
+        item.classList.add('is-active');
+
+        const sections = document.querySelectorAll('.section');
+        const targetIndex = [0, 2, 3, 4][index];
+        const target = sections[targetIndex];
+
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
