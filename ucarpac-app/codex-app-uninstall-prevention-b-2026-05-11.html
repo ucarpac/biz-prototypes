@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="ja">
+<script src="../auth.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UcarPAC App リテンション改善プロトタイプ</title>
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --text-disabled: #B3B3B3;
+      --text-placeholder: rgba(28,38,99,0.3);
+      --button-gray: #CACEE2;
+      --button-link: #4099FF;
+      --back-white: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --back-blue: #091355;
+      --back-dark-blue: #0a1348;
+      --back-light-pink: #ffd8e8;
+      --back-light-blue: #6fc2ff;
+      --error: #EB4646;
+      --ruled-line: #F2F2F2;
+      --border-gray: #7C7C7C;
+      --shadow: rgba(0,0,0,0.11);
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+      --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
+      --gradient-blue: linear-gradient(135deg, #091355, #1d2e93);
+      --font-sans: 'Noto Sans JP', 'Hiragino Sans', system-ui, sans-serif;
+      --font-number: 'Righteous', 'Arial Rounded MT Bold', system-ui, sans-serif;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --radius-sm: 5px;
+      --radius-md: 12px;
+      --radius-card: 13px;
+      --radius-lg: 16px;
+      --radius-chip: 22px;
+      --radius-button: 30px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: var(--back-gray);
+      color: var(--text-black);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(111,194,255,0.22), transparent 26%),
+        linear-gradient(180deg, #ffffff 0%, var(--back-white) 38%, var(--back-gray) 100%);
+    }
+
+    button {
+      font: inherit;
+    }
+
+    a {
+      color: var(--button-link);
+      text-decoration: none;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 16px 12px 32px;
+    }
+
+    .phone-shell {
+      width: 100%;
+      max-width: 430px;
+      margin: 0 auto;
+      background: var(--back-white);
+      border: 1px solid rgba(28,38,99,0.08);
+      border-radius: 28px;
+      box-shadow: 0 20px 60px rgba(28,38,99,0.16);
+      overflow: hidden;
+    }
+
+    .status-bar {
+      height: 28px;
+      padding: 7px 20px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      color: var(--dark-blue);
+      font-size: 10px;
+      font-weight: 700;
+      background: var(--white);
+    }
+
+    .app-header {
+      padding: 16px 20px 20px;
+      background: var(--white);
+      border-bottom: 1px solid var(--ruled-line);
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-name {
+      color: var(--dark-blue);
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 30px;
+    }
+
+    .brand-sub {
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .date-pill {
+      padding: 7px 12px;
+      border-radius: 999px;
+      color: var(--pink);
+      background: var(--back-light-pink);
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .hero-card {
+      margin-top: 16px;
+      padding: 18px 16px;
+      border-radius: var(--radius-card);
+      background: var(--gradient-blue);
+      color: var(--white);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 24px rgba(9,19,85,0.18);
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      right: -42px;
+      top: -42px;
+      width: 124px;
+      height: 124px;
+      border-radius: 50%;
+      border: 18px solid rgba(29,220,255,0.18);
+    }
+
+    .hero-label {
+      display: inline-flex;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.14);
+      color: #bfdbfe;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .hero-title {
+      margin: 12px 0 4px;
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 33px;
+      max-width: 280px;
+    }
+
+    .hero-copy {
+      margin: 0;
+      max-width: 270px;
+      color: #dbeafe;
+      font-size: 13px;
+      line-height: 19.5px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .kpi-card {
+      padding: 13px 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.09);
+    }
+
+    .kpi-label {
+      color: #bfdbfe;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 15px;
+    }
+
+    .kpi-value {
+      display: flex;
+      align-items: baseline;
+      gap: 3px;
+      margin-top: 3px;
+      color: var(--white);
+      font-family: var(--font-number);
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 36px;
+      letter-spacing: 0;
+    }
+
+    .kpi-unit {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .kpi-delta {
+      margin-top: 4px;
+      color: #9ff3ff;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 12px 14px;
+      background: var(--white);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      border-bottom: 1px solid var(--ruled-line);
+    }
+
+    .tab-button {
+      min-height: 43px;
+      border: 1px solid var(--ruled-line);
+      border-radius: var(--radius-chip);
+      background: var(--white);
+      color: var(--text-black);
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+    }
+
+    .tab-button.is-active {
+      border-color: var(--dark-blue);
+      background: var(--dark-blue);
+      color: var(--white);
+    }
+
+    .tab-button:active {
+      transform: scale(0.97);
+    }
+
+    .content {
+      padding: 16px 14px 24px;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeUp 0.28s ease both;
+    }
+
+    .screen.is-active {
+      display: block;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      color: var(--dark-blue);
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 27px;
+    }
+
+    .section-lead {
+      margin: -6px 0 14px;
+      color: var(--text-gray);
+      font-size: 13px;
+      line-height: 19.5px;
+    }
+
+    .card {
+      width: 100%;
+      margin-bottom: 14px;
+      padding: 16px;
+      border: 1px solid #CDDCED;
+      border-radius: var(--radius-card);
+      background: var(--white);
+      box-shadow: 0 0 18px var(--shadow);
+    }
+
+    .car-card {
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      gap: 14px;
+      align-items: center;
+      min-height: 128px;
+    }
+
+    .car-image {
+      height: 86px;
+      border-radius: 12px;
+      background:
+        linear-gradient(135deg, rgba(64,153,255,0.18), rgba(248,76,162,0.16)),
+        linear-gradient(180deg, #ffffff, #edf1f4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .car-image::before {
+      content: "";
+      position: absolute;
+      left: 14px;
+      top: 35px;
+      width: 58px;
+      height: 22px;
+      border-radius: 20px 24px 8px 8px;
+      background: var(--dark-blue);
+    }
+
+    .car-image::after {
+      content: "";
+      position: absolute;
+      left: 22px;
+      top: 56px;
+      width: 44px;
+      height: 9px;
+      border-radius: 99px;
+      background: repeating-linear-gradient(90deg, #404040 0 8px, #ffffff 8px 14px);
+    }
+
+    .car-name {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 24px;
+    }
+
+    .car-meta {
+      margin: 4px 0 0;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: var(--back-light-pink);
+      color: var(--pink);
+      font-size: 10px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .badge.blue {
+      background: rgba(64,153,255,0.13);
+      color: var(--button-link);
+    }
+
+    .valuation {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--ruled-line);
+    }
+
+    .valuation-main {
+      color: var(--dark-blue);
+      font-family: var(--font-number);
+      font-size: 44px;
+      font-weight: 900;
+      line-height: 56px;
+      letter-spacing: 0;
+    }
+
+    .valuation-main span {
+      font-family: var(--font-sans);
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .confidence {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: conic-gradient(var(--pink) 0 88%, #edf1f4 88% 100%);
+      color: var(--dark-blue);
+      font-size: 12px;
+      font-weight: 900;
+      position: relative;
+    }
+
+    .confidence::before {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border-radius: 50%;
+      background: var(--white);
+    }
+
+    .confidence span {
+      position: relative;
+      text-align: center;
+      line-height: 16px;
+    }
+
+    .primary-button,
+    .pink-button,
+    .ghost-button {
+      width: 100%;
+      min-height: 43px;
+      border: 0;
+      border-radius: var(--radius-button);
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+
+    .primary-button {
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+    }
+
+    .pink-button {
+      background: var(--gradient-pink);
+      color: var(--white);
+    }
+
+    .ghost-button {
+      border: 1px solid #40BFFF;
+      background: var(--button-gray);
+      color: var(--text-black);
+    }
+
+    .primary-button:active,
+    .pink-button:active,
+    .ghost-button:active {
+      transform: translateY(1px) scale(0.99);
+      filter: brightness(0.97);
+    }
+
+    .split-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .mini-chart {
+      width: 100%;
+      height: 168px;
+      margin-top: 8px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #ffffff, #f7fbff);
+      overflow: hidden;
+    }
+
+    .chart-line {
+      stroke-dasharray: 420;
+      stroke-dashoffset: 420;
+      animation: drawLine 1.1s ease forwards;
+    }
+
+    @keyframes drawLine {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    .chart-label {
+      fill: var(--text-gray);
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .chart-value {
+      fill: var(--dark-blue);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: 74px 1fr 50px;
+      gap: 10px;
+      align-items: center;
+      margin: 12px 0;
+    }
+
+    .metric-name {
+      color: var(--text-black);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .progress-track {
+      height: 10px;
+      border-radius: 999px;
+      background: var(--back-gray);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: var(--value);
+      height: 100%;
+      border-radius: inherit;
+      background: var(--gradient-primary);
+      transform-origin: left;
+      animation: fillBar 0.8s ease both;
+    }
+
+    .progress-fill.pink {
+      background: var(--gradient-pink);
+    }
+
+    @keyframes fillBar {
+      from {
+        transform: scaleX(0);
+      }
+      to {
+        transform: scaleX(1);
+      }
+    }
+
+    .metric-value {
+      color: var(--dark-blue);
+      font-family: var(--font-number);
+      font-size: 16px;
+      font-weight: 900;
+      text-align: right;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 12px;
+      font-size: 11px;
+    }
+
+    .comparison-table th {
+      padding: 9px 6px;
+      background: var(--dark-blue);
+      color: var(--white);
+      font-weight: 800;
+      text-align: left;
+    }
+
+    .comparison-table td {
+      padding: 10px 6px;
+      border-bottom: 1px solid var(--ruled-line);
+      background: var(--white);
+      color: var(--text-black);
+      font-weight: 700;
+    }
+
+    .comparison-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .comparison-table .win {
+      color: var(--pink);
+      font-weight: 900;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .summary-tile {
+      padding: 12px 8px;
+      border-radius: 12px;
+      background: var(--back-gray);
+      text-align: center;
+    }
+
+    .summary-label {
+      color: var(--text-gray);
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .summary-value {
+      margin-top: 3px;
+      color: var(--dark-blue);
+      font-family: var(--font-number);
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 24px;
+    }
+
+    .expense-list {
+      display: grid;
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    .expense-item {
+      display: grid;
+      grid-template-columns: 34px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border-radius: 12px;
+      background: #f8fbff;
+    }
+
+    .expense-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: var(--back-light-pink);
+      color: var(--pink);
+      font-weight: 900;
+    }
+
+    .expense-title {
+      color: var(--dark-blue);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .expense-sub {
+      color: var(--text-gray);
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .expense-price {
+      color: var(--text-black);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .notification-card {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .notification-preview {
+      padding: 15px 16px;
+      background: var(--back-dark-blue);
+      color: var(--white);
+    }
+
+    .notification-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #bfdbfe;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .notification-title {
+      margin: 10px 0 4px;
+      font-size: 15px;
+      font-weight: 900;
+      line-height: 22.5px;
+    }
+
+    .notification-body {
+      margin: 0;
+      color: #dbeafe;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .notification-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 14px;
+      background: var(--white);
+    }
+
+    .scenario-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .scenario-button {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--ruled-line);
+      border-radius: 12px;
+      background: var(--white);
+      color: var(--text-black);
+      text-align: left;
+      cursor: pointer;
+      transition: border 0.2s ease, transform 0.2s ease;
+    }
+
+    .scenario-button.is-selected {
+      border-color: var(--pink);
+      box-shadow: 0 0 0 2px rgba(248,76,162,0.12);
+    }
+
+    .scenario-button:active {
+      transform: scale(0.99);
+    }
+
+    .scenario-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--dark-blue);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .scenario-impact {
+      color: var(--pink);
+      white-space: nowrap;
+    }
+
+    .scenario-copy {
+      margin-top: 4px;
+      color: var(--text-gray);
+      font-size: 11px;
+      line-height: 16.5px;
+    }
+
+    .source-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .source-item {
+      padding: 10px 12px;
+      border-left: 3px solid var(--button-link);
+      border-radius: 8px;
+      background: #f8fbff;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+    }
+
+    .source-item strong {
+      display: block;
+      color: var(--dark-blue);
+      font-size: 11px;
+      line-height: 16.5px;
+    }
+
+    .bottom-nav {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2px;
+      padding: 8px 8px 12px;
+      border-top: 1px solid var(--ruled-line);
+      background: var(--white);
+    }
+
+    .nav-item {
+      min-height: 44px;
+      border: 0;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--text-disabled);
+      font-size: 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .nav-item.is-active {
+      background: rgba(248,76,162,0.1);
+      color: var(--pink);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      width: min(335px, calc(100% - 32px));
+      padding: 13px 16px;
+      border-radius: 14px;
+      background: rgba(9,19,85,0.96);
+      color: var(--white);
+      font-size: 13px;
+      font-weight: 800;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 18px);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      z-index: 20;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .desktop-note {
+      display: none;
+    }
+
+    @media (min-width: 860px) {
+      .page {
+        display: grid;
+        grid-template-columns: 430px 1fr;
+        gap: 28px;
+        align-items: start;
+        padding: 28px;
+      }
+
+      .phone-shell {
+        margin: 0;
+      }
+
+      .desktop-note {
+        display: block;
+        padding: 26px;
+        border-radius: 16px;
+        background: var(--white);
+        box-shadow: 0 0 24px var(--shadow);
+      }
+
+      .desktop-note h1 {
+        margin: 0 0 10px;
+        color: var(--dark-blue);
+        font-size: 32px;
+        line-height: 48px;
+      }
+
+      .desktop-note p {
+        margin: 0 0 16px;
+        color: var(--text-gray);
+        font-size: 14px;
+        line-height: 21px;
+      }
+
+      .desktop-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="phone-shell" aria-label="UcarPAC App retention prototype">
+      <div class="status-bar">
+        <span>9:41</span>
+        <span>5G 100%</span>
+      </div>
+
+      <header class="app-header">
+        <div class="header-top">
+          <div class="brand">
+            <div class="brand-name">UcarPAC</div>
+            <div class="brand-sub">削除率低減ダッシュボード</div>
+          </div>
+          <div class="date-pill">2026.05.11</div>
+        </div>
+
+        <div class="hero-card">
+          <span class="hero-label">Retention KPI</span>
+          <h1 class="hero-title">削除率49.45%を48.00%へ下げる</h1>
+          <p class="hero-copy">DL直後の査定体験、月次サマリー、価格変動通知でAndroidの71.5%削除率を重点改善。</p>
+
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">現状削除率</div>
+              <div class="kpi-value"><span id="currentRate">49.45</span><span class="kpi-unit">%</span></div>
+              <div class="kpi-delta">KPIまで -1.45pt</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Android削除率</div>
+              <div class="kpi-value"><span>71.5</span><span class="kpi-unit">%</span></div>
+              <div class="kpi-delta">最優先セグメント</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <nav class="tabs" aria-label="画面切り替え">
+        <button class="tab-button is-active" data-tab="first">初回価値</button>
+        <button class="tab-button" data-tab="monthly">月次</button>
+        <button class="tab-button" data-tab="notify">通知</button>
+      </nav>
+
+      <div class="content">
+        <section class="screen is-active" id="screen-first">
+          <h2 class="section-title">1. 初回価値体験</h2>
+          <p class="section-lead">DL直後に「あなたの車は○万円」を提示し、削除前に中核価値を体感させる。</p>
+
+          <article class="card car-card">
+            <div class="car-image" aria-hidden="true"></div>
+            <div>
+              <h3 class="car-name">トヨタ プリウス S</h3>
+              <p class="car-meta">2020年式 / 42,000km / パールホワイト</p>
+              <div class="badge-row">
+                <span class="badge">個人情報不要</span>
+                <span class="badge blue">約45秒で表示</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3 class="section-title">AI概算査定</h3>
+            <div class="valuation">
+              <div>
+                <div class="valuation-main">168<span>万円</span></div>
+                <div class="car-meta">想定レンジ 154万円 - 181万円</div>
+              </div>
+              <div class="confidence"><span>精度<br>88%</span></div>
+            </div>
+
+            <div class="mini-chart">
+              <svg viewBox="0 0 340 168" width="100%" height="168" role="img" aria-label="将来価格予測グラフ">
+                <defs>
+                  <linearGradient id="lineGrad" x1="0" x2="1" y1="0" y2="0">
+                    <stop offset="0%" stop-color="#1ddcff"></stop>
+                    <stop offset="100%" stop-color="#F84CA2"></stop>
+                  </linearGradient>
+                  <linearGradient id="areaGrad" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#40BFFF" stop-opacity="0.22"></stop>
+                    <stop offset="100%" stop-color="#40BFFF" stop-opacity="0"></stop>
+                  </linearGradient>
+                </defs>
+                <line x1="28" y1="30" x2="318" y2="30" stroke="#EDF1F4" stroke-width="1"></line>
+                <line x1="28" y1="70" x2="318" y2="70" stroke="#EDF1F4" stroke-width="1"></line>
+                <line x1="28" y1="110" x2="318" y2="110" stroke="#EDF1F4" stroke-width="1"></line>
+                <path d="M34 112 C78 94 102 86 142 76 C184 66 204 62 238 72 C276 84 294 92 318 102 L318 140 L34 140 Z" fill="url(#areaGrad)"></path>
+                <path class="chart-line" d="M34 112 C78 94 102 86 142 76 C184 66 204 62 238 72 C276 84 294 92 318 102" fill="none" stroke="url(#lineGrad)" stroke-width="4" stroke-linecap="round"></path>
+                <circle cx="34" cy="112" r="5" fill="#1ddcff"></circle>
+                <circle cx="142" cy="76" r="5" fill="#4099FF"></circle>
+                <circle cx="238" cy="72" r="5" fill="#F84CA2"></circle>
+                <circle cx="318" cy="102" r="5" fill="#F84CA2"></circle>
+                <text x="24" y="154" class="chart-label">今月</text>
+                <text x="124" y="154" class="chart-label">3ヶ月</text>
+                <text x="220" y="154" class="chart-label">6ヶ月</text>
+                <text x="296" y="154" class="chart-label">12ヶ月</text>
+                <text x="210" y="60" class="chart-value">最高 174万円</text>
+              </svg>
+            </div>
+
+            <div class="split-buttons">
+              <button class="primary-button action-button" data-message="AI査定の追加入力へ進みます">AI査定へ</button>
+              <button class="ghost-button action-button" data-message="価格を保存しました">価格保存</button>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3 class="section-title">初回体験の歩留まり仮説</h3>
+            <div class="metric-row">
+              <div class="metric-name">相場表示</div>
+              <div class="progress-track"><div class="progress-fill" style="--value: 92%;"></div></div>
+              <div class="metric-value">92%</div>
+            </div>
+            <div class="metric-row">
+              <div class="metric-name">AI遷移</div>
+              <div class="progress-track"><div class="progress-fill pink" style="--value: 54%;"></div></div>
+              <div class="metric-value">54%</div>
+            </div>
+            <div class="metric-row">
+              <div class="metric-name">保存率</div>
+              <div class="progress-track"><div class="progress-fill" style="--value: 68%;"></div></div>
+              <div class="metric-value">68%</div>
+            </div>
+          </article>
+        </section>
+
+        <section class="screen" id="screen-monthly">
+          <h2 class="section-title">2. 月次サマリー</h2>
+          <p class="section-lead">出費管理を月1回の確認理由にし、売却前の休眠期間でもアプリを残す理由を作る。</p>
+
+          <article class="card">
+            <h3 class="section-title">2026年4月の愛車レポート</h3>
+            <div class="summary-grid">
+              <div class="summary-tile">
+                <div class="summary-label">出費合計</div>
+                <div class="summary-value">38,420</div>
+              </div>
+              <div class="summary-tile">
+                <div class="summary-label">前月比</div>
+                <div class="summary-value">-12%</div>
+              </div>
+              <div class="summary-tile">
+                <div class="summary-label">車価値</div>
+                <div class="summary-value">168万</div>
+              </div>
+            </div>
+
+            <div class="mini-chart">
+              <svg viewBox="0 0 340 168" width="100%" height="168" role="img" aria-label="月別出費棒グラフ">
+                <line x1="28" y1="132" x2="318" y2="132" stroke="#EDF1F4" stroke-width="1"></line>
+                <rect x="42" y="82" width="28" height="50" rx="8" fill="#40BFFF"></rect>
+                <rect x="88" y="64" width="28" height="68" rx="8" fill="#40BFFF"></rect>
+                <rect x="134" y="96" width="28" height="36" rx="8" fill="#40BFFF"></rect>
+                <rect x="180" y="40" width="28" height="92" rx="8" fill="#F84CA2"></rect>
+                <rect x="226" y="74" width="28" height="58" rx="8" fill="#40BFFF"></rect>
+                <rect x="272" y="90" width="28" height="42" rx="8" fill="#40BFFF"></rect>
+                <text x="43" y="152" class="chart-label">11月</text>
+                <text x="89" y="152" class="chart-label">12月</text>
+                <text x="139" y="152" class="chart-label">1月</text>
+                <text x="184" y="152" class="chart-label">2月</text>
+                <text x="231" y="152" class="chart-label">3月</text>
+                <text x="277" y="152" class="chart-label">4月</text>
+                <text x="164" y="28" class="chart-value">車検月を除くと改善傾向</text>
+              </svg>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3 class="section-title">カテゴリ内訳</h3>
+            <div class="expense-list">
+              <div class="expense-item">
+                <div class="expense-icon">燃</div>
+                <div>
+                  <div class="expense-title">ガソリン</div>
+                  <div class="expense-sub">3回 / 147L</div>
+                </div>
+                <div class="expense-price">24,280円</div>
+              </div>
+              <div class="expense-item">
+                <div class="expense-icon">保</div>
+                <div>
+                  <div class="expense-title">自動車保険</div>
+                  <div class="expense-sub">月割り換算</div>
+                </div>
+                <div class="expense-price">8,900円</div>
+              </div>
+              <div class="expense-item">
+                <div class="expense-icon">整</div>
+                <div>
+                  <div class="expense-title">メンテナンス</div>
+                  <div class="expense-sub">洗車・ワイパー交換</div>
+                </div>
+                <div class="expense-price">5,240円</div>
+              </div>
+            </div>
+            <div class="split-buttons">
+              <button class="primary-button action-button" data-message="5月の出費入力を開始します">出費を記録</button>
+              <button class="ghost-button action-button" data-message="月次レポートを共有用に保存しました">共有用に保存</button>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3 class="section-title">削除率への効き方</h3>
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th>接点</th>
+                  <th>ユーザー価値</th>
+                  <th>検証KPI</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>月初</td>
+                  <td class="win">維持費の確認</td>
+                  <td>月次起動率</td>
+                </tr>
+                <tr>
+                  <td>給油後</td>
+                  <td>即時記録</td>
+                  <td>記録継続率</td>
+                </tr>
+                <tr>
+                  <td>売却前</td>
+                  <td class="win">価格と出費の比較</td>
+                  <td>売却CTA率</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+        </section>
+
+        <section class="screen" id="screen-notify">
+          <h2 class="section-title">3. 価格変動通知</h2>
+          <p class="section-lead">月次の市場価格変動を通知し、売る時期までアプリへ戻る理由を維持する。</p>
+
+          <article class="card notification-card">
+            <div class="notification-preview">
+              <div class="notification-top">
+                <span>UcarPAC</span>
+                <span>いま</span>
+              </div>
+              <h3 class="notification-title" id="notificationTitle">プリウスの相場が前月比+4万円</h3>
+              <p class="notification-body" id="notificationBody">8,000店の入札傾向から、今月はハイブリッド車の需要が上昇しています。</p>
+            </div>
+            <div class="notification-actions">
+              <button class="primary-button action-button" data-message="通知から価格詳細を開きました">詳細を見る</button>
+              <button class="pink-button action-button" data-message="売却相談の候補日を表示します">売り時相談</button>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3 class="section-title">通知シナリオ別の想定効果</h3>
+            <div class="scenario-list">
+              <button class="scenario-button is-selected" data-title="プリウスの相場が前月比+4万円" data-body="8,000店の入札傾向から、今月はハイブリッド車の需要が上昇しています。" data-rate="48.92">
+                <div class="scenario-title">
+                  <span>価格上昇</span>
+                  <span class="scenario-impact">-0.53pt</span>
+                </div>
+                <div class="scenario-copy">相場変動を資産価値として見せ、再訪の動機を作る。</div>
+              </button>
+              <button class="scenario-button" data-title="6ヶ月後の予測価格は-11万円" data-body="走行距離の増加とモデルチェンジ影響を反映。売却時期の比較を確認できます。" data-rate="48.71">
+                <div class="scenario-title">
+                  <span>下落予測</span>
+                  <span class="scenario-impact">-0.74pt</span>
+                </div>
+                <div class="scenario-copy">将来予測で売り時判断を促し、休眠ユーザーを戻す。</div>
+              </button>
+              <button class="scenario-button" data-title="4月の維持費は38,420円でした" data-body="年間維持費の見込みは461,040円。車価値と合わせて見直せます。" data-rate="48.38">
+                <div class="scenario-title">
+                  <span>月次出費</span>
+                  <span class="scenario-impact">-1.07pt</span>
+                </div>
+                <div class="scenario-copy">出費管理を定例接点にして削除前の利用理由を補強する。</div>
+              </button>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3 class="section-title">競合差別化の根拠</h3>
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th>機能</th>
+                  <th>UcarPAC</th>
+                  <th>競合一般</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>AI査定</td>
+                  <td class="win">あり</td>
+                  <td>なし</td>
+                </tr>
+                <tr>
+                  <td>将来予測</td>
+                  <td class="win">あり</td>
+                  <td>なし</td>
+                </tr>
+                <tr>
+                  <td>出費管理</td>
+                  <td class="win">あり</td>
+                  <td>なし</td>
+                </tr>
+                <tr>
+                  <td>電話対応</td>
+                  <td class="win">1社のみ</td>
+                  <td>最大10社</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+
+          <article class="card">
+            <h3 class="section-title">出典・参照日</h3>
+            <div class="source-list">
+              <div class="source-item">
+                <strong>Google Play Console Statistics / 参照日: 2026-05-11</strong>
+                Play Consoleは成長・エンゲージメント指標を分析し、類似アプリとの比較に使える。URL: https://play.google.com/console/about/stats/
+              </div>
+              <div class="source-item">
+                <strong>Firebase Cloud Messaging / 参照日: 2026-05-11</strong>
+                FCMは通知メッセージで再エンゲージメントとリテンション用途に利用できる。URL: https://firebase.google.com/docs/cloud-messaging
+              </div>
+              <div class="source-item">
+                <strong>AppsFlyer Retention Rate Glossary / 参照日: 2026-05-11</strong>
+                リテンション率はインストール後の一定期間に利用継続したユーザー割合として扱う。URL: https://www.appsflyer.com/glossary/retention-rate/
+              </div>
+              <div class="source-item">
+                <strong>Business of Apps App Retention Rates / 更新日: 2025-07-23</strong>
+                アプリ全般で30日後の継続率は大きく低下するため、初回価値体験と定例接点が重要。URL: https://www.businessofapps.com/data/app-retention-rates/
+              </div>
+            </div>
+          </article>
+        </section>
+      </div>
+
+      <footer class="bottom-nav" aria-label="アプリ下部ナビゲーション">
+        <button class="nav-item is-active">ホーム</button>
+        <button class="nav-item">査定</button>
+        <button class="nav-item">出費</button>
+        <button class="nav-item">通知</button>
+        <button class="nav-item">マイページ</button>
+      </footer>
+    </section>
+
+    <aside class="desktop-note">
+      <h1>リテンション検証サマリー</h1>
+      <p>対象KPIは削除率。現状49.45%からKPI 48.00%へ、特にAndroid 71.5%の改善に焦点を当てたデータドリブン案です。</p>
+      <div class="desktop-grid">
+        <article class="card">
+          <h2 class="section-title">施策A: 初回価値</h2>
+          <p class="section-lead">個人情報入力前に車両価値を表示し、DL直後の「何ができるアプリか分からない」を解消。</p>
+          <div class="metric-row">
+            <div class="metric-name">期待効果</div>
+            <div class="progress-track"><div class="progress-fill pink" style="--value: 67%;"></div></div>
+            <div class="metric-value">高</div>
+          </div>
+        </article>
+        <article class="card">
+          <h2 class="section-title">施策B: 月次接点</h2>
+          <p class="section-lead">出費サマリーで月1回の確認理由を作り、売却検討前の休眠期間を支える。</p>
+          <div class="metric-row">
+            <div class="metric-name">継続性</div>
+            <div class="progress-track"><div class="progress-fill" style="--value: 82%;"></div></div>
+            <div class="metric-value">82</div>
+          </div>
+        </article>
+        <article class="card">
+          <h2 class="section-title">施策C: 価格通知</h2>
+          <p class="section-lead">市場価格の上昇・下落予測を通知し、売り時判断という独自価値で再訪を促す。</p>
+          <div class="metric-row">
+            <div class="metric-name">再訪性</div>
+            <div class="progress-track"><div class="progress-fill pink" style="--value: 74%;"></div></div>
+            <div class="metric-value">74</div>
+          </div>
+        </article>
+        <article class="card">
+          <h2 class="section-title">更新先</h2>
+          <p class="section-lead">想定成果物: prototypes/ops/auto-kpi/research-2026-05-11.md、index、generation-log、kpi-history。</p>
+          <button class="primary-button action-button" data-message="更新対象をチェックリスト化しました">反映チェック</button>
+        </article>
+      </div>
+    </aside>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    window.PROTO_AUTH_CONFIG = {
+      title: 'UcarPAC App リテンション改善プロトタイプ',
+      description: '削除率低減の検証材料',
+      expiresInHours: 24
+    };
+
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const screens = document.querySelectorAll('.screen');
+    const actionButtons = document.querySelectorAll('.action-button');
+    const scenarioButtons = document.querySelectorAll('.scenario-button');
+    const navItems = document.querySelectorAll('.nav-item');
+    const toast = document.getElementById('toast');
+    const currentRate = document.getElementById('currentRate');
+    const notificationTitle = document.getElementById('notificationTitle');
+    const notificationBody = document.getElementById('notificationBody');
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => {
+        toast.classList.remove('show');
+      }, 1800);
+    }
+
+    function activateTab(tabName) {
+      tabButtons.forEach((button) => {
+        button.classList.toggle('is-active', button.dataset.tab === tabName);
+      });
+      screens.forEach((screen) => {
+        screen.classList.toggle('is-active', screen.id === `screen-${tabName}`);
+      });
+    }
+
+    tabButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        activateTab(button.dataset.tab);
+      });
+    });
+
+    actionButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        showToast(button.dataset.message || '操作しました');
+      });
+    });
+
+    scenarioButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        scenarioButtons.forEach((item) => item.classList.remove('is-selected'));
+        button.classList.add('is-selected');
+        notificationTitle.textContent = button.dataset.title;
+        notificationBody.textContent = button.dataset.body;
+        animateRate(Number(button.dataset.rate));
+        showToast('通知シナリオを切り替えました');
+      });
+    });
+
+    navItems.forEach((item) => {
+      item.addEventListener('click', () => {
+        navItems.forEach((nav) => nav.classList.remove('is-active'));
+        item.classList.add('is-active');
+        showToast(`${item.textContent}を選択しました`);
+      });
+    });
+
+    function animateRate(target) {
+      const start = Number(currentRate.textContent);
+      const diff = target - start;
+      const duration = 420;
+      const startTime = performance.now();
+
+      function tick(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        currentRate.textContent = (start + diff * eased).toFixed(2);
+
+        if (progress < 1) {
+          requestAnimationFrame(tick);
+        }
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        showToast('2026-05-11時点の削除率KPIを表示しました');
+      }, 650);
+    });
+  </script>
+</body>
+</html>
