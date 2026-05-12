@@ -259,15 +259,15 @@
   <canvas id="chart1b"></canvas>
 </div>
 
-<!-- 新規DL数 推移 -->
-<div class="chart-card">
-  <div class="chart-title">新規DL数 推移</div>
-  <div id="legend-chart_dl" class="custom-legend"></div>
-  <canvas id="chart_dl" style="max-height:180px;"></canvas>
-</div>
-
 <!-- 2列レイアウト: コホート関連 -->
 <div class="charts-2col">
+  <!-- 新規DL数 推移 -->
+  <div class="chart-card" style="margin-bottom:0;">
+    <div class="chart-title">新規DL数 推移</div>
+    <div id="legend-chart_dl" class="custom-legend"></div>
+    <canvas id="chart_dl"></canvas>
+  </div>
+
   <!-- Chart Cohort: 登録1ヶ月以内申込率 -->
   <div class="chart-card" style="margin-bottom:0;">
     <div class="chart-title">アプリ登録コホート: 登録から1ヶ月以内の申込率（登録月別）</div>
@@ -286,6 +286,16 @@
     </div>
     <div id="legend-chart_old_apps" class="custom-legend"></div>
     <canvas id="chart_old_apps"></canvas>
+  </div>
+
+  <!-- Chart Store Valid Downloads: GooglePlay / AppStore 有効DL -->
+  <div class="chart-card" style="margin-bottom:0;">
+    <div class="chart-title">GooglePlay / AppStore 有効ダウンロード数（月次）</div>
+    <div class="notice" style="margin-bottom:14px; margin-top:0;">
+      ⚠️ BigQuery集計 ｜ GooglePlay: Daily_User_Installs - Daily_User_Uninstalls ｜ AppStore: first_time_downloads（削除数データ未連携のため0扱い）
+    </div>
+    <div id="legend-chart_store_valid_dl" class="custom-legend"></div>
+    <canvas id="chart_store_valid_dl"></canvas>
   </div>
 </div>
 
@@ -390,6 +400,11 @@ const avgCohortRate    = 1.99;
 const oldAppsApplyCount = [null, 65, 90, 129, 111, 144, 161, 241, 246, 233, 162, 53];
 const oldAppsRate       = [0.0, 0.01, 0.13, 0.12, 0.13, 0.14, 0.19, 0.27, 0.15, 0.16, 0.13, 0.03];
 const avgOldAppsRate    = 0.12;
+
+// ストア別 有効ダウンロード数（BigQuery）
+const storeValidMonths = ['2025/06', '2025/07', '2025/08', '2025/09', '2025/10', '2025/11', '2025/12', '2026/01', '2026/02', '2026/03', '2026/04', '2026/05'];
+const googlePlayValidDownloads = [533, 534, 147, null, null, null, null, null, null, null, null, null];
+const appStoreValidDownloads   = [null, null, null, null, null, null, null, null, null, null, null, 218];
 
 // KPI目標値
 const kpiListingRate    = 28.0;
@@ -825,6 +840,45 @@ const cOldApps = new Chart(document.getElementById('chart_old_apps'), {
   }
 });
 initCustomLegend(cOldApps, 'legend-chart_old_apps');
+
+// Chart Store Valid Downloads: GooglePlay / AppStore 有効DL
+const cStoreValidDL = new Chart(document.getElementById('chart_store_valid_dl'), {
+  type: 'bar',
+  data: {
+    labels: storeValidMonths,
+    datasets: [
+      {
+        label: 'GooglePlay 有効DL',
+        data: googlePlayValidDownloads,
+        backgroundColor: 'rgba(74,222,128,0.72)',
+        borderColor: 'rgba(74,222,128,0.95)',
+        borderWidth: 1
+      },
+      {
+        label: 'AppStore 有効DL',
+        data: appStoreValidDownloads,
+        backgroundColor: 'rgba(96,165,250,0.72)',
+        borderColor: 'rgba(96,165,250,0.95)',
+        borderWidth: 1
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    interaction: { mode: 'index', intersect: false },
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: TICK }, grid: { color: GRID } },
+      y: {
+        beginAtZero: true,
+        ticks: { color: TICK, precision: 0 },
+        grid: { color: GRID },
+        title: { display: true, text: '有効DL数', color: '#4b5563' }
+      }
+    }
+  }
+});
+initCustomLegend(cStoreValidDL, 'legend-chart_store_valid_dl');
 
 function superReload() {
     // クエリパラメータにタイムスタンプを付与してキャッシュを回避
