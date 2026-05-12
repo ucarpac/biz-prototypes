@@ -382,10 +382,12 @@ const avgCCPA     = 146233.0;
 const cohortMonths     = ['2025/06', '2025/07', '2025/08', '2025/09', '2025/10', '2025/11', '2025/12', '2026/01', '2026/02', '2026/03', '2026/04', '2026/05'];
 const cohortTotal      = [2116, 4191, 4275, 4438, 4005, 4805, 3839, 4748, 5881, 4263, 3642, 1874];
 const cohortRate       = [0.14, 0.41, 1.59, 1.87, 1.9, 2.23, 2.21, 3.48, 2.7, 3.26, 2.69, 1.39];
+const cohortApplyCount = cohortTotal.map((total, i) => Math.round(total * cohortRate[i] / 100));
 const cohortIncomplete = ['false', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'false', 'true'];
 const avgCohortRate    = 1.99;
 
 // 既存ユーザーデータ
+const oldAppsApplyCount = [null, 65, 90, 129, 111, 144, 161, 241, 246, 233, 162, 53];
 const oldAppsRate       = [0.0, 0.01, 0.13, 0.12, 0.13, 0.14, 0.19, 0.27, 0.15, 0.16, 0.13, 0.03];
 const avgOldAppsRate    = 0.12;
 
@@ -687,13 +689,23 @@ const cFunnel = new Chart(document.getElementById('chart_funnel'), {
 initCustomLegend(cFunnel, 'legend-chart_funnel');
 
 // Chart Cohort: 登録1ヶ月以内申込率
-const cohortPointColors = cohortIncomplete.map(inc => inc ? 'rgba(251,191,36,0.35)' : '#fbbf24');
-const cohortPointRadius = cohortIncomplete.map(inc => inc ? 4 : 5);
+const cohortPointColors = cohortIncomplete.map(inc => inc === 'true' ? 'rgba(251,191,36,0.35)' : '#fbbf24');
+const cohortPointRadius = cohortIncomplete.map(inc => inc === 'true' ? 4 : 5);
 
 const cCohort = new Chart(document.getElementById('chart_cohort'), {
   data: {
     labels: cohortMonths,
     datasets: [
+      {
+        type: 'bar',
+        label: '申込数',
+        data: cohortApplyCount,
+        backgroundColor: 'rgba(56,189,248,0.55)',
+        borderColor: 'rgba(56,189,248,0.85)',
+        borderWidth: 1,
+        yAxisID: 'y1',
+        order: 2
+      },
       {
         type: 'line',
         label: '登録1ヶ月以内申込率 (%)',
@@ -734,6 +746,13 @@ const cCohort = new Chart(document.getElementById('chart_cohort'), {
         grid: { color: GRID },
         title: { display: true, text: '申込率 (%)', color: '#4b5563' },
         min: 0
+      },
+      y1: {
+        position: 'right',
+        beginAtZero: true,
+        ticks: { color: TICK, precision: 0 },
+        grid: { display: false },
+        title: { display: true, text: '申込数', color: '#4b5563' }
       }
     }
   }
@@ -748,6 +767,16 @@ const cOldApps = new Chart(document.getElementById('chart_old_apps'), {
   data: {
     labels: cohortMonths,
     datasets: [
+      {
+        type: 'bar',
+        label: '申込数',
+        data: oldAppsApplyCount,
+        backgroundColor: 'rgba(56,189,248,0.55)',
+        borderColor: 'rgba(56,189,248,0.85)',
+        borderWidth: 1,
+        yAxisID: 'y1',
+        order: 2
+      },
       {
         type: 'line', 
         label: '1ヶ月超経過の申込割合（%）', 
@@ -784,7 +813,14 @@ const cOldApps = new Chart(document.getElementById('chart_old_apps'), {
       y: { position: 'left', beginAtZero: true, 
                ticks: { color: TICK, callback: v => v + '%' }, 
                grid: { color: GRID },
-               title: { display: true, text: '申込率 (%)', color: '#4b5563' } }
+               title: { display: true, text: '申込率 (%)', color: '#4b5563' } },
+      y1: {
+        position: 'right',
+        beginAtZero: true,
+        ticks: { color: TICK, precision: 0 },
+        grid: { display: false },
+        title: { display: true, text: '申込数', color: '#4b5563' }
+      }
     }
   }
 });
