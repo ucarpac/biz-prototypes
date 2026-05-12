@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="ja">
+<script src="../auth.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>UcarPAC App オンボーディング改善プロトタイプ</title>
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --text-disabled: #B3B3B3;
+      --text-placeholder: rgba(28,38,99,0.3);
+      --text-under-blue: #0056BA;
+      --button-gray: #CACEE2;
+      --button-link: #4099FF;
+      --back-white: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --back-gray2: #e6e6e6;
+      --back-blue: #091355;
+      --back-dark-blue: #0a1348;
+      --back-light-pink: #ffd8e8;
+      --back-light-blue: #6fc2ff;
+      --error: #EB4646;
+      --shadow: rgba(0,0,0,0.11);
+      --ruled-line: #F2F2F2;
+      --border-gray: #7C7C7C;
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+      --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
+      --gradient-disabled: linear-gradient(90deg, #e5e5e5, #e5e5e5);
+      --font-sans: 'Noto Sans JP', 'Hiragino Sans', system-ui, sans-serif;
+      --font-number: 'Righteous', 'Noto Sans JP', sans-serif;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --radius-sm: 5px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-chip: 22px;
+      --radius-button: 30px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--back-gray);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-sans);
+      color: var(--text-black);
+      background:
+        radial-gradient(circle at 18% 0%, rgba(248, 76, 162, 0.16), transparent 28%),
+        radial-gradient(circle at 82% 8%, rgba(29, 220, 255, 0.22), transparent 26%),
+        var(--back-gray);
+      line-height: 1.5;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .page {
+      width: 100%;
+      min-height: 100vh;
+      padding: 16px 12px 28px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .phone {
+      width: 100%;
+      max-width: 390px;
+      min-height: 760px;
+      background: var(--back-white);
+      border-radius: 28px;
+      box-shadow: 0 20px 70px rgba(28, 38, 99, 0.22);
+      overflow: hidden;
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.9);
+    }
+
+    .status {
+      height: 36px;
+      padding: 8px 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--dark-blue);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .signal,
+    .wifi,
+    .battery {
+      display: block;
+      height: 8px;
+      border-radius: 8px;
+      background: var(--dark-blue);
+    }
+
+    .signal {
+      width: 18px;
+    }
+
+    .wifi {
+      width: 14px;
+      opacity: 0.8;
+    }
+
+    .battery {
+      width: 22px;
+      height: 10px;
+      border: 1px solid var(--dark-blue);
+      background: transparent;
+      position: relative;
+    }
+
+    .battery::before {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: 2px;
+      width: 14px;
+      height: 4px;
+      background: var(--dark-blue);
+      border-radius: 4px;
+    }
+
+    .app-header {
+      padding: 8px 20px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--dark-blue);
+      font-weight: 800;
+      font-size: 18px;
+      line-height: 27px;
+    }
+
+    .brand-mark {
+      width: 31px;
+      height: 31px;
+      border-radius: 10px;
+      background: var(--gradient-pink);
+      color: var(--white);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      box-shadow: 0 8px 22px rgba(248, 76, 162, 0.28);
+    }
+
+    .metric-pill {
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 22px;
+      background: var(--white);
+      color: var(--dark-blue);
+      font-size: 11px;
+      font-weight: 700;
+      box-shadow: 0 0 0 1px var(--ruled-line), 0 4px 14px var(--shadow);
+    }
+
+    .tabs {
+      margin: 0 20px 12px;
+      padding: 4px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      background: var(--back-gray);
+      border-radius: 24px;
+    }
+
+    .tab {
+      min-height: 38px;
+      border-radius: 22px;
+      background: transparent;
+      color: var(--text-gray);
+      font-size: 12px;
+      font-weight: 800;
+      transition: transform 180ms ease, background 180ms ease, color 180ms ease;
+    }
+
+    .tab.active {
+      background: var(--dark-blue);
+      color: var(--white);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(28, 38, 99, 0.24);
+    }
+
+    .progress-wrap {
+      padding: 0 20px 12px;
+    }
+
+    .progress-line {
+      height: 8px;
+      border-radius: 10px;
+      background: #e6e6e6;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 33.33%;
+      height: 100%;
+      background: var(--gradient-primary);
+      border-radius: 10px;
+      transition: width 260ms ease;
+    }
+
+    .screen-viewport {
+      overflow: hidden;
+      width: 100%;
+      position: relative;
+      touch-action: pan-y;
+    }
+
+    .screen-track {
+      display: flex;
+      width: 300%;
+      transition: transform 320ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    .screen {
+      width: 33.333%;
+      padding: 0 20px 96px;
+      min-height: 610px;
+    }
+
+    .hero {
+      margin-top: 2px;
+      padding: 18px 0 16px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 29px;
+      padding: 5px 12px;
+      border-radius: 22px;
+      background: var(--back-light-pink);
+      color: var(--pink);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .eyebrow.blue {
+      background: rgba(29, 220, 255, 0.18);
+      color: var(--text-under-blue);
+    }
+
+    .hero-title {
+      margin: 12px 0 8px;
+      color: var(--dark-blue);
+      font-size: 28px;
+      line-height: 42px;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .hero-copy {
+      margin: 0;
+      color: var(--text-gray);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 500;
+    }
+
+    .quick-card,
+    .result-card,
+    .sample-card,
+    .expense-card,
+    .auction-card {
+      width: 100%;
+      border-radius: 13px;
+      background: var(--white);
+      box-shadow: 0 0 0 1px rgba(205, 220, 237, 0.84), 0 8px 28px var(--shadow);
+    }
+
+    .quick-card {
+      padding: 18px 16px 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quick-card::after {
+      content: "";
+      position: absolute;
+      right: -30px;
+      top: -42px;
+      width: 118px;
+      height: 118px;
+      border-radius: 999px;
+      background: rgba(29, 220, 255, 0.16);
+    }
+
+    .step-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-chip {
+      min-height: 28px;
+      padding: 5px 10px;
+      border-radius: 18px;
+      background: var(--dark-blue);
+      color: var(--white);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .tap-count {
+      color: var(--pink);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .selector-label {
+      margin: 0 0 8px;
+      color: var(--dark-blue);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .chip-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .choice-chip {
+      min-height: 43px;
+      padding: 8px 10px;
+      border-radius: 22px;
+      background: var(--white);
+      border: 1px solid var(--ruled-line);
+      color: var(--text-black);
+      font-size: 13px;
+      line-height: 19.5px;
+      font-weight: 800;
+      transition: transform 160ms ease, background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .choice-chip.selected {
+      background: var(--dark-blue);
+      color: var(--white);
+      box-shadow: 0 8px 18px rgba(28, 38, 99, 0.22);
+      transform: translateY(-1px);
+    }
+
+    .primary-button,
+    .pink-button,
+    .white-button {
+      min-height: 43px;
+      border-radius: 30px;
+      padding: 10px 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 900;
+      transition: transform 160ms ease, opacity 160ms ease, box-shadow 160ms ease;
+    }
+
+    .primary-button {
+      width: 100%;
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+      box-shadow: 0 9px 22px rgba(77, 180, 255, 0.28);
+    }
+
+    .pink-button {
+      width: 100%;
+      background: var(--gradient-pink);
+      color: var(--white);
+      box-shadow: 0 9px 22px rgba(248, 76, 162, 0.25);
+    }
+
+    .white-button {
+      width: 100%;
+      background: var(--white);
+      color: var(--dark-blue);
+      border: 1px solid rgba(28, 38, 99, 0.18);
+    }
+
+    .primary-button:active,
+    .pink-button:active,
+    .white-button:active,
+    .choice-chip:active {
+      transform: scale(0.98);
+    }
+
+    .result-card {
+      margin-top: 14px;
+      padding: 18px 16px 16px;
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+      transition: opacity 260ms ease, transform 260ms ease;
+    }
+
+    .result-card.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .result-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .car-name {
+      color: var(--dark-blue);
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 900;
+    }
+
+    .car-meta {
+      margin-top: 2px;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 600;
+    }
+
+    .badge {
+      flex: 0 0 auto;
+      min-height: 26px;
+      padding: 4px 9px;
+      border-radius: 18px;
+      background: var(--back-light-pink);
+      color: var(--pink);
+      font-size: 11px;
+      line-height: 16.5px;
+      font-weight: 900;
+    }
+
+    .price-label {
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+    }
+
+    .price {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin: 2px 0 8px;
+      color: var(--pink);
+    }
+
+    .price-number {
+      font-family: var(--font-number);
+      font-size: 40px;
+      line-height: 54px;
+      font-weight: 900;
+    }
+
+    .price-unit {
+      font-size: 18px;
+      line-height: 27px;
+      font-weight: 900;
+    }
+
+    .micro-note {
+      min-height: 34px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(29, 220, 255, 0.12);
+      color: var(--dark-blue);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 800;
+    }
+
+    .intro-card {
+      border-radius: 16px;
+      padding: 20px 16px;
+      background: linear-gradient(180deg, var(--back-blue), var(--back-dark-blue));
+      color: var(--white);
+      box-shadow: 0 12px 30px rgba(9, 19, 85, 0.28);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .intro-card::before {
+      content: "";
+      position: absolute;
+      right: -42px;
+      top: 32px;
+      width: 142px;
+      height: 142px;
+      border-radius: 999px;
+      border: 18px solid rgba(255,255,255,0.08);
+    }
+
+    .question-mark {
+      width: 68px;
+      height: 68px;
+      border-radius: 24px;
+      display: grid;
+      place-items: center;
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+      font-size: 38px;
+      line-height: 57px;
+      font-weight: 900;
+      box-shadow: 0 12px 26px rgba(29, 220, 255, 0.24);
+      animation: float 2.4s ease-in-out infinite;
+    }
+
+    .intro-title {
+      margin: 18px 0 8px;
+      font-size: 26px;
+      line-height: 39px;
+      font-weight: 900;
+      position: relative;
+      z-index: 1;
+    }
+
+    .intro-copy {
+      margin: 0 0 16px;
+      color: var(--text-light-blue, #bfdbfe);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+    }
+
+    .benefit-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 18px 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .benefit {
+      min-height: 78px;
+      padding: 10px 6px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.12);
+      text-align: center;
+    }
+
+    .benefit-num {
+      display: block;
+      color: var(--white);
+      font-family: var(--font-number);
+      font-size: 18px;
+      line-height: 27px;
+      font-weight: 900;
+    }
+
+    .benefit-text {
+      display: block;
+      color: #bfdbfe;
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 800;
+    }
+
+    .slider-card {
+      margin-top: 14px;
+      padding: 16px;
+      border-radius: 13px;
+      background: var(--white);
+      box-shadow: 0 0 0 1px rgba(205, 220, 237, 0.84), 0 8px 28px var(--shadow);
+    }
+
+    .slider-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 900;
+    }
+
+    .range-price {
+      color: var(--pink);
+      font-size: 18px;
+      line-height: 27px;
+      font-weight: 900;
+    }
+
+    .range {
+      width: 100%;
+      accent-color: var(--pink);
+    }
+
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .sample-card {
+      padding: 16px;
+    }
+
+    .sample-head {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .car-visual {
+      width: 88px;
+      height: 58px;
+      border-radius: 12px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.32), transparent 54%),
+        linear-gradient(135deg, #1ddcff, #4db4ff);
+      position: relative;
+      flex: 0 0 auto;
+      box-shadow: inset 0 -12px 0 rgba(28,38,99,0.12);
+    }
+
+    .car-visual::before {
+      content: "";
+      position: absolute;
+      left: 12px;
+      right: 10px;
+      top: 16px;
+      height: 21px;
+      border-radius: 18px 18px 8px 8px;
+      background: var(--dark-blue);
+      opacity: 0.92;
+    }
+
+    .car-visual::after {
+      content: "";
+      position: absolute;
+      left: 16px;
+      bottom: 6px;
+      width: 56px;
+      height: 12px;
+      border-radius: 10px;
+      background:
+        radial-gradient(circle at 8px 6px, #091355 0 5px, transparent 5px),
+        radial-gradient(circle at 48px 6px, #091355 0 5px, transparent 5px),
+        var(--white);
+    }
+
+    .sample-name {
+      color: var(--dark-blue);
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 900;
+    }
+
+    .sample-meta {
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 600;
+    }
+
+    .game-missions {
+      display: grid;
+      gap: 8px;
+      margin: 14px 0;
+    }
+
+    .mission {
+      min-height: 52px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: var(--back-gray);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      transition: background 180ms ease, transform 180ms ease;
+    }
+
+    .mission.done {
+      background: rgba(248, 76, 162, 0.12);
+      transform: translateX(2px);
+    }
+
+    .mission-text {
+      color: var(--dark-blue);
+      font-size: 13px;
+      line-height: 19.5px;
+      font-weight: 900;
+    }
+
+    .mission-sub {
+      display: block;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+    }
+
+    .check {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: var(--white);
+      color: var(--text-disabled);
+      font-size: 15px;
+      font-weight: 900;
+      box-shadow: 0 0 0 1px var(--ruled-line);
+    }
+
+    .mission.done .check {
+      background: var(--pink);
+      color: var(--white);
+      box-shadow: 0 7px 18px rgba(248, 76, 162, 0.24);
+    }
+
+    .graph {
+      height: 122px;
+      margin-top: 14px;
+      border-radius: 12px;
+      background:
+        linear-gradient(180deg, rgba(29,220,255,0.12), transparent),
+        var(--white);
+      border: 1px solid var(--ruled-line);
+      padding: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .graph-grid {
+      position: absolute;
+      inset: 12px;
+      background:
+        linear-gradient(to bottom, transparent 24%, rgba(28,38,99,0.08) 25%, transparent 26%),
+        linear-gradient(to bottom, transparent 49%, rgba(28,38,99,0.08) 50%, transparent 51%),
+        linear-gradient(to bottom, transparent 74%, rgba(28,38,99,0.08) 75%, transparent 76%);
+    }
+
+    .graph-line {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      top: 26px;
+      height: 70px;
+    }
+
+    .graph-line svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .graph-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--pink);
+      position: absolute;
+      box-shadow: 0 0 0 5px rgba(248,76,162,0.14);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    .dot-a { left: 17%; top: 51px; }
+    .dot-b { left: 48%; top: 42px; animation-delay: .3s; }
+    .dot-c { left: 79%; top: 31px; animation-delay: .6s; }
+
+    .graph-labels {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 800;
+    }
+
+    .bottom-nav {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 12px 20px 18px;
+      background: linear-gradient(180deg, rgba(250,250,250,0), var(--back-white) 24%);
+    }
+
+    .nav-actions {
+      display: grid;
+      grid-template-columns: 43px 1fr 43px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .icon-button {
+      width: 43px;
+      height: 43px;
+      border-radius: 999px;
+      background: var(--white);
+      color: var(--dark-blue);
+      font-size: 18px;
+      font-weight: 900;
+      box-shadow: 0 0 0 1px var(--ruled-line), 0 6px 18px var(--shadow);
+    }
+
+    .dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--text-disabled);
+      transition: width 180ms ease, background 180ms ease;
+    }
+
+    .dot.active {
+      width: 24px;
+      background: var(--pink);
+    }
+
+    .toast {
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      bottom: 86px;
+      min-height: 42px;
+      padding: 10px 14px;
+      border-radius: 22px;
+      background: var(--dark-blue);
+      color: var(--white);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 800;
+      box-shadow: 0 10px 28px rgba(28,38,99,0.28);
+      transform: translateY(18px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms ease, transform 220ms ease;
+      text-align: center;
+      z-index: 4;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .source-note {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: var(--back-gray);
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 600;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-8px) rotate(3deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.26); opacity: .82; }
+    }
+
+    @media (min-width: 720px) {
+      .page {
+        padding: 32px;
+        align-items: center;
+      }
+
+      .phone {
+        max-width: 420px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="phone" aria-label="UcarPACアプリ オンボーディングプロトタイプ">
+      <div class="status">
+        <span>9:41</span>
+        <div class="status-icons" aria-hidden="true">
+          <span class="signal"></span>
+          <span class="wifi"></span>
+          <span class="battery"></span>
+        </div>
+      </div>
+
+      <header class="app-header">
+        <div class="brand">
+          <span class="brand-mark">U</span>
+          <span>UcarPAC</span>
+        </div>
+        <div class="metric-pill">新規DL→申込率 2.29%</div>
+      </header>
+
+      <nav class="tabs" aria-label="オンボーディング案">
+        <button class="tab active" data-index="0">オンボA</button>
+        <button class="tab" data-index="1">オンボB</button>
+        <button class="tab" data-index="2">オンボC</button>
+      </nav>
+
+      <div class="progress-wrap">
+        <div class="progress-line" aria-hidden="true">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <div class="screen-viewport" id="viewport">
+        <div class="screen-track" id="track">
+          <section class="screen">
+            <div class="hero">
+              <span class="eyebrow">最短2タップでAI査定</span>
+              <h1 class="hero-title">車種と年式だけで<br>まず相場を見る</h1>
+              <p class="hero-copy">個人情報なしで査定入口まで進める体験。DL直後の心理的ハードルを下げ、車両登録への到達を狙う。</p>
+            </div>
+
+            <div class="quick-card">
+              <div class="step-row">
+                <span class="step-chip" id="quickStep">STEP 1 / 2</span>
+                <span class="tap-count" id="tapCount">0タップ</span>
+              </div>
+
+              <p class="selector-label">車種を選択</p>
+              <div class="chip-grid" id="carChoices">
+                <button class="choice-chip selected" data-car="トヨタ アルファード" data-price="328">アルファード</button>
+                <button class="choice-chip" data-car="ホンダ N-BOX" data-price="116">N-BOX</button>
+                <button class="choice-chip" data-car="日産 セレナ" data-price="184">セレナ</button>
+                <button class="choice-chip" data-car="マツダ CX-5" data-price="206">CX-5</button>
+              </div>
+
+              <p class="selector-label">年式を選択</p>
+              <div class="chip-grid" id="yearChoices">
+                <button class="choice-chip" data-year="2021年式" data-factor="1.08">2021年式</button>
+                <button class="choice-chip selected" data-year="2020年式" data-factor="1">2020年式</button>
+                <button class="choice-chip" data-year="2019年式" data-factor="0.92">2019年式</button>
+                <button class="choice-chip" data-year="2018年式" data-factor="0.84">2018年式</button>
+              </div>
+
+              <button class="primary-button" id="quickAssess">AI査定を体験する</button>
+            </div>
+
+            <div class="result-card show" id="quickResult">
+              <div class="result-top">
+                <div>
+                  <div class="car-name" id="resultCar">トヨタ アルファード</div>
+                  <div class="car-meta" id="resultMeta">2020年式 / 走行距離 38,000km想定</div>
+                </div>
+                <span class="badge">個人情報不要</span>
+              </div>
+
+              <div class="price-label">AI概算価格</div>
+              <div class="price">
+                <span class="price-number" id="resultPrice">328</span>
+                <span class="price-unit">万円</span>
+              </div>
+
+              <div class="micro-note" id="resultNote">写真追加でAI査定精度が上がります。次の入力へ進む導線を表示。</div>
+            </div>
+          </section>
+
+          <section class="screen">
+            <div class="hero">
+              <span class="eyebrow blue">導入質問で即参加</span>
+              <h1 class="hero-title">あなたの車、<br>今いくら？</h1>
+              <p class="hero-copy">アプリ起動直後に問いかけ、相場確認の明確な目的を作る。価格変動を見る資産管理体験へ接続する。</p>
+            </div>
+
+            <div class="intro-card">
+              <div class="question-mark">?</div>
+              <h2 class="intro-title">売る予定がなくても<br>今の価値を見ておく</h2>
+              <p class="intro-copy">AI査定・将来予測・出費管理をひとつの流れで見せ、削除されにくい理由を作る。</p>
+
+              <div class="benefit-row">
+                <div class="benefit">
+                  <span class="benefit-num">0</span>
+                  <span class="benefit-text">営業電話</span>
+                </div>
+                <div class="benefit">
+                  <span class="benefit-num">8,000</span>
+                  <span class="benefit-text">入札店規模</span>
+                </div>
+                <div class="benefit">
+                  <span class="benefit-num">1</span>
+                  <span class="benefit-text">電話窓口</span>
+                </div>
+              </div>
+
+              <button class="pink-button" id="introStart">今の価値を見てみる</button>
+            </div>
+
+            <div class="slider-card">
+              <div class="slider-title">
+                <span>売却タイミング診断</span>
+                <span class="range-price" id="futurePrice">312万円</span>
+              </div>
+              <input class="range" id="futureRange" type="range" min="0" max="6" value="3" aria-label="売却予定月">
+              <div class="range-labels">
+                <span>今月</span>
+                <span>3ヶ月後</span>
+                <span>6ヶ月後</span>
+              </div>
+              <div class="micro-note" id="futureNote">3ヶ月後は需要期前で価格維持の可能性。今すぐ売却相談も選べます。</div>
+            </div>
+
+            <div class="source-note">
+              主要訴求: AI査定、個人情報不要、電話1社、8,000社入札。検証日: 2026-05-13。出典URL: UcarPAC App デザインシステム / 競合・ベンチマーク資料。
+            </div>
+          </section>
+
+          <section class="screen">
+            <div class="hero">
+              <span class="eyebrow">登録前にサンプル体験</span>
+              <h1 class="hero-title">サンプル車両で<br>機能を先に触る</h1>
+              <p class="hero-copy">登録前に査定・将来予測・出費管理をゲームのミッションとして体験。完了後に自分の車を登録へ誘導する。</p>
+            </div>
+
+            <div class="sample-card">
+              <div class="sample-head">
+                <div class="car-visual" aria-hidden="true"></div>
+                <div>
+                  <div class="sample-name">ホンダ N-BOX Custom</div>
+                  <div class="sample-meta">2021年式 / 走行距離 24,000km</div>
+                </div>
+              </div>
+
+              <div class="game-missions">
+                <button class="mission done" data-mission="0">
+                  <span>
+                    <span class="mission-text">AI査定を見る</span>
+                    <span class="mission-sub">サンプル価格 128万円</span>
+                  </span>
+                  <span class="check">✓</span>
+                </button>
+
+                <button class="mission" data-mission="1">
+                  <span>
+                    <span class="mission-text">6ヶ月後の価格を見る</span>
+                    <span class="mission-sub">将来予測で売り時を確認</span>
+                  </span>
+                  <span class="check">＋</span>
+                </button>
+
+                <button class="mission" data-mission="2">
+                  <span>
+                    <span class="mission-text">月の出費を確認</span>
+                    <span class="mission-sub">ガソリン 12,800円 / 保険 7,400円</span>
+                  </span>
+                  <span class="check">＋</span>
+                </button>
+              </div>
+
+              <div class="graph">
+                <div class="graph-grid"></div>
+                <div class="graph-line">
+                  <svg viewBox="0 0 280 70" role="img" aria-label="価格予測グラフ">
+                    <path d="M0 50 C48 44 72 46 104 38 S168 22 212 28 S260 19 280 12" fill="none" stroke="#F84CA2" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M0 50 C48 44 72 46 104 38 S168 22 212 28 S260 19 280 12 L280 70 L0 70 Z" fill="rgba(248,76,162,0.10)"/>
+                  </svg>
+                </div>
+                <span class="graph-dot dot-a"></span>
+                <span class="graph-dot dot-b"></span>
+                <span class="graph-dot dot-c"></span>
+                <div class="graph-labels">
+                  <span>現在 128万</span>
+                  <span>3ヶ月 122万</span>
+                  <span>6ヶ月 115万</span>
+                </div>
+              </div>
+
+              <button class="primary-button" id="registerOwn" style="margin-top:14px;">自分の車で試す</button>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="toast" id="toast">体験ミッションを更新しました</div>
+
+      <footer class="bottom-nav">
+        <div class="nav-actions">
+          <button class="icon-button" id="prevBtn" aria-label="前へ">‹</button>
+          <button class="white-button" id="mainAction">この案で申込導線を見る</button>
+          <button class="icon-button" id="nextBtn" aria-label="次へ">›</button>
+        </div>
+        <div class="dots" aria-hidden="true">
+          <span class="dot active"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    window.PROTO_AUTH_CONFIG = {
+      title: 'UcarPAC App オンボーディング改善プロトタイプ',
+      description: '新規DLから売却申込率改善の検証用プロトタイプ',
+      storageHours: 24
+    };
+
+    const state = {
+      index: 0,
+      car: 'トヨタ アルファード',
+      basePrice: 328,
+      year: '2020年式',
+      factor: 1,
+      taps: 0,
+      missions: [true, false, false]
+    };
+
+    const track = document.getElementById('track');
+    const progressFill = document.getElementById('progressFill');
+    const tabs = Array.from(document.querySelectorAll('.tab'));
+    const dots = Array.from(document.querySelectorAll('.dot'));
+    const viewport = document.getElementById('viewport');
+    const toast = document.getElementById('toast');
+    const mainAction = document.getElementById('mainAction');
+
+    function setIndex(nextIndex) {
+      state.index = Math.max(0, Math.min(2, nextIndex));
+      track.style.transform = `translateX(-${state.index * 33.3333}%)`;
+      progressFill.style.width = `${(state.index + 1) * 33.3333}%`;
+
+      tabs.forEach((tab, index) => {
+        tab.classList.toggle('active', index === state.index);
+      });
+
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === state.index);
+      });
+
+      const labels = [
+        'この案でAI査定導線を見る',
+        'この案で申込導線を見る',
+        'この案で登録導線を見る'
+      ];
+      mainAction.textContent = labels[state.index];
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => {
+        toast.classList.remove('show');
+      }, 1800);
+    }
+
+    function updateQuickResult() {
+      const price = Math.round(state.basePrice * state.factor);
+      document.getElementById('resultCar').textContent = state.car;
+      document.getElementById('resultMeta').textContent = `${state.year} / 走行距離 38,000km想定`;
+      document.getElementById('resultPrice').textContent = price;
+      document.getElementById('tapCount').textContent = `${state.taps}タップ`;
+      document.getElementById('quickStep').textContent = state.taps >= 2 ? 'AI査定表示' : `STEP ${Math.min(state.taps + 1, 2)} / 2`;
+      document.getElementById('resultNote').textContent = `${state.car}は直近相場で${price - 18}〜${price + 24}万円レンジ。写真追加で精度を上げられます。`;
+
+      const result = document.getElementById('quickResult');
+      result.classList.remove('show');
+      window.setTimeout(() => result.classList.add('show'), 40);
+    }
+
+    document.getElementById('carChoices').addEventListener('click', (event) => {
+      const button = event.target.closest('.choice-chip');
+      if (!button) return;
+
+      document.querySelectorAll('#carChoices .choice-chip').forEach((item) => item.classList.remove('selected'));
+      button.classList.add('selected');
+
+      state.car = button.dataset.car;
+      state.basePrice = Number(button.dataset.price);
+      state.taps += 1;
+      updateQuickResult();
+      showToast('車種を選択しました');
+    });
+
+    document.getElementById('yearChoices').addEventListener('click', (event) => {
+      const button = event.target.closest('.choice-chip');
+      if (!button) return;
+
+      document.querySelectorAll('#yearChoices .choice-chip').forEach((item) => item.classList.remove('selected'));
+      button.classList.add('selected');
+
+      state.year = button.dataset.year;
+      state.factor = Number(button.dataset.factor);
+      state.taps += 1;
+      updateQuickResult();
+      showToast('年式を反映しました');
+    });
+
+    document.getElementById('quickAssess').addEventListener('click', () => {
+      state.taps = Math.max(state.taps, 2);
+      updateQuickResult();
+      showToast('AI査定結果を表示しました');
+    });
+
+    document.getElementById('introStart').addEventListener('click', () => {
+      showToast('個人情報なしで相場チェックを開始');
+    });
+
+    document.getElementById('futureRange').addEventListener('input', (event) => {
+      const month = Number(event.target.value);
+      const current = 328;
+      const price = Math.round(current - month * 5.4);
+      document.getElementById('futurePrice').textContent = `${price}万円`;
+
+      const note = month === 0
+        ? '今月の推定価格。売却相談へ進むと電話窓口は1社のみです。'
+        : `${month}ヶ月後の予測価格。価格変動を見ながら売り時を判断できます。`;
+      document.getElementById('futureNote').textContent = note;
+    });
+
+    document.querySelector('.game-missions').addEventListener('click', (event) => {
+      const mission = event.target.closest('.mission');
+      if (!mission) return;
+
+      const index = Number(mission.dataset.mission);
+      state.missions[index] = true;
+      mission.classList.add('done');
+      mission.querySelector('.check').textContent = '✓';
+
+      const doneCount = state.missions.filter(Boolean).length;
+      if (doneCount === 3) {
+        showToast('3つの体験が完了。自分の車の登録へ進めます');
+      } else {
+        showToast(`体験ミッション ${doneCount}/3 完了`);
+      }
+    });
+
+    document.getElementById('registerOwn').addEventListener('click', () => {
+      showToast('車両登録フォームへ進む想定です');
+    });
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      setIndex(state.index - 1);
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      setIndex(state.index + 1);
+    });
+
+    mainAction.addEventListener('click', () => {
+      const messages = [
+        'AI査定から売却相談へのCTAを表示',
+        '今の価値確認から車両登録へ遷移',
+        'サンプル体験完了後に自分の車を登録'
+      ];
+      showToast(messages[state.index]);
+    });
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        setIndex(Number(tab.dataset.index));
+      });
+    });
+
+    let startX = 0;
+    let currentX = 0;
+    let touching = false;
+
+    viewport.addEventListener('touchstart', (event) => {
+      startX = event.touches[0].clientX;
+      currentX = startX;
+      touching = true;
+    }, { passive: true });
+
+    viewport.addEventListener('touchmove', (event) => {
+      if (!touching) return;
+      currentX = event.touches[0].clientX;
+    }, { passive: true });
+
+    viewport.addEventListener('touchend', () => {
+      if (!touching) return;
+      const diff = currentX - startX;
+      if (Math.abs(diff) > 48) {
+        setIndex(state.index + (diff < 0 ? 1 : -1));
+      }
+      touching = false;
+    });
+
+    setIndex(0);
+    updateQuickResult();
+  </script>
+</body>
+</html>

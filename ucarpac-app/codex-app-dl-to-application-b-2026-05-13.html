@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="ja">
+<script>
+  window.PROTO_AUTH_CONFIG = {
+    title: "UcarPAC App KPI Prototype",
+    description: "新規DLから売却申込率を改善するオンボーディング検証",
+    storageHours: 24
+  };
+</script>
+<script src="../auth.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UcarPAC App KPI Prototype - Onboarding Data Dashboard</title>
+  <style>
+    <!-- B案: データドリブンアプローチ。数字・グラフ・比較表で説得力を出す。ダッシュボード風レイアウト、SVGチャート、進捗バー -->
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --text-disabled: #B3B3B3;
+      --text-placeholder: rgba(28,38,99,0.3);
+      --button-gray: #CACEE2;
+      --button-link: #4099FF;
+      --back-white: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --back-gray2: #e6e6e6;
+      --back-blue: #091355;
+      --back-dark-blue: #0a1348;
+      --back-light-pink: #ffd8e8;
+      --back-light-blue: #6fc2ff;
+      --error: #EB4646;
+      --ruled-line: #F2F2F2;
+      --border-gray: #7C7C7C;
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+      --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
+      --gradient-disabled: linear-gradient(90deg, #e5e5e5, #e5e5e5);
+      --font-sans: 'Noto Sans JP', 'Hiragino Sans', system-ui, sans-serif;
+      --font-number: 'Righteous', 'Noto Sans JP', sans-serif;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --radius-sm: 5px;
+      --radius-md: 12px;
+      --radius-card: 13px;
+      --radius-lg: 16px;
+      --radius-chip: 22px;
+      --radius-button: 30px;
+      --shadow-light: 0 4px 18px rgba(0,0,0,0.11);
+      --shadow-medium: 0 8px 26px rgba(28,38,99,0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 18% 0%, rgba(29, 220, 255, 0.16), transparent 34%),
+        linear-gradient(180deg, #FAFAFA 0%, #EDF1F4 100%);
+      color: var(--text-black);
+      font-family: var(--font-sans);
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 16px 14px 40px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      margin: -16px -14px 16px;
+      padding: 12px 14px;
+      background: rgba(250, 250, 250, 0.92);
+      border-bottom: 1px solid rgba(28, 38, 99, 0.08);
+      backdrop-filter: blur(18px);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1180px;
+      margin: 0 auto;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: var(--gradient-pink);
+      color: var(--white);
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      font-weight: 700;
+      box-shadow: 0 8px 18px rgba(248, 76, 162, 0.24);
+      flex: 0 0 auto;
+    }
+
+    .brand-text {
+      min-width: 0;
+    }
+
+    .brand-title {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-subtitle {
+      margin: 0;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+    }
+
+    .date-pill {
+      min-height: 32px;
+      padding: 8px 12px;
+      border-radius: var(--radius-chip);
+      background: var(--white);
+      color: var(--dark-blue);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+      box-shadow: var(--shadow-light);
+      white-space: nowrap;
+    }
+
+    .hero-grid {
+      display: grid;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .hero-panel {
+      padding: 20px 16px 18px;
+      border-radius: var(--radius-lg);
+      background:
+        linear-gradient(160deg, rgba(9, 19, 85, 0.98), rgba(28, 38, 99, 0.98)),
+        var(--back-blue);
+      color: var(--white);
+      box-shadow: var(--shadow-medium);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-panel::after {
+      content: "";
+      position: absolute;
+      right: -46px;
+      top: -50px;
+      width: 168px;
+      height: 168px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(29,220,255,0.32), transparent 68%);
+      pointer-events: none;
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 4px 10px;
+      border-radius: var(--radius-chip);
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--text-light-blue, #bfdbfe);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+    }
+
+    .hero-title {
+      position: relative;
+      margin: 14px 0 8px;
+      max-width: 690px;
+      font-size: 28px;
+      line-height: 42px;
+      font-weight: 700;
+      letter-spacing: 0;
+      z-index: 1;
+    }
+
+    .hero-copy {
+      position: relative;
+      margin: 0;
+      max-width: 740px;
+      color: #dbeafe;
+      font-size: 14px;
+      line-height: 21px;
+      z-index: 1;
+    }
+
+    .hero-actions {
+      position: relative;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+      z-index: 1;
+    }
+
+    .primary-button {
+      min-width: 182px;
+      min-height: 43px;
+      padding: 11px 18px;
+      border-radius: var(--radius-button);
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(77, 180, 255, 0.28);
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .primary-button:active {
+      transform: translateY(1px) scale(0.99);
+      box-shadow: 0 4px 14px rgba(77, 180, 255, 0.22);
+    }
+
+    .pink-button {
+      min-width: 140px;
+      min-height: 43px;
+      padding: 11px 18px;
+      border-radius: var(--radius-button);
+      background: var(--gradient-pink);
+      color: var(--white);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(248, 76, 162, 0.22);
+      transition: transform 180ms ease;
+    }
+
+    .outline-button {
+      min-width: 116px;
+      min-height: 43px;
+      padding: 10px 16px;
+      border-radius: var(--radius-button);
+      background: var(--white);
+      color: var(--dark-blue);
+      border: 1px solid rgba(28, 38, 99, 0.14);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+    }
+
+    .metric-strip {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric-card {
+      padding: 16px;
+      border-radius: var(--radius-card);
+      background: var(--white);
+      box-shadow: var(--shadow-light);
+      border: 1px solid rgba(28, 38, 99, 0.06);
+      min-height: 112px;
+    }
+
+    .metric-label {
+      margin: 0 0 8px;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+    }
+
+    .metric-value {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin: 0;
+      color: var(--dark-blue);
+      font-family: var(--font-number);
+      font-size: 32px;
+      line-height: 48px;
+      font-weight: 700;
+    }
+
+    .metric-unit {
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+    }
+
+    .metric-note {
+      margin: 4px 0 0;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      margin-top: 10px;
+      border-radius: 999px;
+      background: var(--back-gray);
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      width: var(--progress, 50%);
+      height: 100%;
+      border-radius: inherit;
+      background: var(--gradient-primary);
+      transition: width 400ms ease;
+    }
+
+    .section {
+      margin-top: 18px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 22px;
+      line-height: 33px;
+      font-weight: 700;
+    }
+
+    .section-subtitle {
+      margin: 2px 0 0;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .tab-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 14px 0;
+    }
+
+    .tab-button {
+      min-height: 43px;
+      padding: 8px 10px;
+      border-radius: var(--radius-chip);
+      background: var(--white);
+      color: var(--text-black);
+      border: 1px solid var(--ruled-line);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+      transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+    }
+
+    .tab-button[aria-selected="true"] {
+      background: var(--dark-blue);
+      color: var(--white);
+      transform: translateY(-1px);
+    }
+
+    .experiment-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .phone-shell {
+      width: 100%;
+      max-width: 375px;
+      margin: 0 auto;
+      padding: 12px;
+      border-radius: 28px;
+      background: #111827;
+      box-shadow: 0 18px 44px rgba(9, 19, 85, 0.24);
+    }
+
+    .phone-screen {
+      min-height: 710px;
+      border-radius: 22px;
+      background: var(--back-white);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .phone-status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 34px;
+      padding: 0 18px;
+      color: var(--dark-blue);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+    }
+
+    .phone-content {
+      padding: 12px 16px 20px;
+    }
+
+    .mock-topline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .mock-title {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 20px;
+      line-height: 30px;
+      font-weight: 700;
+    }
+
+    .mock-chip {
+      min-height: 28px;
+      padding: 6px 10px;
+      border-radius: var(--radius-chip);
+      background: var(--back-light-pink);
+      color: var(--pink);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .mock-hero-card {
+      padding: 16px;
+      border-radius: var(--radius-card);
+      background: var(--white);
+      box-shadow: var(--shadow-light);
+      border: 1px solid rgba(64, 153, 255, 0.16);
+    }
+
+    .mock-hero-card.dark {
+      background: linear-gradient(160deg, var(--back-blue), #1d2e93);
+      color: var(--white);
+      border: 0;
+    }
+
+    .mock-copy {
+      margin: 0;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .dark .mock-copy {
+      color: #bfdbfe;
+    }
+
+    .price-panel {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      background: var(--back-gray);
+    }
+
+    .price-label {
+      margin: 0;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+    }
+
+    .price-value {
+      margin: 2px 0 0;
+      color: var(--dark-blue);
+      font-size: 32px;
+      line-height: 48px;
+      font-weight: 700;
+    }
+
+    .price-range {
+      margin: 0;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .selector-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .selector-button {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 52px;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      background: var(--white);
+      color: var(--text-black);
+      border: 1px solid rgba(28, 38, 99, 0.08);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+    }
+
+    .selector-button.is-selected {
+      background: var(--dark-blue);
+      color: var(--white);
+      border-color: var(--dark-blue);
+    }
+
+    .mini-chart {
+      width: 100%;
+      height: auto;
+      margin-top: 12px;
+      display: block;
+    }
+
+    .bar-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 82px 1fr 46px;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-black);
+      font-size: 11px;
+      line-height: 16.5px;
+      font-weight: 700;
+    }
+
+    .bar-track {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--back-gray);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: var(--bar-width);
+      border-radius: inherit;
+      background: var(--gradient-primary);
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      background: var(--white);
+      border: 1px solid rgba(28, 38, 99, 0.06);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      color: var(--text-black);
+    }
+
+    .feature-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--pink);
+      flex: 0 0 auto;
+    }
+
+    .mock-action {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .full-button {
+      width: 100%;
+      min-height: 43px;
+      border-radius: var(--radius-button);
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+      transition: transform 180ms ease;
+    }
+
+    .full-button.pink {
+      background: var(--gradient-pink);
+      color: var(--white);
+    }
+
+    .full-button:active {
+      transform: scale(0.985);
+    }
+
+    .micro-note {
+      margin: 0;
+      color: var(--text-gray);
+      text-align: center;
+      font-size: 10px;
+      line-height: 15px;
+    }
+
+    .analysis-card {
+      padding: 16px;
+      border-radius: var(--radius-card);
+      background: var(--white);
+      box-shadow: var(--shadow-light);
+      border: 1px solid rgba(28, 38, 99, 0.06);
+    }
+
+    .analysis-title {
+      margin: 0 0 12px;
+      color: var(--dark-blue);
+      font-size: 18px;
+      line-height: 27px;
+      font-weight: 700;
+    }
+
+    .score-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .score-row {
+      padding: 12px;
+      border-radius: var(--radius-md);
+      background: var(--back-white);
+      border: 1px solid var(--ruled-line);
+    }
+
+    .score-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .score-name {
+      margin: 0;
+      color: var(--text-black);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 700;
+    }
+
+    .score-value {
+      margin: 0;
+      color: var(--pink);
+      font-size: 18px;
+      line-height: 27px;
+      font-weight: 700;
+    }
+
+    .score-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .tiny-pill {
+      min-height: 24px;
+      padding: 5px 9px;
+      border-radius: var(--radius-chip);
+      background: var(--back-gray);
+      color: var(--dark-blue);
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+    }
+
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: var(--radius-md);
+      background: var(--white);
+      box-shadow: var(--shadow-light);
+      font-size: 11px;
+      line-height: 16.5px;
+    }
+
+    .compare-table th,
+    .compare-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--ruled-line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .compare-table th {
+      background: var(--back-blue);
+      color: var(--white);
+      font-weight: 700;
+    }
+
+    .compare-table td:first-child {
+      color: var(--dark-blue);
+      font-weight: 700;
+    }
+
+    .source-card {
+      padding: 14px;
+      border-radius: var(--radius-card);
+      background: #fff;
+      box-shadow: var(--shadow-light);
+      border: 1px solid rgba(28, 38, 99, 0.06);
+    }
+
+    .source-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+    }
+
+    .source-list li {
+      margin: 6px 0;
+    }
+
+    .source-list a {
+      color: #0056BA;
+      word-break: break-all;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%) translateY(80px);
+      width: min(342px, calc(100% - 32px));
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      background: var(--back-dark-blue);
+      color: var(--white);
+      box-shadow: 0 16px 36px rgba(9, 19, 85, 0.32);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 260ms ease, opacity 260ms ease;
+      z-index: 50;
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .screen-panel {
+      display: none;
+      animation: panelIn 260ms ease both;
+    }
+
+    .screen-panel.is-active {
+      display: block;
+    }
+
+    @keyframes panelIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .pulse {
+      animation: pulse 1400ms ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(248, 76, 162, 0.28);
+      }
+      50% {
+        box-shadow: 0 0 0 10px rgba(248, 76, 162, 0);
+      }
+    }
+
+    @media (min-width: 760px) {
+      .page {
+        padding: 24px 24px 56px;
+      }
+
+      .topbar {
+        margin: -24px -24px 22px;
+        padding: 14px 24px;
+      }
+
+      .hero-grid {
+        grid-template-columns: 1.25fr 0.75fr;
+      }
+
+      .hero-title {
+        font-size: 40px;
+        line-height: 54px;
+      }
+
+      .metric-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .experiment-grid {
+        grid-template-columns: 390px 1fr;
+        align-items: start;
+      }
+
+      .score-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .section {
+        margin-top: 24px;
+      }
+    }
+
+    @media (min-width: 1020px) {
+      .metric-strip {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .analysis-stack {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        align-items: start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="brand-mark">U</div>
+          <div class="brand-text">
+            <p class="brand-title">UcarPAC App Growth Lab</p>
+            <p class="brand-subtitle">新規DL → 売却申込率 改善検証</p>
+          </div>
+        </div>
+        <div class="date-pill">更新日 2026-05-13</div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero-grid">
+        <div class="hero-panel">
+          <span class="hero-kicker">B案 データドリブン検証</span>
+          <h1 class="hero-title">DL直後の「相場がわかった」を、売却申込の理由に変える。</h1>
+          <p class="hero-copy">
+            現状の新規DL→申込率は2.29%。KPI 1.90%は達成済みのため、次の改善余地は
+            車両登録前後の離脱を減らし、AI査定・将来予測・電話1社の価値を早く体験させることに置く。
+          </p>
+          <div class="hero-actions">
+            <button class="primary-button" data-scroll-target="experiments">3案を比較する</button>
+            <button class="pink-button" data-scroll-target="kpi">KPIを見る</button>
+          </div>
+        </div>
+
+        <div class="metric-strip" id="kpi">
+          <article class="metric-card">
+            <p class="metric-label">現状 CVR</p>
+            <p class="metric-value">2.29<span class="metric-unit">%</span></p>
+            <div class="progress-track"><div class="progress-bar" style="--progress: 100%;"></div></div>
+            <p class="metric-note">KPI 1.90%に対して +0.39pt</p>
+          </article>
+          <article class="metric-card">
+            <p class="metric-label">次回改善目標</p>
+            <p class="metric-value">2.55<span class="metric-unit">%</span></p>
+            <div class="progress-track"><div class="progress-bar" style="--progress: 82%;"></div></div>
+            <p class="metric-note">オンボAを主検証に設定</p>
+          </article>
+          <article class="metric-card">
+            <p class="metric-label">最短体験</p>
+            <p class="metric-value">2<span class="metric-unit">タップ</span></p>
+            <div class="progress-track"><div class="progress-bar" style="--progress: 92%;"></div></div>
+            <p class="metric-note">車種→年式だけでAI査定</p>
+          </article>
+          <article class="metric-card">
+            <p class="metric-label">差別化訴求</p>
+            <p class="metric-value">3<span class="metric-unit">点</span></p>
+            <div class="progress-track"><div class="progress-bar" style="--progress: 78%;"></div></div>
+            <p class="metric-note">AI査定・電話1社・8,000店</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="experiments">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">オンボーディング3案</h2>
+            <p class="section-subtitle">ボタンで画面案とKPI仮説を切り替え</p>
+          </div>
+        </div>
+
+        <div class="tab-row" role="tablist" aria-label="オンボーディング案">
+          <button class="tab-button" role="tab" aria-selected="true" data-screen="screen-a">オンボA</button>
+          <button class="tab-button" role="tab" aria-selected="false" data-screen="screen-b">オンボB</button>
+          <button class="tab-button" role="tab" aria-selected="false" data-screen="screen-c">オンボC</button>
+        </div>
+
+        <div class="screen-panel is-active" id="screen-a">
+          <div class="experiment-grid">
+            <div class="phone-shell">
+              <div class="phone-screen">
+                <div class="phone-status">
+                  <span>9:41</span>
+                  <span>UcarPAC</span>
+                  <span>100%</span>
+                </div>
+                <div class="phone-content">
+                  <div class="mock-topline">
+                    <h3 class="mock-title">最短AI査定</h3>
+                    <span class="mock-chip">個人情報不要</span>
+                  </div>
+                  <div class="mock-hero-card">
+                    <p class="mock-copy">車種と年式だけで、まずは相場の中心値を表示します。</p>
+                    <div class="selector-grid">
+                      <button class="selector-button is-selected" data-select-car="prius">
+                        <span>トヨタ プリウス</span>
+                        <span>選択中</span>
+                      </button>
+                      <button class="selector-button" data-select-car="nbox">
+                        <span>ホンダ N-BOX</span>
+                        <span>変更</span>
+                      </button>
+                      <button class="selector-button" data-select-car="harrier">
+                        <span>トヨタ ハリアー</span>
+                        <span>変更</span>
+                      </button>
+                    </div>
+                    <div class="selector-grid">
+                      <button class="selector-button is-selected" data-select-year="2021">
+                        <span>2021年式</span>
+                        <span>2タップ目</span>
+                      </button>
+                    </div>
+                    <div class="price-panel">
+                      <p class="price-label">AI概算価格</p>
+                      <p class="price-value" id="quickPrice">162万円</p>
+                      <p class="price-range" id="quickRange">相場レンジ 145万〜178万円</p>
+                    </div>
+                    <svg class="mini-chart" viewBox="0 0 310 130" aria-label="将来予測グラフ">
+                      <defs>
+                        <linearGradient id="lineGradientA" x1="0" x2="1" y1="0" y2="0">
+                          <stop offset="0%" stop-color="#1ddcff"></stop>
+                          <stop offset="100%" stop-color="#F84CA2"></stop>
+                        </linearGradient>
+                      </defs>
+                      <line x1="20" y1="105" x2="292" y2="105" stroke="#e6e6e6" stroke-width="1"></line>
+                      <line x1="20" y1="30" x2="20" y2="105" stroke="#e6e6e6" stroke-width="1"></line>
+                      <path d="M20 48 C70 54, 96 62, 134 70 S220 86, 292 94" fill="none" stroke="url(#lineGradientA)" stroke-width="4" stroke-linecap="round"></path>
+                      <circle cx="20" cy="48" r="5" fill="#1ddcff"></circle>
+                      <circle cx="134" cy="70" r="5" fill="#4db4ff"></circle>
+                      <circle cx="292" cy="94" r="5" fill="#F84CA2"></circle>
+                      <text x="18" y="122" fill="#737373" font-size="10">今</text>
+                      <text x="119" y="122" fill="#737373" font-size="10">3ヶ月</text>
+                      <text x="268" y="122" fill="#737373" font-size="10">6ヶ月</text>
+                    </svg>
+                  </div>
+                </div>
+                <div class="mock-action">
+                  <button class="full-button pulse" data-simulate="a">AI査定を表示</button>
+                  <p class="micro-note">ここまでは電話番号・氏名の入力なし</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="analysis-card">
+              <h3 class="analysis-title">仮説: 価格到達を最短化して離脱を下げる</h3>
+              <div class="score-grid">
+                <div class="score-row">
+                  <div class="score-top">
+                    <p class="score-name">期待CVR</p>
+                    <p class="score-value">2.55%</p>
+                  </div>
+                  <div class="progress-track"><div class="progress-bar" style="--progress: 86%;"></div></div>
+                  <div class="score-meta">
+                    <span class="tiny-pill">主検証</span>
+                    <span class="tiny-pill">最短2タップ</span>
+                    <span class="tiny-pill">登録前価値提示</span>
+                  </div>
+                </div>
+                <div class="score-row">
+                  <div class="score-top">
+                    <p class="score-name">概算→AI査定転換</p>
+                    <p class="score-value">+14%</p>
+                  </div>
+                  <div class="progress-track"><div class="progress-bar" style="--progress: 74%;"></div></div>
+                  <div class="score-meta">
+                    <span class="tiny-pill">価格表示の即時性</span>
+                    <span class="tiny-pill">将来予測を同画面化</span>
+                  </div>
+                </div>
+                <div class="score-row">
+                  <div class="score-top">
+                    <p class="score-name">実装リスク</p>
+                    <p class="score-value">中</p>
+                  </div>
+                  <div class="progress-track"><div class="progress-bar" style="--progress: 48%;"></div></div>
+                  <div class="score-meta">
+                    <span class="tiny-pill">車種DB依存</span>
+                    <span class="tiny-pill">精度期待値の制御</span>
+                  </div>
+                </div>
+              </div>
+              <div class="bar-list">
+                <div class="bar-row">
+                  <span>価値理解</span>
+                  <div class="bar-track"><div class="bar-fill" style="--bar-width: 92%;"></div></div>
+                  <span>92</span>
+                </div>
+                <div class="bar-row">
+                  <span>入力負荷</span>
+                  <div class="bar-track"><div class="bar-fill" style="--bar-width: 28%;"></div></div>
+                  <span>低</span>
+                </div>
+                <div class="bar-row">
+                  <span>申込誘導</span>
+                  <div class="bar-track"><div class="bar-fill" style="--bar-width: 81%;"></div></div>
+                  <span>81</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen-panel" id="screen-b">
+          <div class="experiment-grid">
+            <div class="phone-shell">
+              <div class="phone-screen">
+                <div class="phone-status">
+                  <span>9:41</span>
+                  <span>UcarPAC</span>
+                  <span>100%</span>
+                </div>
+                <div class="phone-content">
+                  <div class="mock-topline">
+                    <h3 class="mock-title">あなたの車、今いくら？</h3>
+                    <span class="mock-chip">相場チェック</span>
+                  </div>
+                  <div class="mock-hero-card dark">
+                    <p class="mock-copy">売る予定がまだなくても、今の価値と6ヶ月後の変化を確認できます。</p>
+                    <div class="price-panel" style="background: rgba(255,255,255,0.12);">
+                      <p class="price-label" style="color:#bfdbfe;">サンプル: トヨタ アルファード 2019年式</p>
+                      <p class="price-value" style="color:#fff;">438万円</p>
+                      <p class="price-range" style="color:#bfdbfe;">6ヶ月後予測 414万円 / 差額 -24万円</p>
+                    </div>
+                    <svg class="mini-chart" viewBox="0 0 310 150" aria-label="価格変動グラフ">
+                      <rect x="20" y="28" width="38" height="86" rx="8" fill="#1ddcff"></rect>
+                      <rect x="82" y="42" width="38" height="72" rx="8" fill="#4db4ff"></rect>
+                      <rect x="144" y="58" width="38" height="56" rx="8" fill="#ffd8e8"></rect>
+                      <rect x="206" y="74" width="38" height="40" rx="8" fill="#F84CA2"></rect>
+                      <text x="17" y="132" fill="#bfdbfe" font-size="10">今</text>
+                      <text x="76" y="132" fill="#bfdbfe" font-size="10">1ヶ月</text>
+                      <text x="138" y="132" fill="#bfdbfe" font-size="10">3ヶ月</text>
+                      <text x="200" y="132" fill="#bfdbfe" font-size="10">6ヶ月</text>
+                      <text x="258" y="42" fill="#fff" font-size="12" font-weight="700">売り時</text>
+                    </svg>
+                  </div>
+                  <div class="feature-list">
+                    <div class="feature-item"><span class="feature-dot"></span>個人情報なしで相場チェック</div>
+                    <div class="feature-item"><span class="feature-dot"></span>電話はUcarPAC 1社のみ</div>
+                    <div class="feature-item"><span class="feature-dot"></span>8,000店が競う最高額オークション</div>
+                  </div>
+                </div>
+                <div class="mock-action">
+                  <button class="full-button pink" data-simulate="b">今の価格を見る</button>
+                  <p class="micro-note">価格変動を起点に再訪理由を作る</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="analysis-card">
+              <h3 class="analysis-title">仮説: 「自分ごと化」コピーで初回CTAを押させる</h3>
+              <div class="score-grid">
+                <div class="score-row">
+                  <div class="score-top">
+                    <p class="score-name">期待CVR</p>
+                    <p class="score-value">2.43%</p>
+                  </div>
+                  <div class="progress-track"><div class="progress-bar" style="--progress: 76%;"></div></div>
+                  <div class="score-meta">
+                    <span class="tiny-pill">導入強化</span>
+                    <span class="tiny-pill">不安解消</span>
+                  </div>
+                </div>
+                <div class="score-row">
+                  <div class="score-top">
+                    <p class="score-name">CTA押下率</p>
+                    <p class="score-value">+11%</p>
+                  </div>
+                  <div class="progress-track"><div class="progress-bar" style="--progress: 68%;"></div></div>
+                  <div class="score-meta">
+                    <span class="tiny-pill">価格変化の損失回避</span>
+                    <span class="tiny-pill">売り時訴求</span>
+                  </div>
+                </div>
+                <div class="score-row">
+                  <div class="score-top">
+                    <p class="score-name">実装リスク</p>
+                    <p class="score-value">低</p>
+                  </div>
+                  <div class="progress-track"><div class="progress-bar" style="--progress: 32%;"></div></div>
+                  <div class="score-meta">
+                    <span class="tiny-pill">文言変更中心</span>
+                    <span class="tiny-pill">ABテスト容易</span>
+                  </div>
+                </div>
+              </div>
+              <div class="bar-list">
+                <div class="bar-row">
+                  <span>価値理解</span>
+                  <div class="bar-track"><div class="bar-fill" style="--bar-width: 84%;"></div></div>
+                  <span>84</span>
+                </div>
+                <div class="bar-row">
+                  <span>入力負荷</span>
+                  <div class="bar-track"><div class="bar-fill" style="--bar-width: 38%;"></div></div>
+                  <span>低</span>
+                </div>
+                <div class="bar-row">
+                  <span>申込誘導</span>
+                  <div class="bar-track"><div class="bar-fill" style="--bar-width: 72%;"></div></div>
+                  <span>72</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen-panel" id="screen-c">
+          <div class="experiment-grid">
+            <div class="phone-shell">
+              <div class="phone-screen">
+                <div class="phone-status">
+                  <span>9:41</span>
+                  <span>UcarPAC</span>
+                  <span>100%</span>
+                </div>
+                <div class="phone-content">
+                  <div class="mock-topline">
+                    <h3 class="mock-title">まずはデモで体験</h3>
+                    <span class="mock-chip">登録前OK</span>
+                  </div>
+                  <div class="mock-hero-card">
+                    <p class="mock-copy">サンプル車両で、AI査定・出費管理・オークション進捗を先に確認します。</p>
+                    <div class="price-panel">
+                      <p class="price-label">サンプル車両</p>
+                      <p class="price-value">N-BOX</p>
+                      <p class="price-range">2020年式 / 走行 31,000km / パールホワイト</p>
+                    </div>
+                    <div class="feature-list">
+                      <div class="feature-item"><span class="feature-dot"></span>AI査定価格 112万円</div>
+                      <div class="feature-item"><span class="feature-dot"></span>年間維持費 28.4万円</div>
+                      <div class="feature-item"><span class="feature-dot"></span>入札最高額 119万円</div>
+                    </div>
+                    <svg class="mini-chart" viewBox="0 0 310 128" aria-label="機能体験チャート">
+                      <circle cx="62" cy="62" r="42" fill="#edf1f4"></circle>
+                      <path d="M62 20 A42 42 0 1 1 25 82" fill="none" stroke="#F84CA2" stroke-width="12" stroke-linecap="round"></path>
+                      <text x="44" y="67" fill="#1c2663" font-size="18" font-weight="700">84%</text>
+                      <rect x="128" y="30" width="144" height="14" rx="7" fill="#edf1f4"></rect>
+                      <rect x="128" y="30" width="118" height="14" rx="7" fill="#1ddcff"></rect>
+                      <rect x="128" y="58" width="144" height="14" rx="7" fill="#edf1f4"></rect>
+                      <rect x="128" y="58" width="92" height="14" rx="7" fill="#4db4ff"></rect>
+                      <rect x="128" y="86" width="144" height="14" rx="7" fill="#edf1f4"></rect>
+                      <rect x="128" y="86" width="132" height="14" rx="7" fill="#F84CA2"></rect>
+                    </svg>
+                  </div>
+                </div>
+                <div class="mock-action">
+                  <button class="full-button" data-simulate="c">自分の車で試す</button>
+                  <p class="micro-note">機能価値を見せてから車両登録へ進める</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="analysis-card">
+              <h3 class="analysis-title">仮説: 登録前デモで機能理解を先に作る</h3>
+              <div class="score-grid">
+                <div class="score-row">
+                  <div class="score-top">
+                    <p class="score-name">期待CVR</p>
+                    <p class="score-value">2.36%</p>
+                  </div>
+                  <div class="progress-track"><div class="progress-bar" style="--progress: 68%;"></div></div>
+                  <div class="score-meta">
+                    <span class="tiny-pill">理解促進</span>
+                    <span class="tiny-pill">登録前体験</span>
+                  </div>
+                </div>
+                <div class="score-row">
+                  <div class="score-top">
+                    <p class="score-name">車両登録開始</p>
+                    <p class="score-value">+9%</p>
+                  </div>
+                  <div class="progress-track"><div class="progress-bar" style="--progress: 62%;"></div></div>
+                  <div class="score-meta">
+                    <span class="tiny-pill">サンプル車両</span>
+                    <span class="tiny-pill">機能横断</span>
+                  </div>
+                </div>
+                <div class="score-row">
+                  <div class="score-top">
+                    <p class="score-name">実装リスク</p>
+                    <p class="score-value">中</p>
+                  </div>
+                  <div class="progress-track"><div class="progress-bar" style="--progress: 56%;"></div></div>
+                  <div class="score-meta">
+                    <span class="tiny-pill">デモ状態管理</span>
+                    <span class="tiny-pill">本登録遷移</span>
+                  </div>
+                </div>
+              </div>
+              <div class="bar-list">
+                <div class="bar-row">
+                  <span>価値理解</span>
+                  <div class="bar-track"><div class="bar-fill" style="--bar-width: 88%;"></div></div>
+                  <span>88</span>
+                </div>
+                <div class="bar-row">
+                  <span>入力負荷</span>
+                  <div class="bar-track"><div class="bar-fill" style="--bar-width: 44%;"></div></div>
+                  <span>中</span>
+                </div>
+                <div class="bar-row">
+                  <span>申込誘導</span>
+                  <div class="bar-track"><div class="bar-fill" style="--bar-width: 66%;"></div></div>
+                  <span>66</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">勝ち筋比較</h2>
+            <p class="section-subtitle">申込率への寄与と運用しやすさで優先度を整理</p>
+          </div>
+        </div>
+        <div class="analysis-stack">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>案</th>
+                <th>主な狙い</th>
+                <th>期待CVR</th>
+                <th>優先</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>オンボA</td>
+                <td>車種→年式だけで即AI査定。価格到達の速さで離脱を減らす。</td>
+                <td>2.55%</td>
+                <td>高</td>
+              </tr>
+              <tr>
+                <td>オンボB</td>
+                <td>「今いくら？」の問いで自分ごと化し、CTA押下を上げる。</td>
+                <td>2.43%</td>
+                <td>中</td>
+              </tr>
+              <tr>
+                <td>オンボC</td>
+                <td>サンプル車両で機能を先に体験させ、登録理由を作る。</td>
+                <td>2.36%</td>
+                <td>中</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <article class="analysis-card">
+            <h3 class="analysis-title">KPI履歴反映案</h3>
+            <div class="bar-list">
+              <div class="bar-row">
+                <span>現状</span>
+                <div class="bar-track"><div class="bar-fill" style="--bar-width: 72%;"></div></div>
+                <span>2.29%</span>
+              </div>
+              <div class="bar-row">
+                <span>KPI</span>
+                <div class="bar-track"><div class="bar-fill" style="--bar-width: 60%;"></div></div>
+                <span>1.90%</span>
+              </div>
+              <div class="bar-row">
+                <span>A案目標</span>
+                <div class="bar-track"><div class="bar-fill" style="--bar-width: 82%;"></div></div>
+                <span>2.55%</span>
+              </div>
+              <div class="bar-row">
+                <span>差分</span>
+                <div class="bar-track"><div class="bar-fill" style="--bar-width: 44%;"></div></div>
+                <span>+0.26pt</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">競合ベンチマーク</h2>
+            <p class="section-subtitle">主要主張はURLと確認日を併記</p>
+          </div>
+        </div>
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>サービス</th>
+              <th>電話負担</th>
+              <th>競争規模</th>
+              <th>UcarPAC Appで強調する差分</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>UcarPAC</td>
+              <td>電話も査定も1社</td>
+              <td>全国8,000店以上</td>
+              <td>AI査定・将来予測・出費管理をアプリで統合</td>
+            </tr>
+            <tr>
+              <td>MOTA</td>
+              <td>上位3社のみ</td>
+              <td>最大20社が事前入札</td>
+              <td>UcarPACは電話1社とアプリ内体験を前面化</td>
+            </tr>
+            <tr>
+              <td>セルカ</td>
+              <td>セルカ1社のみ</td>
+              <td>8,000社以上</td>
+              <td>UcarPACはAI査定と維持費管理まで継続接点化</td>
+            </tr>
+            <tr>
+              <td>楽天Car</td>
+              <td>サポートあり</td>
+              <td>2,000社以上</td>
+              <td>UcarPACは規模と無料訴求を早期に提示</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section">
+        <article class="source-card">
+          <h2 class="section-title" style="font-size:18px;line-height:27px;margin-bottom:8px;">検証ソース</h2>
+          <ol class="source-list">
+            <li>UcarPAC公式「全国8000店以上」「電話も査定もやりとりは1社だけ」確認日: 2026-05-13 URL: <a href="https://ucarpac.com/sell">https://ucarpac.com/sell</a></li>
+            <li>MOTA公式「最大20社が事前入札、高額をつけた上位3社のみ」確認日: 2026-05-13 URL: <a href="https://mota.inc/service/">https://mota.inc/service/</a></li>
+            <li>MOTA公式ニュース「2026年3月の月間申込数105,300件、最短3時間、上位3社」公開日: 2026-04-02 URL: <a href="https://mota.inc/news/3-wnw7d-in4/">https://mota.inc/news/3-wnw7d-in4/</a></li>
+            <li>セルカ公式「8,000社を超える業者」「窓口はセルカ一社」確認日: 2026-05-13 URL: <a href="https://www.sellca-sellcar.com/service/auction/">https://www.sellca-sellcar.com/service/auction/</a></li>
+            <li>楽天Car公式「参加している中古車販売店は2,000社以上」確認日: 2026-05-13 URL: <a href="https://sell.car.rakuten.co.jp/">https://sell.car.rakuten.co.jp/</a></li>
+            <li>ズバット公式FAQ「複数の車買取業者からメールや電話」最終更新日: 2025-10-21 URL: <a href="https://www.zba.jp/car-kaitori/faq/faqd_004.html">https://www.zba.jp/car-kaitori/faq/faqd_004.html</a></li>
+          </ol>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">AI査定を表示しました</div>
+
+  <script>
+    const tabs = document.querySelectorAll(".tab-button");
+    const panels = document.querySelectorAll(".screen-panel");
+    const toast = document.getElementById("toast");
+
+    const carData = {
+      prius: {
+        price: "162万円",
+        range: "相場レンジ 145万〜178万円"
+      },
+      nbox: {
+        price: "112万円",
+        range: "相場レンジ 96万〜126万円"
+      },
+      harrier: {
+        price: "286万円",
+        range: "相場レンジ 258万〜312万円"
+      }
+    };
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("is-visible");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => {
+        toast.classList.remove("is-visible");
+      }, 1800);
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const targetId = tab.dataset.screen;
+
+        tabs.forEach((item) => {
+          item.setAttribute("aria-selected", String(item === tab));
+        });
+
+        panels.forEach((panel) => {
+          panel.classList.toggle("is-active", panel.id === targetId);
+        });
+
+        const label = tab.textContent.trim();
+        showToast(label + "に切り替えました");
+      });
+    });
+
+    document.querySelectorAll("[data-scroll-target]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const target = document.getElementById(button.dataset.scrollTarget);
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    });
+
+    document.querySelectorAll("[data-select-car]").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll("[data-select-car]").forEach((item) => {
+          item.classList.remove("is-selected");
+          item.querySelector("span:last-child").textContent = "変更";
+        });
+
+        button.classList.add("is-selected");
+        button.querySelector("span:last-child").textContent = "選択中";
+
+        const data = carData[button.dataset.selectCar];
+        document.getElementById("quickPrice").textContent = data.price;
+        document.getElementById("quickRange").textContent = data.range;
+        showToast(button.querySelector("span:first-child").textContent + "の概算を更新しました");
+      });
+    });
+
+    document.querySelectorAll("[data-simulate]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const type = button.dataset.simulate;
+        if (type === "a") {
+          showToast("2タップでAI概算価格に到達しました");
+        }
+        if (type === "b") {
+          showToast("価格変動グラフから査定開始へ進みます");
+        }
+        if (type === "c") {
+          showToast("サンプル体験から自分の車の登録へ進みます");
+        }
+
+        button.animate(
+          [
+            { transform: "scale(1)" },
+            { transform: "scale(0.97)" },
+            { transform: "scale(1)" }
+          ],
+          {
+            duration: 260,
+            easing: "ease-out"
+          }
+        );
+      });
+    });
+  </script>
+</body>
+</html>
