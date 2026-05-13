@@ -10,8 +10,20 @@
   const TITLE = CONFIG.title || "UcarPAC Prototype Hub";
   const SUBTITLE = CONFIG.subtitle || "社内共有用パスワードを入力してください";
   const ACCENT = CONFIG.accent || "linear-gradient(135deg, #1ddcff, #4db4ff)";
+  const AGENCY_PATH_PREFIXES = [
+    "/agency/",
+    "/ops/auto-kpi/",
+    "/reports/lp11-cpa-report-20260410/",
+    "/reports/ai-inflow-20260331-n6x3p8r4k2/"
+  ];
   // "full" = UCP内部（全ページ閲覧可）、"agency" = 代理店共有ページのみ閲覧可
-  const REQUIRED = CONFIG.required || "full";
+  const REQUIRED = CONFIG.required || detectRequiredLevel();
+
+  function detectRequiredLevel() {
+    if (typeof location === "undefined") return "full";
+    const path = location.pathname.replace(/^\/biz-prototypes/, "");
+    return AGENCY_PATH_PREFIXES.some((prefix) => path.startsWith(prefix)) ? "agency" : "full";
+  }
 
   function getBasePath() {
     if (typeof location === "undefined") return "/";
