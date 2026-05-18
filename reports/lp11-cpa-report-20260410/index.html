@@ -409,7 +409,7 @@
 <div class="chart-card">
   <div class="chart-title">広告費の構成比（前月 / 当月・暫定）</div>
   <div class="notice" style="margin-bottom:14px; margin-top:0;">
-    ⚠️ 前月は2026/04完了月。Google広告は既存レポートの広告費とCPIからAndroid/iOSを按分。その他はGoogle広告との二重計上を避け、a8_intのみCPI 200円、その他指定AppsFlyerソースはインストール数 × 500円で概算。当月は現時点コストと着地見込みコストを前月構成比で暫定按分。
+    ⚠️ 前月は2026/04完了月。当月はGoogle広告Androidを現時点広告費、Google広告iOSを0円、TikTok/AppleAds/その他をAppsFlyer最新インストール数×暫定単価で別計算。見込みは当月現時点構成にGoogle広告の着地倍率を掛けた暫定値。
   </div>
   <div class="spend-month-grid">
     <div class="spend-month-panel">
@@ -533,8 +533,15 @@ const adSpendPrevMix = [
   { label: 'AppleAds', value: 543600, source: 'AF×暫定CPI', sourceType: 'estimate', color: '#fbbf24' },
   { label: 'その他', value: 150700, source: 'AF installs×単価', sourceType: 'estimate', color: '#a78bfa' }
 ];
-const adSpendCurrentActualTotal = 978000;
-const adSpendCurrentForecastTotal = 2530000;
+const adSpendCurrentGoogleForecastTotal = 2530000;
+const adSpendCurrentMix = [
+  { label: 'Google広告 Android', actualValue: 978000, source: '当月広告費', sourceType: 'actual', color: '#4ade80' },
+  { label: 'Google広告 iOS', actualValue: 0, source: '当月実績なし', sourceType: 'actual', color: '#60a5fa' },
+  { label: 'TikTok広告 Android', actualValue: 251440, source: 'AF×暫定CPI', sourceType: 'estimate', color: '#f472b6' },
+  { label: 'TikTok広告 iOS', actualValue: 62860, source: 'AF×暫定CPI', sourceType: 'estimate', color: '#fb7185' },
+  { label: 'AppleAds', actualValue: 543600, source: 'AF×暫定CPI', sourceType: 'estimate', color: '#fbbf24' },
+  { label: 'その他', actualValue: 150700, source: 'AF installs×単価', sourceType: 'estimate', color: '#a78bfa' }
+];
 const adSpendNotes = {
   'Google広告 Android': '2026/04 Google広告費 171.3万円を、既存CPI（Android 592円 / iOS 1,097円）とAppsFlyer googleadwords_int installsから按分',
   'Google広告 iOS': '2026/04 Google広告費 171.3万円を、既存CPI（Android 592円 / iOS 1,097円）とAppsFlyer googleadwords_int installsから按分',
@@ -840,13 +847,11 @@ initCustomLegend(cFunnel, 'legend-chart_funnel');
 const yen = v => '¥' + Math.round(v).toLocaleString();
 const pct = (value, total) => total ? (value / total * 100).toFixed(1) : '0.0';
 const adSpendPrevTotal = adSpendPrevMix.reduce((sum, row) => sum + row.value, 0);
-const adSpendCurrentMix = adSpendPrevMix.map(row => {
-  const share = adSpendPrevTotal ? row.value / adSpendPrevTotal : 0;
-  return {
-    ...row,
-    actualValue: adSpendCurrentActualTotal * share,
-    forecastValue: adSpendCurrentForecastTotal * share
-  };
+const adSpendCurrentActualTotal = adSpendCurrentMix.reduce((sum, row) => sum + row.actualValue, 0);
+const adSpendCurrentForecastRate = adSpendCurrentGoogleForecastTotal / 978000;
+const adSpendCurrentForecastTotal = adSpendCurrentActualTotal * adSpendCurrentForecastRate;
+adSpendCurrentMix.forEach(row => {
+  row.forecastValue = row.actualValue * adSpendCurrentForecastRate;
 });
 
 document.getElementById('adSpendPrevTotal').textContent = yen(adSpendPrevTotal);
