@@ -142,6 +142,54 @@
     height: 4px;
     border-radius: 2px;
   }
+
+  .spend-breakdown {
+    display: grid;
+    grid-template-columns: minmax(280px, 420px) 1fr;
+    gap: 22px;
+    align-items: center;
+  }
+  .spend-chart-wrap {
+    min-height: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .spend-chart-wrap canvas { max-height: 320px; }
+  .spend-total {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: -8px;
+    margin-bottom: 14px;
+  }
+  .spend-total strong {
+    color: #fff;
+    font-size: 18px;
+    margin-left: 6px;
+  }
+  .spend-table td:nth-child(2),
+  .spend-table td:nth-child(3),
+  .spend-table td:nth-child(4) {
+    font-variant-numeric: tabular-nums;
+  }
+  .spend-source {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(59,130,246,.12);
+    color: #93c5fd;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .spend-source.estimate {
+    background: rgba(251,191,36,.12);
+    color: #fbbf24;
+  }
+  @media (max-width: 900px) {
+    .spend-breakdown { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>  <script>
@@ -338,6 +386,33 @@
   <canvas id="chart_funnel"></canvas>
 </div>
 
+<!-- Chart Ad Spend Mix: 広告費構成比 -->
+<div class="chart-card">
+  <div class="chart-title">広告費の構成比（2026/04 完了月・暫定）</div>
+  <div class="notice" style="margin-bottom:14px; margin-top:0;">
+    ⚠️ Google広告は既存レポートの2026/04広告費とCPIからAndroid/iOSを按分。TikTok/AppleAdsはAppsFlyerインストール実績をベースに暫定単価で推計。その他は指定AppsFlyerソースのインストール数 × 500円で概算。
+  </div>
+  <div class="spend-breakdown">
+    <div class="spend-chart-wrap">
+      <canvas id="chart_ad_spend_mix"></canvas>
+    </div>
+    <div>
+      <div class="spend-total">対象広告費合計 <strong id="adSpendTotal">-</strong></div>
+      <table class="spend-table">
+        <thead>
+          <tr>
+            <th>項目</th>
+            <th>広告費</th>
+            <th>構成比</th>
+            <th>算出元</th>
+          </tr>
+        </thead>
+        <tbody id="adSpendRows"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 
 
 <!-- データテーブル -->
@@ -411,6 +486,24 @@ const appStoreValidDownloads   = [null, null, null, null, null, null, null, null
 const kpiListingRate    = 28.0;
 const kpiConListingRate = 40.0;
 const kpiTotalCVR       = 11.2;
+
+// 広告費構成比（2026/04 完了月・暫定）
+const adSpendMix = [
+  { label: 'Google広告 Android', value: 1538608, source: 'BQ/CPI按分', sourceType: 'actual', color: '#4ade80' },
+  { label: 'Google広告 iOS', value: 174423, source: 'BQ/CPI按分', sourceType: 'actual', color: '#60a5fa' },
+  { label: 'TikTok広告 Android', value: 251440, source: 'AF×暫定CPI', sourceType: 'estimate', color: '#f472b6' },
+  { label: 'TikTok広告 iOS', value: 62860, source: 'AF×暫定CPI', sourceType: 'estimate', color: '#fb7185' },
+  { label: 'AppleAds', value: 543600, source: 'AF×暫定CPI', sourceType: 'estimate', color: '#fbbf24' },
+  { label: 'その他', value: 1656000, source: 'AF installs×500円', sourceType: 'estimate', color: '#a78bfa' }
+];
+const adSpendNotes = {
+  'Google広告 Android': '2026/04 Google広告費 171.3万円を、既存CPI（Android 592円 / iOS 1,097円）とAppsFlyer googleadwords_int installsから按分',
+  'Google広告 iOS': '2026/04 Google広告費 171.3万円を、既存CPI（Android 592円 / iOS 1,097円）とAppsFlyer googleadwords_int installsから按分',
+  'TikTok広告 Android': 'AppsFlyer tiktokglobal_int 449 installsをAndroid 80% / iOS 20%、暫定CPI 700円で推計',
+  'TikTok広告 iOS': 'AppsFlyer tiktokglobal_int 449 installsをAndroid 80% / iOS 20%、暫定CPI 700円で推計',
+  'AppleAds': 'AppsFlyer Apple Search Ads 604 installs、暫定CPI 900円で推計',
+  'その他': 'a8_int / rentracksaxf_int / googleadwords_int / accesstrade_int / smaad_int / seedapp_int の合計3,312 installs × 500円'
+};
 
 const GRID = '#252836';
 const TICK = '#6b7280';
@@ -703,6 +796,56 @@ const cFunnel = new Chart(document.getElementById('chart_funnel'), {
   }
 });
 initCustomLegend(cFunnel, 'legend-chart_funnel');
+
+// Chart Ad Spend Mix: 広告費構成比
+const adSpendTotal = adSpendMix.reduce((sum, row) => sum + row.value, 0);
+const yen = v => '¥' + Math.round(v).toLocaleString();
+document.getElementById('adSpendTotal').textContent = yen(adSpendTotal);
+document.getElementById('adSpendRows').innerHTML = adSpendMix.map(row => {
+  const pct = adSpendTotal ? (row.value / adSpendTotal * 100).toFixed(1) : '0.0';
+  const sourceClass = row.sourceType === 'estimate' ? ' estimate' : '';
+  return `<tr>
+    <td>${row.label}</td>
+    <td>${yen(row.value)}</td>
+    <td>${pct}%</td>
+    <td><span class="spend-source${sourceClass}">${row.source}</span></td>
+  </tr>`;
+}).join('');
+
+const cAdSpendMix = new Chart(document.getElementById('chart_ad_spend_mix'), {
+  type: 'doughnut',
+  data: {
+    labels: adSpendMix.map(row => row.label),
+    datasets: [{
+      data: adSpendMix.map(row => row.value),
+      backgroundColor: adSpendMix.map(row => row.color),
+      borderColor: '#161922',
+      borderWidth: 2,
+      hoverOffset: 8
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '58%',
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { color: '#cbd5e1', boxWidth: 12, padding: 14 }
+      },
+      tooltip: {
+        callbacks: {
+          label: ctx => {
+            const row = adSpendMix[ctx.dataIndex];
+            const pct = adSpendTotal ? (row.value / adSpendTotal * 100).toFixed(1) : '0.0';
+            return `${row.label}: ${yen(row.value)} (${pct}%)`;
+          },
+          afterLabel: ctx => adSpendNotes[adSpendMix[ctx.dataIndex].label] || ''
+        }
+      }
+    }
+  }
+});
 
 // Chart Cohort: 登録1ヶ月以内申込率
 const cohortPointColors = cohortIncomplete.map(inc => inc === 'true' ? 'rgba(251,191,36,0.35)' : '#fbbf24');
