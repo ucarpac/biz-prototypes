@@ -451,6 +451,29 @@
   </div>
 </div>
 
+<div class="chart-card">
+  <div class="chart-title">Google広告 有効DL CPI（削除補正）</div>
+  <div class="notice" style="margin-bottom:14px; margin-top:0;">
+    ⚠️ Google AdsのDOWNLOAD conversionをDL数に使用。削除数はGoogle広告キャンペーン単位では取得できないため、Store側のOS別削除率をGoogle広告DLに按分して有効DLを推定。Android削除数はStore mart未投入のため補正なし。
+  </div>
+  <table class="spend-table">
+    <thead>
+      <tr>
+        <th>月</th>
+        <th>OS</th>
+        <th>広告費</th>
+        <th>DL</th>
+        <th>推定削除</th>
+        <th>有効DL</th>
+        <th>通常CPI</th>
+        <th>有効DL CPI</th>
+        <th>データ期間</th>
+      </tr>
+    </thead>
+    <tbody id="googleEffectiveCpiRows"></tbody>
+  </table>
+</div>
+
 
 
 <!-- データテーブル -->
@@ -551,6 +574,63 @@ const adSpendNotes = {
   'AppleAds': 'BigQuery ucarpac_data.apple_search_ads_campaign_daily の local_spend を report_date × campaign_id で重複排除して集計',
   'その他': 'a8_int 421 installs × 200円 + rentracksaxf_int / accesstrade_int / smaad_int / seedapp_int 合計133 installs × 500円。googleadwords_intはGoogle広告側で計上済みのため除外'
 };
+
+const googleEffectiveCpiRows = [
+  {
+    month: '2026/04',
+    os: 'Android',
+    period: '2026/04/01-04/30',
+    storePeriod: '2026/04/01-04/30',
+    cost: 1309505,
+    mediaCost: 1091254,
+    downloads: 2211,
+    storeDownloads: 3578,
+    storeDeletions: 0,
+    deletionRate: 0.0,
+    estimatedDeletions: 0,
+    effectiveDownloads: 2211,
+    rawCpi: 592,
+    effectiveCpi: 592,
+    mediaEffectiveCpi: 494,
+    note: 'Android削除数はStore mart未投入のため補正なし'
+  },
+  {
+    month: '2026/04',
+    os: 'iOS',
+    period: '2026/04/01-04/23',
+    storePeriod: '2026/04/01-04/30',
+    cost: 403513,
+    mediaCost: 336261,
+    downloads: 367,
+    storeDownloads: 1600,
+    storeDeletions: 276,
+    deletionRate: 17.3,
+    estimatedDeletions: 63,
+    effectiveDownloads: 304,
+    rawCpi: 1099,
+    effectiveCpi: 1329,
+    mediaEffectiveCpi: 1107,
+    note: 'iOSはStore全体の削除率で按分補正'
+  },
+  {
+    month: '2026/05',
+    os: 'Android',
+    period: '2026/05/01-05/17',
+    storePeriod: '2026/05/01-05/12',
+    cost: 1660265,
+    mediaCost: 1383554,
+    downloads: 2625,
+    storeDownloads: 2952,
+    storeDeletions: 0,
+    deletionRate: 0.0,
+    estimatedDeletions: 0,
+    effectiveDownloads: 2625,
+    rawCpi: 632,
+    effectiveCpi: 632,
+    mediaEffectiveCpi: 527,
+    note: 'Android削除数はStore mart未投入のため補正なし'
+  }
+];
 
 const GRID = '#252836';
 const TICK = '#6b7280';
@@ -919,6 +999,20 @@ function createSpendDoughnut(canvasId, rows, valueKey, totalValue) {
 
 createSpendDoughnut('chart_ad_spend_mix_prev', adSpendPrevMix, 'value', adSpendPrevTotal);
 createSpendDoughnut('chart_ad_spend_mix_current', adSpendCurrentMix, 'forecastValue', adSpendCurrentForecastTotal);
+
+document.getElementById('googleEffectiveCpiRows').innerHTML = googleEffectiveCpiRows.map(row => {
+  return `<tr>
+    <td>${row.month}</td>
+    <td>${row.os}</td>
+    <td>${row.cost == null ? '-' : yen(row.cost)}</td>
+    <td>${row.downloads == null ? '-' : row.downloads.toLocaleString()}</td>
+    <td>${row.estimatedDeletions == null ? '-' : row.estimatedDeletions.toLocaleString()}<br><span style="color:#94a3b8;font-size:11px;">削除率 ${row.deletionRate == null ? '-' : row.deletionRate.toFixed(1) + '%'}</span></td>
+    <td>${row.effectiveDownloads == null ? '-' : row.effectiveDownloads.toLocaleString()}</td>
+    <td>${row.rawCpi == null ? '-' : yen(row.rawCpi)}</td>
+    <td><strong>${row.effectiveCpi == null ? '-' : yen(row.effectiveCpi)}</strong><br><span style="color:#94a3b8;font-size:11px;">媒体費のみ ${row.mediaEffectiveCpi == null ? '-' : yen(row.mediaEffectiveCpi)}</span></td>
+    <td>${row.period}<br><span style="color:#94a3b8;font-size:11px;">Store ${row.storePeriod} / ${row.note}</span></td>
+  </tr>`;
+}).join('');
 
 // Chart Cohort: 登録1ヶ月以内申込率
 const cohortPointColors = cohortIncomplete.map(inc => inc === 'true' ? 'rgba(251,191,36,0.35)' : '#fbbf24');
