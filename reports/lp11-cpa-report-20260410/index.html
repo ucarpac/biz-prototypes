@@ -409,7 +409,7 @@
 <div class="chart-card">
   <div class="chart-title">広告費の構成比（前月 / 当月・暫定）</div>
   <div class="notice" style="margin-bottom:14px; margin-top:0;">
-    ⚠️ 前月は2026/04完了月。当月Google広告AndroidはGoogle広告画面の本日まで表示値（2026/05/01-05/18、1,457,122円）を使用。TikTokはBigQuery実績（tiktok_ads_report_raw_v2）のspendを使用し、TT_興味関心（Lead Generation）は除外。当月は2026/05/18まで。AppleAdsはBigQuery実績（apple_search_ads_campaign_daily）のlocal_spendを使用し、当月は2026/05/17まで。Google iOSは最新画面値未確認のため2026/05/01-05/09のBigQuery検証比率を暫定使用。
+    ⚠️ 定期更新対象。Google広告はBigQuery google_ads_reports、TikTokはBigQuery tiktok_ads_report_raw_v2、AppleAdsはBigQuery apple_search_ads_campaign_daily の実績広告費を使用。TikTokのTT_興味関心（Lead Generation）は除外。当月Google/AppleAdsは2026/05/17まで、TikTokは2026/05/18まで。
   </div>
   <div class="spend-month-grid">
     <div class="spend-month-panel">
@@ -527,25 +527,25 @@ const kpiTotalCVR       = 11.2;
 
 // 広告費構成比（前月 / 当月・暫定）
 const adSpendPrevMix = [
-  { label: 'Google広告 Android', value: 1538608, source: 'BQ/CPI按分', sourceType: 'actual', color: '#4ade80' },
-  { label: 'Google広告 iOS', value: 174423, source: 'BQ/CPI按分', sourceType: 'actual', color: '#60a5fa' },
+  { label: 'Google広告 Android', value: 1091254, source: 'BQ実績', sourceType: 'actual', color: '#4ade80' },
+  { label: 'Google広告 iOS', value: 336261, source: 'BQ実績', sourceType: 'actual', color: '#60a5fa' },
   { label: 'TikTok広告 Android', value: 263571, source: 'BQ実績', sourceType: 'actual', color: '#f472b6' },
   { label: 'TikTok広告 iOS', value: 0, source: 'BQ実績', sourceType: 'actual', color: '#fb7185' },
   { label: 'AppleAds', value: 415594, source: 'BQ実績', sourceType: 'actual', color: '#fbbf24' },
   { label: 'その他', value: 150700, source: 'AF installs×単価', sourceType: 'estimate', color: '#a78bfa' }
 ];
-const adSpendCurrentGoogleForecastTotal = 2530000;
+const adSpendCurrentGoogleForecastTotal = 2523140;
 const adSpendCurrentMix = [
-  { label: 'Google広告 Android', actualValue: 1457122, source: 'Google広告画面', period: '2026/05/01-05/18', sourceType: 'actual', color: '#4ade80' },
-  { label: 'Google広告 iOS', actualValue: 35237, source: 'BQ比率暫定', period: '2026/05/01-05/09', sourceType: 'estimate', color: '#60a5fa' },
+  { label: 'Google広告 Android', actualValue: 1383554, source: 'BQ実績', period: '2026/05/01-05/17', sourceType: 'actual', color: '#4ade80' },
+  { label: 'Google広告 iOS', actualValue: 0, source: 'BQ実績', period: '2026/05/01-05/17', sourceType: 'actual', color: '#60a5fa' },
   { label: 'TikTok広告 Android', actualValue: 147691, source: 'BQ実績', period: '2026/05/01-05/18', sourceType: 'actual', color: '#f472b6' },
   { label: 'TikTok広告 iOS', actualValue: 0, source: 'BQ実績', period: '2026/05/01-05/18', sourceType: 'actual', color: '#fb7185' },
   { label: 'AppleAds', actualValue: 215135, source: 'BQ実績', period: '2026/05/01-05/17', sourceType: 'actual', color: '#fbbf24' },
   { label: 'その他', actualValue: 150700, source: 'AF installs×単価', period: '2026/04/13-05/12', sourceType: 'estimate', color: '#a78bfa' }
 ];
 const adSpendNotes = {
-  'Google広告 Android': '当月はGoogle広告画面で確認した2026/05/01-05/18のAndroid広告費を使用',
-  'Google広告 iOS': '当月は最新画面値未確認のため、2026/05/01-05/09のBQ検証比率からの暫定値',
+  'Google広告 Android': 'BigQuery google_ads_reports のLP11アプリDL系キャンペーン費用を集計',
+  'Google広告 iOS': 'BigQuery google_ads_reports のLP11アプリDL系iOSキャンペーン費用を集計',
   'TikTok広告 Android': 'BigQuery ucarpac_data.tiktok_ads_report_raw_v2 の spend を stat_time_day × campaign/adgroup/ad で重複排除して集計。APP_PROMOTION / APP_INSTALL のAndroid系キャンペーン',
   'TikTok広告 iOS': 'BigQuery実績では対象期間内にiOS系TikTokキャンペーン費用なし',
   'AppleAds': 'BigQuery ucarpac_data.apple_search_ads_campaign_daily の local_spend を report_date × campaign_id で重複排除して集計',
