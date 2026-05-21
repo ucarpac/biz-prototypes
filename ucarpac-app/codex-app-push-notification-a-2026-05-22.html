@@ -1,0 +1,2023 @@
+<!DOCTYPE html>
+<html lang="ja">
+<script src="../auth.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UcarPAC App プッシュ通知最適化プロトタイプ A案</title>
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --text-disabled: #B3B3B3;
+      --text-placeholder: rgba(28,38,99,0.3);
+      --text-light-blue: #bfdbfe;
+      --text-under-blue: #0056BA;
+      --button-gray: #CACEE2;
+      --button-link: #4099FF;
+      --button-link2: #40BFFF;
+      --back-white: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --back-gray2: #e6e6e6;
+      --back-blue: #091355;
+      --back-dark-blue: #0a1348;
+      --back-light-pink: #ffd8e8;
+      --back-light-blue: #6fc2ff;
+      --error: #EB4646;
+      --shadow: rgba(0,0,0,0.11);
+      --ruled-line: #F2F2F2;
+      --border-gray: #7C7C7C;
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+      --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
+      --gradient-disabled: linear-gradient(90deg, #e5e5e5, #e5e5e5);
+      --font-sans: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', system-ui, sans-serif;
+      --font-number: 'Righteous', 'Noto Sans JP', sans-serif;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-7: 28px;
+      --space-8: 32px;
+      --radius-sm: 5px;
+      --radius-md: 12px;
+      --radius-card: 13px;
+      --radius-lg: 16px;
+      --radius-chip: 22px;
+      --radius-button: 30px;
+      --warm-bg: #fff7ef;
+      --warm-line: #ffd2ad;
+      --warm-ink: #9a4f18;
+      --warm-accent: #ff9258;
+      --soft-yellow: #fff6cb;
+      --soft-green: #e9f8ef;
+      --soft-cyan: #e7f8ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      background: #e7edf3;
+      color: var(--text-black);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 4%, rgba(255,216,232,0.82), transparent 28%),
+        radial-gradient(circle at 92% 8%, rgba(255,246,203,0.92), transparent 24%),
+        radial-gradient(circle at 78% 70%, rgba(29,220,255,0.14), transparent 26%),
+        linear-gradient(180deg, #fffaf6 0%, var(--back-white) 42%, var(--back-gray) 100%);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    a {
+      color: var(--text-under-blue);
+      text-decoration: none;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 0 0 48px;
+    }
+
+    .phone-shell {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background: rgba(250,250,250,0.92);
+      box-shadow: 0 0 42px rgba(28,38,99,0.15);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero {
+      position: relative;
+      padding: 18px 20px 22px;
+      border-bottom-left-radius: 28px;
+      border-bottom-right-radius: 28px;
+      background:
+        linear-gradient(155deg, rgba(255,255,255,0.96) 0%, rgba(255,247,239,0.98) 66%, rgba(255,216,232,0.82) 100%);
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: -52px;
+      right: -34px;
+      width: 142px;
+      height: 142px;
+      border-radius: 50%;
+      border: 2px dashed rgba(248,76,162,0.28);
+      background: rgba(248,76,162,0.06);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      left: 20px;
+      bottom: 22px;
+      width: 112px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,146,88,0.2);
+      transform: rotate(-2deg);
+    }
+
+    .topbar {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--dark-blue);
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 24px;
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 12px;
+      background: var(--gradient-pink);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 7px 18px rgba(248,76,162,0.28);
+      position: relative;
+    }
+
+    .brand-mark::before {
+      content: "";
+      width: 15px;
+      height: 10px;
+      border-radius: 7px 7px 4px 4px;
+      background: var(--white);
+      display: block;
+    }
+
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      width: 16px;
+      height: 4px;
+      border-radius: 6px;
+      background: var(--white);
+      box-shadow: 4px 0 0 rgba(255,255,255,0.75);
+    }
+
+    .date-pill {
+      min-height: 30px;
+      padding: 0 12px;
+      border-radius: var(--radius-chip);
+      border: 1px solid rgba(255,210,173,0.9);
+      background: rgba(255,255,255,0.72);
+      color: var(--warm-ink);
+      display: flex;
+      align-items: center;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 15px;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hand-note {
+      width: fit-content;
+      padding: 6px 10px;
+      border: 1px solid #ffe0a5;
+      border-radius: 14px 18px 15px 18px;
+      background: var(--soft-yellow);
+      color: #8c5a00;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 18px;
+      transform: rotate(-1deg);
+      box-shadow: 0 3px 0 rgba(255,208,120,0.35);
+    }
+
+    .hero h1 {
+      margin: 12px 0 8px;
+      color: var(--dark-blue);
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 39px;
+      letter-spacing: 0;
+    }
+
+    .hero-copy {
+      margin: 0;
+      color: var(--text-gray);
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 21px;
+    }
+
+    .hero-visual {
+      margin-top: 16px;
+      min-height: 126px;
+      border-radius: var(--radius-card);
+      border: 1px solid var(--warm-line);
+      background: linear-gradient(180deg, #ffffff 0%, #fff3e9 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mini-road {
+      position: absolute;
+      left: -20px;
+      right: -20px;
+      bottom: 0;
+      height: 42px;
+      background: linear-gradient(180deg, #ffd7b9, #ffbd8f);
+      transform: skewY(-3deg);
+      transform-origin: left bottom;
+    }
+
+    .mini-car {
+      position: absolute;
+      left: 34px;
+      bottom: 32px;
+      width: 118px;
+      height: 42px;
+      animation: carFloat 3.6s ease-in-out infinite;
+    }
+
+    .mini-car-body {
+      position: absolute;
+      left: 6px;
+      bottom: 7px;
+      width: 104px;
+      height: 28px;
+      border-radius: 17px 26px 12px 12px;
+      background: var(--gradient-pink);
+      box-shadow: 0 8px 16px rgba(248,76,162,0.24);
+    }
+
+    .mini-car-window {
+      position: absolute;
+      left: 36px;
+      top: 3px;
+      width: 44px;
+      height: 20px;
+      border-radius: 12px 14px 4px 4px;
+      background: #ffeaf4;
+      border: 2px solid rgba(28,38,99,0.12);
+    }
+
+    .wheel {
+      position: absolute;
+      bottom: 0;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      background: var(--dark-blue);
+      border: 4px solid #ffffff;
+    }
+
+    .wheel.one {
+      left: 20px;
+    }
+
+    .wheel.two {
+      right: 22px;
+    }
+
+    .speech {
+      position: absolute;
+      right: 18px;
+      top: 17px;
+      width: 154px;
+      padding: 11px 12px;
+      border-radius: 15px 15px 15px 6px;
+      background: var(--white);
+      box-shadow: 0 8px 22px rgba(28,38,99,0.11);
+      color: var(--dark-blue);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 18px;
+    }
+
+    .speech span {
+      color: var(--pink);
+      font-size: 18px;
+      line-height: 27px;
+    }
+
+    .signal {
+      position: absolute;
+      right: 54px;
+      bottom: 22px;
+      width: 70px;
+      height: 30px;
+      display: flex;
+      align-items: flex-end;
+      gap: 5px;
+    }
+
+    .signal i {
+      width: 10px;
+      border-radius: 8px 8px 0 0;
+      background: var(--gradient-primary);
+      display: block;
+      animation: barWave 1.6s ease-in-out infinite;
+    }
+
+    .signal i:nth-child(1) {
+      height: 12px;
+    }
+
+    .signal i:nth-child(2) {
+      height: 22px;
+      animation-delay: 0.12s;
+    }
+
+    .signal i:nth-child(3) {
+      height: 16px;
+      animation-delay: 0.24s;
+    }
+
+    .signal i:nth-child(4) {
+      height: 28px;
+      animation-delay: 0.36s;
+    }
+
+    .tabs {
+      width: calc(100% - 32px);
+      margin: -14px auto 16px;
+      position: relative;
+      z-index: 5;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      padding: 6px;
+      border-radius: 24px;
+      background: var(--white);
+      box-shadow: 0 8px 24px rgba(28,38,99,0.14);
+    }
+
+    .tab-button {
+      min-height: 40px;
+      border-radius: 22px;
+      background: transparent;
+      color: var(--text-gray);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 18px;
+      transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+    }
+
+    .tab-button.active {
+      background: var(--dark-blue);
+      color: var(--white);
+      box-shadow: 0 8px 18px rgba(28,38,99,0.18);
+    }
+
+    .content {
+      padding: 0 16px 24px;
+    }
+
+    .panel {
+      display: none;
+      animation: panelIn 260ms ease both;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .section {
+      margin-bottom: 24px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 30px;
+      letter-spacing: 0;
+    }
+
+    .section-note {
+      color: var(--text-gray);
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 15px;
+      white-space: nowrap;
+    }
+
+    .card {
+      border-radius: var(--radius-card);
+      background: var(--white);
+      border: 1px solid rgba(205,220,237,0.72);
+      box-shadow: 0 0 18px rgba(0,0,0,0.08);
+    }
+
+    .warm-card {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,247,239,0.98));
+      border-color: rgba(255,210,173,0.9);
+    }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .kpi-card {
+      padding: 14px 12px;
+      border-radius: var(--radius-md);
+      background: var(--white);
+      border: 1px solid var(--ruled-line);
+      box-shadow: 0 4px 16px rgba(28,38,99,0.07);
+    }
+
+    .kpi-label {
+      margin: 0 0 4px;
+      color: var(--text-gray);
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 15px;
+    }
+
+    .kpi-value {
+      margin: 0;
+      color: var(--dark-blue);
+      font-family: var(--font-number);
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 48px;
+    }
+
+    .kpi-value small {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 18px;
+    }
+
+    .kpi-delta {
+      margin: 2px 0 0;
+      color: var(--pink);
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 15px;
+    }
+
+    .notification-preview {
+      padding: 16px;
+      margin-bottom: 16px;
+      border-radius: 18px;
+      background: #f2f4f8;
+      box-shadow: inset 0 0 0 1px rgba(28,38,99,0.06);
+    }
+
+    .lockscreen-time {
+      margin: 0 0 12px;
+      text-align: center;
+      color: var(--dark-blue);
+      font-family: var(--font-number);
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 45px;
+    }
+
+    .push-card {
+      padding: 12px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.94);
+      box-shadow: 0 8px 24px rgba(28,38,99,0.12);
+      border: 1px solid rgba(255,255,255,0.9);
+      transition: transform 220ms ease, box-shadow 220ms ease;
+    }
+
+    .push-card.pulse {
+      animation: pushPulse 560ms ease;
+    }
+
+    .push-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .push-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      background: var(--gradient-pink);
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .push-icon::before {
+      content: "";
+      position: absolute;
+      left: 7px;
+      top: 9px;
+      width: 14px;
+      height: 8px;
+      border-radius: 8px 8px 4px 4px;
+      background: var(--white);
+    }
+
+    .push-app {
+      color: var(--dark-blue);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 18px;
+    }
+
+    .push-now {
+      margin-left: auto;
+      color: var(--text-gray);
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 15px;
+    }
+
+    .push-title {
+      margin: 0 0 3px;
+      color: var(--dark-blue);
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 21px;
+    }
+
+    .push-body {
+      margin: 0;
+      color: var(--text-black);
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 18px;
+    }
+
+    .variant-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .variant-button {
+      width: 100%;
+      min-height: 76px;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      background: var(--white);
+      border: 1px solid #e8edf2;
+      text-align: left;
+      transition: border 180ms ease, box-shadow 180ms ease, transform 180ms ease, background 180ms ease;
+    }
+
+    .variant-button.active {
+      border-color: var(--pink);
+      background: #fff7fb;
+      box-shadow: 0 7px 18px rgba(248,76,162,0.12);
+    }
+
+    .variant-button:active,
+    .tab-button:active,
+    .app-button:active,
+    .chip:active,
+    .flow-card:active {
+      transform: scale(0.98);
+    }
+
+    .variant-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 5px;
+    }
+
+    .variant-name {
+      color: var(--dark-blue);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 18px;
+    }
+
+    .variant-score {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--soft-green);
+      color: #0c7a41;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 15px;
+      white-space: nowrap;
+    }
+
+    .variant-text {
+      margin: 0;
+      color: var(--text-black);
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 18px;
+    }
+
+    .why-card {
+      padding: 15px 16px;
+      margin-top: 14px;
+      border-radius: var(--radius-card);
+      background: var(--soft-yellow);
+      border: 1px dashed #e7c666;
+      color: var(--warm-ink);
+      position: relative;
+      transform: rotate(-0.4deg);
+    }
+
+    .why-card strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+    }
+
+    .why-card p {
+      margin: 0;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .setting-card {
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--ruled-line);
+    }
+
+    .setting-row:first-child {
+      padding-top: 0;
+    }
+
+    .setting-row:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .setting-title {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 21px;
+    }
+
+    .setting-desc {
+      margin: 3px 0 0;
+      color: var(--text-gray);
+      font-size: 11px;
+      font-weight: 400;
+      line-height: 16.5px;
+    }
+
+    .switch {
+      width: 48px;
+      height: 28px;
+      border-radius: 18px;
+      background: #d7dbe7;
+      padding: 3px;
+      flex: 0 0 auto;
+      transition: background 180ms ease;
+    }
+
+    .switch span {
+      display: block;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--white);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.18);
+      transition: transform 180ms ease;
+    }
+
+    .switch.on {
+      background: var(--pink);
+    }
+
+    .switch.on span {
+      transform: translateX(20px);
+    }
+
+    .frequency {
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .segment {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      padding: 5px;
+      border-radius: 22px;
+      background: var(--back-gray);
+      margin-top: 12px;
+    }
+
+    .segment button {
+      min-height: 36px;
+      border-radius: 18px;
+      background: transparent;
+      color: var(--text-gray);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 18px;
+      transition: background 180ms ease, color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .segment button.active {
+      background: var(--white);
+      color: var(--dark-blue);
+      box-shadow: 0 4px 12px rgba(28,38,99,0.12);
+    }
+
+    .quiet-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .time-box {
+      padding: 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--ruled-line);
+      background: var(--white);
+    }
+
+    .time-box label {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text-gray);
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 15px;
+    }
+
+    .time-box input {
+      width: 100%;
+      border: 0;
+      color: var(--dark-blue);
+      background: transparent;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 27px;
+      outline: none;
+    }
+
+    .summary-strip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 14px;
+      border-radius: var(--radius-card);
+      background: var(--dark-blue);
+      color: var(--white);
+      box-shadow: 0 8px 20px rgba(28,38,99,0.18);
+    }
+
+    .summary-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--pink);
+      box-shadow: 0 0 0 7px rgba(248,76,162,0.2);
+      flex: 0 0 auto;
+    }
+
+    .summary-strip p {
+      margin: 0;
+      color: #e7efff;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .summary-strip strong {
+      color: var(--white);
+    }
+
+    .flow-stage {
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .flow-progress {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .flow-progress span {
+      height: 7px;
+      border-radius: 999px;
+      background: var(--back-gray2);
+      transition: background 220ms ease;
+    }
+
+    .flow-progress span.done {
+      background: var(--pink);
+    }
+
+    .flow-screen {
+      min-height: 388px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff, #fff9f4);
+      border: 1px solid rgba(255,210,173,0.9);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .screen-step {
+      display: none;
+      min-height: 388px;
+      padding: 16px;
+      animation: panelIn 260ms ease both;
+    }
+
+    .screen-step.active {
+      display: block;
+    }
+
+    .flow-phone-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      color: var(--text-gray);
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 15px;
+    }
+
+    .flow-card {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius-card);
+      background: var(--white);
+      border: 1px solid rgba(205,220,237,0.85);
+      box-shadow: 0 8px 22px rgba(28,38,99,0.1);
+      text-align: left;
+      transition: transform 180ms ease, border 180ms ease;
+    }
+
+    .flow-card.active {
+      border-color: var(--pink);
+    }
+
+    .flow-card-title {
+      margin: 0 0 5px;
+      color: var(--dark-blue);
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 21px;
+    }
+
+    .flow-card-text {
+      margin: 0;
+      color: var(--text-gray);
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 18px;
+    }
+
+    .car-profile {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 12px;
+      align-items: center;
+      margin: 14px 0;
+    }
+
+    .car-thumb {
+      height: 64px;
+      border-radius: 12px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.2), rgba(255,255,255,0)),
+        linear-gradient(135deg, #1c2663, #4099ff);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .car-thumb::before {
+      content: "";
+      position: absolute;
+      left: 14px;
+      bottom: 20px;
+      width: 60px;
+      height: 22px;
+      border-radius: 18px 22px 9px 9px;
+      background: var(--white);
+    }
+
+    .car-thumb::after {
+      content: "";
+      position: absolute;
+      left: 22px;
+      bottom: 13px;
+      width: 44px;
+      height: 11px;
+      border-radius: 999px;
+      background: var(--back-dark-blue);
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.18);
+    }
+
+    .car-name {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 24px;
+    }
+
+    .car-meta {
+      margin: 2px 0 0;
+      color: var(--text-gray);
+      font-size: 11px;
+      line-height: 16.5px;
+    }
+
+    .price-card {
+      padding: 16px;
+      border-radius: var(--radius-md);
+      background: var(--dark-blue);
+      color: var(--white);
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .price-card::after {
+      content: "";
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      right: -52px;
+      top: -52px;
+      background: rgba(29,220,255,0.16);
+    }
+
+    .price-label {
+      margin: 0;
+      color: var(--text-light-blue);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 18px;
+    }
+
+    .price-value {
+      margin: 2px 0 3px;
+      font-family: var(--font-number);
+      font-size: 40px;
+      font-weight: 700;
+      line-height: 54px;
+    }
+
+    .price-value small {
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 21px;
+    }
+
+    .price-sub {
+      margin: 0;
+      color: #dbeafe;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .forecast {
+      padding: 14px;
+      margin-bottom: 14px;
+      border-radius: var(--radius-md);
+      background: var(--white);
+      border: 1px solid var(--ruled-line);
+    }
+
+    .chart {
+      height: 116px;
+      position: relative;
+      margin-top: 8px;
+    }
+
+    .chart-line {
+      position: absolute;
+      inset: 0;
+    }
+
+    .chart-labels {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-gray);
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 15px;
+    }
+
+    .input-stack {
+      display: grid;
+      gap: 12px;
+      margin: 12px 0 16px;
+    }
+
+    .field {
+      padding: 12px;
+      border-radius: var(--radius-md);
+      background: var(--white);
+      border: 1px solid var(--ruled-line);
+    }
+
+    .field label {
+      display: block;
+      color: var(--text-gray);
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 15px;
+    }
+
+    .field input {
+      width: 100%;
+      border: 0;
+      border-bottom: 2px solid var(--text-placeholder);
+      padding: 4px 0 2px;
+      background: transparent;
+      color: var(--dark-blue);
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 30px;
+      text-align: center;
+      outline: none;
+    }
+
+    .field input:focus {
+      border-bottom-color: var(--dark-blue);
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0 14px;
+    }
+
+    .chip {
+      min-height: 34px;
+      padding: 0 13px;
+      border-radius: var(--radius-chip);
+      border: 1px solid var(--ruled-line);
+      background: var(--white);
+      color: var(--text-black);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 18px;
+      transition: background 180ms ease, color 180ms ease;
+    }
+
+    .chip.active {
+      background: var(--dark-blue);
+      color: var(--white);
+    }
+
+    .app-button {
+      width: 100%;
+      min-height: 43px;
+      border-radius: var(--radius-button);
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 21px;
+      box-shadow: 0 7px 18px rgba(64,153,255,0.23);
+      transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+    }
+
+    .app-button.pink {
+      background: var(--gradient-pink);
+      color: var(--white);
+      box-shadow: 0 7px 18px rgba(248,76,162,0.23);
+    }
+
+    .app-button.white {
+      background: var(--white);
+      color: var(--dark-blue);
+      border: 1px solid var(--text-black);
+      box-shadow: none;
+    }
+
+    .app-button:disabled {
+      background: var(--gradient-disabled);
+      color: var(--text-disabled);
+      box-shadow: none;
+      cursor: default;
+    }
+
+    .button-stack {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .complete-mark {
+      width: 76px;
+      height: 76px;
+      margin: 18px auto 14px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--soft-green);
+      border: 2px solid #86dcaa;
+      position: relative;
+    }
+
+    .complete-mark::before {
+      content: "";
+      width: 28px;
+      height: 15px;
+      border-left: 5px solid #11a45b;
+      border-bottom: 5px solid #11a45b;
+      transform: rotate(-45deg) translate(2px, -2px);
+    }
+
+    .complete-title {
+      margin: 0 0 8px;
+      color: var(--dark-blue);
+      text-align: center;
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 33px;
+    }
+
+    .complete-text {
+      margin: 0;
+      color: var(--text-gray);
+      text-align: center;
+      font-size: 13px;
+      line-height: 19.5px;
+    }
+
+    .source-card {
+      padding: 16px;
+      margin-top: 20px;
+      border-radius: var(--radius-card);
+      background: #f8fbff;
+      border: 1px solid #d9e7f7;
+    }
+
+    .source-card h2 {
+      margin: 0 0 10px;
+      color: var(--dark-blue);
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 24px;
+    }
+
+    .source-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .source-list li {
+      padding-left: 12px;
+      border-left: 3px solid var(--button-link2);
+      color: var(--text-gray);
+      font-size: 11px;
+      line-height: 16.5px;
+    }
+
+    .source-list strong {
+      color: var(--dark-blue);
+    }
+
+    .ops-card {
+      padding: 16px;
+      margin-top: 14px;
+      border-radius: var(--radius-card);
+      background: var(--white);
+      border: 1px solid var(--ruled-line);
+    }
+
+    .ops-title {
+      margin: 0 0 10px;
+      color: var(--dark-blue);
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 24px;
+    }
+
+    .ops-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .ops-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--text-black);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .ops-check {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--soft-green);
+      border: 1px solid #7ed9a6;
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .ops-check::after {
+      content: "";
+      position: absolute;
+      left: 5px;
+      top: 4px;
+      width: 7px;
+      height: 4px;
+      border-left: 2px solid #0d914a;
+      border-bottom: 2px solid #0d914a;
+      transform: rotate(-45deg);
+    }
+
+    .desktop-note {
+      display: none;
+    }
+
+    @keyframes panelIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes carFloat {
+      0%,
+      100% {
+        transform: translateY(0) rotate(-1deg);
+      }
+
+      50% {
+        transform: translateY(-5px) rotate(1deg);
+      }
+    }
+
+    @keyframes barWave {
+      0%,
+      100% {
+        transform: scaleY(0.82);
+        opacity: 0.72;
+      }
+
+      50% {
+        transform: scaleY(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes pushPulse {
+      0% {
+        transform: scale(1);
+      }
+
+      45% {
+        transform: scale(1.025);
+        box-shadow: 0 12px 30px rgba(248,76,162,0.19);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @media (min-width: 860px) {
+      .page {
+        display: grid;
+        grid-template-columns: 430px 1fr;
+        gap: 28px;
+        align-items: start;
+        padding: 32px 24px 56px;
+      }
+
+      .phone-shell {
+        border-radius: 32px;
+        min-height: auto;
+      }
+
+      .desktop-note {
+        display: block;
+        position: sticky;
+        top: 32px;
+        padding: 26px;
+        border-radius: 24px;
+        background: rgba(255,255,255,0.86);
+        border: 1px solid rgba(255,210,173,0.72);
+        box-shadow: 0 12px 36px rgba(28,38,99,0.12);
+      }
+
+      .desktop-note h2 {
+        margin: 0 0 12px;
+        color: var(--dark-blue);
+        font-size: 26px;
+        font-weight: 700;
+        line-height: 39px;
+      }
+
+      .desktop-note p {
+        margin: 0 0 16px;
+        color: var(--text-gray);
+        font-size: 14px;
+        line-height: 21px;
+      }
+
+      .desktop-note .memo {
+        padding: 16px;
+        border-radius: var(--radius-card);
+        background: var(--soft-yellow);
+        border: 1px dashed #e7c666;
+        color: var(--warm-ink);
+        font-size: 13px;
+        line-height: 19.5px;
+      }
+    }
+
+    @media (max-width: 350px) {
+      .hero h1 {
+        font-size: 24px;
+        line-height: 36px;
+      }
+
+      .speech {
+        width: 132px;
+        right: 12px;
+      }
+
+      .mini-car {
+        left: 22px;
+      }
+
+      .kpi-value {
+        font-size: 28px;
+        line-height: 42px;
+      }
+    }
+  </style>
+</head>
+<body>
+<!-- ucp-prototype-nav:start -->
+<style>
+  .ucp-prototype-nav {
+    position: fixed;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2147483647;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 7px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.78);
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.22);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    font-family: "Noto Sans JP", "Hiragino Sans", system-ui, sans-serif;
+  }
+  .ucp-prototype-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.13);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .ucp-prototype-nav a:first-child {
+    background: #f84ca2;
+  }
+  @media (max-width: 520px) {
+    .ucp-prototype-nav {
+      top: auto;
+      bottom: 14px;
+      width: calc(100% - 28px);
+      justify-content: center;
+    }
+    .ucp-prototype-nav a {
+      flex: 1;
+      justify-content: center;
+    }
+  }
+</style>
+<nav class="ucp-prototype-nav" aria-label="プロトタイプ内ナビゲーション">
+  <a href="./">← プロトタイプ一覧</a>
+  <a href="../">全体トップ</a>
+</nav>
+<!-- ucp-prototype-nav:end -->
+  <script>
+    window.PROTO_AUTH_CONFIG = {
+      title: 'UcarPAC App プッシュ通知最適化',
+      description: '通知文言、通知設定、通知タップ後導線の検証プロトタイプ'
+    };
+  </script>
+
+  <div class="page">
+    <main class="phone-shell">
+      <header class="hero">
+        <div class="topbar">
+          <div class="brand">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span>UcarPAC</span>
+          </div>
+          <div class="date-pill">2026.05.22 検証案</div>
+        </div>
+
+        <div class="hero-content">
+          <div class="hand-note">不安にさせず、売り時だけそっと知らせる</div>
+          <h1>愛車の変化を、やさしい通知で見逃さない</h1>
+          <p class="hero-copy">
+            相場上昇、売り時、出費タイミングをユーザー自身が選べる頻度で通知し、再起動からAI査定、申込まで迷わず進めます。
+          </p>
+
+          <div class="hero-visual" aria-label="通知で相場上昇を知らせるイラスト">
+            <div class="mini-road"></div>
+            <div class="mini-car">
+              <div class="mini-car-window"></div>
+              <div class="mini-car-body"></div>
+              <div class="wheel one"></div>
+              <div class="wheel two"></div>
+            </div>
+            <div class="speech">
+              ハリアーの相場が<br>
+              <span>14万円UP</span>
+            </div>
+            <div class="signal" aria-hidden="true">
+              <i></i>
+              <i></i>
+              <i></i>
+              <i></i>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <nav class="tabs" aria-label="画面切替">
+        <button class="tab-button active" data-tab="copy">文言テスト</button>
+        <button class="tab-button" data-tab="settings">通知設定</button>
+        <button class="tab-button" data-tab="flow">査定導線</button>
+      </nav>
+
+      <div class="content">
+        <section class="panel active" id="panel-copy">
+          <div class="section">
+            <div class="section-head">
+              <h2 class="section-title">通知文言テスト</h2>
+              <span class="section-note">対象KPI: 開封率</span>
+            </div>
+
+            <div class="kpi-row">
+              <div class="kpi-card">
+                <p class="kpi-label">通知開封率 仮説</p>
+                <p class="kpi-value" id="openRate">18.4<small>%</small></p>
+                <p class="kpi-delta" id="openDelta">通常文言比 +3.1pt</p>
+              </div>
+              <div class="kpi-card">
+                <p class="kpi-label">通知経由申込 仮説</p>
+                <p class="kpi-value" id="applyCount">42<small>件</small></p>
+                <p class="kpi-delta" id="applyDelta">週次 +11件</p>
+              </div>
+            </div>
+
+            <div class="notification-preview">
+              <p class="lockscreen-time">19:42</p>
+              <article class="push-card" id="pushCard">
+                <div class="push-top">
+                  <span class="push-icon" aria-hidden="true"></span>
+                  <span class="push-app">UcarPAC</span>
+                  <span class="push-now">今</span>
+                </div>
+                <h3 class="push-title" id="pushTitle">愛車の相場が14万円UP</h3>
+                <p class="push-body" id="pushBody">トヨタ ハリアーのAI査定を更新しました。売り時の目安を確認できます。</p>
+              </article>
+            </div>
+
+            <div class="variant-list">
+              <button class="variant-button active" data-title="愛車の相場が14万円UP" data-body="トヨタ ハリアーのAI査定を更新しました。売り時の目安を確認できます。" data-rate="18.4" data-count="42" data-delta="通常文言比 +3.1pt" data-apply="週次 +11件">
+                <div class="variant-meta">
+                  <span class="variant-name">A. 価格上昇の安心感</span>
+                  <span class="variant-score">期待: 高</span>
+                </div>
+                <p class="variant-text">愛車の相場が14万円UP。前向きな変化を短く伝え、開封理由を明確にする。</p>
+              </button>
+
+              <button class="variant-button" data-title="今売るべき？3か月後も予測" data-body="ハリアーの現在価格は268万円。将来予測を見て、売り時を一緒に確認しましょう。" data-rate="16.9" data-count="38" data-delta="通常文言比 +1.6pt" data-apply="週次 +7件">
+                <div class="variant-meta">
+                  <span class="variant-name">B. 売り時相談</span>
+                  <span class="variant-score">期待: 中</span>
+                </div>
+                <p class="variant-text">不安な判断を支える言い方にし、AI査定の将来予測へ自然に誘導する。</p>
+              </button>
+
+              <button class="variant-button" data-title="電話なしで相場だけ確認できます" data-body="個人情報入力前に、愛車の最新価格をチェック。しつこい営業電話はありません。" data-rate="17.6" data-count="40" data-delta="通常文言比 +2.3pt" data-apply="週次 +9件">
+                <div class="variant-meta">
+                  <span class="variant-name">C. 電話不安の解消</span>
+                  <span class="variant-score">期待: 高</span>
+                </div>
+                <p class="variant-text">一括査定への不安を先回りして解消し、個人情報不要の価値を前面に出す。</p>
+              </button>
+
+              <button class="variant-button" data-title="来月の維持費、少し抑えられそうです" data-body="ガソリン代と保険の記録から、今月の出費見込みを更新しました。" data-rate="14.8" data-count="25" data-delta="通常文言比 -0.5pt" data-apply="週次 +2件">
+                <div class="variant-meta">
+                  <span class="variant-name">D. 出費管理起点</span>
+                  <span class="variant-score">期待: 低</span>
+                </div>
+                <p class="variant-text">削除率低下には有効だが、申込導線への距離があるためサブ通知として扱う。</p>
+              </button>
+            </div>
+
+            <div class="why-card">
+              <strong>文言方針</strong>
+              <p>価格変化、電話不安、売り時判断のどれかを1通知1テーマで伝える。Androidの推奨に合わせ、タイトルは30文字以内、本文は40文字程度に抑える。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="panel-settings">
+          <div class="section">
+            <div class="section-head">
+              <h2 class="section-title">通知設定UI</h2>
+              <span class="section-note">対象KPI: 継続許諾</span>
+            </div>
+
+            <div class="setting-card card warm-card">
+              <div class="setting-row">
+                <div>
+                  <p class="setting-title">相場が動いたとき</p>
+                  <p class="setting-desc">愛車の価格が5万円以上変わったら通知</p>
+                </div>
+                <button class="switch on" data-setting="相場変動"><span></span></button>
+              </div>
+
+              <div class="setting-row">
+                <div>
+                  <p class="setting-title">売り時のサイン</p>
+                  <p class="setting-desc">3か月予測で下落が見えたら通知</p>
+                </div>
+                <button class="switch on" data-setting="売り時"><span></span></button>
+              </div>
+
+              <div class="setting-row">
+                <div>
+                  <p class="setting-title">オークション進捗</p>
+                  <p class="setting-desc">入札、最高額更新、締切前だけ通知</p>
+                </div>
+                <button class="switch on" data-setting="進捗"><span></span></button>
+              </div>
+
+              <div class="setting-row">
+                <div>
+                  <p class="setting-title">出費リマインド</p>
+                  <p class="setting-desc">給油、保険、車検の記録忘れを通知</p>
+                </div>
+                <button class="switch" data-setting="出費"><span></span></button>
+              </div>
+            </div>
+
+            <div class="frequency card">
+              <p class="setting-title">通知頻度</p>
+              <p class="setting-desc">ユーザーが選べることで、通知を切らずに調整できる状態を作る。</p>
+
+              <div class="segment" id="frequencySegment">
+                <button data-frequency="大事な時だけ">大事な時だけ</button>
+                <button class="active" data-frequency="週2回まで">週2回まで</button>
+                <button data-frequency="毎日OK">毎日OK</button>
+              </div>
+
+              <div class="quiet-row">
+                <div class="time-box">
+                  <label for="quietStart">通知しない時間 開始</label>
+                  <input id="quietStart" type="time" value="22:00">
+                </div>
+                <div class="time-box">
+                  <label for="quietEnd">通知しない時間 終了</label>
+                  <input id="quietEnd" type="time" value="08:00">
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-strip">
+              <span class="summary-dot"></span>
+              <p id="settingsSummary"><strong>現在:</strong> 相場変動、売り時、進捗を週2回まで。22:00-08:00は通知しません。</p>
+            </div>
+
+            <div class="why-card">
+              <strong>設定UI方針</strong>
+              <p>通知許諾の前後で、何が届くか、どの頻度か、いつ止まるかを明示する。押し付けではなく「自分で選べる安心感」を優先する。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="panel-flow">
+          <div class="section">
+            <div class="section-head">
+              <h2 class="section-title">通知→査定導線</h2>
+              <span class="section-note">対象KPI: 申込数</span>
+            </div>
+
+            <div class="flow-stage card warm-card">
+              <div class="flow-progress" aria-label="導線進捗">
+                <span class="done" id="bar0"></span>
+                <span id="bar1"></span>
+                <span id="bar2"></span>
+                <span id="bar3"></span>
+              </div>
+
+              <div class="flow-screen">
+                <div class="screen-step active" data-step="0">
+                  <div class="flow-phone-head">
+                    <span>通知センター</span>
+                    <span>19:42</span>
+                  </div>
+
+                  <button class="flow-card active" id="tapNotification">
+                    <div class="push-top">
+                      <span class="push-icon" aria-hidden="true"></span>
+                      <span class="push-app">UcarPAC</span>
+                      <span class="push-now">今</span>
+                    </div>
+                    <p class="flow-card-title">愛車の相場が14万円UP</p>
+                    <p class="flow-card-text">タップすると、ハリアーのAI査定結果へ直接移動します。</p>
+                  </button>
+
+                  <div class="car-profile">
+                    <div class="car-thumb"></div>
+                    <div>
+                      <p class="car-name">トヨタ ハリアー</p>
+                      <p class="car-meta">2021年式 Z Leather Package<br>走行 32,400km</p>
+                    </div>
+                  </div>
+
+                  <button class="app-button pink" id="flowStart">通知をタップして開く</button>
+                </div>
+
+                <div class="screen-step" data-step="1">
+                  <div class="flow-phone-head">
+                    <span>AI査定</span>
+                    <span>個人情報不要</span>
+                  </div>
+
+                  <div class="car-profile">
+                    <div class="car-thumb"></div>
+                    <div>
+                      <p class="car-name">トヨタ ハリアー</p>
+                      <p class="car-meta">2021年式 Z Leather Package / 32,400km</p>
+                    </div>
+                  </div>
+
+                  <div class="price-card">
+                    <p class="price-label">AI査定 現在価格</p>
+                    <p class="price-value">268<small>万円</small></p>
+                    <p class="price-sub">前回査定 254万円から +14万円</p>
+                  </div>
+
+                  <div class="forecast">
+                    <p class="setting-title">将来予測</p>
+                    <div class="chart">
+                      <svg class="chart-line" viewBox="0 0 300 116" role="img" aria-label="将来予測グラフ">
+                        <path d="M12 82 C58 70 82 55 120 57 S190 80 220 52 S260 34 288 28" fill="none" stroke="#F84CA2" stroke-width="5" stroke-linecap="round"/>
+                        <path d="M12 82 C58 70 82 55 120 57 S190 80 220 52 S260 34 288 28 L288 108 L12 108 Z" fill="rgba(248,76,162,0.10)"/>
+                        <circle cx="12" cy="82" r="5" fill="#1c2663"/>
+                        <circle cx="120" cy="57" r="5" fill="#1c2663"/>
+                        <circle cx="220" cy="52" r="5" fill="#1c2663"/>
+                        <circle cx="288" cy="28" r="6" fill="#F84CA2"/>
+                      </svg>
+                    </div>
+                    <div class="chart-labels">
+                      <span>前回</span>
+                      <span>今日</span>
+                      <span>3か月</span>
+                      <span>6か月</span>
+                    </div>
+                  </div>
+
+                  <button class="app-button pink flow-next">この価格で売却相談へ</button>
+                  <div class="button-stack">
+                    <button class="app-button white flow-reset">あとで見る</button>
+                  </div>
+                </div>
+
+                <div class="screen-step" data-step="2">
+                  <div class="flow-phone-head">
+                    <span>売却相談</span>
+                    <span>電話1社のみ</span>
+                  </div>
+
+                  <p class="setting-title">申込に必要な情報だけ入力</p>
+                  <p class="setting-desc">AI査定の車両情報を引き継ぎ、入力負担を減らします。</p>
+
+                  <div class="input-stack">
+                    <div class="field">
+                      <label for="name">お名前</label>
+                      <input id="name" value="山田 太郎">
+                    </div>
+                    <div class="field">
+                      <label for="tel">電話番号</label>
+                      <input id="tel" value="090-1234-5678">
+                    </div>
+                  </div>
+
+                  <p class="setting-title">希望連絡時間</p>
+                  <div class="chips">
+                    <button class="chip active">平日 18時以降</button>
+                    <button class="chip">土日 午前</button>
+                    <button class="chip">いつでも可</button>
+                  </div>
+
+                  <div class="summary-strip">
+                    <span class="summary-dot"></span>
+                    <p><strong>安心ポイント:</strong> やりとりはUcarPACの1社のみ。8,000店の入札結果をアプリで確認できます。</p>
+                  </div>
+
+                  <div class="button-stack">
+                    <button class="app-button pink flow-next">確認して申し込む</button>
+                    <button class="app-button white flow-prev">査定へ戻る</button>
+                  </div>
+                </div>
+
+                <div class="screen-step" data-step="3">
+                  <div class="flow-phone-head">
+                    <span>申込完了</span>
+                    <span>通知ON</span>
+                  </div>
+
+                  <div class="complete-mark"></div>
+                  <h3 class="complete-title">売却相談を受け付けました</h3>
+                  <p class="complete-text">
+                    入札開始、最高額更新、締切前の大事な通知だけお届けします。進捗はアプリでいつでも確認できます。
+                  </p>
+
+                  <div class="ops-card">
+                    <p class="ops-title">次に届く通知</p>
+                    <div class="ops-grid">
+                      <div class="ops-item"><span class="ops-check"></span><span>オークション掲載準備が完了したとき</span></div>
+                      <div class="ops-item"><span class="ops-check"></span><span>最高額が更新されたとき</span></div>
+                      <div class="ops-item"><span class="ops-check"></span><span>締切の3時間前</span></div>
+                    </div>
+                  </div>
+
+                  <div class="button-stack">
+                    <button class="app-button flow-reset">最初から再生</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="why-card">
+              <strong>導線方針</strong>
+              <p>通知タップ後は通知内容と一致するAI査定画面へ直接遷移し、価格確認から申込まで同じ車両情報を引き継ぐ。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="ops-card">
+          <p class="ops-title">generation-log / kpi-history 反映メモ</p>
+          <div class="ops-grid">
+            <div class="ops-item"><span class="ops-check"></span><span>index追加候補: codex-app-push-notification-a-2026-05-22.html</span></div>
+            <div class="ops-item"><span class="ops-check"></span><span>切り口: プッシュ通知の最適化 / 日次差分</span></div>
+            <div class="ops-item"><span class="ops-check"></span><span>KPI仮説: 開封率 +3.1pt、通知経由申込 +11件/週</span></div>
+          </div>
+        </section>
+
+        <section class="source-card">
+          <h2>出典つき検証メモ</h2>
+          <ul class="source-list">
+            <li>
+              <strong>Android Developers Notifications</strong>
+              では、通知許諾前に価値を説明し、アプリ内設定で通知設定を変更できるようにすること、通知タップ後は内容に直接関連する画面を表示すること、タイトル30文字以内・本文40文字程度を推奨。最終更新: 2026-03-02 UTC / 閲覧日: 2026-05-22<br>
+              <a href="https://developer.android.com/design/ui/mobile/guides/home-screen/notifications">https://developer.android.com/design/ui/mobile/guides/home-screen/notifications</a>
+            </li>
+            <li>
+              <strong>Firebase Cloud Messaging</strong>
+              は、通知メッセージをリエンゲージメントとリテンションに使えること、ターゲティング・分析・BigQuery Exportを使えることを公式に案内。最終更新: 2026-05-19 UTC / 閲覧日: 2026-05-22<br>
+              <a href="https://firebase.google.com/docs/cloud-messaging">https://firebase.google.com/docs/cloud-messaging</a>
+            </li>
+            <li>
+              <strong>Apple Human Interface Guidelines: Managing notifications</strong>
+              は、通知の種類を説明し、ユーザーがオプトイン・オプトアウトできる明確な導線を用意する考え方を提示。閲覧日: 2026-05-22<br>
+              <a href="https://developer.apple.com/design/human-interface-guidelines/managing-notifications">https://developer.apple.com/design/human-interface-guidelines/managing-notifications</a>
+            </li>
+          </ul>
+        </section>
+      </div>
+    </main>
+
+    <aside class="desktop-note">
+      <h2>検証の狙い</h2>
+      <p>
+        A案は「不安解消」を中心に、相場変化をうれしい知らせとして届ける体験に寄せています。通知頻度をユーザーが選べるため、通知OFFを避けながら再起動の理由を作ります。
+      </p>
+      <div class="memo">
+        重要仮説: 「価格が上がった」「電話なしで確認できる」の2文言が、通知開封率とAI査定復帰率を同時に押し上げる。
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab-button');
+    const panels = document.querySelectorAll('.panel');
+    const variantButtons = document.querySelectorAll('.variant-button');
+    const pushTitle = document.getElementById('pushTitle');
+    const pushBody = document.getElementById('pushBody');
+    const pushCard = document.getElementById('pushCard');
+    const openRate = document.getElementById('openRate');
+    const applyCount = document.getElementById('applyCount');
+    const openDelta = document.getElementById('openDelta');
+    const applyDelta = document.getElementById('applyDelta');
+    const switches = document.querySelectorAll('.switch');
+    const frequencyButtons = document.querySelectorAll('#frequencySegment button');
+    const settingsSummary = document.getElementById('settingsSummary');
+    const quietStart = document.getElementById('quietStart');
+    const quietEnd = document.getElementById('quietEnd');
+    const flowStart = document.getElementById('flowStart');
+    const tapNotification = document.getElementById('tapNotification');
+    const flowNext = document.querySelectorAll('.flow-next');
+    const flowPrev = document.querySelectorAll('.flow-prev');
+    const flowReset = document.querySelectorAll('.flow-reset');
+    const chips = document.querySelectorAll('.chip');
+    let flowStep = 0;
+
+    function activateTab(tabName) {
+      tabs.forEach((tab) => {
+        tab.classList.toggle('active', tab.dataset.tab === tabName);
+      });
+
+      panels.forEach((panel) => {
+        panel.classList.toggle('active', panel.id === `panel-${tabName}`);
+      });
+    }
+
+    function updatePush(button) {
+      variantButtons.forEach((item) => item.classList.remove('active'));
+      button.classList.add('active');
+
+      pushTitle.textContent = button.dataset.title;
+      pushBody.textContent = button.dataset.body;
+      openRate.innerHTML = `${button.dataset.rate}<small>%</small>`;
+      applyCount.innerHTML = `${button.dataset.count}<small>件</small>`;
+      openDelta.textContent = button.dataset.delta;
+      applyDelta.textContent = button.dataset.apply;
+
+      pushCard.classList.remove('pulse');
+      window.setTimeout(() => {
+        pushCard.classList.add('pulse');
+      }, 20);
+    }
+
+    function updateSettingsSummary() {
+      const activeSettings = Array.from(switches)
+        .filter((item) => item.classList.contains('on'))
+        .map((item) => item.dataset.setting);
+
+      const frequency = document.querySelector('#frequencySegment button.active').dataset.frequency;
+      const activeText = activeSettings.length ? activeSettings.join('、') : '通知なし';
+
+      settingsSummary.innerHTML = `<strong>現在:</strong> ${activeText}を${frequency}。${quietStart.value}-${quietEnd.value}は通知しません。`;
+    }
+
+    function setFlowStep(nextStep) {
+      flowStep = Math.max(0, Math.min(3, nextStep));
+
+      document.querySelectorAll('.screen-step').forEach((step) => {
+        step.classList.toggle('active', Number(step.dataset.step) === flowStep);
+      });
+
+      for (let i = 0; i <= 3; i += 1) {
+        const bar = document.getElementById(`bar${i}`);
+        if (bar) {
+          bar.classList.toggle('done', i <= flowStep);
+        }
+      }
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => activateTab(tab.dataset.tab));
+    });
+
+    variantButtons.forEach((button) => {
+      button.addEventListener('click', () => updatePush(button));
+    });
+
+    switches.forEach((switchButton) => {
+      switchButton.addEventListener('click', () => {
+        switchButton.classList.toggle('on');
+        updateSettingsSummary();
+      });
+    });
+
+    frequencyButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        frequencyButtons.forEach((item) => item.classList.remove('active'));
+        button.classList.add('active');
+        updateSettingsSummary();
+      });
+    });
+
+    quietStart.addEventListener('change', updateSettingsSummary);
+    quietEnd.addEventListener('change', updateSettingsSummary);
+
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        chips.forEach((item) => item.classList.remove('active'));
+        chip.classList.add('active');
+      });
+    });
+
+    flowStart.addEventListener('click', () => setFlowStep(1));
+    tapNotification.addEventListener('click', () => setFlowStep(1));
+
+    flowNext.forEach((button) => {
+      button.addEventListener('click', () => setFlowStep(flowStep + 1));
+    });
+
+    flowPrev.forEach((button) => {
+      button.addEventListener('click', () => setFlowStep(flowStep - 1));
+    });
+
+    flowReset.forEach((button) => {
+      button.addEventListener('click', () => setFlowStep(0));
+    });
+
+    updateSettingsSummary();
+  </script>
+</body>
+</html>
