@@ -359,13 +359,13 @@
 
 <!-- Chart Store Valid Downloads: GooglePlay / AppStore 有効DL -->
 <div class="chart-card">
-  <div class="chart-title">GooglePlay / AppStore 有効ダウンロード数（累計）</div>
+  <div class="chart-title">有効ダウンロード数（現在インストール推定）</div>
   <div class="notice" style="margin-bottom:14px; margin-top:0;">
-    ⚠️ BigQuery集計 ｜ 月次純増を累計化 ｜ GooglePlay: store listing acquisitions - deletions ｜ AppStore: first_time_downloads - deletions ｜ 直近Storeデータ: 2026/05/20
+    ⚠️ Google Sheets「実績」集計 ｜ 有効DL数 = 新規DL累計から削除を反映した現在インストール推定 ｜ 2026/05時点
   </div>
 
   <div class="notice" style="margin-bottom:14px; margin-top:-6px; color:#cbd5e1; border-color:#2d3148; background:#12151e;">
-    2026/05時点の累計有効DL: <strong style="color:#fff;">70,195 DL</strong>（GooglePlay 51,313 / AppStore 18,882）
+    2026/05時点の有効DL数: <strong style="color:#fff;">33,908 DL</strong>（削除率 51.07% 反映後）
   </div>
   <div id="legend-chart_store_valid_dl" class="custom-legend"></div>
   <canvas id="chart_store_valid_dl" style="max-height:360px;"></canvas>
@@ -542,10 +542,9 @@ const oldAppsApplyCount = [null, 65, 90, 129, 111, 144, 161, 241, 246, 233, 163,
 const oldAppsRate       = [0.0, 0.01, 0.13, 0.12, 0.13, 0.14, 0.19, 0.27, 0.15, 0.15, 0.13, 0.08];
 const avgOldAppsRate    = 0.12;
 
-// Store valid downloads cumulative (BigQuery)
-const storeValidMonths = ['2025/06', '2025/07', '2025/08', '2025/09', '2025/10', '2025/11', '2025/12', '2026/01', '2026/02', '2026/03', '2026/04', '2026/05'];
-const googlePlayValidDownloads = [6097, 14362, 19043, 23093, 26556, 29543, 32213, 33992, 39565, 44079, 47657, 51313];
-const appStoreValidDownloads   = [696, 1849, 3318, 4966, 6601, 9376, 11146, 13149, 15032, 16718, 18042, 18882];
+// Active installs estimate from Google Sheets valid DL total.
+const storeValidMonths = ['2025/04', '2025/05', '2025/06', '2025/07', '2025/08', '2025/09', '2025/10', '2025/11', '2025/12', '2026/01', '2026/02', '2026/03', '2026/04', '2026/05'];
+const activeDownloadUsers = [2499, 3906, 6351, 9702, 11023, 12206, 13081, 14732, 15937, 18023, 28287, 30300, 31829, 33908];
 
 // KPI目標値
 const kpiListingRate    = 28.0;
@@ -1163,17 +1162,10 @@ const cStoreValidDL = new Chart(document.getElementById('chart_store_valid_dl'),
     labels: storeValidMonths,
     datasets: [
       {
-        label: 'GooglePlay 累計有効DL',
-        data: googlePlayValidDownloads,
+        label: '??DL?????????????',
+        data: activeDownloadUsers,
         backgroundColor: 'rgba(74,222,128,0.82)',
         borderColor: 'rgba(74,222,128,0.95)',
-        borderWidth: 1
-      },
-      {
-        label: 'AppStore 累計有効DL',
-        data: appStoreValidDownloads,
-        backgroundColor: 'rgba(96,165,250,0.82)',
-        borderColor: 'rgba(96,165,250,0.95)',
         borderWidth: 1
       }
     ]
@@ -1183,13 +1175,12 @@ const cStoreValidDL = new Chart(document.getElementById('chart_store_valid_dl'),
     interaction: { mode: 'index', intersect: false },
     plugins: { legend: { display: false } },
     scales: {
-      x: { stacked: true, ticks: { color: TICK }, grid: { color: GRID } },
+      x: { ticks: { color: TICK }, grid: { color: GRID } },
       y: {
-        stacked: true,
         beginAtZero: true,
         ticks: { color: TICK, precision: 0 },
         grid: { color: GRID },
-        title: { display: true, text: '累計有効DL数', color: '#4b5563' }
+        title: { display: true, text: '??DL?', color: '#4b5563' }
       }
     }
   }
