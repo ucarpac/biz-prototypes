@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="ja">
+<script src="../auth.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>UcarPAC AI査定体験プロトタイプ C案</title>
+  <!-- C案: ゲーミフィケーション・インタラクティブアプローチ。スワイプ、診断フロー、ステップ進行などの操作体験重視。マイクロアニメーション -->
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --text-disabled: #B3B3B3;
+      --text-placeholder: rgba(28,38,99,0.3);
+      --text-light-blue: #bfdbfe;
+      --text-under-blue: #0056BA;
+      --button-gray: #CACEE2;
+      --button-link: #4099FF;
+      --back-white: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --back-gray2: #e6e6e6;
+      --back-blue: #091355;
+      --back-dark-blue: #0a1348;
+      --back-light-pink: #ffd8e8;
+      --back-light-blue: #6fc2ff;
+      --error: #EB4646;
+      --shadow: rgba(0,0,0,0.11);
+      --ruled-line: #F2F2F2;
+      --border-gray: #7C7C7C;
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+      --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
+      --gradient-disabled: linear-gradient(90deg, #e5e5e5, #e5e5e5);
+      --font-sans: 'Noto Sans JP', 'Hiragino Sans', system-ui, sans-serif;
+      --font-number: 'Righteous', 'Noto Sans JP', sans-serif;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --radius-sm: 5px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-chip: 22px;
+      --radius-button: 30px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--back-gray);
+      color: var(--text-black);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 0;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(29,220,255,0.20), transparent 36%),
+        linear-gradient(180deg, #f8fbff 0%, var(--back-gray) 46%, #ffffff 100%);
+    }
+
+    .phone {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      background: var(--back-white);
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 0 40px rgba(28,38,99,0.12);
+    }
+
+    .statusbar {
+      height: 32px;
+      padding: 8px 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--dark-blue);
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--white);
+    }
+
+    .status-icons {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--dark-blue);
+      opacity: 0.85;
+    }
+
+    .app-header {
+      padding: 12px 20px 16px;
+      background: var(--white);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid rgba(242,242,242,0.9);
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .back-btn,
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 18px;
+      background: var(--back-gray);
+      color: var(--dark-blue);
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      font-weight: 800;
+      transition: transform 180ms ease, background 180ms ease;
+    }
+
+    .back-btn:active,
+    .icon-btn:active {
+      transform: scale(0.92);
+      background: var(--back-light-pink);
+    }
+
+    .header-title {
+      flex: 1;
+      text-align: center;
+    }
+
+    .header-title strong {
+      display: block;
+      font-size: 18px;
+      line-height: 27px;
+      color: var(--dark-blue);
+    }
+
+    .header-title span {
+      display: block;
+      font-size: 10px;
+      line-height: 15px;
+      color: var(--text-gray);
+    }
+
+    .progress-wrap {
+      padding-top: 14px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      line-height: 15px;
+      color: var(--text-gray);
+      margin-bottom: 6px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--back-gray);
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 74%;
+      border-radius: 999px;
+      background: var(--gradient-primary);
+      transition: width 360ms ease;
+    }
+
+    .content {
+      padding: 16px 0 108px;
+    }
+
+    .hero-card {
+      width: 90%;
+      max-width: 351px;
+      margin: 0 auto 16px;
+      min-height: 128px;
+      border-radius: 13px;
+      padding: 16px;
+      background: var(--white);
+      border: 1px solid #CDDCED;
+      box-shadow: 0 0 18px var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 132px;
+      height: 132px;
+      right: -54px;
+      top: -38px;
+      border-radius: 50%;
+      background: rgba(248,76,162,0.12);
+    }
+
+    .car-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .car-visual {
+      width: 96px;
+      height: 72px;
+      border-radius: 12px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.18), transparent),
+        linear-gradient(135deg, #1c2663, #4db4ff);
+      position: relative;
+      box-shadow: inset 0 -10px 0 rgba(0,0,0,0.08);
+      flex: 0 0 auto;
+    }
+
+    .car-visual::before {
+      content: "";
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      top: 24px;
+      height: 22px;
+      border-radius: 22px 22px 8px 8px;
+      background: var(--white);
+      opacity: 0.92;
+    }
+
+    .car-visual::after {
+      content: "";
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 14px;
+      height: 18px;
+      border-radius: 9px;
+      background: var(--pink);
+      box-shadow: 16px 14px 0 -10px var(--dark-blue), 54px 14px 0 -10px var(--dark-blue);
+    }
+
+    .car-meta {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      min-height: 22px;
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge-pink {
+      background: var(--back-light-pink);
+      color: var(--pink);
+    }
+
+    .badge-blue {
+      background: rgba(29,220,255,0.16);
+      color: var(--dark-blue);
+    }
+
+    .badge-dark {
+      background: var(--dark-blue);
+      color: var(--white);
+    }
+
+    .car-title {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 18px;
+      line-height: 27px;
+      font-weight: 800;
+    }
+
+    .car-detail {
+      margin: 2px 0 0;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .xp-card {
+      width: 90%;
+      max-width: 351px;
+      margin: 0 auto 16px;
+      border-radius: 13px;
+      padding: 14px 16px;
+      background: var(--back-blue);
+      color: var(--white);
+      box-shadow: 0 4px 18px rgba(9,19,85,0.20);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .xp-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.14) 48%, transparent 72%);
+      transform: translateX(-100%);
+      animation: sheen 3.6s ease-in-out infinite;
+    }
+
+    .xp-row {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .xp-title {
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 800;
+    }
+
+    .xp-sub {
+      font-size: 10px;
+      line-height: 15px;
+      color: var(--text-light-blue);
+    }
+
+    .xp-meter {
+      width: 104px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.16);
+      overflow: hidden;
+    }
+
+    .xp-fill {
+      width: 68%;
+      height: 100%;
+      border-radius: 999px;
+      background: var(--gradient-primary);
+      transition: width 280ms ease;
+    }
+
+    .segment {
+      width: 90%;
+      max-width: 351px;
+      margin: 0 auto 16px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      padding: 4px;
+      border-radius: 22px;
+      background: var(--back-gray);
+    }
+
+    .segment button {
+      min-height: 35px;
+      border-radius: 18px;
+      background: transparent;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 800;
+      transition: transform 160ms ease, background 160ms ease, color 160ms ease;
+    }
+
+    .segment button.active {
+      background: var(--white);
+      color: var(--dark-blue);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .stage {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      touch-action: pan-y;
+    }
+
+    .slides {
+      display: flex;
+      width: 300%;
+      transform: translateX(0);
+      transition: transform 360ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    .screen {
+      width: 33.3333%;
+      padding: 0 0 8px;
+      flex: 0 0 33.3333%;
+    }
+
+    .result-card,
+    .compare-card,
+    .apply-card,
+    .mini-card {
+      width: 82%;
+      max-width: 323px;
+      margin: 0 auto 16px;
+      border-radius: 12px;
+      background: var(--white);
+      padding: 24px 20px;
+      box-shadow: 0 3px 18px var(--shadow);
+    }
+
+    .section-kicker {
+      margin: 0 0 4px;
+      color: var(--pink);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 800;
+    }
+
+    .section-title {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 22px;
+      line-height: 33px;
+      font-weight: 900;
+    }
+
+    .section-copy {
+      margin: 8px 0 0;
+      color: var(--text-gray);
+      font-size: 14px;
+      line-height: 21px;
+    }
+
+    .price-block {
+      margin: 18px 0 10px;
+      padding: 18px 14px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #ffffff, #f3fbff);
+      border: 1px solid #dbeeff;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .price-label {
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+    }
+
+    .price-main {
+      color: var(--dark-blue);
+      font-size: 40px;
+      line-height: 54px;
+      font-weight: 900;
+      letter-spacing: 0;
+      font-family: var(--font-number);
+    }
+
+    .price-main small {
+      font-size: 18px;
+      line-height: 27px;
+      font-family: var(--font-sans);
+    }
+
+    .price-delta {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: var(--back-light-pink);
+      color: var(--pink);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 800;
+    }
+
+    .chart-wrap {
+      margin-top: 18px;
+      padding: 14px 10px 10px;
+      border-radius: 12px;
+      background: var(--back-white);
+      border: 1px solid var(--ruled-line);
+    }
+
+    .chart-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+      padding: 0 4px;
+    }
+
+    .chart-title {
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 800;
+    }
+
+    .chart-unit {
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+    }
+
+    .chart {
+      width: 100%;
+      height: 138px;
+      display: block;
+    }
+
+    .chart-line {
+      stroke-dasharray: 410;
+      stroke-dashoffset: 410;
+      animation: drawLine 1.2s ease forwards 260ms;
+    }
+
+    .best-timing {
+      margin-top: 14px;
+      border-radius: 12px;
+      padding: 12px;
+      background: var(--back-blue);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .best-timing strong {
+      display: block;
+      font-size: 16px;
+      line-height: 24px;
+    }
+
+    .best-timing span {
+      display: block;
+      color: var(--text-light-blue);
+      font-size: 11px;
+      line-height: 16.5px;
+    }
+
+    .timing-pill {
+      flex: 0 0 auto;
+      min-width: 74px;
+      padding: 8px 10px;
+      border-radius: 22px;
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+      text-align: center;
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 900;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    .diagnosis-card {
+      width: 90%;
+      max-width: 351px;
+      margin: 0 auto 16px;
+      border-radius: 13px;
+      background: var(--white);
+      padding: 16px;
+      border: 1px solid #CDDCED;
+      box-shadow: 0 0 18px var(--shadow);
+    }
+
+    .diagnosis-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .diagnosis-title {
+      color: var(--dark-blue);
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 900;
+    }
+
+    .diagnosis-step {
+      color: var(--pink);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 900;
+    }
+
+    .question {
+      margin: 0 0 12px;
+      font-size: 14px;
+      line-height: 21px;
+      color: var(--text-black);
+      font-weight: 700;
+    }
+
+    .choice-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .choice {
+      min-height: 43px;
+      border-radius: 22px;
+      padding: 8px 10px;
+      background: var(--white);
+      color: var(--text-black);
+      border: 1px solid var(--ruled-line);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 800;
+      transition: transform 160ms ease, color 160ms ease, background 160ms ease, border 160ms ease;
+    }
+
+    .choice.selected {
+      background: var(--dark-blue);
+      border-color: var(--dark-blue);
+      color: var(--white);
+      transform: translateY(-2px);
+    }
+
+    .choice:active {
+      transform: scale(0.97);
+    }
+
+    .insight-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .insight {
+      min-height: 72px;
+      border-radius: 12px;
+      padding: 10px;
+      background: var(--back-white);
+      border: 1px solid var(--ruled-line);
+    }
+
+    .insight span {
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      display: block;
+    }
+
+    .insight strong {
+      color: var(--dark-blue);
+      font-size: 18px;
+      line-height: 27px;
+      display: block;
+      margin-top: 2px;
+    }
+
+    .similar-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .similar-item {
+      border-radius: 12px;
+      padding: 12px;
+      background: var(--back-white);
+      border: 1px solid var(--ruled-line);
+      transform: translateY(8px);
+      opacity: 0;
+      animation: riseIn 520ms ease forwards;
+    }
+
+    .similar-item:nth-child(2) {
+      animation-delay: 120ms;
+    }
+
+    .similar-item:nth-child(3) {
+      animation-delay: 240ms;
+    }
+
+    .similar-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .similar-name {
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 900;
+    }
+
+    .similar-spec {
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+    }
+
+    .similar-price {
+      color: var(--pink);
+      font-size: 18px;
+      line-height: 27px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .match-meter {
+      margin-top: 10px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--back-gray2);
+      overflow: hidden;
+    }
+
+    .match-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: var(--gradient-primary);
+      width: var(--match);
+    }
+
+    .confidence {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #fff8fc, #ffffff);
+      border: 1px solid rgba(248,76,162,0.18);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .ring {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background:
+        conic-gradient(var(--pink) 0deg 313deg, #f1f1f1 313deg 360deg);
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      animation: rotateIn 800ms ease;
+    }
+
+    .ring-inner {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--white);
+      display: grid;
+      place-items: center;
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 900;
+    }
+
+    .confidence-copy strong {
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      display: block;
+    }
+
+    .confidence-copy span {
+      color: var(--text-gray);
+      font-size: 11px;
+      line-height: 16.5px;
+      display: block;
+      margin-top: 2px;
+    }
+
+    .apply-hero {
+      margin-top: 16px;
+      padding: 18px 14px;
+      border-radius: 12px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.08), transparent),
+        var(--back-blue);
+      color: var(--white);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .apply-hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -30px -58px auto;
+      width: 132px;
+      height: 132px;
+      border-radius: 50%;
+      background: rgba(29,220,255,0.18);
+    }
+
+    .apply-hero p {
+      margin: 0;
+      color: var(--text-light-blue);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 700;
+    }
+
+    .apply-hero strong {
+      display: block;
+      color: var(--white);
+      font-size: 33px;
+      line-height: 49.5px;
+      margin-top: 4px;
+      font-weight: 900;
+      font-family: var(--font-number);
+    }
+
+    .apply-hero small {
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 24px;
+    }
+
+    .benefit-stack {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .benefit {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 54px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: var(--back-white);
+      border: 1px solid var(--ruled-line);
+    }
+
+    .benefit-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 17px;
+      background: var(--back-light-pink);
+      color: var(--pink);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+
+    .benefit strong {
+      display: block;
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+    }
+
+    .benefit span {
+      display: block;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+    }
+
+    .primary-btn {
+      width: 240px;
+      min-height: 43px;
+      border-radius: 30px;
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 8px 18px rgba(64,153,255,0.24);
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .pink-btn {
+      width: 240px;
+      min-height: 43px;
+      border-radius: 30px;
+      background: var(--gradient-pink);
+      color: var(--white);
+      font-size: 14px;
+      line-height: 21px;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 8px 18px rgba(248,76,162,0.22);
+      transition: transform 180ms ease, box-shadow 180ms ease;
+      animation: ctaPulse 2.3s ease-in-out infinite;
+    }
+
+    .primary-btn:active,
+    .pink-btn:active {
+      transform: translateY(2px) scale(0.98);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.14);
+    }
+
+    .cta-area {
+      width: 82%;
+      max-width: 323px;
+      margin: 2px auto 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cta-note {
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+      text-align: center;
+    }
+
+    .swipe-hint {
+      width: 90%;
+      max-width: 351px;
+      margin: 0 auto 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-gray);
+      font-size: 11px;
+      line-height: 16.5px;
+    }
+
+    .hint-arrow {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--white);
+      color: var(--dark-blue);
+      box-shadow: 0 0 10px var(--shadow);
+      animation: nudge 1.5s ease-in-out infinite;
+    }
+
+    .source-card {
+      width: 90%;
+      max-width: 351px;
+      margin: 0 auto 16px;
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: var(--white);
+      border: 1px solid var(--ruled-line);
+    }
+
+    .source-card summary {
+      color: var(--dark-blue);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .source-list {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 15px;
+    }
+
+    .source-list li {
+      margin: 6px 0;
+    }
+
+    .source-list a {
+      color: var(--text-under-blue);
+      overflow-wrap: anywhere;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
+      padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid var(--ruled-line);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      z-index: 30;
+    }
+
+    .nav-item {
+      min-height: 48px;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--text-gray);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      line-height: 15px;
+      font-weight: 800;
+      transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+    }
+
+    .nav-item i {
+      font-style: normal;
+      font-size: 17px;
+      line-height: 18px;
+    }
+
+    .nav-item.active {
+      background: var(--back-light-pink);
+      color: var(--pink);
+    }
+
+    .nav-item:active {
+      transform: scale(0.96);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 84px;
+      transform: translateX(-50%) translateY(20px);
+      width: min(90%, 351px);
+      max-width: 351px;
+      min-height: 48px;
+      border-radius: 12px;
+      padding: 12px 16px;
+      background: var(--dark-blue);
+      color: var(--white);
+      font-size: 12px;
+      line-height: 18px;
+      font-weight: 800;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 220ms ease, transform 220ms ease;
+      z-index: 50;
+      box-shadow: 0 8px 22px rgba(28,38,99,0.26);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 80;
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+    }
+
+    .modal {
+      width: 82%;
+      max-width: 323px;
+      border-radius: 12px;
+      padding: 32px 28px;
+      background: var(--white);
+      text-align: center;
+      animation: popIn 240ms ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .modal-burst {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      margin: 0 auto 14px;
+      background: var(--gradient-primary);
+      color: var(--dark-blue);
+      display: grid;
+      place-items: center;
+      font-size: 32px;
+      font-weight: 900;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    .modal h2 {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 22px;
+      line-height: 33px;
+    }
+
+    .modal p {
+      margin: 8px 0 20px;
+      color: var(--text-gray);
+      font-size: 14px;
+      line-height: 21px;
+    }
+
+    .confetti {
+      position: fixed;
+      width: 8px;
+      height: 12px;
+      border-radius: 2px;
+      top: -20px;
+      z-index: 100;
+      animation: fall 900ms ease-in forwards;
+    }
+
+    @keyframes sheen {
+      0% { transform: translateX(-100%); }
+      45% { transform: translateX(120%); }
+      100% { transform: translateX(120%); }
+    }
+
+    @keyframes drawLine {
+      to { stroke-dashoffset: 0; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.055); }
+    }
+
+    @keyframes ctaPulse {
+      0%, 100% { box-shadow: 0 8px 18px rgba(248,76,162,0.22); }
+      50% { box-shadow: 0 10px 26px rgba(248,76,162,0.36); }
+    }
+
+    @keyframes nudge {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(5px); }
+    }
+
+    @keyframes riseIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes rotateIn {
+      from { transform: rotate(-90deg) scale(0.85); opacity: 0.2; }
+      to { transform: rotate(0deg) scale(1); opacity: 1; }
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(105vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    @media (min-width: 431px) {
+      .phone {
+        margin: 18px 0;
+        min-height: calc(100vh - 36px);
+        border-radius: 24px;
+      }
+
+      .bottom-nav {
+        bottom: 18px;
+        border-radius: 0 0 24px 24px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<!-- ucp-prototype-nav:start -->
+<style>
+  .ucp-prototype-nav {
+    position: fixed;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2147483647;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 7px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.78);
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.22);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    font-family: "Noto Sans JP", "Hiragino Sans", system-ui, sans-serif;
+  }
+  .ucp-prototype-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.13);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .ucp-prototype-nav a:first-child {
+    background: #f84ca2;
+  }
+  @media (max-width: 520px) {
+    .ucp-prototype-nav {
+      top: auto;
+      bottom: 14px;
+      width: calc(100% - 28px);
+      justify-content: center;
+    }
+    .ucp-prototype-nav a {
+      flex: 1;
+      justify-content: center;
+    }
+  }
+</style>
+<nav class="ucp-prototype-nav" aria-label="プロトタイプ内ナビゲーション">
+  <a href="./">← プロトタイプ一覧</a>
+  <a href="../">全体トップ</a>
+</nav>
+<!-- ucp-prototype-nav:end -->
+  <div class="page">
+    <main class="phone" aria-label="UcarPAC AI査定体験プロトタイプ">
+      <div class="statusbar">
+        <span>9:41</span>
+        <div class="status-icons" aria-hidden="true">
+          <span class="status-dot"></span>
+          <span class="status-dot"></span>
+          <span class="status-dot"></span>
+        </div>
+      </div>
+
+      <header class="app-header">
+        <div class="header-row">
+          <button class="back-btn" type="button" aria-label="戻る">‹</button>
+          <div class="header-title">
+            <strong>AI査定結果</strong>
+            <span>個人情報なしで相場チェック</span>
+          </div>
+          <button class="icon-btn" type="button" aria-label="通知">●</button>
+        </div>
+
+        <div class="progress-wrap" aria-label="査定完了までの進捗">
+          <div class="progress-label">
+            <span id="progressText">結果確認 74%</span>
+            <span>あと1タップで申込</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+        </div>
+      </header>
+
+      <section class="content">
+        <article class="hero-card">
+          <div class="car-row">
+            <div class="car-visual" aria-hidden="true"></div>
+            <div class="car-meta">
+              <div class="badge-row">
+                <span class="badge badge-pink">AI査定済み</span>
+                <span class="badge badge-blue">電話なし</span>
+              </div>
+              <h1 class="car-title">トヨタ ハリアー Z</h1>
+              <p class="car-detail">2021年式 / 走行 32,400km / パールホワイト</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="xp-card" aria-live="polite">
+          <div class="xp-row">
+            <div>
+              <div class="xp-title" id="xpTitle">査定理解レベル 68</div>
+              <div class="xp-sub">比較を見ると申込判断がしやすくなります</div>
+            </div>
+            <div class="xp-meter" aria-label="査定理解レベル">
+              <div class="xp-fill" id="xpFill"></div>
+            </div>
+          </div>
+        </article>
+
+        <nav class="segment" aria-label="査定結果の表示切り替え">
+          <button class="active" type="button" data-slide="0">相場予測</button>
+          <button type="button" data-slide="1">実績比較</button>
+          <button type="button" data-slide="2">申込</button>
+        </nav>
+
+        <div class="stage" id="stage">
+          <div class="slides" id="slides">
+            <section class="screen" aria-label="査定結果画面A">
+              <article class="result-card">
+                <p class="section-kicker">査定結果画面A</p>
+                <h2 class="section-title">今の価値と売り時がひと目でわかる</h2>
+                <p class="section-copy">AIが現在相場と3か月後の予測を比較し、高く売れるタイミングを提示します。</p>
+
+                <div class="price-block">
+                  <div class="price-label">AI査定価格</div>
+                  <div class="price-main" id="mainPrice">312<small>万円</small></div>
+                  <div class="price-delta" id="deltaText">+18万円 高値圏</div>
+                </div>
+
+                <div class="chart-wrap">
+                  <div class="chart-head">
+                    <div class="chart-title">相場予測グラフ</div>
+                    <div class="chart-unit">単位: 万円</div>
+                  </div>
+                  <svg class="chart" viewBox="0 0 292 138" role="img" aria-label="現在から6か月後までの相場予測">
+                    <line x1="16" y1="18" x2="16" y2="112" stroke="#e6e6e6" stroke-width="1"/>
+                    <line x1="16" y1="112" x2="276" y2="112" stroke="#e6e6e6" stroke-width="1"/>
+                    <line x1="16" y1="82" x2="276" y2="82" stroke="#f2f2f2" stroke-width="1"/>
+                    <line x1="16" y1="52" x2="276" y2="52" stroke="#f2f2f2" stroke-width="1"/>
+                    <text x="2" y="23" font-size="9" fill="#737373">330</text>
+                    <text x="2" y="86" font-size="9" fill="#737373">300</text>
+                    <text x="18" y="130" font-size="9" fill="#737373">今</text>
+                    <text x="86" y="130" font-size="9" fill="#737373">1か月</text>
+                    <text x="158" y="130" font-size="9" fill="#737373">3か月</text>
+                    <text x="232" y="130" font-size="9" fill="#737373">6か月</text>
+                    <path class="chart-line" d="M22 72 C62 58, 84 42, 118 46 S180 68, 210 58 S250 38, 270 48" fill="none" stroke="#F84CA2" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M22 72 C62 58, 84 42, 118 46 S180 68, 210 58 S250 38, 270 48 L270 112 L22 112 Z" fill="rgba(248,76,162,0.10)"/>
+                    <circle cx="118" cy="46" r="5" fill="#F84CA2"/>
+                    <circle cx="270" cy="48" r="5" fill="#1c2663"/>
+                  </svg>
+                </div>
+
+                <div class="best-timing">
+                  <div>
+                    <strong>高く売れるタイミング</strong>
+                    <span>同条件の推移では3か月以内が高値圏</span>
+                  </div>
+                  <div class="timing-pill">今月</div>
+                </div>
+              </article>
+
+              <article class="diagnosis-card">
+                <div class="diagnosis-head">
+                  <div class="diagnosis-title">売り時ミニ診断</div>
+                  <div class="diagnosis-step" id="diagnosisStep">1 / 2</div>
+                </div>
+                <p class="question" id="questionText">次の車検はいつ頃ですか？</p>
+                <div class="choice-grid" id="choiceGrid">
+                  <button class="choice" type="button" data-score="12">3か月以内</button>
+                  <button class="choice" type="button" data-score="8">半年以内</button>
+                  <button class="choice" type="button" data-score="4">1年以内</button>
+                  <button class="choice" type="button" data-score="0">まだ先</button>
+                </div>
+                <div class="insight-row">
+                  <div class="insight">
+                    <span>売り時スコア</span>
+                    <strong id="sellScore">82</strong>
+                  </div>
+                  <div class="insight">
+                    <span>想定下落抑制</span>
+                    <strong id="savePrice">18万</strong>
+                  </div>
+                </div>
+              </article>
+            </section>
+
+            <section class="screen" aria-label="査定結果画面B">
+              <article class="compare-card">
+                <p class="section-kicker">査定結果画面B</p>
+                <h2 class="section-title">似た車の実績でAI査定の精度を実感</h2>
+                <p class="section-copy">年式・走行距離・色が近い売却実績と比較して、価格の納得感を高めます。</p>
+
+                <div class="confidence">
+                  <div class="ring">
+                    <div class="ring-inner">87%</div>
+                  </div>
+                  <div class="confidence-copy">
+                    <strong>類似条件との一致度が高い査定です</strong>
+                    <span>ハリアー Z / 2020-2022年式 / 3.8万km以内の実績を比較</span>
+                  </div>
+                </div>
+
+                <div class="similar-list">
+                  <div class="similar-item">
+                    <div class="similar-top">
+                      <div>
+                        <div class="similar-name">ハリアー Z レザーパッケージ</div>
+                        <div class="similar-spec">2021年式 / 29,800km / 黒</div>
+                      </div>
+                      <div class="similar-price">318万円</div>
+                    </div>
+                    <div class="match-meter">
+                      <div class="match-fill" style="--match: 94%;"></div>
+                    </div>
+                  </div>
+
+                  <div class="similar-item">
+                    <div class="similar-top">
+                      <div>
+                        <div class="similar-name">ハリアー Z</div>
+                        <div class="similar-spec">2020年式 / 35,200km / 白</div>
+                      </div>
+                      <div class="similar-price">306万円</div>
+                    </div>
+                    <div class="match-meter">
+                      <div class="match-fill" style="--match: 88%;"></div>
+                    </div>
+                  </div>
+
+                  <div class="similar-item">
+                    <div class="similar-top">
+                      <div>
+                        <div class="similar-name">ハリアー G</div>
+                        <div class="similar-spec">2022年式 / 38,100km / 白</div>
+                      </div>
+                      <div class="similar-price">301万円</div>
+                    </div>
+                    <div class="match-meter">
+                      <div class="match-fill" style="--match: 81%;"></div>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="mini-card">
+                <p class="section-kicker">精度を上げる追加チェック</p>
+                <h2 class="section-title">写真を1枚足すと+6%精度アップ</h2>
+                <p class="section-copy">外装写真を追加すると、キズ・色味・装備差を反映した価格に更新できます。</p>
+                <div class="cta-area">
+                  <button class="primary-btn" type="button" id="photoBtn">写真を追加して再計算</button>
+                  <div class="cta-note">プロトタイプ上では疑似的に査定価格が更新されます</div>
+                </div>
+              </article>
+            </section>
+
+            <section class="screen" aria-label="査定から申込導線">
+              <article class="apply-card">
+                <p class="section-kicker">査定→申込導線</p>
+                <h2 class="section-title">この価格で売りたい、をワンタップに</h2>
+                <p class="section-copy">結果表示で価値を体感した直後に、電話1社・8,000店競争の売却申込へ進めます。</p>
+
+                <div class="apply-hero">
+                  <p>申込時の目安価格</p>
+                  <strong id="applyPrice">312<small>万円</small></strong>
+                </div>
+
+                <div class="benefit-stack">
+                  <div class="benefit">
+                    <div class="benefit-icon">1</div>
+                    <div>
+                      <strong>電話はUcarPACの1社のみ</strong>
+                      <span>複数業者からの電話ラッシュを避けられます</span>
+                    </div>
+                  </div>
+
+                  <div class="benefit">
+                    <div class="benefit-icon">¥</div>
+                    <div>
+                      <strong>8,000店が競うオークション</strong>
+                      <span>最高額の入札をアプリで確認できます</span>
+                    </div>
+                  </div>
+
+                  <div class="benefit">
+                    <div class="benefit-icon">✓</div>
+                    <div>
+                      <strong>AI査定データを引き継ぎ</strong>
+                      <span>入力済みの車両情報を申込に反映します</span>
+                    </div>
+                  </div>
+                </div>
+              </article>
+
+              <div class="cta-area">
+                <button class="pink-btn" type="button" id="applyBtn">この価格で売りたい</button>
+                <div class="cta-note">個人情報入力は次の画面で確認できます</div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <div class="swipe-hint">
+          <span>左右にスワイプして結果を比較</span>
+          <span class="hint-arrow">›</span>
+        </div>
+
+        <details class="source-card">
+          <summary>主要主張の出典URLと確認日</summary>
+          <ul class="source-list">
+            <li>UcarPACの電話1社・オークション訴求: https://ucarpac.com/ （2026-05-25閲覧）</li>
+            <li>MOTA車買取の上位3社訴求: https://autoc-one.jp/ullo/ （2026-05-25閲覧）</li>
+            <li>楽天Car買取のオークション型サービス比較: https://car.rakuten.co.jp/sell/ （2026-05-25閲覧）</li>
+            <li>比較価格・AI査定額・一致度は本プロトタイプ検証用のダミーデータ（2026-05-25作成）</li>
+          </ul>
+        </details>
+      </section>
+
+      <nav class="bottom-nav" aria-label="アプリ下部ナビゲーション">
+        <button class="nav-item active" type="button">
+          <i>⌂</i>
+          <span>ホーム</span>
+        </button>
+        <button class="nav-item" type="button">
+          <i>◆</i>
+          <span>AI査定</span>
+        </button>
+        <button class="nav-item" type="button">
+          <i>¥</i>
+          <span>出費</span>
+        </button>
+        <button class="nav-item" type="button">
+          <i>●</i>
+          <span>マイ</span>
+        </button>
+      </nav>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">査定理解レベルが上がりました</div>
+
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modal-burst">✓</div>
+      <h2 id="modalTitle">申込準備が完了</h2>
+      <p>AI査定データを引き継いで、売却相談の入力へ進みます。</p>
+      <button class="primary-btn" type="button" id="closeModal">閉じる</button>
+    </div>
+  </div>
+
+  <script>
+    window.PROTO_AUTH_CONFIG = {
+      title: 'UcarPAC AI査定体験プロトタイプ',
+      description: 'AI査定結果画面A/Bと申込導線の検証用プロトタイプ',
+      storageHours: 24
+    };
+
+    const slides = document.getElementById('slides');
+    const stage = document.getElementById('stage');
+    const segmentButtons = Array.from(document.querySelectorAll('.segment button'));
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const xpTitle = document.getElementById('xpTitle');
+    const xpFill = document.getElementById('xpFill');
+    const toast = document.getElementById('toast');
+    const mainPrice = document.getElementById('mainPrice');
+    const applyPrice = document.getElementById('applyPrice');
+    const deltaText = document.getElementById('deltaText');
+    const photoBtn = document.getElementById('photoBtn');
+    const applyBtn = document.getElementById('applyBtn');
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const closeModal = document.getElementById('closeModal');
+    const choiceGrid = document.getElementById('choiceGrid');
+    const questionText = document.getElementById('questionText');
+    const diagnosisStep = document.getElementById('diagnosisStep');
+    const sellScore = document.getElementById('sellScore');
+    const savePrice = document.getElementById('savePrice');
+
+    let currentSlide = 0;
+    let xp = 68;
+    let price = 312;
+    let touchStartX = 0;
+    let touchCurrentX = 0;
+    let diagnosisPage = 0;
+    let diagnosisScore = 82;
+
+    const questions = [
+      {
+        label: '次の車検はいつ頃ですか？',
+        choices: [
+          ['3か月以内', 12],
+          ['半年以内', 8],
+          ['1年以内', 4],
+          ['まだ先', 0]
+        ]
+      },
+      {
+        label: '売却を考えている時期は？',
+        choices: [
+          ['今月中', 12],
+          ['3か月以内', 9],
+          ['半年以内', 5],
+          ['未定', 1]
+        ]
+      }
+    ];
+
+    function setSlide(index) {
+      currentSlide = Math.max(0, Math.min(2, index));
+      slides.style.transform = `translateX(-${currentSlide * 33.3333}%)`;
+      segmentButtons.forEach((button, buttonIndex) => {
+        button.classList.toggle('active', buttonIndex === currentSlide);
+      });
+
+      const progress = [74, 86, 96][currentSlide];
+      progressBar.style.width = `${progress}%`;
+      progressText.textContent = currentSlide === 0 ? '結果確認 74%' : currentSlide === 1 ? '納得材料 86%' : '申込直前 96%';
+
+      if (currentSlide === 1) {
+        addXp(8, '類似実績を確認しました');
+      }
+
+      if (currentSlide === 2) {
+        addXp(12, '申込判断の準備が整いました');
+      }
+    }
+
+    function addXp(amount, message) {
+      xp = Math.min(100, xp + amount);
+      xpTitle.textContent = `査定理解レベル ${xp}`;
+      xpFill.style.width = `${xp}%`;
+      showToast(message);
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => {
+        toast.classList.remove('show');
+      }, 1600);
+    }
+
+    function updatePrice(newPrice, delta) {
+      price = newPrice;
+      mainPrice.innerHTML = `${price}<small>万円</small>`;
+      applyPrice.innerHTML = `${price}<small>万円</small>`;
+      deltaText.textContent = delta;
+      mainPrice.animate(
+        [
+          { transform: 'scale(1)', opacity: 0.7 },
+          { transform: 'scale(1.08)', opacity: 1 },
+          { transform: 'scale(1)', opacity: 1 }
+        ],
+        { duration: 420, easing: 'ease-out' }
+      );
+    }
+
+    function renderQuestion() {
+      const current = questions[diagnosisPage];
+      diagnosisStep.textContent = `${diagnosisPage + 1} / ${questions.length}`;
+      questionText.textContent = current.label;
+      choiceGrid.innerHTML = '';
+
+      current.choices.forEach(([label, score]) => {
+        const button = document.createElement('button');
+        button.className = 'choice';
+        button.type = 'button';
+        button.textContent = label;
+        button.dataset.score = score;
+        choiceGrid.appendChild(button);
+      });
+    }
+
+    function handleChoice(event) {
+      const button = event.target.closest('.choice');
+      if (!button) {
+        return;
+      }
+
+      Array.from(choiceGrid.children).forEach((choice) => choice.classList.remove('selected'));
+      button.classList.add('selected');
+
+      const add = Number(button.dataset.score || 0);
+      diagnosisScore = Math.min(99, diagnosisScore + add);
+      sellScore.textContent = diagnosisScore;
+      savePrice.textContent = `${Math.round(10 + add * 1.4)}万`;
+      addXp(4, '売り時診断を更新しました');
+
+      window.setTimeout(() => {
+        if (diagnosisPage < questions.length - 1) {
+          diagnosisPage += 1;
+          renderQuestion();
+        } else {
+          showToast('売り時診断が完了しました');
+        }
+      }, 420);
+    }
+
+    function createConfetti() {
+      const colors = ['#F84CA2', '#1ddcff', '#4db4ff', '#1c2663', '#ffd8e8'];
+
+      for (let i = 0; i < 22; i += 1) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti';
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.background = colors[i % colors.length];
+        piece.style.animationDelay = `${Math.random() * 220}ms`;
+        piece.style.transform = `rotate(${Math.random() * 180}deg)`;
+        document.body.appendChild(piece);
+
+        window.setTimeout(() => {
+          piece.remove();
+        }, 1200);
+      }
+    }
+
+    segmentButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        setSlide(Number(button.dataset.slide));
+      });
+    });
+
+    stage.addEventListener('touchstart', (event) => {
+      touchStartX = event.touches[0].clientX;
+      touchCurrentX = touchStartX;
+    }, { passive: true });
+
+    stage.addEventListener('touchmove', (event) => {
+      touchCurrentX = event.touches[0].clientX;
+    }, { passive: true });
+
+    stage.addEventListener('touchend', () => {
+      const delta = touchCurrentX - touchStartX;
+
+      if (Math.abs(delta) > 48) {
+        if (delta < 0) {
+          setSlide(currentSlide + 1);
+        } else {
+          setSlide(currentSlide - 1);
+        }
+      }
+    });
+
+    photoBtn.addEventListener('click', () => {
+      updatePrice(319, '+25万円 写真反映後');
+      addXp(10, '写真追加で査定精度が上がりました');
+      photoBtn.textContent = '再計算済み';
+      photoBtn.style.opacity = '0.78';
+    });
+
+    applyBtn.addEventListener('click', () => {
+      modalBackdrop.classList.add('show');
+      createConfetti();
+      addXp(4, '申込導線を確認しました');
+    });
+
+    closeModal.addEventListener('click', () => {
+      modalBackdrop.classList.remove('show');
+    });
+
+    modalBackdrop.addEventListener('click', (event) => {
+      if (event.target === modalBackdrop) {
+        modalBackdrop.classList.remove('show');
+      }
+    });
+
+    choiceGrid.addEventListener('click', handleChoice);
+
+    document.querySelectorAll('.nav-item').forEach((item) => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item').forEach((nav) => nav.classList.remove('active'));
+        item.classList.add('active');
+        showToast(`${item.textContent.trim()}を開きました`);
+      });
+    });
+
+    renderQuestion();
+  </script>
+</body>
+</html>
