@@ -13,7 +13,6 @@
   const AGENCY_PATH_PREFIXES = [
     "/agency/",
     "/ops/auto-kpi/",
-    "/reports/lp11-cpa-report-20260410/",
     "/reports/ai-inflow-20260331-n6x3p8r4k2/"
   ];
   // "full" = UCP内部（全ページ閲覧可）、"agency" = 代理店共有ページのみ閲覧可
