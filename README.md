@@ -80,42 +80,57 @@ GitHub Pages で配信する UcarPAC の社内共有ハブです。
 
 ---
 
-## ナビゲーションのルール
+## ナビゲーション（Hub 戻りリンク）
 
-ページには必ず「戻る」導線を設置します。
+**戻りリンク（パンくず）は `auth.js` が自動生成します。各ページに手書きしないでください。**
 
-### 基本パターン（ライトテーマ用）
+`auth.js` は現在の URL とリポジトリのベースパス（`/biz-prototypes/`）から
+`← Hub / セクション / 現在ページ` を**絶対リンク**で生成します。
+絶対リンクなので、ファイルがどの階層にあってもリンクは壊れません
+（従来は `../../../` の階層数を間違えてリンク切れが多発していました。これを構造的に解消しています）。
 
-```html
-<p style="margin:0 0 14px;font-size:13px;font-weight:600;color:#5f7182;">
-  <a href="../../" style="color:#1a5cd8;text-decoration:none;">&#8592; Hub</a>
-  <span style="margin:0 6px;color:#b0bccc;">/</span>
-  <a href="../" style="color:#1a5cd8;text-decoration:none;">親セクション名</a>
-</p>
+### ページ作成者がやること
+
+1. `auth.js` を読み込む（`src` の相対パスは下表に合わせる）
+2. `PROTO_AUTH_CONFIG.title` に**そのページ名**を入れる（パンくずの末尾に出ます）
+3. これだけ。パンくずは自動表示されます。**手書きの「戻る」リンクは置かないでください**（二重表示になります）
+
+### 自動生成されるパンくず
+
+| URL | 表示 |
+|-----|------|
+| `/`（TOP ハブ） | （非表示。ここが起点） |
+| `/reports/` | `← Hub / Reports` |
+| `/reports/<slug>/` | `← Hub / Reports / <title>` |
+| `/ops/competitor-watch/` | `← Hub / 運用監視レポート / 競合ウォッチ` |
+| `/ucarpac-app/<file>.html` | `← Hub / App プロトタイプ / <title>` |
+| `/ucarpac-app/app-enhancement/prototype/<file>.html` | `← Hub / App プロトタイプ / App Enhancement / <title>` |
+
+配色はセクションで自動判定します（`ucarpac-app/` はダーク、その他はライト）。
+
+### `PROTO_AUTH_CONFIG` でのナビ制御（任意）
+
+```js
+window.PROTO_AUTH_CONFIG = {
+  title: "ページ名",      // パンくず末尾ラベル（省略時は <title>）
+  // navTheme: "dark",    // 配色を強制（"dark" | "light"）
+  // breadcrumb: false,   // パンくずを出さない
+  // nav: [               // 完全に手動指定したい場合（href はベースパス相対）
+  //   { label: "Hub", href: "" },
+  //   { label: "Reports", href: "reports/" },
+  //   { label: "このページ" }   // 末尾＝現在ページ。リンクなし
+  // ],
+};
 ```
 
-### 固定ヘッダーパターン（個別プロトタイプページ用）
+### セクション名・配色の定義場所
 
-```html
-<div style="position:fixed;top:0;left:0;right:0;z-index:9999;background:rgba(17,24,39,0.92);backdrop-filter:blur(8px);padding:10px 20px;font-size:13px;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.08);">
-  <a href="../" style="color:#94a3b8;text-decoration:none;">&#8592; プロトタイプ一覧</a>
-  <span style="margin:0 8px;color:#374151;">/</span>
-  <a href="../../../" style="color:#64748b;text-decoration:none;">Hub</a>
-</div>
-<div style="height:42px;"></div>
-```
+パンくずのラベルと配色は `auth.js` 冒頭の以下で管理しています。
+**新しいセクション／カテゴリを追加したら、ここにラベルを足してください**（足さないとフォルダ名がそのまま出ます）。
 
-### ダークテーマページ用パンくず（app-enhancement など）
-
-```html
-<nav style="background:rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.1);padding:12px 40px;font-size:13px;font-weight:600;">
-  <a href="../../../" style="color:#94a3b8;text-decoration:none;">&#8592; Hub</a>
-  <span style="margin:0 8px;color:#475569;">/</span>
-  <a href="../../" style="color:#94a3b8;text-decoration:none;">App プロトタイプ</a>
-  <span style="margin:0 8px;color:#475569;">/</span>
-  <span style="color:#e2e8f0;">App Enhancement</span>
-</nav>
-```
+- `SECTION_LABELS` … トップ階層（`ucarpac-app` → 「App プロトタイプ」など）
+- `SUBSECTION_LABELS` … 第2階層（`ops/competitor-watch` → 「競合ウォッチ」など）
+- `DARK_NAV_SECTIONS` … ダーク配色にするセクション
 
 ---
 
@@ -129,20 +144,22 @@ GitHub Pages で配信する UcarPAC の社内共有ハブです。
 - Claude 生成: `claude-` プレフィックス
 - 手動作成: `01-`, `02-` などの番号プレフィックス
 
+`auth.js`（`../auth.js`）を読み込み、`PROTO_AUTH_CONFIG.title` を設定します（パンくずは自動）。
 追加後に `ucarpac-app/index.html` のカードリスト・ファイル数カウントを更新します。
 
 ### B. App Enhancement プロトタイプを追加（手動設計）
 
 `ucarpac-app/app-enhancement/prototype/` 以下に配置します。
 - ダークテーマ（`--charcoal: #1A1A2E`）で統一
+- `auth.js`（`../../../auth.js`）を読み込み、`PROTO_AUTH_CONFIG.title` を設定
 - `index-all.html` の統合ビューに新バージョンを追加
-- パンくずナビをページ先頭に追加（上記ダークテーマパターン参照）
+- パンくずは自動生成（手書き不要）
 
 ### C. 単発分析レポートを追加（UCP 内部向け）
 
 1. `reports/<slug>/index.html` を作成（`slug` 例: `topic-YYYYMMDD-xxxxxxxx`）
-2. `PROTO_AUTH_CONFIG`（`required` 省略）と `auth.js` を挿入
-3. パンくずナビを配置（`href="../../"` → Hub、`href="../"` → Reports）
+2. `PROTO_AUTH_CONFIG`（`required` 省略）と `auth.js`（`../../auth.js`）を挿入し、`title` を設定
+3. パンくずは自動生成されるので**手書きしない**
 4. `reports/index.html` にカードを追加
 
 ### D. 代理店共有レポートを追加
@@ -154,9 +171,10 @@ GitHub Pages で配信する UcarPAC の社内共有ハブです。
 
 ### E. 運用監視レポートを追加（ops/）
 
-1. `ops/<category>/` にファイルを配置
-2. パンくずナビ（Hub → 運用監視レポート）を追加
-3. 必要なら `ops/index.html` にカードを追加
+1. `ops/<category>/index.html` に配置し、`auth.js`（`../../auth.js`）＋ `PROTO_AUTH_CONFIG.title` を設定
+2. 新カテゴリなら `auth.js` の `SUBSECTION_LABELS` にラベルを追加（例: `ops/<category>` → 表示名）
+3. パンくずは自動生成（手書き不要）
+4. 必要なら `ops/index.html` にカードを追加
 
 ---
 
