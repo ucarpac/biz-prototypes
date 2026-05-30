@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>交渉戦略 期間比較分析 v4 — 全量持込は工数の無駄か？</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.1.0/dist/chartjs-plugin-annotation.min.js"></script>
+<style>
+  :root{--charcoal:#2D2D2D;--slate:#64748B;--mist:#F1F5F9;--pa0:#A78BFA;--pa0-s:#F5F3FF;--pa:#8B5CF6;--pa-s:#EDE9FE;--pb1:#06B6D4;--pb1-s:#CFFAFE;--pb2:#0EA5E9;--pb2-s:#E0F2FE;--green:#059669;--green-s:#D1FAE5;--amber:#D97706;--amber-s:#FEF3C7;--red:#DC2626;--red-s:#FEE2E2;--blue:#2563EB;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'BIZ UDPGothic','Hiragino Sans','Noto Sans JP',sans-serif;color:var(--charcoal);background:#F8FAFC;line-height:1.7;font-size:13px;}
+  .container{max-width:1280px;margin:0 auto;padding:20px;}
+  .header{background:linear-gradient(135deg,#1e293b,#0f172a);color:#fff;padding:28px;border-radius:14px;margin-bottom:18px;}
+  .header h1{font-size:22px;font-weight:700;margin-bottom:4px;}
+  .header .sub{font-size:13px;color:#94A3B8;line-height:1.6;}
+  .header .meta{display:flex;gap:10px;margin-top:12px;font-size:11px;color:#94A3B8;flex-wrap:wrap;}
+  .header .meta span{background:rgba(255,255,255,.1);padding:3px 10px;border-radius:14px;}
+  .sec{background:#fff;padding:20px;border-radius:10px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.08);}
+  .sec h2{font-size:17px;font-weight:700;margin-bottom:12px;padding-bottom:5px;border-bottom:2px solid var(--mist);}
+  .sec h3{font-size:14px;font-weight:700;margin:12px 0 6px;}
+  .tw{overflow-x:auto;margin:10px 0;}
+  table{width:100%;border-collapse:collapse;white-space:nowrap;}
+  th,td{padding:5px 8px;border:1px solid #E2E8F0;text-align:right;font-variant-numeric:tabular-nums;}
+  th{background:#334155;color:#fff;font-weight:600;font-size:11px;text-align:center;}
+  th.gh{background:#1e293b;font-size:12px;}
+  td.lc{text-align:left;font-weight:600;background:#F8FAFC;}
+  td.mc{text-align:center;font-weight:600;background:#F8FAFC;}
+  tr.a0{background:var(--pa0-s);}
+  tr.a{background:var(--pa-s);}
+  tr.b1{background:var(--pb1-s);}
+  tr.b2{background:var(--pb2-s);}
+  tr.sub{background:#FEF3C7;font-weight:700;}
+  tr.sub td{border-top:2px solid var(--amber);}
+  tr.diff{background:#F0FDF4;font-weight:600;}
+  tr.diff td{border-top:2px solid var(--green);}
+  .up{color:var(--green);} .dn{color:var(--red);} .fl{color:var(--slate);}
+  .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;}
+  .ba0{background:var(--pa0-s);color:var(--pa0);}
+  .ba{background:var(--pa-s);color:var(--pa);}
+  .bb1{background:var(--pb1-s);color:var(--pb1);}
+  .bb2{background:var(--pb2-s);color:var(--pb2);}
+  .cw{position:relative;height:260px;margin:10px 0;}
+  .cr{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:10px 0;}
+  .cr .cw{height:230px;}
+  @media(max-width:768px){.cr{grid-template-columns:1fr;}}
+  .cb{background:#FAFBFC;border-radius:8px;padding:8px;}
+  .ct{text-align:center;font-size:12px;font-weight:700;color:var(--slate);margin-bottom:4px;}
+  .ins{border-left:4px solid var(--green);background:var(--green-s);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px;}
+  .wrn{border-left:4px solid var(--red);background:var(--red-s);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px;}
+  .nt{border-left:4px solid var(--amber);background:var(--amber-s);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px;}
+  .kg{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:12px 0;}
+  .kc{padding:14px;border-radius:10px;text-align:center;}
+  .kc .lb{font-size:10px;color:var(--slate);margin-bottom:1px;}
+  .kc .val{font-size:22px;font-weight:700;}
+  .kc .sm{font-size:10px;margin-top:1px;color:var(--slate);}
+  .concl{background:linear-gradient(135deg,#1e293b,#334155);color:#fff;padding:20px;border-radius:12px;margin:14px 0;}
+  .concl h3{color:#93C5FD;font-size:16px;margin-bottom:10px;}
+  .concl p{color:#CBD5E1;font-size:13px;margin-bottom:6px;}
+  .concl .hl{color:#FCD34D;font-weight:700;}
+  .footer{text-align:center;padding:16px;color:var(--slate);font-size:11px;}
+  .v4tag{display:inline-block;background:linear-gradient(135deg,#DC2626,#F97316);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;margin-left:8px;vertical-align:middle;}
+  .qbox{background:#F0F9FF;border:2px solid #0EA5E9;border-radius:10px;padding:14px;margin:12px 0;}
+  .qbox h4{color:#0369A1;font-size:14px;margin-bottom:6px;}
+  .qbox .ans{margin-top:8px;font-weight:600;}
+  .qbox .yes{color:var(--red);}
+  .qbox .no{color:var(--green);}
+  .qbox .mix{color:var(--amber);}
+</style>
+<script>
+  window.PROTO_AUTH_CONFIG = {
+    title: "交渉戦略 期間比較分析 v4 — 全量持込は工数の無駄か？",
+    subtitle: "UcarPAC 社内向け分析レポートです。認証状態は24時間保持されます。"
+  };
+</script>
+<script src="../../auth.js"></script>
+</head>
+<body>
+<div style="max-width:1220px;margin:0 auto;padding:14px 20px 0;font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;font-size:13px;font-weight:700;position:relative;z-index:10;">
+  <a href="../ucp-cr-deliverables-20260530/" style="color:#2563eb;text-decoration:none;">&larr; UCP CR分析 成果物一覧に戻る</a>
+  <span style="margin:0 6px;color:#cbd5e1;">/</span>
+  <a href="../" style="color:#2563eb;text-decoration:none;">Reports</a>
+  <span style="margin:0 6px;color:#cbd5e1;">/</span>
+  <a href="../../" style="color:#2563eb;text-decoration:none;">Hub</a>
+</div>
+
+<div class="container">
+
+<div class="header">
+  <h1>交渉戦略 期間比較分析 v4 <span class="v4tag">最新データ＋工数論点</span></h1>
+  <div class="sub">v3レポートの延長 — 2026年5月までのデータと、「全件交渉は工数の無駄では？」という指摘の検証</div>
+  <div class="meta">
+    <span>分析日: 2026/05/21</span>
+    <span>データ: ucarpac-uapp.gas_data.all_deals_view</span>
+    <span>期間: 2023/07 〜 2026/05/21</span>
+    <span>基準日: assessment_apply_datetime (申込月)</span>
+    <span>v3との変更点: 戦略変更前(A0)を追加、Bを移行期(B1)と全量持込定着期(B2)に分割</span>
+  </div>
+</div>
+
+<div class="nt">
+  <strong>v3との違い:</strong>
+  <ul style="margin:6px 0 0 20px;">
+    <li>基準日を「申込月」に統一（v3は成約日基準）。CR水準が違って見えるのはこのため。</li>
+    <li>期間を <strong>A0（変更前）/ A（絞り込み）/ B1（移行期）/ B2（全量持込）</strong> の4区分に切り直した。v3の「B期」はB1とB2の混合で、平均すると劣化が見えにくくなっていた。</li>
+    <li>商談数（negotiation_log）は本来 <strong>稼働中</strong>（2026-05-21確認、当日15:44 JSTに同期完了）。<strong>当初本レポートは「ロード停止」と誤って記載していたが、確認の結果、毎日 `task()` 経由で更新されている</strong>。最新月までのv3指標延長を §8 に追加した。</li>
+    <li>2026/05は5/21までの21日間。表中はグレーで示し、合算値からは除外している。</li>
+  </ul>
+</div>
+
+<!-- 1. 結論サマリ -->
+<div class="sec">
+  <h2>1. ご指摘への直接回答</h2>
+
+  <div class="qbox">
+    <h4>Q1. 「全件交渉に持ってきたが、全体の成約率は変わっていないのでは？」</h4>
+    <p>全件で見ると確かに CR は B2 で低下（v3定義で A:42.8% → B2:40.0%, -2.8pt）。しかし <strong>§8で LP58（カババ） を除外して見ると、B2 のCRは 42.7% と A期 42.8% にほぼ並ぶ</strong>。
+    LP58 は 2025/12 から急増した新トラフィックで CR が構造的に低い（~20%）。これが混ざって全体CRを引き下げていた。</p>
+    <p>純粋な「絞り込み→全量持込」戦略の効果としては、<strong>A → B 延長（LP58除外）で CR 42.8% → 43.8%（+1.0pt 改善）</strong>。指摘者の感覚「変わっていない」は正しく、むしろ微増していた。</p>
+    <div class="ans no">→ LP58除外で見ると <strong>CR はほぼ変わっていない／微増</strong>。「変わっていない」という指摘は妥当だった。</div>
+  </div>
+
+  <div class="qbox">
+    <h4>Q2. 「だから工数の無駄ではないか？」</h4>
+    <p>Q1 の通り、CR は LP58除外で実は維持／微増。<strong>売上は +16.1% 純増（+366万/月）</strong>、出品も +10.6% 増、商談数も +40% 増えており、全体として明確な拡張に成功している。</p>
+    <p>確かに交渉成約率/商談数は 87.3% → 74% に下がっており、商談1件あたり売上も 15.85万 → 7.9万（限界）に低下。<strong>「同じ商談1件あたりの効率」は下がった</strong>のは事実。
+    しかし、CR は維持しつつ件数を増やして売上を +16% 伸ばせたなら、それは「工数の無駄」ではなく「productive な事業拡張」。</p>
+    <div class="ans no">→ <strong>工数の無駄ではない</strong>。LP58除外で CR 維持・売上 +16% 増を達成しており、戦略は明確に成功している。「商談1件あたりの効率は下がった」は事実だが、件数効果がそれを上回る。</div>
+  </div>
+
+  <div class="qbox">
+    <h4>Q3. では「全量持込」をやめるべきか？</h4>
+    <p>続けるべき。<strong>LP58除外ベースで戦略は CR 維持・売上 +16% を達成</strong>している。やめれば月366万円・年4,400万円の売上を失う。</p>
+    <p>論点は「やめるか」ではなく、<strong>LP58（カババ）を本体KPI評価から切り離して別管理にする</strong>こと。LP58はCRが構造的に低い（~20%）が、月187万円の追加売上を生んでいるので個別に採算判断する。</p>
+    <div class="ans no">→ <strong>戦略は維持。LP58を別建てトラフィックとして管理ラインを分けるのが次のステップ</strong>。</div>
+  </div>
+</div>
+
+<!-- 2. 期間4区分のKPI -->
+<div class="sec">
+  <h2>2. 期間4区分のKPIサマリ（月平均）</h2>
+  <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+    <span class="badge ba0">A0: 変更前 (23/07-24/06, 12ヶ月)</span>
+    <span class="badge ba">A: 絞り込み (24/07-25/06, 12ヶ月)</span>
+    <span class="badge bb1">B1: 移行期 (25/07-09, 3ヶ月)</span>
+    <span class="badge bb2">B2: 全量持込定着 (25/10-26/04, 7ヶ月)</span>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr><th style="text-align:left;">指標</th>
+            <th style="background:var(--pa0);color:#fff;">A0<br>変更前</th>
+            <th style="background:var(--pa);">A<br>絞り込み</th>
+            <th style="background:var(--pb1);color:#fff;">B1<br>移行期</th>
+            <th style="background:var(--pb2);">B2<br>全量持込</th>
+            <th>A→B2 変化</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="lc">申込/月</td><td>556</td><td>622</td><td>696</td><td>695</td><td class="up">+12% (vs A)</td></tr>
+        <tr><td class="lc">出品/月</td><td>405</td><td>421</td><td>458</td><td><strong>505</strong></td><td class="up"><strong>+20% (+84件)</strong></td></tr>
+        <tr><td class="lc">出品率（出品/申込）</td><td>72.9%</td><td>67.6%</td><td>65.8%</td><td>72.7%</td><td class="up">+5.1pp</td></tr>
+        <tr style="background:#FEE2E2;"><td class="lc"><strong>成約/月</strong></td><td>222</td><td>199</td><td><strong>233</strong></td><td><strong>200</strong></td><td class="fl"><strong>+1件 (+0.5%)</strong></td></tr>
+        <tr style="background:#FEE2E2;"><td class="lc"><strong>CR（成約/出品）</strong></td><td><strong>54.7%</strong></td><td>47.2%</td><td>50.9%</td><td><strong>39.6%</strong></td><td class="dn"><strong>-7.6pt</strong></td></tr>
+        <tr style="background:#D1FAE5;"><td class="lc">売上/月（万円）</td><td>2,573</td><td>2,304</td><td><strong>2,934</strong></td><td>2,503</td><td class="up">+199万 (+8.6%)</td></tr>
+        <tr><td class="lc">売上/出品 (万円)</td><td>6.35</td><td>5.47</td><td>6.41</td><td>4.96</td><td class="dn">-9.3%</td></tr>
+        <tr><td class="lc">希望中央値（万円）</td><td>100</td><td>140</td><td>150</td><td><strong>180</strong></td><td class="dn">+29%</td></tr>
+        <tr><td class="lc">300万+比率</td><td>21.5%</td><td>30.5%</td><td>32.5%</td><td><strong>36.1%</strong></td><td class="dn">+5.6pp</td></tr>
+        <tr><td class="lc">BID/売切 90%未満</td><td>73.9%</td><td>80.6%</td><td>78.2%</td><td><strong>83.2%</strong></td><td class="dn">+2.6pp</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="ins">
+    <strong>注目1（B1の評価）:</strong>
+    全量持込に切り替わった最初の3ヶ月（B1）は、<strong>申込・出品・成約・売上すべてで最高水準</strong>を記録。
+    特に売上2,934万/月はA0期（2,573万）を約14%上回る歴史的ピーク。<strong>戦略変更が機能していた証拠</strong>。
+  </div>
+
+  <div class="wrn">
+    <strong>注目2（B2の劣化）:</strong>
+    B2期に入って、出品が更に増加（458→505）した一方で、<strong>CRは50.9%→39.6%に急落（-11.3pt）</strong>。
+    結果として成約数はB1の233から200へ <strong>14%減</strong>、売上もピーク比 -14.7%。
+    希望中央値は150→180万へ更に上昇しており、「より厳しい案件まで持込んでいる」傾向が定着している。
+  </div>
+</div>
+
+<!-- 3. 「成約率は変わっていない」指摘の検証 -->
+<div class="sec">
+  <h2>3. 「成約率は変わっていない」指摘の検証</h2>
+
+  <h3>3-1. v3レポートの数字は何を見ていたか</h3>
+  <p>v3レポートが示した「成約率/商談対象 34.3% → 33.9%（-0.4pp）」は、Bを2025/7〜2026/3の9ヶ月平均にしていた。B1（好調）とB2（劣化）が混ざっていたため、平均すると変化が小さく見えていた。</p>
+
+  <h3>3-2. 期間別の出品成約率（=成約数/出品数）</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th style="text-align:left;">期間</th><th>月平均出品</th><th>月平均成約</th><th>CR</th><th>解釈</th></tr></thead>
+      <tbody>
+        <tr class="a0"><td class="lc">A0 変更前</td><td>405</td><td>222</td><td><strong>54.7%</strong></td><td>厳しめフィルタ。出品＝高確度</td></tr>
+        <tr class="a"><td class="lc">A 絞り込み</td><td>421</td><td>199</td><td>47.2%</td><td>市況劣化＋フィルタ若干緩和</td></tr>
+        <tr class="b1"><td class="lc">B1 移行期</td><td>458</td><td>233</td><td>50.9%</td><td>全量持込開始も CR は持ち直し</td></tr>
+        <tr class="b2"><td class="lc">B2 全量持込</td><td>505</td><td>200</td><td><strong>39.6%</strong></td><td>CR急落、定着</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrn">
+    <strong>結論:</strong>
+    A→B全体では「成約率は変わらない」と言える材料もあるが、<strong>定着後のB2期だけを見ると -7.6pt、A0期との対比では -15.1pt の大幅低下</strong>。
+    「変わっていない」は誤り。<strong>「全量持込の効果は最初の3ヶ月（B1）に集中して、その後で剥がれた」</strong>が正しい認識。
+  </div>
+
+  <div class="cw"><canvas id="ch_cr_monthly"></canvas></div>
+</div>
+
+<!-- 4. 「工数の無駄」指摘の検証 -->
+<div class="sec">
+  <h2>4. 「工数の無駄」指摘の検証 — 限界生産性で見る</h2>
+
+  <p>「工数の無駄か」を評価するには、<strong>増えた出品1件あたり何件成約しているか</strong>（限界CR）を見るのが正確。
+  全体平均CRではなく、A期との「差分」だけを取り出して比較する。</p>
+
+  <h3>4-0. 注記: この節は申込月ベース（過小評価の可能性あり）</h3>
+  <div class="nt">
+    本節の計算は申込月ベース（`assessment_apply_datetime`基準）。<strong>最新月（特に2026-04, 2026-05）は申込→成約に時間差があり、closes が未確定のため CR が過小に出る</strong>。
+    工数論点（増えた商談1件あたりの限界効率）には <strong>§7 の v3定義（商談ベース・出品月ベース）の方が正確</strong>。
+    本節は4区分（A0/A/B1/B2）の構造比較として読むこと。
+  </div>
+
+  <h3>4-1. A → B2 の限界生産性（申込月ベース・要注意）</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th style="text-align:left;">指標</th><th>A 月平均</th><th>B2 月平均</th><th>差分</th><th>限界（差分/差分）</th></tr></thead>
+      <tbody>
+        <tr><td class="lc">出品</td><td>421</td><td>505</td><td class="up">+84件</td><td>—</td></tr>
+        <tr><td class="lc">成約</td><td>199</td><td>200</td><td class="fl">+1件</td><td>—</td></tr>
+        <tr style="background:#FEE2E2;"><td class="lc"><strong>限界CR（増えた84件のCR）</strong></td><td>—</td><td>—</td><td>—</td><td class="dn"><strong>約 1.2%</strong></td></tr>
+        <tr><td class="lc">売上(万)</td><td>2,304</td><td>2,503</td><td class="up">+199万</td><td>—</td></tr>
+        <tr><td class="lc">限界売上/件</td><td>5.47万/件</td><td>4.96万/件</td><td class="dn">-9.3%</td><td>約 2.37万/件</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrn">
+    <strong>申込月ベースの限界CR 1.2% は最新月の未確定分（成約反映に時間差）で過小評価されている可能性が高い。</strong>
+    v3定義（商談ベース・出品月ベース）で再計算すると <strong>A→B2 で商談 +59件/月、交渉成約 +25件/月 → 限界CR 41%</strong>（§7 参照）。
+    出品月ベースでも +110件/月で +32件/月 成約 → 限界CR 29%。
+    <strong>申込月ベースの「ほぼ工数の無駄」という強い表現は要訂正</strong>。実態は「限界CR が A既存の半分以下に下がっているが、無駄ではない」が正確。
+  </div>
+
+  <h3>4-2. ただしB1期は限界生産性が高かった</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th style="text-align:left;">指標</th><th>A 月平均</th><th>B1 月平均</th><th>差分</th><th>限界</th></tr></thead>
+      <tbody>
+        <tr><td class="lc">出品</td><td>421</td><td>458</td><td class="up">+37件</td><td>—</td></tr>
+        <tr><td class="lc">成約</td><td>199</td><td>233</td><td class="up">+34件</td><td>—</td></tr>
+        <tr style="background:#D1FAE5;"><td class="lc"><strong>限界CR（増えた37件のCR）</strong></td><td>—</td><td>—</td><td>—</td><td class="up"><strong>約 92%</strong></td></tr>
+        <tr><td class="lc">売上(万)</td><td>2,304</td><td>2,934</td><td class="up">+630万</td><td>—</td></tr>
+        <tr><td class="lc">限界売上/件</td><td>5.47万/件</td><td>6.41万/件</td><td class="up">+17%</td><td>約 17.0万/件</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="ins">
+    <strong>B1期に限れば、増やした37件はほぼ全件成約に近い</strong>（限界CR約92%）。
+    増えた出品1件あたり売上も17.0万円と、既存の3倍以上の効率。
+    <strong>同じ「全量持込」でも、B1とB2では決定的に質が違う</strong>。
+  </div>
+
+  <h3>4-3. 限界生産性の対比</h3>
+  <div class="cw" style="height:200px;"><canvas id="ch_marginal"></canvas></div>
+</div>
+
+<!-- 5. 月別推移 -->
+<div class="sec">
+  <h2>5. 月別推移（2023/07 - 2026/05）</h2>
+
+  <div class="cr">
+    <div class="cb"><div class="ct">出品数 月別推移</div><div class="cw"><canvas id="ch_listings"></canvas></div></div>
+    <div class="cb"><div class="ct">成約数 月別推移</div><div class="cw"><canvas id="ch_closes"></canvas></div></div>
+  </div>
+  <div class="cr">
+    <div class="cb"><div class="ct">出品成約率(CR) 月別推移</div><div class="cw"><canvas id="ch_cr"></canvas></div></div>
+    <div class="cb"><div class="ct">月間売上（万円）</div><div class="cw"><canvas id="ch_rev"></canvas></div></div>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr><th>申込月</th><th>申込</th><th>出品</th><th>成約</th><th>出品率</th><th>CR</th><th>売上(万)</th><th>希望中央(万)</th><th>300万+</th><th>BID&lt;90%</th></tr>
+      </thead>
+      <tbody id="tb_monthly"></tbody>
+    </table>
+  </div>
+
+  <div class="nt">
+    <strong>2026-05 注記:</strong> 2026/05は5/21までの21日間データ。表中ではグレー表示し、合算からは除外。CR=29.9%, 売上1,121万は月末まで継続すれば伸びる見込みだが、参考値として扱う。
+  </div>
+</div>
+
+<!-- 6. B2劣化の構造分解 -->
+<div class="sec">
+  <h2>6. なぜB2でCRが落ちたのか（要因分解の仮説）</h2>
+
+  <p>B1（CR 50.9%）→ B2（CR 39.6%）の-11.3ptをどう説明するか、関連指標で見ていく。</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th style="text-align:left;">指標</th><th>B1</th><th>B2</th><th>変化</th><th>意味</th></tr></thead>
+      <tbody>
+        <tr><td class="lc">希望中央値（万）</td><td>150</td><td>180</td><td class="dn">+20%</td><td>持込条件がさらに緩み、高額・難案件が増加</td></tr>
+        <tr><td class="lc">300万+比率</td><td>32.5%</td><td>36.1%</td><td class="dn">+3.6pp</td><td>高額帯がさらに肥大化</td></tr>
+        <tr><td class="lc">BID/売切 &lt;90% 比率</td><td>78.2%</td><td>83.2%</td><td class="dn">+5.0pp</td><td>入札が売切に届かない案件が増加</td></tr>
+        <tr><td class="lc">出品率（出品/申込）</td><td>65.8%</td><td>72.7%</td><td class="dn">+6.9pp</td><td>申込のうち出品まで進める割合が増えた = フィルタが緩んだ</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrn">
+    <strong>B2の劣化は単一要因ではない可能性が高い:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li><strong>申込フィルタの追加緩和</strong>: 出品率 65.8%→72.7% が直接の証拠。B1ではまだ何らかの絞り込みが残っていたが、B2でさらに緩めた可能性。</li>
+      <li><strong>希望価格帯の上方シフト</strong>: 150→180万の中央値は、より売れにくいゾーンの案件比率が増えたことを示す。</li>
+      <li><strong>外部市況の劣化</strong>: 円安・輸出減少・買い手到達力の低下といった、戦略以外の影響も同時並行。</li>
+    </ul>
+    どれが主因かはこのデータだけでは確定できないが、<strong>出品率+6.9ptは「社内判断が変わった」内生要因</strong>を強く示唆する。
+  </div>
+</div>
+
+<!-- 7. v3定義による期間比較の完全再現 + 延長 -->
+<div class="sec">
+  <h2>7. v3定義による完全再現と最新月延長 — 工数論点はこれが本筋</h2>
+
+  <p>v3の「オク成約」定義（`highest_bid >= sold_out_price`、加算金を含まない）で再集計したところ、
+  v3レポートの全21ヶ月分の数値と完全一致。これを使って B 期を <strong>2026/04 まで（10ヶ月）</strong> に延長し、§4までの申込月ベースの分析より <strong>工数（=実際に商談リストに乗った案件）に直結する観点</strong> で評価する。</p>
+
+  <div class="nt">
+    <strong>v3定義の意味:</strong> 入札だけで売切を超えたケース = <strong>純粋なオク成約（交渉担当の作業を要しなかった案件）</strong>。
+    加算金や売切引き下げで成約したケースは「交渉成約」に含める。<strong>本レポートの「工数」論点ではこの定義が正しい</strong>。
+    DealAnalysis.js / BQ_negotiation.js の canonical 定義（入札+加算金+自動車税 ≥ 売切）は v3 と数値が一致しないため、ここでは v3 定義を採用する。
+  </div>
+
+  <h3>7-1. 期間別 KPI（v3定義、月平均）</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th style="text-align:left;">指標</th>
+        <th style="background:var(--pa);">A 絞り込み<br>(24/07-25/06)<br>12ヶ月</th>
+        <th style="background:var(--pb1);color:#fff;">B1 移行期<br>(25/07-09)<br>3ヶ月</th>
+        <th style="background:var(--pb2);">B2 全量持込<br>(25/10-26/04)<br>7ヶ月</th>
+        <th>B 延長合算<br>(25/07-26/04)<br>10ヶ月</th>
+        <th>v3 報告<br>B 合算<br>9ヶ月</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="lc">出品/月</td><td>418.3</td><td>455.7</td><td>528.3</td><td>506.5</td><td>501.3</td></tr>
+        <tr><td class="lc">オク成約/月</td><td>42.0</td><td>46.3</td><td>43.3</td><td>44.2</td><td>46.1</td></tr>
+        <tr><td class="lc">買取/月</td><td>11.9</td><td>19.3</td><td>18.3</td><td>18.6</td><td>19.1</td></tr>
+        <tr><td class="lc">商談対象/月</td><td>364.4</td><td>390.0</td><td>466.7</td><td>443.7</td><td>436.1</td></tr>
+        <tr style="background:#DBEAFE;"><td class="lc"><strong>商談数(ユニーク)/月</strong></td><td><strong>143.2</strong></td><td><strong>195.7</strong></td><td><strong>202.6</strong></td><td>200.5</td><td>201.6</td></tr>
+        <tr><td class="lc">商談数(延べ)/月</td><td>151.3</td><td>207.7</td><td>213.9</td><td>212.0</td><td>213.4</td></tr>
+        <tr style="background:#D1FAE5;"><td class="lc">交渉成約/月</td><td>125.0</td><td>146.0</td><td>149.6</td><td>148.5</td><td>148.1</td></tr>
+        <tr style="background:#FEF3C7;"><td class="lc">全成約/月</td><td>178.9</td><td>213.0</td><td>211.1</td><td>211.7</td><td>213.3</td></tr>
+        <tr style="background:#FEE2E2;"><td class="lc"><strong>出品成約率(CR)</strong></td><td>42.8%</td><td><strong>46.5%</strong></td><td><strong>40.0%</strong></td><td>41.7%</td><td>42.5%</td></tr>
+        <tr style="background:#FEE2E2;"><td class="lc"><strong>商談獲得率</strong> (ユニーク/商談対象)</td><td>39.3%</td><td><strong>50.2%</strong></td><td>43.4%</td><td>45.2%</td><td>46.1%</td></tr>
+        <tr style="background:#FEE2E2;"><td class="lc"><strong>交渉成約率/商談数</strong></td><td><strong>87.3%</strong></td><td>74.6%</td><td>73.8%</td><td>74.1%</td><td>73.4%</td></tr>
+        <tr><td class="lc">売上/月（万）</td><td>2,270</td><td><strong>2,829</strong></td><td>2,740</td><td>2,766</td><td>2,772</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>7-2. 工数論点に直結する限界生産性（商談ベース）</h3>
+  <p>「全件交渉に持ってきたが工数の無駄か」という問いには、<strong>増えた商談1件あたり何件成約しているか（=限界CR）</strong> を見るのが最も適切。
+  §4は申込ベースだったため、最新月の未確定分が closes に反映されず限界CRが過小（≒1.2%）に出ていた。<strong>v3定義の商談ベースで再計算するとまったく違う絵が出る</strong>。</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th style="text-align:left;">比較</th><th>商談数 増</th><th>交渉成約 増</th><th>限界CR<br>（per 商談）</th><th>売上 増</th><th>限界売上<br>（per 商談）</th></tr></thead>
+      <tbody>
+        <tr style="background:#D1FAE5;"><td class="lc"><strong>A → B1（移行期）</strong></td><td class="up">+52.5/月</td><td class="up">+21.0/月</td><td class="up"><strong>40.0%</strong></td><td class="up">+559万/月</td><td class="up">10.6万/件</td></tr>
+        <tr style="background:#FEF3C7;"><td class="lc"><strong>A → B2（全量持込定着）</strong></td><td class="up">+59.4/月</td><td class="up">+24.6/月</td><td class="up"><strong>41.4%</strong></td><td class="up">+470万/月</td><td class="up">7.9万/件</td></tr>
+        <tr><td class="lc">A → B 延長合算（10ヶ月）</td><td class="up">+57.3/月</td><td class="up">+23.5/月</td><td class="up">41.0%</td><td class="up">+496万/月</td><td class="up">8.7万/件</td></tr>
+        <tr style="background:#F8FAFC;"><td class="lc">参考: A 既存平均</td><td>—</td><td>—</td><td>87.3%</td><td>—</td><td>15.85万/件</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="ins">
+    <strong>「工数の無駄」と切り捨てるには根拠が弱い。</strong>
+    A→B2で増えた商談59.4件/月の限界CRは <strong>41.4%</strong>。A既存平均（87.3%）より大幅に低いが、<strong>4割が成約に至っている</strong>のは「工数の無駄」とは言い難い水準。
+    B1とB2の限界CRはほぼ同水準（40%と41%）で、つまり <strong>「全量持込で増えた商談の限界効率」自体はB1・B2で変わっていない</strong>。
+  </div>
+
+  <div class="wrn">
+    <strong>ただし「効率低下」自体は事実。</strong>
+    A既存案件は商談1件あたり 15.85万円の売上を生んでいたが、増分商談は 7.9〜10.6万円/件（A既存の半分〜2/3）。
+    交渉成約率/商談数は 87.3% → 74% と <strong>確実に低下</strong>。
+    <strong>「無駄ではないが、限界効率は下がっている」</strong> が正確な表現。
+  </div>
+
+  <h3>7-3. B1→B2 の劣化はどこに出たか</h3>
+  <p>B1とB2を分けて見ると、「商談効率」自体は同水準だが <strong>出品ライン全体の効率</strong> はB2で落ちている。</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th style="text-align:left;">指標</th><th>B1</th><th>B2</th><th>差</th><th>意味</th></tr></thead>
+      <tbody>
+        <tr><td class="lc">出品成約率 (CR)</td><td>46.5%</td><td>40.0%</td><td class="dn">-6.5pp</td><td>出品1件あたりの成約効率が低下</td></tr>
+        <tr><td class="lc">商談獲得率</td><td>50.2%</td><td>43.4%</td><td class="dn">-6.8pp</td><td>商談対象のうち実際に商談に乗せた率も低下</td></tr>
+        <tr><td class="lc">交渉成約率/商談数</td><td>74.6%</td><td>73.8%</td><td class="fl">-0.8pp</td><td><strong>商談に乗った後の成約効率は変わっていない</strong></td></tr>
+        <tr><td class="lc">商談数(ユニーク)/月</td><td>195.7</td><td>202.6</td><td class="up">+6.9件</td><td>商談着手数はむしろ微増</td></tr>
+        <tr><td class="lc">売上/出品(万円)</td><td>6.20</td><td>5.19</td><td class="dn">-16%</td><td>出品1件あたり売上が大幅低下</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="wrn">
+    <strong>B2の劣化は「商談の中身」ではなく「出品ラインに混ざる難案件の比率」で発生している。</strong>
+    商談に乗った案件の中での成約効率（73-74%）は B1=B2 で安定。
+    つまり交渉担当の能力低下ではなく、<strong>出品段階で「商談にも乗せられない＝オク終了後そのまま流れる案件」が増えた</strong>こと、および <strong>商談に乗せても成約しにくい難案件の比率が増えた</strong> ことが主因。
+    対策は「交渉手法の改善」ではなく「<strong>出品時点での選別</strong>」になる。
+  </div>
+
+  <h3>7-4. 月別推移表（v3定義、最新月延長）</h3>
+  <div class="tw" style="max-height:380px;overflow-y:auto;">
+    <table>
+      <thead><tr><th>月</th><th>出品</th><th>オク<br>成約</th><th>買取</th><th>商談<br>対象</th><th>商談数<br>(U)</th><th>商談数<br>(延)</th><th>交渉<br>成約</th><th>全成約</th><th>出品<br>CR</th><th>商談<br>獲得率</th><th>交渉成約率<br>/商談数</th><th>売上<br>(万)</th></tr></thead>
+      <tbody>
+        <tr class="a"><td class="mc">24-07</td><td>380</td><td>49</td><td>10</td><td>321</td><td>142</td><td>156</td><td>141</td><td>200</td><td>52.6%</td><td>44.2%</td><td>99.3%</td><td>2,621</td></tr>
+        <tr class="a"><td class="mc">24-08</td><td>304</td><td>37</td><td>0</td><td>267</td><td>105</td><td>106</td><td>106</td><td>143</td><td>47.0%</td><td>39.3%</td><td>101.0%*</td><td>2,031</td></tr>
+        <tr class="a"><td class="mc">24-09</td><td>410</td><td>61</td><td>14</td><td>335</td><td>119</td><td>122</td><td>112</td><td>187</td><td>45.6%</td><td>35.5%</td><td>94.1%</td><td>2,303</td></tr>
+        <tr class="a"><td class="mc">24-10</td><td>399</td><td>53</td><td>13</td><td>333</td><td>147</td><td>158</td><td>106</td><td>172</td><td>43.1%</td><td>44.1%</td><td>72.1%</td><td>2,104</td></tr>
+        <tr class="a"><td class="mc">24-11</td><td>403</td><td>39</td><td>18</td><td>346</td><td>124</td><td>128</td><td>125</td><td>182</td><td>45.2%</td><td>35.8%</td><td>100.8%*</td><td>2,362</td></tr>
+        <tr class="a"><td class="mc">24-12</td><td>244</td><td>24</td><td>4</td><td>216</td><td>86</td><td>91</td><td>75</td><td>103</td><td>42.2%</td><td>39.8%</td><td>87.2%</td><td>1,247</td></tr>
+        <tr class="a"><td class="mc">25-01</td><td>548</td><td>43</td><td>18</td><td>487</td><td>198</td><td>209</td><td>150</td><td>211</td><td>38.5%</td><td>40.7%</td><td>75.8%</td><td>2,649</td></tr>
+        <tr class="a"><td class="mc">25-02</td><td>485</td><td>35</td><td>6</td><td>444</td><td>166</td><td>179</td><td>120</td><td>161</td><td>33.2%</td><td>37.4%</td><td>72.3%</td><td>2,041</td></tr>
+        <tr class="a"><td class="mc">25-03</td><td>602</td><td>61</td><td>13</td><td>528</td><td>175</td><td>189</td><td>166</td><td>240</td><td>39.9%</td><td>33.1%</td><td>94.9%</td><td>3,176</td></tr>
+        <tr class="a"><td class="mc">25-04</td><td>361</td><td>30</td><td>12</td><td>319</td><td>130</td><td>132</td><td>115</td><td>157</td><td>43.5%</td><td>40.8%</td><td>88.5%</td><td>1,653</td></tr>
+        <tr class="a"><td class="mc">25-05</td><td>426</td><td>30</td><td>20</td><td>376</td><td>120</td><td>128</td><td>128</td><td>178</td><td>41.8%</td><td>31.9%</td><td>106.7%*</td><td>2,143</td></tr>
+        <tr class="a"><td class="mc">25-06</td><td>458</td><td>42</td><td>15</td><td>401</td><td>206</td><td>217</td><td>156</td><td>213</td><td>46.5%</td><td>51.4%</td><td>75.7%</td><td>2,908</td></tr>
+        <tr class="b1"><td class="mc">25-07</td><td>454</td><td>35</td><td>24</td><td>395</td><td>206</td><td>222</td><td>147</td><td>206</td><td>45.4%</td><td>52.2%</td><td>71.4%</td><td>2,717</td></tr>
+        <tr class="b1"><td class="mc">25-08</td><td>457</td><td>50</td><td>19</td><td>388</td><td>192</td><td>200</td><td>154</td><td>223</td><td>48.8%</td><td>49.5%</td><td>80.2%</td><td>3,091</td></tr>
+        <tr class="b1"><td class="mc">25-09</td><td>456</td><td>54</td><td>15</td><td>387</td><td>189</td><td>201</td><td>137</td><td>206</td><td>45.2%</td><td>48.8%</td><td>72.5%</td><td>2,678</td></tr>
+        <tr class="b2"><td class="mc">25-10</td><td>407</td><td>49</td><td>16</td><td>342</td><td>186</td><td>199</td><td>143</td><td>208</td><td>51.1%</td><td>54.4%</td><td>76.9%</td><td>2,826</td></tr>
+        <tr class="b2"><td class="mc">25-11</td><td>395</td><td>51</td><td>18</td><td>326</td><td>147</td><td>160</td><td>123</td><td>192</td><td>48.6%</td><td>45.1%</td><td>83.7%</td><td>2,314</td></tr>
+        <tr class="b2"><td class="mc">25-12</td><td>355</td><td>24</td><td>13</td><td>318</td><td>161</td><td>167</td><td>111</td><td>148</td><td>41.7%</td><td>50.6%</td><td>68.9%</td><td>1,910</td></tr>
+        <tr class="b2"><td class="mc">26-01</td><td>650</td><td>49</td><td>26</td><td>575</td><td>267</td><td>274</td><td>165</td><td>240</td><td>36.9%</td><td>46.4%</td><td>61.8%</td><td>3,210</td></tr>
+        <tr class="b2"><td class="mc">26-02</td><td>614</td><td>50</td><td>16</td><td>548</td><td>227</td><td>244</td><td>170</td><td>236</td><td>38.4%</td><td>41.4%</td><td>74.9%</td><td>3,305</td></tr>
+        <tr class="b2"><td class="mc">26-03</td><td>724</td><td>53</td><td>25</td><td>646</td><td>239</td><td>254</td><td>185</td><td>263</td><td>36.3%</td><td>37.0%</td><td>77.4%</td><td>2,925</td></tr>
+        <tr class="b2"><td class="mc"><strong>26-04</strong></td><td><strong>553</strong></td><td><strong>27</strong></td><td><strong>14</strong></td><td><strong>512</strong></td><td><strong>191</strong></td><td><strong>199</strong></td><td><strong>150</strong></td><td><strong>191</strong></td><td><strong>34.5%</strong></td><td><strong>37.3%</strong></td><td><strong>78.5%</strong></td><td><strong>2,688</strong></td></tr>
+        <tr style="background:#E5E7EB;color:#6B7280;"><td class="mc">26-05*</td><td>373</td><td>27</td><td>11</td><td>335</td><td>124</td><td>129</td><td>86</td><td>124</td><td>33.2%</td><td>37.0%</td><td>69.4%</td><td>1,756</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cr">
+    <div class="cb"><div class="ct">商談数(ユニーク) 月別</div><div class="cw"><canvas id="ch_neg"></canvas></div></div>
+    <div class="cb"><div class="ct">交渉成約率/商談数 月別</div><div class="cw"><canvas id="ch_neg_cr"></canvas></div></div>
+  </div>
+
+  <p style="font-size:11px;color:var(--slate);margin-top:8px;">
+    * 印は基準日不一致（商談はlog_date、交渉成約は出品月）により 100%以上になっている参考値。期間平均で判断する。<br>
+    26-05は5/21まで（出品月ベースなので未確定分大）。表示はするが期間平均には入れない。<br>
+    オク成約定義: `highest_bid >= sold_out_price`（v3定義。加算金・自動車税は含めない）。
+    BQテーブル最終更新: 2026-05-21 15:44 JST（task() 経由、稼働中）。
+  </p>
+</div>
+
+<!-- 8. LP58 (カババ) 影響分析 — 新発見 -->
+<div class="sec">
+  <h2>8. LP58（カババ）影響分析 — B2劣化の主因はここ</h2>
+
+  <div class="ins">
+    <strong>核心:</strong>
+    LP58（カババ＝CtoC紹介経路・期待値高めの難案件）を除外すると、<strong>A→B でCRは下がるどころか +1.0pt 改善し、売上も +16% 増加</strong>。
+    §7で見た「B2でCRが下がった」現象は <strong>戦略の劣化ではなく、LP58という新トラフィックの混入によるアーティファクト</strong> だった。
+  </div>
+
+  <h3>8-1. LP58 の出現タイミングと特徴</h3>
+  <p>LP58 は <strong>2025年12月から本格化</strong>。A 期（2024/07-2025/06）にはほぼ存在しなかったため、A vs B 比較で「B側だけに混ざる新カテゴリ」になっている。</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>月</th><th>出品</th><th>成約</th><th>CR</th><th>売上(万)</th></tr></thead>
+      <tbody>
+        <tr><td class="mc">2025-12</td><td>54</td><td>17</td><td>31.5%</td><td>237</td></tr>
+        <tr><td class="mc">2026-01</td><td>124</td><td>23</td><td class="dn"><strong>18.5%</strong></td><td>318</td></tr>
+        <tr><td class="mc">2026-02</td><td>96</td><td>14</td><td class="dn"><strong>14.6%</strong></td><td>180</td></tr>
+        <tr><td class="mc">2026-03</td><td>63</td><td>8</td><td class="dn"><strong>12.7%</strong></td><td>206</td></tr>
+        <tr><td class="mc">2026-04</td><td>103</td><td>24</td><td>23.3%</td><td>366</td></tr>
+        <tr style="background:#E5E7EB;color:#6B7280;"><td class="mc">2026-05*</td><td>97</td><td>19</td><td>19.6%</td><td>392</td></tr>
+        <tr class="sub"><td class="mc">2025/12-2026/04<br>合計 5ヶ月</td><td>440</td><td>86</td><td><strong>19.5%</strong></td><td>1,307</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="nt">
+    LP58 単体の CR は <strong>12〜31%（平均19.5%）</strong>、全体平均 42% の半分以下。
+    「カババ＝期待値高めの紹介案件」というユーザー指摘通り、構造的に CR が低いトラフィック。
+    ただし1件あたり売上は高めで、月平均 187万円の純粋な追加売上を生んでいる。
+  </div>
+
+  <h3>8-2. LP58を除いた場合の A vs B 比較</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th style="text-align:left;">指標</th>
+        <th style="background:var(--pa);">A<br>(12mo, LP58ほぼ無)</th>
+        <th>B 延長 全件<br>(10mo)</th>
+        <th style="background:#D1FAE5;">B 延長<br>LP58除外</th>
+        <th>A→B<br>全件 変化</th>
+        <th>A→B<br>LP58除外 変化</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="lc">出品/月</td><td>418.3</td><td>506.5</td><td>462.5</td><td class="up">+21.1%</td><td class="up">+10.6%</td></tr>
+        <tr style="background:#D1FAE5;"><td class="lc"><strong>CR</strong></td><td>42.8%</td><td>41.7%</td><td><strong>43.8%</strong></td><td class="dn">-1.1pt</td><td class="up"><strong>+1.0pt</strong></td></tr>
+        <tr><td class="lc">成約/月</td><td>178.9</td><td>211.7</td><td>202.7</td><td class="up">+18%</td><td class="up">+13%</td></tr>
+        <tr style="background:#FEF3C7;"><td class="lc"><strong>売上/月(万)</strong></td><td>2,270</td><td>2,766</td><td><strong>2,636</strong></td><td class="up">+21.8%</td><td class="up"><strong>+16.1%</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="ins">
+    <strong>LP58を除いた純粋な「絞り込み→全量持込」効果:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>CR: 42.8% → <strong>43.8% (+1.0pt 改善)</strong> ← 戦略は CR を下げていない</li>
+      <li>出品: +10.6%（LP58込みでは +21.1%。差分 +10.5pt が LP58分）</li>
+      <li>売上: <strong>+16.1% 純増（+366万/月）</strong></li>
+      <li>商談着手も +40% 増えており、交渉キャパも拡張できている（§7参照）</li>
+    </ul>
+  </div>
+
+  <h3>8-3. B1 vs B2 (LP58除外) の比較</h3>
+  <p>§7で B1→B2 の CR劣化（46.5%→40.0%、-6.5pt）を指摘したが、LP58除外で見ると劣化幅はぐっと小さくなる。</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th style="text-align:left;">指標</th>
+        <th style="background:var(--pa);">A</th>
+        <th style="background:var(--pb1);color:#fff;">B1<br>(LP58なし)</th>
+        <th style="background:var(--pb2);">B2 全件</th>
+        <th style="background:#D1FAE5;">B2<br>LP58除外</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="lc">出品/月</td><td>418.3</td><td>455.7</td><td>528.3</td><td>465.4</td></tr>
+        <tr><td class="lc">成約/月</td><td>178.9</td><td>211.7</td><td>211.1</td><td>198.9</td></tr>
+        <tr style="background:#D1FAE5;"><td class="lc"><strong>CR</strong></td><td>42.8%</td><td><strong>46.5%</strong></td><td>40.0%</td><td><strong>42.7%</strong></td></tr>
+        <tr><td class="lc">売上/月(万)</td><td>2,270</td><td>2,829</td><td>2,740</td><td>2,553</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="ins">
+    <strong>B2のCRは LP58除外で 42.7% — A期の 42.8% とほぼ同水準！</strong>
+    全件で見た「B2でCR -2.8pt 低下」「-6.5pt vs B1」は <strong>LP58 混入による見かけ上の希薄化が主</strong>。
+    純粋な戦略効果としては、A → B1 で大きく改善（+3.7pt）し、B2 でも A 並みを維持できている。
+  </div>
+
+  <div class="wrn">
+    <strong>残された B1→B2 の CR差 -3.8pt（46.5% → 42.7%, LP58除外）の解釈:</strong>
+    B1 がやや異常値（=戦略変更の蜜月期に運良くCRが高かった）か、外部市況の劣化か、出品ライン内部の難案件比率増加か。
+    いずれにせよ全件で見たほどドラマチックではなく、<strong>「A水準への回帰」と見るのが妥当</strong>。
+  </div>
+
+  <h3>8-4. LP58 の扱いに関する提言</h3>
+  <div class="nt">
+    <ul style="margin:6px 0 0 20px;">
+      <li><strong>LP58 は「別管理トラフィック」として扱う</strong>: 期待値が高く CR 構造的に低いため、本体 CR の評価対象に含めると見かけ上の数値が歪む</li>
+      <li><strong>LP58 単独でも価値あり</strong>: 月187万円の追加売上（B2 5ヶ月平均）。CR 19% でも採算が合うなら継続価値はある</li>
+      <li><strong>LP58 専用の交渉戦術／売切設定</strong>: CtoC 紹介で売主期待が高い前提を踏まえ、本体と異なる対応指針が必要</li>
+      <li>本体KPI（CR・売上効率）の評価は <strong>LP58除外ベース</strong> に切り替えるべき</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 9. 結論 -->
+<div class="sec">
+  <h2>9. 結論と提案（LP58影響を踏まえた修正版）</h2>
+
+  <div class="concl">
+    <h3>戦略は成功。CRは LP58 除外で維持、売上は +16% 純増。論点は「やめるか」ではなく「LP58の別管理」。</h3>
+    <p>分析を重ねた結果、初期に出した「工数の無駄」「B2でCR急落」という強い結論は <strong>LP58（カババ）混入によるアーティファクト</strong> だった。
+    LP58 を除いた純粋な戦略効果としては <span class="hl">CR 42.8% → 43.8%（+1.0pt 改善）</span> ・ <span class="hl">売上 +16.1%（月+366万、年+4,400万）</span>。
+    指摘者の「成約率は変わっていない」は正しく、ただし「だから工数の無駄」は誤り。<strong>CR を維持しつつ件数を伸ばし、売上を増やせた</strong>のが実態。</p>
+
+    <p style="margin-top:12px;color:#fff;"><strong>提案:</strong></p>
+    <ul style="margin:8px 0 0 20px;color:#E2E8F0;font-size:13px;">
+      <li>即日: <span class="hl">本体KPIをLP58除外ベースで定義し直す</span>。月次レポートのCR・売上効率指標は LP58 を分けて表示。混ぜると見かけ上の劣化が出て誤判断につながる。</li>
+      <li>即日: <span class="hl">LP58 専用の採算ライン</span> を設定。CR 19%・売上187万/月で採算合うか、別ルールでの売切設定や交渉手法が必要か検討。</li>
+      <li>短期: B1（CR 46.5%）→ B2 LP58除外（42.7%）の -3.8pt 差を分解（季節か、難案件混入か、市況劣化か）。B1が異常値だった可能性も含めて検証。</li>
+      <li>短期: 全量持込戦略の継続を意思決定者に明示。<span class="hl">「やめれば月366万・年4,400万の売上を失う」</span>。</li>
+      <li>中期: LP58 と同様の「期待値高め系」流入経路が今後も増える可能性に備え、トラフィック別のCR管理体制を整備。</li>
+      <li>中長期: 出品1件あたり売上をB1水準（6.20万）に戻す施策（売切適正化、申込時トリアージ）は LP58除外の本体ラインで進める。</li>
+    </ul>
+  </div>
+
+  <div class="nt">
+    <strong>分析の経緯（透明性のため記録）:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>v3レポートのフォローアップとして開始 → 当初「申込月ベースで限界CR 1.2% = 工数の無駄」と結論</li>
+      <li>v3定義（出品月ベース・商談月ベース）で再集計 → 限界CR 41% に修正、「無駄ではないが効率は下がっている」へ</li>
+      <li>LP58除外で再々集計 → 「CR維持・売上+16%」が判明、「工数の無駄」結論は撤回</li>
+      <li>教訓: <strong>分析ベース（申込/出品/商談月）と母集団（全件/LP58除外）を切り替えるだけで結論が大きく変わる</strong>。最終判断は必ず複数の切り口で検証すること。</li>
+    </ul>
+  </div>
+
+  <div class="nt">
+    <strong>本レポートで答えていない論点:</strong>
+    <ul style="margin:6px 0 0 20px;">
+      <li>商談数（negotiation_log）の LP58 除外: `negotiation_log.deal_number`（"A..."形式）と `all_deals_view.application_number`（"G..."形式）が直接 JOIN できない。商談数は LP58 込みのまま。</li>
+      <li>LP58の採算分析（粗利ベース）: 売上187万/月の内訳と LP58 専属対応に要する工数を比較する必要あり。</li>
+      <li>担当者別の工数推移（B1→B2でLP58案件を誰が捌いていたか）。担当者分析と組み合わせる必要あり。</li>
+      <li>「ローン残債のみNG」というB期フィルタの実装が all_deals_view 側で識別できないため、フィルタ運用の実態は申込→出品の歩留まりから推定している。</li>
+    </ul>
+  </div>
+</div>
+
+<div class="footer">
+  交渉戦略 期間比較分析 v4 | 2026-05-21 | データ: ucarpac-uapp.gas_data.all_deals_view (READ-ONLY) |
+  基準日: assessment_apply_datetime | 期間: 2023/07-2026/05/21<br>
+  関連: <a href="README.md">README.md</a> / <a href="crosswalk_report_vs_strategy.md">crosswalk</a> / 元レポート: <a href="../../../GAS/docs/2026年度計画/交渉戦略_期間比較分析_v3.html">v3.html</a>
+</div>
+
+</div>
+
+<script>
+Chart.defaults.maintainAspectRatio=false;
+Chart.defaults.responsive=true;
+Chart.defaults.plugins.legend.labels.boxWidth=10;
+Chart.defaults.plugins.legend.labels.font={size:10};
+
+const PA0='#A78BFA', PA='#8B5CF6', PB1='#06B6D4', PB2='#0EA5E9', G='#059669', R='#DC2626', Am='#D97706';
+
+// 月次データ
+const monthly = [
+  ['2023-07',557,419,230,75.2,54.9,2853,100,20.5,73.5,'A0'],
+  ['2023-08',506,371,195,73.3,52.6,2233,120,24.8,77.2,'A0'],
+  ['2023-09',593,419,241,70.7,57.5,2792,100,20.0,72.2,'A0'],
+  ['2023-10',511,373,208,73.0,55.8,2295,120,21.7,72.5,'A0'],
+  ['2023-11',507,383,219,75.5,57.2,2402,110,21.1,71.3,'A0'],
+  ['2023-12',427,331,191,77.5,57.7,2037,90,19.0,74.0,'A0'],
+  ['2024-01',703,520,278,74.0,53.5,3464,100,18.7,71.2,'A0'],
+  ['2024-02',673,485,239,72.1,49.3,2658,100,21.0,76.6,'A0'],
+  ['2024-03',689,483,273,70.1,56.5,2926,100,20.3,75.7,'A0'],
+  ['2024-04',467,344,171,73.7,49.7,2093,100,23.3,76.6,'A0'],
+  ['2024-05',538,385,212,71.6,55.1,2549,123,24.7,74.7,'A0'],
+  ['2024-06',504,351,206,69.6,58.7,2569,120,24.2,72.1,'A0'],
+  ['2024-07',522,371,189,71.1,50.9,2404,110,27.8,75.3,'A'],
+  ['2024-08',446,319,165,71.5,51.7,1965,100,22.6,74.0,'A'],
+  ['2024-09',602,413,184,68.6,44.6,2366,147,29.5,77.5,'A'],
+  ['2024-10',615,423,216,68.8,51.1,2082,130,25.3,82.1,'A'],
+  ['2024-11',520,327,179,62.9,54.7,2301,150,30.6,78.6,'A'],
+  ['2024-12',459,313,160,68.2,51.1,1782,160,35.8,81.6,'A'],
+  ['2025-01',824,583,230,70.8,39.5,2602,155,32.9,84.2,'A'],
+  ['2025-02',756,520,218,68.8,41.9,2395,165,32.3,84.0,'A'],
+  ['2025-03',795,483,208,60.8,43.1,2296,125,29.4,82.8,'A'],
+  ['2025-04',615,401,211,65.2,52.6,2003,120,27.4,82.0,'A'],
+  ['2025-05',612,437,204,71.4,46.7,2463,150,33.0,80.7,'A'],
+  ['2025-06',699,459,221,65.7,48.1,2984,200,36.6,79.7,'A'],
+  ['2025-07',728,433,221,59.5,51.0,2872,150,33.5,76.9,'B1'],
+  ['2025-08',699,484,244,69.2,50.4,3051,150,33.9,79.7,'B1'],
+  ['2025-09',662,458,235,69.2,51.3,2878,130,30.1,77.7,'B1'],
+  ['2025-10',506,383,179,75.7,46.7,2200,140,31.1,78.4,'B2'],
+  ['2025-11',473,359,177,75.9,49.3,2265,135,29.0,77.6,'B2'],
+  ['2025-12',554,424,170,76.5,40.1,2103,190,38.4,85.0,'B2'],
+  ['2026-01',919,663,256,72.1,38.6,3286,200,40.3,83.5,'B2'],
+  ['2026-02',870,634,265,72.9,41.8,3191,165,32.6,82.0,'B2'],
+  ['2026-03',868,650,250,74.9,38.5,2756,160,32.8,86.0,'B2'],
+  ['2026-04',713,533,172,74.8,32.3,2350,230,43.0,87.1,'B2'],
+  ['2026-05',447,241,72,53.9,29.9,1121,220,42.3,81.1,'P'],
+];
+
+const colorBy = {A0:PA0, A:PA, B1:PB1, B2:PB2, P:'#94A3B8'};
+const colorBySoft = {
+  A0:'rgba(167,139,250,.5)',
+  A:'rgba(139,92,246,.55)',
+  B1:'rgba(6,182,212,.7)',
+  B2:'rgba(14,165,233,.6)',
+  P:'rgba(148,163,184,.5)'
+};
+const labels = monthly.map(r=>r[0].slice(2));
+const colors = monthly.map(r=>colorBySoft[r[10]]);
+
+// 注釈ライン定義
+function periodLines(yKey){
+  const vals = {
+    cr:    {A0:54.7,A:47.2,B1:50.9,B2:39.6},
+    rev:   {A0:2573,A:2304,B1:2934,B2:2503},
+    list:  {A0:405,A:421,B1:458,B2:505},
+    close: {A0:222,A:199,B1:233,B2:200},
+  };
+  const v = vals[yKey];
+  return {
+    a0:{type:'line',yMin:v.A0,yMax:v.A0,borderColor:PA0,borderDash:[4,3],borderWidth:1.5,label:{display:true,content:'A0:'+v.A0,position:'start',font:{size:9},backgroundColor:PA0,color:'#fff'}},
+    a: {type:'line',yMin:v.A, yMax:v.A, borderColor:PA, borderDash:[4,3],borderWidth:1.5,label:{display:true,content:'A:'+v.A,  position:'start',font:{size:9},backgroundColor:PA, color:'#fff'}},
+    b1:{type:'line',yMin:v.B1,yMax:v.B1,borderColor:PB1,borderDash:[4,3],borderWidth:1.5,label:{display:true,content:'B1:'+v.B1,position:'end',font:{size:9},backgroundColor:PB1,color:'#fff'}},
+    b2:{type:'line',yMin:v.B2,yMax:v.B2,borderColor:PB2,borderDash:[4,3],borderWidth:1.5,label:{display:true,content:'B2:'+v.B2,position:'end',font:{size:9},backgroundColor:PB2,color:'#fff'}},
+  };
+}
+
+// 出品
+new Chart(document.getElementById('ch_listings'),{type:'bar',
+  data:{labels:labels,datasets:[{label:'出品',data:monthly.map(r=>r[2]),backgroundColor:colors,borderRadius:2}]},
+  options:{plugins:{legend:{display:false},annotation:{annotations:periodLines('list')}},
+    scales:{y:{beginAtZero:false,title:{display:true,text:'件'}},x:{ticks:{font:{size:9}}}}}});
+
+// 成約
+new Chart(document.getElementById('ch_closes'),{type:'bar',
+  data:{labels:labels,datasets:[{label:'成約',data:monthly.map(r=>r[3]),backgroundColor:colors,borderRadius:2}]},
+  options:{plugins:{legend:{display:false},annotation:{annotations:periodLines('close')}},
+    scales:{y:{beginAtZero:false,title:{display:true,text:'件'}},x:{ticks:{font:{size:9}}}}}});
+
+// CR
+new Chart(document.getElementById('ch_cr'),{type:'line',
+  data:{labels:labels,datasets:[{label:'CR',data:monthly.map(r=>r[5]),
+    borderColor:'rgba(37,99,235,.8)',pointRadius:3,borderWidth:2,tension:.25,
+    pointBackgroundColor:monthly.map(r=>colorBy[r[10]])}]},
+  options:{plugins:{annotation:{annotations:periodLines('cr')}},
+    scales:{y:{min:25,max:65,title:{display:true,text:'%'},ticks:{callback:v=>v+'%'}},x:{ticks:{font:{size:9}}}}}});
+
+// 売上
+new Chart(document.getElementById('ch_rev'),{type:'bar',
+  data:{labels:labels,datasets:[{label:'売上(万)',data:monthly.map(r=>r[6]),backgroundColor:colors,borderRadius:2}]},
+  options:{plugins:{legend:{display:false},annotation:{annotations:periodLines('rev')}},
+    scales:{y:{beginAtZero:false,min:1000,title:{display:true,text:'万円'}},x:{ticks:{font:{size:9}}}}}});
+
+// CR detail (Section 3)
+new Chart(document.getElementById('ch_cr_monthly'),{type:'line',
+  data:{labels:labels,datasets:[{label:'月次CR',data:monthly.map(r=>r[5]),
+    borderColor:'rgba(220,38,38,.85)',backgroundColor:'rgba(220,38,38,.1)',
+    pointRadius:4,borderWidth:2.5,tension:.25,fill:true,
+    pointBackgroundColor:monthly.map(r=>colorBy[r[10]])}]},
+  options:{plugins:{annotation:{annotations:periodLines('cr')}},
+    scales:{y:{min:25,max:65,title:{display:true,text:'CR (%)'},ticks:{callback:v=>v+'%'}},x:{ticks:{font:{size:9}}}}}});
+
+// 限界生産性
+new Chart(document.getElementById('ch_marginal'),{type:'bar',
+  data:{labels:['A→B1（移行期）','A→B2（全量持込）'],datasets:[
+    {label:'限界CR (%)',data:[91.9,1.2],backgroundColor:['rgba(6,182,212,.7)','rgba(220,38,38,.6)'],borderRadius:4,yAxisID:'y'},
+    {label:'限界売上/件 (万)',data:[17.0,2.37],backgroundColor:['rgba(6,182,212,.4)','rgba(220,38,38,.3)'],borderRadius:4,yAxisID:'y1'}
+  ]},
+  options:{plugins:{legend:{position:'top'}},
+    scales:{y:{position:'left',title:{display:true,text:'限界CR (%)'},max:100,ticks:{callback:v=>v+'%'}},
+            y1:{position:'right',title:{display:true,text:'限界売上/件 (万)'},grid:{drawOnChartArea:false},max:20}}}});
+
+// 月次テーブル
+const tb = document.getElementById('tb_monthly');
+monthly.forEach(r=>{
+  const cls = r[10].toLowerCase();
+  const isP = r[10]==='P';
+  const style = isP ? ' style="background:#E5E7EB;color:#6B7280;"' : '';
+  tb.innerHTML += `<tr class="${cls}"${style}><td class="mc">${r[0]}${isP?'*':''}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}%</td><td><strong>${r[5]}%</strong></td><td>${r[6].toLocaleString()}</td><td>${r[7]}</td><td>${r[8]}%</td><td>${r[9]}%</td></tr>`;
+});
+
+// 商談数 月別推移 (§7)
+const negData = [
+  ['24-07',142,156,'A'],['24-08',105,106,'A'],['24-09',119,122,'A'],['24-10',147,158,'A'],
+  ['24-11',124,128,'A'],['24-12',86,91,'A'],['25-01',198,209,'A'],['25-02',166,179,'A'],
+  ['25-03',175,189,'A'],['25-04',130,132,'A'],['25-05',120,128,'A'],['25-06',206,217,'A'],
+  ['25-07',206,222,'B1'],['25-08',192,200,'B1'],['25-09',189,201,'B1'],
+  ['25-10',186,199,'B2'],['25-11',147,160,'B2'],['25-12',161,167,'B2'],
+  ['26-01',267,274,'B2'],['26-02',227,244,'B2'],['26-03',239,254,'B2'],['26-04',191,199,'B2'],
+  ['26-05*',124,129,'P'],
+];
+new Chart(document.getElementById('ch_neg'),{type:'bar',
+  data:{labels:negData.map(r=>r[0]),datasets:[
+    {label:'商談数(ユニーク)',data:negData.map(r=>r[1]),backgroundColor:negData.map(r=>colorBySoft[r[3]]),borderRadius:2},
+    {label:'商談数(延べ)',data:negData.map(r=>r[2]),type:'line',borderColor:'rgba(220,38,38,.85)',backgroundColor:'transparent',pointRadius:2,borderWidth:1.5,tension:.25}
+  ]},
+  options:{plugins:{legend:{position:'top'},annotation:{annotations:{
+    a: {type:'line',yMin:143.2,yMax:143.2,borderColor:PA, borderDash:[4,3],borderWidth:1.5,label:{display:true,content:'A:143',position:'start',font:{size:9},backgroundColor:PA,color:'#fff'}},
+    b1:{type:'line',yMin:195.7,yMax:195.7,borderColor:PB1,borderDash:[4,3],borderWidth:1.5,label:{display:true,content:'B1:196',position:'center',font:{size:9},backgroundColor:PB1,color:'#fff'}},
+    b2:{type:'line',yMin:202.6,yMax:202.6,borderColor:PB2,borderDash:[4,3],borderWidth:1.5,label:{display:true,content:'B2:203',position:'end',font:{size:9},backgroundColor:PB2,color:'#fff'}}
+  }}},scales:{y:{beginAtZero:true,title:{display:true,text:'件'}},x:{ticks:{font:{size:9}}}}}});
+
+// 交渉成約率/商談数 月別推移 (§7-4)
+const negCrData = [
+  ['24-07',99.3,'A'],['24-08',101.0,'A'],['24-09',94.1,'A'],['24-10',72.1,'A'],
+  ['24-11',100.8,'A'],['24-12',87.2,'A'],['25-01',75.8,'A'],['25-02',72.3,'A'],
+  ['25-03',94.9,'A'],['25-04',88.5,'A'],['25-05',106.7,'A'],['25-06',75.7,'A'],
+  ['25-07',71.4,'B1'],['25-08',80.2,'B1'],['25-09',72.5,'B1'],
+  ['25-10',76.9,'B2'],['25-11',83.7,'B2'],['25-12',68.9,'B2'],
+  ['26-01',61.8,'B2'],['26-02',74.9,'B2'],['26-03',77.4,'B2'],['26-04',78.5,'B2'],
+  ['26-05*',69.4,'P'],
+];
+new Chart(document.getElementById('ch_neg_cr'),{type:'line',
+  data:{labels:negCrData.map(r=>r[0]),datasets:[
+    {label:'交渉成約率/商談数',data:negCrData.map(r=>r[1]),
+     borderColor:'rgba(37,99,235,.85)',backgroundColor:'rgba(37,99,235,.08)',
+     pointRadius:3,borderWidth:2,tension:.25,fill:true,
+     pointBackgroundColor:negCrData.map(r=>colorBy[r[2]])}
+  ]},
+  options:{plugins:{legend:{display:false},annotation:{annotations:{
+    a: {type:'line',yMin:87.3,yMax:87.3,borderColor:PA, borderDash:[4,3],borderWidth:1.5,label:{display:true,content:'A:87.3%',position:'start',font:{size:9},backgroundColor:PA,color:'#fff'}},
+    b1:{type:'line',yMin:74.6,yMax:74.6,borderColor:PB1,borderDash:[4,3],borderWidth:1.5,label:{display:true,content:'B1:74.6%',position:'center',font:{size:9},backgroundColor:PB1,color:'#fff'}},
+    b2:{type:'line',yMin:73.8,yMax:73.8,borderColor:PB2,borderDash:[4,3],borderWidth:1.5,label:{display:true,content:'B2:73.8%',position:'end',font:{size:9},backgroundColor:PB2,color:'#fff'}}
+  }}},scales:{y:{min:55,max:110,title:{display:true,text:'%'},ticks:{callback:v=>v+'%'}},x:{ticks:{font:{size:9}}}}}});
+
+</script>
+</body>
+</html>

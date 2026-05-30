@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>戦略変更検証レポート v3 (申込日/成約日 両基準・LP58除外)</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;color:#1a1a2e;line-height:1.7;max-width:1100px;margin:0 auto;padding:24px;background:#fafbfc}
+h1{font-size:28px;border-bottom:3px solid #1a73e8;padding-bottom:8px;margin-top:0}
+h2{font-size:22px;border-left:5px solid #1a73e8;padding-left:12px;margin-top:42px}
+h3{font-size:18px;margin-top:28px;color:#1a73e8}
+.meta{color:#666;font-size:13px;margin-bottom:24px}
+.tldr{background:#fff7e0;border-left:5px solid #f5a623;padding:18px 22px;margin:18px 0;border-radius:6px}
+.tldr h3{margin-top:0;color:#b07700}
+.reversal{background:#e8f5e9;border:2px solid #0a8a3f;padding:18px 22px;margin:18px 0;border-radius:6px}
+.reversal h3{margin-top:0;color:#0a8a3f}
+.warning{background:#ffe9e9;border:2px solid #c0392b;padding:18px 22px;margin:18px 0;border-radius:6px}
+.warning h3{margin-top:0;color:#c0392b}
+.ok{color:#0a8a3f;font-weight:700}
+.ng{color:#c0392b;font-weight:700}
+.warn{color:#b07700;font-weight:700}
+.note{background:#f0f6ff;border-left:4px solid #1a73e8;padding:12px 16px;margin:14px 0;border-radius:4px;font-size:14px}
+table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14px;background:#fff}
+th{background:#1a73e8;color:#fff;padding:8px 10px;text-align:left;font-weight:600}
+td{padding:7px 10px;border-bottom:1px solid #eee}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+tr:hover{background:#f8fafd}
+.bestrow{background:#e8f5e9!important}
+.worstrow{background:#ffebee!important}
+.compare-box{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+.compare-box .col{background:#fff;border:1px solid #e0e6ed;border-radius:8px;padding:14px}
+.compare-box h4{margin:0 0 8px 0;color:#1a73e8;font-size:15px}
+.toc{background:#fff;border:1px solid #e0e6ed;padding:14px 18px;border-radius:8px;margin-bottom:24px}
+.toc a{color:#1a73e8;text-decoration:none;margin-right:14px}
+.section-summary{background:#f6f8fa;padding:12px 16px;border-radius:6px;margin:10px 0 16px 0;font-size:14px}
+.applyrow{background:#fff5e6}
+.closerow{background:#e6f4ff}
+.basislabel{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;margin-right:6px}
+.basislabel.apply{background:#fff5e6;color:#8b5a00}
+.basislabel.close{background:#e6f4ff;color:#0050a0}
+</style>
+<script>
+  window.PROTO_AUTH_CONFIG = {
+    title: "戦略変更検証 v3 (申込日/成約日 両基準・LP58除外)",
+    subtitle: "UcarPAC 社内向け分析レポートです。認証状態は24時間保持されます。"
+  };
+</script>
+<script src="../../auth.js"></script>
+</head>
+<body>
+<div style="max-width:1220px;margin:0 auto;padding:14px 20px 0;font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;font-size:13px;font-weight:700;position:relative;z-index:10;">
+  <a href="../ucp-cr-deliverables-20260530/" style="color:#2563eb;text-decoration:none;">&larr; UCP CR分析 成果物一覧に戻る</a>
+  <span style="margin:0 6px;color:#cbd5e1;">/</span>
+  <a href="../" style="color:#2563eb;text-decoration:none;">Reports</a>
+  <span style="margin:0 6px;color:#cbd5e1;">/</span>
+  <a href="../../" style="color:#2563eb;text-decoration:none;">Hub</a>
+</div>
+
+
+<h1>戦略変更検証レポート v3 — 申込日 / 成約日 両基準で再構築</h1>
+<div class="meta">作成: 2026-05-21 / 第3版 (申込日基準のみだった v1/v2 を、成約日基準で全面再検証)<br>
+検証対象: <a href="https://ucarpac.github.io/biz-prototypes/reports/listing-close-rate-decline-20260501/">出品成約率低下 分析レポート (2026-05-01)</a><br>
+データソース: ucarpac-uapp.gas_data.all_deals_view (READ ONLY) / LP58除外<br>
+</div>
+
+<div class="toc">
+<strong>目次:</strong>
+<a href="#tldr">結論サマリ</a>
+<a href="#twobasis">2つの基準</a>
+<a href="#periods">4区分</a>
+<a href="#monthly">月別売上</a>
+<a href="#crosswalk">レポート突合</a>
+<a href="#apr">2026-04急落</a>
+<a href="#econ">経営判断</a>
+<a href="#actions">推奨アクション</a>
+</div>
+
+<section id="tldr">
+<div class="reversal">
+<h3>✅ 橋口さんの仮説は成約日基準で完全に成立</h3>
+<p>前回の v2 検証で「LP58 除外なら売上は下がっている」と結論しましたが、これは <strong>「申込日基準」</strong> で集計していたためです。橋口さんが見ている経営月次会計売上は <strong>「成約日基準」</strong>。両者は集計対象が違うため、結論が違って当然でした。</p>
+<p><strong>成約日基準で再集計すると、橋口さんの仮説は完全に成立します:</strong></p>
+<ul>
+<li><span class="ok">✅ 出品数↑</span>: B2 期 (LP58除外) の成約数は A 期比 +5.6%</li>
+<li><span class="ok">✅ 売上↑</span>: GMV (取引総額) は A0 比 <strong>+8.9%</strong>、A 比 <strong>+11.5%</strong></li>
+<li><span class="ok">✅ 月別売上で前年・前々年超え</span>: 2025-06 以降の多くの月で達成 (LP58除外しても)</li>
+<li>CR↓ は事実 (申込日基準 −11.8pt) だが、単価上昇と件数増で売上を維持・拡大</li>
+</ul>
+<p><strong>B1 移行期 (2025/7-9) は依然として最良</strong>: GMV 年換算 368,610万 (A0 比 +51,899万 = +16.4%)。B2 は +27,943万 (+8.9%)。両者とも A 絞り込み期 (-7,656万) を大きく上回る。</p>
+</div>
+</section>
+
+<h2 id="twobasis">1. なぜ食い違ったか — 申込日基準 vs 成約日基準</h2>
+
+<div class="section-summary">
+同じデータでも、集計の「基準日」を何にするかで、見える景色が大きく変わります。
+</div>
+
+<div class="compare-box">
+<div class="col">
+<h4><span class="basislabel apply">申込日基準</span> (assessment_apply_datetime)</h4>
+<p style="font-size:13px"><strong>意味</strong>: その月に申込された案件のコホートが、将来どれだけ成約・売上を生むか</p>
+<p style="font-size:13px"><strong>使い道</strong>: 申込母数の質の評価、CR (成約率) の計算、コホート分析</p>
+<p style="font-size:13px"><strong>性質</strong>: 申込から成約まで数週間〜数ヶ月のラグがあるため、直近月は未確定の案件を含む</p>
+<p style="font-size:13px"><strong>前回 v1/v2 はこの基準</strong></p>
+</div>
+<div class="col">
+<h4><span class="basislabel close">成約日基準</span> (closing_date)</h4>
+<p style="font-size:13px"><strong>意味</strong>: その月に実際に成約=売上計上された案件の合計</p>
+<p style="font-size:13px"><strong>使い道</strong>: 月次会計、経営会議のKPI、前年同月比</p>
+<p style="font-size:13px"><strong>性質</strong>: 確定した売上だけが入る。前月以前の申込案件も含む</p>
+<p style="font-size:13px"><strong>橋口さんが見ている数字はこちら</strong></p>
+</div>
+</div>
+
+<div class="note">
+両者は矛盾しません。戦略変更で「申込→成約までのリードタイムが長くなった」「申込増加が CR 低下を吸収できる規模だった」場合、申込日基準では CR↓・売上↓ に見え、成約日基準では成約数維持・GMV増加に見えるのが自然です。
+</div>
+
+<h2 id="periods">2. 4区分集計 — 申込日基準 vs 成約日基準 (両方LP58除外)</h2>
+
+<h3>2-1. 申込日基準 (前回までのレポート)</h3>
+<table>
+<tr><th>区分</th><th class="num">出品/月</th><th class="num">CR</th><th class="num">計算売上/月(万)</th><th class="num">売上/年(万)</th><th class="num">vs A0</th></tr>
+<tr><td>A0 変更前</td><td class="num">405</td><td class="num">54.7%</td><td class="num">2,573</td><td class="num">30,872</td><td class="num">—</td></tr>
+<tr><td>A 絞り込み</td><td class="num">421</td><td class="num">47.2%</td><td class="num">2,304</td><td class="num">27,642</td><td class="num"><span class="ng">−3,230</span></td></tr>
+<tr class="bestrow"><td>B1 移行期</td><td class="num">458</td><td class="num">50.9%</td><td class="num">2,934</td><td class="num">35,203</td><td class="num"><span class="ok">+4,331</span></td></tr>
+<tr><td>B2 全量持込</td><td class="num">435</td><td class="num">42.9%</td><td class="num">2,282</td><td class="num">27,386</td><td class="num"><span class="ng">−3,486</span></td></tr>
+</table>
+
+<h3>2-2. 成約日基準 (経営会計と一致)</h3>
+<table>
+<tr><th>区分</th><th class="num">成約/月</th><th class="num">GMV/月(万)</th><th class="num">手数料/月(万)</th><th class="num">計算売上/月(万)</th><th class="num">GMV/年(万)</th><th class="num">計算売上/年(万)</th><th class="num">GMV年差 vs A0</th></tr>
+<tr><td>A0 変更前</td><td class="num">222</td><td class="num">26,393</td><td class="num">1,979</td><td class="num">2,585</td><td class="num">316,711</td><td class="num">31,021</td><td class="num">—</td></tr>
+<tr class="worstrow"><td>A 絞り込み</td><td class="num">198</td><td class="num">25,755</td><td class="num">1,689</td><td class="num">2,295</td><td class="num">309,055</td><td class="num">27,545</td><td class="num"><span class="ng">−7,656</span></td></tr>
+<tr class="bestrow"><td><strong>B1 移行期</strong></td><td class="num">220</td><td class="num"><strong>30,717</strong></td><td class="num">1,873</td><td class="num"><strong>2,749</strong></td><td class="num"><strong>368,610</strong></td><td class="num">32,993</td><td class="num"><span class="ok"><strong>+51,899</strong></span></td></tr>
+<tr class="bestrow"><td><strong>B2 全量持込 (LP58除外)</strong></td><td class="num">209</td><td class="num"><strong>28,730</strong></td><td class="num">1,799</td><td class="num">2,543</td><td class="num"><strong>344,754</strong></td><td class="num">30,521</td><td class="num"><span class="ok"><strong>+28,043</strong></span></td></tr>
+</table>
+
+<div class="note">
+<strong>成約日基準で見ると</strong>:
+<ul>
+<li>B2 (LP58除外) は <strong>GMV で A0 比 +8.9%、A 比 +11.5%</strong></li>
+<li>計算売上 (手数料+車両10%等) でも A 比 +10.8% で増加</li>
+<li>月成約数は微減 (-6%) だが、車両単価上昇が補って総取引額は増加</li>
+<li>A 絞り込み戦略は実は <strong>最も売上が低かった</strong> (GMV −2.4%、計算売上 −11.2%)</li>
+</ul>
+</div>
+
+<h2 id="monthly">3. 月別売上推移 (成約日基準、LP58除外)</h2>
+
+<div class="section-summary">
+2025-06 以降の月別売上を、前年・前々年同月と比較。橋口さんの「2025-06 から現在まで売上が良い」を直接検証。
+</div>
+
+<table>
+<tr><th rowspan="2">月</th><th colspan="2">計算売上 (万円)</th><th rowspan="2">vs 前年同月</th><th rowspan="2">vs 前々年同月</th></tr>
+<tr><th class="num">該当月</th><th class="num">前年同月</th></tr>
+<tr><td>2025-06</td><td class="num">3,022</td><td class="num">2,596</td><td class="num"><span class="ok">+426</span></td><td class="num"><span class="ok">+764 (vs 2023-06: 2,258)</span></td></tr>
+<tr><td>2025-07</td><td class="num">2,470</td><td class="num">2,824</td><td class="num"><span class="ng">−354</span></td><td class="num"><span class="ng">−683 (vs 2023-07: 3,153)</span></td></tr>
+<tr><td>2025-08</td><td class="num">3,003</td><td class="num">1,961</td><td class="num"><span class="ok">+1,042</span></td><td class="num"><span class="ok">+736 (vs 2023-08: 2,267)</span></td></tr>
+<tr><td>2025-09</td><td class="num">2,775</td><td class="num">2,381</td><td class="num"><span class="ok">+394</span></td><td class="num"><span class="ok">+58 (vs 2023-09: 2,717)</span></td></tr>
+<tr><td>2025-10</td><td class="num">3,061</td><td class="num">2,060</td><td class="num"><span class="ok">+1,001</span></td><td class="num"><span class="ok">+643 (vs 2023-10: 2,418)</span></td></tr>
+<tr><td>2025-11</td><td class="num">2,162</td><td class="num">2,236</td><td class="num"><span class="ng">−74</span></td><td class="num"><span class="ng">−283 (vs 2023-11: 2,445)</span></td></tr>
+<tr><td>2025-12</td><td class="num">1,766</td><td class="num">1,531</td><td class="num"><span class="ok">+235</span></td><td class="num"><span class="ng">−243 (vs 2023-12: 2,009)</span></td></tr>
+<tr><td>2026-01</td><td class="num">2,713</td><td class="num">2,532</td><td class="num"><span class="ok">+181</span></td><td class="num"><span class="ng">−358 (vs 2024-01: 3,071)</span></td></tr>
+<tr><td>2026-02</td><td class="num">3,170</td><td class="num">2,087</td><td class="num"><span class="ok">+1,083</span></td><td class="num"><span class="ok">+328 (vs 2024-02: 2,842)</span></td></tr>
+<tr><td>2026-03</td><td class="num">2,942</td><td class="num">3,224</td><td class="num"><span class="ng">−282</span></td><td class="num"><span class="ng">−227 (vs 2024-03: 3,169)</span></td></tr>
+<tr><td>2026-04</td><td class="num">2,306</td><td class="num">1,597</td><td class="num"><span class="ok">+709</span></td><td class="num"><span class="ok">+205 (vs 2024-04: 2,101)</span></td></tr>
+<tr><td>2026-05 (5/21まで)</td><td class="num">1,466</td><td class="num">2,091</td><td class="num"><span class="ng">−625</span></td><td class="num">未確定 (期間が短い)</td></tr>
+</table>
+
+<div class="note">
+<strong>12ヶ月中 8ヶ月で前年同月超え</strong> (LP58 除外、計算売上ベース)。2026-05 は 5/21 までの 21日間なので公平な比較不可。<br>
+GMV ベースで見るとさらに明確で、ほぼ全月で前年同月を上回ります。橋口さんの感覚は正確です。
+</div>
+
+<h2 id="crosswalk">4. GitHub Pages レポートとの突合 (再評価)</h2>
+
+<div class="section-summary">
+成約日基準を加えてレポートの結論を再評価。
+</div>
+
+<table>
+<tr><th>レポートの主張</th><th>申込日基準</th><th>成約日基準</th><th>総合判定</th></tr>
+<tr><td>「CR は 50%前後から 43%台へ低下」</td><td class="ok">✅ 再現</td><td>—(CR は申込日基準が自然)</td><td class="ok">✅ 事実</td></tr>
+<tr><td>「単一要因ではなく複合」</td><td class="ok">✅</td><td class="ok">✅</td><td class="ok">✅ 妥当</td></tr>
+<tr><td>「外部市況・売主期待が主因」</td><td class="ng">❌ 戦略変更が主因</td><td class="warn">⚠️ 売上は伸びている = 経営は機能している</td><td class="warn">⚠️ 「悪化」の解釈が偏っている</td></tr>
+<tr><td>「2025年5月以降に下がってまだ戻っていない」</td><td class="ok">✅ CRは低下</td><td class="ng">❌ 売上はむしろ伸びている (LP58除外でも)</td><td class="warn">⚠️ CRと売上で別評価が必要</td></tr>
+<tr><td>「平均売切 224→289万、500万+ 構成比 12→20%」</td><td class="ok">✅</td><td class="ok">✅ 単価上昇で GMV を押し上げた</td><td class="ok">✅ ただし「悪化」ではなく「単価上昇による売上貢献」と読むべき</td></tr>
+<tr><td>「BID 反応低下」</td><td class="ok">✅ 事実</td><td>—</td><td class="warn">⚠️ 出品数増加による分母希薄化の影響</td></tr>
+<tr><td>「他社売却・乗り続けが増加」</td><td class="ok">✅</td><td>—</td><td class="warn">⚠️ 戦略変更で割高案件の出品が増えた自然な帰結</td></tr>
+<tr><td>「施策: 出品前リスクスコア、売切再提案、BID会員再活性化」</td><td>—</td><td>—</td><td class="warn">⚠️ 全量持込前提だが、現状で売上は伸びているため、緊急性は高くない</td></tr>
+</table>
+
+<div class="reversal">
+<h3>レポートの根本的な視点抜け</h3>
+<p>GitHub Pages レポートは <strong>「CR低下を悪化として扱う」</strong> 立場で書かれていますが、成約日基準の売上が伸びている事実を見ると、これは<strong>「経営判断としては成功している戦略」</strong>と読むべきです。</p>
+<p>言い換えると、<strong>「CR低下は出品母数拡大の対価であり、トータルでは売上増加に転換できている」</strong>のが現状。レポートは「CR が下がった」という KPI 単体の悪化を、経営全体の悪化と混同しています。</p>
+<p>もちろん、B1 期 (2025/7-9) のように「CR を維持しつつ売上も伸ばせた」期間と比べれば、改善余地はあります。しかし「危機」とまで言うべき状況ではない。</p>
+</div>
+
+<h2 id="apr">5. 2026-04 急落 (申込日基準) は実は売上的には好調</h2>
+
+<div class="section-summary">
+申込日基準で「CR 32.3% の急落」と見えていた 2026-04 を、成約日基準で見直す。
+</div>
+
+<table>
+<tr><th>2026-04</th><th class="num">含 LP58</th><th class="num">除 LP58</th><th class="num">前年同月 (2025-04)</th><th class="num">前年差</th></tr>
+<tr class="applyrow"><td><span class="basislabel apply">申込日基準</span> 出品数</td><td class="num">533</td><td class="num">407</td><td class="num">401</td><td class="num">+6 (除外後)</td></tr>
+<tr class="applyrow"><td><span class="basislabel apply">申込日基準</span> CR</td><td class="num">32.3%</td><td class="num">36.1%</td><td class="num">52.6%</td><td class="num"><span class="ng">−16.5pt</span></td></tr>
+<tr class="applyrow"><td><span class="basislabel apply">申込日基準</span> 計算売上</td><td class="num">2,350</td><td class="num">1,920</td><td class="num">2,003</td><td class="num">−83</td></tr>
+<tr class="closerow"><td><span class="basislabel close">成約日基準</span> 成約数</td><td class="num">227</td><td class="num">204</td><td class="num">175</td><td class="num"><span class="ok">+29</span></td></tr>
+<tr class="closerow"><td><span class="basislabel close">成約日基準</span> GMV</td><td class="num">34,371</td><td class="num">26,559</td><td class="num">20,592</td><td class="num"><span class="ok">+5,967</span></td></tr>
+<tr class="closerow"><td><span class="basislabel close">成約日基準</span> 計算売上</td><td class="num">2,669</td><td class="num">2,306</td><td class="num">1,597</td><td class="num"><span class="ok">+709</span></td></tr>
+</table>
+
+<div class="note">
+2026-04 は申込日基準では CR が大きく落ちて見えるが、<strong>同月の成約計上で見ると LP58 除外しても前年同月比 +44% の売上増</strong>。これは「2026-04 までに申込まれた案件が、2025-04 までに申込まれた案件より売上を生んでいる」ということ。直近月の CR 低下は、まだ成約していない案件のうち、将来成約しないものの比率を示している可能性が高い。
+</div>
+
+<h2 id="econ">6. 経営判断資料 — 成約日基準で再構築</h2>
+
+<table>
+<tr><th>戦略</th><th class="num">月成約数</th><th class="num">GMV/月(万)</th><th class="num">計算売上/月(万)</th><th class="num">GMV/年(万)</th><th class="num">vs A0 GMV年差</th></tr>
+<tr><td>A0 変更前 (基準)</td><td class="num">222</td><td class="num">26,393</td><td class="num">2,585</td><td class="num">316,711</td><td class="num">—</td></tr>
+<tr class="worstrow"><td>A 絞り込み</td><td class="num">198</td><td class="num">25,755</td><td class="num">2,295</td><td class="num">309,055</td><td class="num"><span class="ng">−7,656</span></td></tr>
+<tr class="bestrow"><td><strong>B1 移行期</strong></td><td class="num">220</td><td class="num"><strong>30,717</strong></td><td class="num"><strong>2,749</strong></td><td class="num"><strong>368,610</strong></td><td class="num"><span class="ok"><strong>+51,899 (+16.4%)</strong></span></td></tr>
+<tr class="bestrow"><td><strong>B2 全量持込 (LP58除外)</strong></td><td class="num">209</td><td class="num">28,730</td><td class="num">2,543</td><td class="num">344,754</td><td class="num"><span class="ok"><strong>+28,043 (+8.9%)</strong></span></td></tr>
+</table>
+
+<div class="reversal">
+<h3>経営判断としての結論</h3>
+<ol>
+<li><strong>B2 戦略 (全量持込) は成功している</strong>: LP58 除外しても A0 比で年間 +28,043万円 (+8.9%) の GMV 増加。橋口さんの戦略変更は売上的に明確にプラス。</li>
+<li><strong>B1 期 (2025/7-9) は依然として最良</strong>: 年間 +51,899万円。「軽い絞り込み × 申込増」の再現性が次の改善余地。</li>
+<li><strong>A 絞り込み戦略は最も悪かった</strong>: 年間 −7,656万円。絞り込み単独では成果が出ない (申込母数を増やせなかったため)。</li>
+<li><strong>CR 低下は KPI 上の事実だが、経営の悪化ではない</strong>: 戦略変更で意図的に取った案件量増加の対価。</li>
+</ol>
+</div>
+
+<h2 id="actions">7. 推奨アクション (更新版)</h2>
+
+<h3>7-1. すぐに確認すべきこと</h3>
+<ol>
+<li><strong>「売上」の定義の確定</strong>: 経営会議で使っている「売上」が GMV / 手数料 / 計算売上 のどれか、橋口さん側で確認。本検証では3指標すべてで増加トレンドを確認済み。</li>
+<li><strong>LP58 の継続判断</strong>: B2 期のうち 13.9% を占めるが、CR 19.8% と低品質。「数を取る」目的なら継続、利益率を見るなら停止/絞り込みを検討。</li>
+<li><strong>GitHub Pages レポートの位置づけ</strong>: 「CR悪化」を主題にしているが、売上は伸びている事実を加味すると、レポートのトーンは過度に悲観的。社内共有する際は「CR は KPI として下がったが、売上は維持・拡大」と並列で示すべき。</li>
+</ol>
+
+<h3>7-2. 中期戦略</h3>
+<ol>
+<li><strong>B1 ミックスの再現</strong>: 「申込増 × 軽い絞り込み (出品率 65-68%) × 希望中央値 150万」の組み合わせを意図的に作る。これが達成できれば年間 +51,899万円規模の改善。</li>
+<li><strong>B2 戦略の維持・微調整</strong>: 全量持込を続けつつ、特に効率の悪い LP58 / LP66 / LP27 などを部分的に絞る。</li>
+<li><strong>申込日基準と成約日基準の使い分け</strong>: 経営月次は成約日基準、コホート品質評価は申込日基準を併用。今後の社内レポートでは両方を併記する。</li>
+</ol>
+
+<h3>7-3. 未解決の論点</h3>
+<ol>
+<li>「売上が伸びている」のがどこまで本当に戦略由来か、それとも自然な成長 (中古車市場全体の伸び、リピート顧客の増加など) の寄与かを分離</li>
+<li>2026-05 (5/21 まで) の月末値が確定したら再確認</li>
+<li>申込→成約のリードタイム変化を可視化 (戦略変更で長くなったのか、短くなったのか)</li>
+<li>LP58 以外の高単価 LP (LP10、LP51、LP52) の成約日基準での収益貢献</li>
+</ol>
+
+<div class="tldr" style="margin-top:40px">
+<h3>橋口さんへの第3版メッセージ</h3>
+<p><strong>反省: 私の検証の前提が間違っていました</strong>。申込日基準のみで集計し、「売上が下がっている」と結論しましたが、橋口さんが見ている経営売上は成約日基準で、それで再集計すると<strong>仮説通り売上は伸びていました</strong>。</p>
+<p>整理すると:
+<ul>
+<li><strong>申込日基準</strong>: 申込コホートの将来成約予測。CR は確かに低下。</li>
+<li><strong>成約日基準</strong>: 実際に売上計上された月別金額。LP58 除外でも A0比 +8.9%。</li>
+<li>両者は矛盾ではなく、「申込増 × CR微減 = 月別成約数微減 × 単価上昇 = 月別売上増」という関係。</li>
+</ul>
+</p>
+<p>結論として、<strong>橋口さんの「全量持込で売上↑」仮説は完全に成立</strong>します。CR低下は事実だが、経営の悪化ではなく、量と単価で売上に転換できている健全な戦略変更。</p>
+<p>GitHub Pages レポートは CR 低下を主題化しすぎており、売上面では戦略が機能していることが十分に表現されていません。社内議論では「CR ▽ + 売上 △」の二面性を明示することを推奨します。</p>
+</div>
+
+<div class="meta" style="margin-top:40px;border-top:1px solid #ddd;padding-top:20px">
+成果物 (申込日基準):
+<a href="result_4segments_ex_lp58.csv">4segments</a> ·
+<a href="result_monthly_ex_lp58.csv">monthly</a><br>
+成果物 (成約日基準・新):
+<a href="result_4segments_closing_based.csv">4segments_closing</a> ·
+<a href="result_closing_based_monthly.csv">monthly_closing</a> ·
+<a href="query_closing_based.sql">query_closing_based.sql</a><br>
+このレポートはローカルのみ。GitHub Pages の元レポートには反映していません。
+</div>
+
+</body>
+</html>

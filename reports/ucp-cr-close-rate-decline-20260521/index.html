@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>2026年 成約率推移と車種別ギャップ分析 (5/20 延伸版)</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  :root{--ink:#0f172a;--char:#24324a;--slate:#64748b;--mist:#f1f5f9;--blue:#2563eb;--blue-s:#dbeafe;--green:#059669;--green-s:#d1fae5;--amber:#d97706;--amber-s:#fef3c7;--red:#dc2626;--red-s:#fee2e2;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'BIZ UDPGothic','Hiragino Sans','Noto Sans JP',sans-serif;background:#f8fafc;color:var(--char);line-height:1.7;}
+  .container{max-width:1240px;margin:0 auto;padding:20px;}
+  .header{background:linear-gradient(135deg,#0f172a,#1d4ed8);color:#fff;padding:28px;border-radius:16px;margin-bottom:18px;}
+  .header h1{font-size:22px;font-weight:700;margin-bottom:6px;}
+  .header .sub{font-size:13px;color:#cbd5e1;}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .meta span{font-size:11px;color:#dbeafe;background:rgba(255,255,255,.12);padding:4px 10px;border-radius:999px;}
+  .sec{background:#fff;border-radius:12px;padding:20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(15,23,42,.08);}
+  .sec h2{font-size:17px;font-weight:700;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid var(--mist);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0;}
+  .card{padding:14px;border-radius:12px;text-align:center;background:var(--mist);}
+  .card .label{font-size:10px;color:var(--slate);}
+  .card .value{font-size:24px;font-weight:800;}
+  .card .small{font-size:10px;color:var(--slate);margin-top:4px;}
+  .chart-wrap{position:relative;height:340px;margin:10px 0 6px;}
+  .chart-tall{position:relative;height:420px;margin:10px 0 6px;}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12px;}
+  th,td{padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:left;}
+  th{background:var(--mist);font-size:11px;color:var(--slate);font-weight:700;}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;}
+  .nt{border-left:4px solid var(--amber);background:var(--amber-s);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px;}
+  ul{margin:8px 0 8px 18px;font-size:12px;}
+  li{margin-bottom:4px;}
+  .footer{text-align:center;padding:18px;color:var(--slate);font-size:11px;}
+</style>
+<script>
+  window.PROTO_AUTH_CONFIG = {
+    title: "成約率推移と車種別ギャップ分析 (5/20延伸版)",
+    subtitle: "UcarPAC 社内向け分析レポートです。認証状態は24時間保持されます。"
+  };
+</script>
+<script src="../../auth.js"></script>
+</head>
+<body>
+<div style="max-width:1220px;margin:0 auto;padding:14px 20px 0;font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;font-size:13px;font-weight:700;position:relative;z-index:10;">
+  <a href="../ucp-cr-deliverables-20260530/" style="color:#2563eb;text-decoration:none;">&larr; UCP CR分析 成果物一覧に戻る</a>
+  <span style="margin:0 6px;color:#cbd5e1;">/</span>
+  <a href="../" style="color:#2563eb;text-decoration:none;">Reports</a>
+  <span style="margin:0 6px;color:#cbd5e1;">/</span>
+  <a href="../../" style="color:#2563eb;text-decoration:none;">Hub</a>
+</div>
+
+<div class="container">
+
+<div class="header">
+  <h1>2026年 成約率推移と車種別ギャップ分析 (5/20 延伸版)</h1>
+  <div class="sub">4月成約率悪化分析・輸出仮説追補・売切価格見直し・車種別比較 4本を統合し、uapp.gas_data 経由で 5/20 まで延伸して再評価</div>
+  <div class="meta">
+    <span>作成日: 2026-05-21</span>
+    <span>データ: ucarpac-uapp.gas_data.all_deals_view</span>
+    <span>対象月: 2025-04 〜 2026-05 (5月は5/20まで)</span>
+    <span>成約判定: (sale_history=あり AND status!=キャンセル) OR status=買取移行</span>
+    <span>仮説車種群: アルファード/ヴェルファイア/ランクル系/プラド/ハイエース/プリウス</span>
+  </div>
+</div>
+
+<div class="sec">
+  <h2>サマリ — 月次 CR と仮説車種群の推移</h2>
+  <div class="grid">
+    <div class="card"><div class="label">2025-04 CR</div><div class="value">43.5%</div><div class="small">361件 / 157成約</div></div>
+    <div class="card"><div class="label">2026-03 CR</div><div class="value">36.3%</div><div class="small">724件 / 263成約</div></div>
+    <div class="card"><div class="label">2026-04 CR (確定)</div><div class="value">34.5%</div><div class="small">553件 / 191成約</div></div>
+    <div class="card"><div class="label">2026-05 CR (5/20)</div><div class="value">35.2%</div><div class="small">352件 / 124成約</div></div>
+    <div class="card"><div class="label">仮説群 5月CR</div><div class="value">32.7%</div><div class="small">4月 23.1% との差 +9.6pt</div></div>
+  </div>
+  <div class="nt">
+    元レポート (4/28 時点) の 4月 CR 29.6% は 4月途中スナップショット。本分析の 34.5% は 5/21 時点の 4月確定値 (4月末までの追加成約・キャンセル反映後)。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>1. 月次 CR の推移 (2025-04 〜 2026-05)</h2>
+  <div class="chart-wrap"><canvas id="monthlyChart"></canvas></div>
+  <table>
+    <thead><tr><th>月</th><th class="num">出品</th><th class="num">成約</th><th class="num">CR</th><th class="num">仮説群 CR</th><th class="num">その他 CR</th><th class="num">300万+ CR</th></tr></thead>
+    <tbody>
+      <tr><td>2025-04</td><td class="num">361</td><td class="num">157</td><td class="num">43.5%</td><td class="num">30.0%</td><td class="num">43.0%</td><td class="num">—</td></tr>
+      <tr><td>2025-05</td><td class="num">426</td><td class="num">178</td><td class="num">41.8%</td><td class="num">32.1%</td><td class="num">39.9%</td><td class="num">—</td></tr>
+      <tr><td>2025-08</td><td class="num">457</td><td class="num">223</td><td class="num">48.8%</td><td class="num">35.4%</td><td class="num">49.0%</td><td class="num">—</td></tr>
+      <tr><td>2025-10</td><td class="num">407</td><td class="num">208</td><td class="num">51.1%</td><td class="num">39.1%</td><td class="num">51.1%</td><td class="num">—</td></tr>
+      <tr><td>2026-01</td><td class="num">650</td><td class="num">240</td><td class="num">36.9%</td><td class="num">31.5%</td><td class="num">35.0%</td><td class="num">—</td></tr>
+      <tr><td>2026-02</td><td class="num">614</td><td class="num">236</td><td class="num">38.4%</td><td class="num">21.5%</td><td class="num">40.1%</td><td class="num">—</td></tr>
+      <tr><td>2026-03</td><td class="num">724</td><td class="num">263</td><td class="num">36.3%</td><td class="num">30.9%</td><td class="num">34.6%</td><td class="num">—</td></tr>
+      <tr><td>2026-04</td><td class="num">553</td><td class="num">191</td><td class="num">34.5%</td><td class="num">23.1%</td><td class="num">35.2%</td><td class="num">—</td></tr>
+      <tr><td><b>2026-05</b></td><td class="num"><b>352</b></td><td class="num"><b>124</b></td><td class="num"><b>35.2%</b></td><td class="num"><b>32.7%</b></td><td class="num"><b>33.2%</b></td><td class="num">—</td></tr>
+    </tbody>
+  </table>
+  <div class="nt">
+    2025-08 〜 2025-11 で CR 48〜51% 帯に達した後、2026-01 以降は 35〜38% 帯で推移しています。仮説車種群は 2026-02 で 21.5%、2026-04 で 23.1% という低めの月があった一方、2026-05 は 32.7% で 2025 年通期の平均水準に戻っています (件数 52)。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>2. 仮説車種群の個別車種別 CR (3〜5月)</h2>
+  <div class="chart-wrap"><canvas id="hypoChart"></canvas></div>
+  <table>
+    <thead><tr><th>車種</th><th class="num">3月 件数</th><th class="num">3月 CR</th><th class="num">4月 件数</th><th class="num">4月 CR</th><th class="num">5月 件数</th><th class="num">5月 CR</th></tr></thead>
+    <tbody>
+      <tr><td>アルファード</td><td class="num">35</td><td class="num">25.7%</td><td class="num">30</td><td class="num">13.3%</td><td class="num">11</td><td class="num">27.3%</td></tr>
+      <tr><td>ヴェルファイア</td><td class="num">12</td><td class="num">33.3%</td><td class="num">17</td><td class="num">35.3%</td><td class="num">8</td><td class="num">12.5%</td></tr>
+      <tr><td>ランクル系</td><td class="num">27</td><td class="num">22.2%</td><td class="num">30</td><td class="num">20.0%</td><td class="num">15</td><td class="num">26.7%</td></tr>
+      <tr><td>ハイエース</td><td class="num">6</td><td class="num">50.0%</td><td class="num">13</td><td class="num">30.8%</td><td class="num">4</td><td class="num">50.0%</td></tr>
+      <tr><td>プリウス</td><td class="num">17</td><td class="num">47.1%</td><td class="num">14</td><td class="num">28.6%</td><td class="num">14</td><td class="num">50.0%</td></tr>
+    </tbody>
+  </table>
+  <div class="nt">
+    アルファードは 3→4月で -12.4pt、4→5月で +14.0pt の差。ヴェルファイアは 5月 8件中1件成約で 12.5%、件数が少ないため変動幅が大きい点に注意。プリウスは 4→5月で +21.4pt で 2025年8月以来の水準。5月分は 5/20 までのため、月末完了値は変動し得ます。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>3. 未成約案件の売切価格ギャップ (中央値、万円)</h2>
+  <div class="chart-wrap"><canvas id="gapChart"></canvas></div>
+  <table>
+    <thead><tr><th>車種</th><th class="num">3月 中央値</th><th class="num">4月 中央値</th><th class="num">5月 中央値</th><th class="num">5月 未成約件数</th><th class="num">5月 平均売切 (万)</th><th class="num">5月 平均入札 (万)</th></tr></thead>
+    <tbody>
+      <tr><td>アルファード</td><td class="num">102</td><td class="num">92</td><td class="num">90</td><td class="num">8</td><td class="num">648</td><td class="num">529</td></tr>
+      <tr><td>ヴェルファイア</td><td class="num">87</td><td class="num">117</td><td class="num">103</td><td class="num">7</td><td class="num">654</td><td class="num">544</td></tr>
+      <tr><td>ランクル系</td><td class="num">156</td><td class="num">102</td><td class="num">105</td><td class="num">11</td><td class="num">592</td><td class="num">434</td></tr>
+      <tr><td>ハイエース</td><td class="num">56</td><td class="num">98</td><td class="num">20</td><td class="num">2</td><td class="num">215</td><td class="num">134</td></tr>
+      <tr><td>プリウス</td><td class="num">45</td><td class="num">25</td><td class="num">29</td><td class="num">7</td><td class="num">552</td><td class="num">95</td></tr>
+    </tbody>
+  </table>
+  <div class="nt">
+    アルファード・ヴェルファイア・ランクル系は中央値 90〜120 万円のギャップが 3 ヶ月続いています。一方ハイエースは 5月で 20 万円まで縮小しています (件数 2 件のため変動が大きい)。プリウスの 5 月平均売切 552 万円は高額の異常値が含まれている可能性あり (件数 7 件で他月の 58〜84 万から大きく上振れ)。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>4. 流入元 (LP) × 月次 CR</h2>
+  <div class="chart-tall"><canvas id="lpChart"></canvas></div>
+  <table>
+    <thead><tr><th>LP</th><th class="num">3月 件数</th><th class="num">3月 CR</th><th class="num">4月 件数</th><th class="num">4月 CR</th><th class="num">5月 件数</th><th class="num">5月 CR</th></tr></thead>
+    <tbody>
+      <tr><td>LP10</td><td class="num">126</td><td class="num">36.5%</td><td class="num">113</td><td class="num">38.1%</td><td class="num">56</td><td class="num">44.6%</td></tr>
+      <tr><td>LP11</td><td class="num">64</td><td class="num">39.1%</td><td class="num">31</td><td class="num">38.7%</td><td class="num">26</td><td class="num">38.5%</td></tr>
+      <tr><td>LP22</td><td class="num">60</td><td class="num">48.3%</td><td class="num">32</td><td class="num">28.1%</td><td class="num">12</td><td class="num">16.7%</td></tr>
+      <tr><td>LP51</td><td class="num">139</td><td class="num">36.7%</td><td class="num">94</td><td class="num">43.6%</td><td class="num">48</td><td class="num">47.9%</td></tr>
+      <tr><td>LP52</td><td class="num">43</td><td class="num">46.5%</td><td class="num">33</td><td class="num">42.4%</td><td class="num">21</td><td class="num">38.1%</td></tr>
+      <tr><td>LP58</td><td class="num">63</td><td class="num">12.7%</td><td class="num">103</td><td class="num">23.3%</td><td class="num">92</td><td class="num">20.7%</td></tr>
+      <tr><td>LP66</td><td class="num">96</td><td class="num">29.2%</td><td class="num">43</td><td class="num">18.6%</td><td class="num">28</td><td class="num">35.7%</td></tr>
+    </tbody>
+  </table>
+  <div class="nt">
+    LP58 は件数が 3月→4月→5月で 63→103→92 と増加し、CR は 12.7%→23.3%→20.7% と推移。LP10・LP51 は件数が減りつつ CR は 4月→5月でやや上方。LP22 は件数 60→32→12 と縮小、CR は 48.3%→28.1%→16.7% と推移しており、件数が少ない月の変動が大きい点に注意。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>5. 観察と次アクション</h2>
+  <ul>
+    <li><b>2026-04 の CR 確定値</b> は元レポートのスナップショット 29.6% から 34.5% に推移 (+4.9pt)。4月途中時点と月末の差を意識する必要があります</li>
+    <li><b>仮説車種群</b> は 4月 23.1% から 5月 32.7% に変化。5/20 までで件数 52 件なので、月末まで含めた数値を 5/31 で再評価する必要があります</li>
+    <li><b>アルファード・ヴェルファイア・ランクル系</b> は未成約中央値ギャップが 90〜120 万円で 3 ヶ月継続。売切価格の見直しを検討する場合の参考値として利用可能</li>
+    <li><b>LP22 と LP66 の動向</b>: LP22 は件数縮小・CR 低下、LP66 は 4→5月で件数縮小・CR は 18.6%→35.7% に推移。詳細要因は別途調査</li>
+    <li><b>担当者×仮説群クロス</b> は本 Phase では未実施。Phase 3 の交渉担当者分析と合わせて取り扱う予定</li>
+  </ul>
+  <div class="nt">
+    本レポートの5月分は <b>2026-05-20</b> までです。月末値での再計算と、商談数 (`gas_data.negotiation_log`、5/18 まで反映済み) を併用した深掘りは Phase 3 で行う予定です。
+  </div>
+</div>
+
+<div class="footer">
+  Phase 2: 成約率推移と車種別ギャップ分析 (5/20 延伸版) | Source: ucarpac-uapp.gas_data.all_deals_view | Generated: 2026-05-21
+</div>
+
+</div>
+
+<script>
+const monthsAll = ['2025-04','2025-05','2025-06','2025-07','2025-08','2025-09','2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'];
+
+new Chart(document.getElementById('monthlyChart'),{
+  type:'line',
+  data:{
+    labels:monthsAll,
+    datasets:[
+      {label:'全体 CR(%)',data:[43.5,41.8,46.5,45.4,48.8,45.2,51.1,48.6,41.7,36.9,38.4,36.3,34.5,35.2],borderColor:'#2563eb',backgroundColor:'#2563eb22',tension:0.25,borderWidth:2},
+      {label:'仮説群 CR(%)',data:[30.0,32.1,27.1,27.9,35.4,29.0,39.1,31.6,35.2,31.5,21.5,30.9,23.1,32.7],borderColor:'#dc2626',backgroundColor:'#dc262622',tension:0.25,borderWidth:2,borderDash:[6,4]},
+      {label:'その他 CR(%)',data:[43.0,39.9,48.0,44.7,49.0,45.6,51.1,47.8,40.3,35.0,40.1,34.6,35.2,33.2],borderColor:'#16a34a',backgroundColor:'#16a34a22',tension:0.25,borderWidth:2,borderDash:[2,2]}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true,max:60,ticks:{callback:v=>v+'%'}}}}
+});
+
+new Chart(document.getElementById('hypoChart'),{
+  type:'bar',
+  data:{
+    labels:['アルファード','ヴェルファイア','ランクル系','ハイエース','プリウス'],
+    datasets:[
+      {label:'3月 CR(%)',data:[25.7,33.3,22.2,50.0,47.1],backgroundColor:'#cbd5e1'},
+      {label:'4月 CR(%)',data:[13.3,35.3,20.0,30.8,28.6],backgroundColor:'#94a3b8'},
+      {label:'5月 CR(%) (5/20まで)',data:[27.3,12.5,26.7,50.0,50.0],backgroundColor:'#2563eb'}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true,max:60,ticks:{callback:v=>v+'%'}}}}
+});
+
+new Chart(document.getElementById('gapChart'),{
+  type:'bar',
+  data:{
+    labels:['アルファード','ヴェルファイア','ランクル系','ハイエース','プリウス'],
+    datasets:[
+      {label:'3月 ギャップ中央値(万)',data:[102,87,156,56,45],backgroundColor:'#cbd5e1'},
+      {label:'4月 ギャップ中央値(万)',data:[92,117,102,98,25],backgroundColor:'#94a3b8'},
+      {label:'5月 ギャップ中央値(万)',data:[90,103,105,20,29],backgroundColor:'#d97706'}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true,ticks:{callback:v=>v+'万'}}}}
+});
+
+new Chart(document.getElementById('lpChart'),{
+  type:'bar',
+  data:{
+    labels:['LP10','LP11','LP22','LP51','LP52','LP58','LP66'],
+    datasets:[
+      {label:'3月 CR(%)',data:[36.5,39.1,48.3,36.7,46.5,12.7,29.2],backgroundColor:'#cbd5e1'},
+      {label:'4月 CR(%)',data:[38.1,38.7,28.1,43.6,42.4,23.3,18.6],backgroundColor:'#94a3b8'},
+      {label:'5月 CR(%) (5/20まで)',data:[44.6,38.5,16.7,47.9,38.1,20.7,35.7],backgroundColor:'#2563eb'}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true,max:60,ticks:{callback:v=>v+'%'}}}}
+});
+</script>
+</body>
+</html>

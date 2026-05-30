@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>都道府県別 出品成約率レポート 決算期別</title>
+<style>
+  :root {
+    --ink:#111827;
+    --text:#334155;
+    --muted:#64748b;
+    --line:#dbe3ee;
+    --bg:#f6f8fb;
+    --panel:#ffffff;
+    --blue:#1d4ed8;
+    --cyan:#0891b2;
+    --green:#15803d;
+    --amber:#b45309;
+    --red:#b91c1c;
+    --soft-blue:#e0ecff;
+    --soft-green:#dcfce7;
+    --soft-amber:#fef3c7;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
+    color:var(--text);
+    background:var(--bg);
+    line-height:1.65;
+  }
+  header {
+    background:#0f172a;
+    color:white;
+    padding:34px 28px 30px;
+  }
+  .wrap { max-width:1180px; margin:0 auto; }
+  h1 { margin:0 0 8px; font-size:28px; line-height:1.25; letter-spacing:0; }
+  .lead { color:#cbd5e1; max-width:860px; font-size:14px; margin:0; }
+  .meta { display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
+  .pill {
+    display:inline-flex;
+    align-items:center;
+    min-height:28px;
+    padding:4px 10px;
+    border-radius:999px;
+    background:rgba(255,255,255,.12);
+    color:#e2e8f0;
+    font-size:12px;
+  }
+  main { padding:22px 28px 40px; }
+  section { margin:0 0 18px; }
+  .grid { display:grid; gap:14px; }
+  .grid.kpi { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .grid.two { grid-template-columns:1.05fr .95fr; }
+  .panel {
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:18px;
+  }
+  h2 { margin:0 0 12px; color:var(--ink); font-size:18px; letter-spacing:0; }
+  h3 { margin:0 0 8px; color:var(--ink); font-size:14px; letter-spacing:0; }
+  .kpi-card {
+    background:white;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:18px;
+  }
+  .kpi-card .label { color:var(--muted); font-size:12px; margin-bottom:7px; }
+  .kpi-card .value { color:var(--ink); font-size:30px; line-height:1.1; font-weight:800; }
+  .kpi-card .sub { margin-top:8px; color:var(--muted); font-size:12px; }
+  .delta-down { color:var(--red); font-weight:700; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th, td { border-bottom:1px solid var(--line); padding:8px 9px; text-align:left; vertical-align:top; }
+  th { color:#475569; background:#f8fafc; font-weight:700; }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .bar-row { display:grid; grid-template-columns:92px 1fr 62px; gap:10px; align-items:center; margin:10px 0; font-size:13px; }
+  .bar-track { height:12px; background:#e5eaf2; border-radius:999px; overflow:hidden; }
+  .bar { height:100%; border-radius:999px; background:var(--blue); }
+  .bar.green { background:var(--green); }
+  .bar.cyan { background:var(--cyan); }
+  .bar.amber { background:var(--amber); }
+  .note {
+    background:#fff7ed;
+    border:1px solid #fed7aa;
+    border-left:4px solid var(--amber);
+    border-radius:8px;
+    padding:12px 14px;
+    color:#7c2d12;
+    font-size:13px;
+  }
+  .source {
+    color:var(--muted);
+    font-size:12px;
+  }
+  .links a { color:var(--blue); text-decoration:none; font-weight:700; }
+  .links a:hover { text-decoration:underline; }
+  .badge {
+    display:inline-block;
+    min-width:42px;
+    text-align:center;
+    padding:2px 7px;
+    border-radius:999px;
+    background:var(--soft-blue);
+    color:#1e3a8a;
+    font-size:11px;
+    font-weight:700;
+  }
+  .rank.good { color:var(--green); font-weight:700; }
+  .rank.bad { color:var(--red); font-weight:700; }
+  @media (max-width: 820px) {
+    header, main { padding-left:16px; padding-right:16px; }
+    .grid.kpi, .grid.two { grid-template-columns:1fr; }
+    h1 { font-size:23px; }
+    .kpi-card .value { font-size:26px; }
+    table { font-size:12px; }
+    th, td { padding:7px 6px; }
+  }
+</style>
+<script>
+  window.PROTO_AUTH_CONFIG = {
+    title: "都道府県別 出品成約率レポート 決算期別",
+    subtitle: "UcarPAC 社内向け分析レポートです。認証状態は24時間保持されます。"
+  };
+</script>
+<script src="../../auth.js"></script>
+</head>
+<body>
+<div style="max-width:1220px;margin:0 auto;padding:14px 20px 0;font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;font-size:13px;font-weight:700;position:relative;z-index:10;">
+  <a href="../ucp-cr-deliverables-20260530/" style="color:#2563eb;text-decoration:none;">&larr; UCP CR分析 成果物一覧に戻る</a>
+  <span style="margin:0 6px;color:#cbd5e1;">/</span>
+  <a href="../" style="color:#2563eb;text-decoration:none;">Reports</a>
+  <span style="margin:0 6px;color:#cbd5e1;">/</span>
+  <a href="../../" style="color:#2563eb;text-decoration:none;">Hub</a>
+</div>
+
+<header>
+  <div class="wrap">
+    <h1>都道府県別 出品成約率レポート</h1>
+    <p class="lead">出品日を基準に、UcarPACの決算期（7月から6月）で都道府県別の出品成約率を集計。分母は実際に出品された案件、分子は最新ステータスが成約系の案件です。</p>
+    <div class="meta">
+      <span class="pill">対象: 2023年度から2025年度</span>
+      <span class="pill">2025年度は2026-05-27まで</span>
+      <span class="pill">Source: ucarpac-uapp.ucarpac_data</span>
+      <span class="pill">Generated: 2026-05-28</span>
+    </div>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <section class="grid kpi">
+    <div class="kpi-card">
+      <div class="label">2023年度 全国CR</div>
+      <div class="value">53.6%</div>
+      <div class="sub">出品 4,781 / 成約 2,565</div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">2024年度 全国CR</div>
+      <div class="value">43.2%</div>
+      <div class="sub"><span class="delta-down">前年比 -10.4pt</span> / 出品 4,877</div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">2025年度 全国CR</div>
+      <div class="value">42.1%</div>
+      <div class="sub">2026-05-27時点 / 出品 5,351</div>
+    </div>
+  </section>
+
+  <section class="grid two">
+    <div class="panel">
+      <h2>全国計の年度推移</h2>
+      <div class="bar-row"><div>2023年度</div><div class="bar-track"><div class="bar green" style="width:53.6%"></div></div><div class="num">53.6%</div></div>
+      <div class="bar-row"><div>2024年度</div><div class="bar-track"><div class="bar cyan" style="width:43.2%"></div></div><div class="num">43.2%</div></div>
+      <div class="bar-row"><div>2025年度</div><div class="bar-track"><div class="bar amber" style="width:42.1%"></div></div><div class="num">42.1%</div></div>
+      <p class="source">2025年度は2026-05-27までの途中値。6月の出品・成約反映後に変動します。</p>
+    </div>
+
+    <div class="panel">
+      <h2>読み取り</h2>
+      <table>
+        <tr><th>観点</th><th>内容</th></tr>
+        <tr><td>全体</td><td>2023年度から2024年度にかけて全国CRが 53.6% から 43.2% へ低下。2025年度も現時点では 42.1% と低位で推移。</td></tr>
+        <tr><td>地域差</td><td>2025年度は千葉・宮城・埼玉・神奈川が高く、広島・奈良・群馬・滋賀・福岡が低い。</td></tr>
+        <tr><td>注意</td><td>小規模県は1件の成否で率が大きく動くため、ランキングは出品50件以上で見ています。</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>年度別 全国計</h2>
+    <table>
+      <thead>
+        <tr><th>年度</th><th class="num">出品</th><th class="num">成約</th><th class="num">買取移行</th><th class="num">出品成約率</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>2023年度</td><td class="num">4,781</td><td class="num">2,565</td><td class="num">135</td><td class="num">53.6%</td></tr>
+        <tr><td>2024年度</td><td class="num">4,877</td><td class="num">2,108</td><td class="num">143</td><td class="num">43.2%</td></tr>
+        <tr><td>2025年度</td><td class="num">5,351</td><td class="num">2,254</td><td class="num">199</td><td class="num">42.1%</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="grid two">
+    <div class="panel">
+      <h2>2025年度 上位10県</h2>
+      <p class="source">出品50件以上。2026-05-27まで。</p>
+      <table>
+        <thead><tr><th>順位</th><th>都道府県</th><th class="num">出品</th><th class="num">成約</th><th class="num">CR</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge">1</span></td><td class="rank good">千葉県</td><td class="num">333</td><td class="num">169</td><td class="num">50.8%</td></tr>
+          <tr><td><span class="badge">2</span></td><td class="rank good">宮城県</td><td class="num">109</td><td class="num">52</td><td class="num">47.7%</td></tr>
+          <tr><td><span class="badge">3</span></td><td class="rank good">埼玉県</td><td class="num">361</td><td class="num">169</td><td class="num">46.8%</td></tr>
+          <tr><td><span class="badge">4</span></td><td>神奈川県</td><td class="num">545</td><td class="num">253</td><td class="num">46.4%</td></tr>
+          <tr><td><span class="badge">5</span></td><td>岐阜県</td><td class="num">113</td><td class="num">50</td><td class="num">44.2%</td></tr>
+          <tr><td><span class="badge">6</span></td><td>大阪府</td><td class="num">345</td><td class="num">151</td><td class="num">43.8%</td></tr>
+          <tr><td><span class="badge">7</span></td><td>兵庫県</td><td class="num">231</td><td class="num">101</td><td class="num">43.7%</td></tr>
+          <tr><td><span class="badge">8</span></td><td>愛知県</td><td class="num">595</td><td class="num">254</td><td class="num">42.7%</td></tr>
+          <tr><td><span class="badge">9</span></td><td>東京都</td><td class="num">800</td><td class="num">340</td><td class="num">42.5%</td></tr>
+          <tr><td><span class="badge">10</span></td><td>栃木県</td><td class="num">80</td><td class="num">34</td><td class="num">42.5%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h2>2025年度 下位10県</h2>
+      <p class="source">出品50件以上。2026-05-27まで。</p>
+      <table>
+        <thead><tr><th>順位</th><th>都道府県</th><th class="num">出品</th><th class="num">成約</th><th class="num">CR</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge">1</span></td><td class="rank bad">広島県</td><td class="num">109</td><td class="num">32</td><td class="num">29.4%</td></tr>
+          <tr><td><span class="badge">2</span></td><td class="rank bad">奈良県</td><td class="num">55</td><td class="num">17</td><td class="num">30.9%</td></tr>
+          <tr><td><span class="badge">3</span></td><td class="rank bad">群馬県</td><td class="num">95</td><td class="num">31</td><td class="num">32.6%</td></tr>
+          <tr><td><span class="badge">4</span></td><td>滋賀県</td><td class="num">89</td><td class="num">30</td><td class="num">33.7%</td></tr>
+          <tr><td><span class="badge">5</span></td><td>福岡県</td><td class="num">178</td><td class="num">65</td><td class="num">36.5%</td></tr>
+          <tr><td><span class="badge">6</span></td><td>静岡県</td><td class="num">126</td><td class="num">48</td><td class="num">38.1%</td></tr>
+          <tr><td><span class="badge">7</span></td><td>長野県</td><td class="num">70</td><td class="num">27</td><td class="num">38.6%</td></tr>
+          <tr><td><span class="badge">8</span></td><td>三重県</td><td class="num">54</td><td class="num">21</td><td class="num">38.9%</td></tr>
+          <tr><td><span class="badge">9</span></td><td>茨城県</td><td class="num">127</td><td class="num">51</td><td class="num">40.2%</td></tr>
+          <tr><td><span class="badge">10</span></td><td>京都府</td><td class="num">93</td><td class="num">38</td><td class="num">40.9%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>年度別の上位・下位</h2>
+    <table>
+      <thead>
+        <tr><th>年度</th><th>上位5県（出品50件以上）</th><th>下位5県（出品50件以上）</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2023年度</td>
+          <td>宮城県 61.1%、埼玉県 60.0%、愛知県 58.2%、神奈川県 58.1%、東京都 57.7%</td>
+          <td>滋賀県 29.3%、群馬県 35.9%、熊本県 39.6%、北海道 47.2%、福岡県 48.0%</td>
+        </tr>
+        <tr>
+          <td>2024年度</td>
+          <td>宮城県 51.4%、栃木県 51.2%、岡山県 50.8%、神奈川県 49.9%、兵庫県 49.5%</td>
+          <td>三重県 21.4%、福岡県 29.3%、群馬県 33.7%、岐阜県 34.5%、広島県 37.0%</td>
+        </tr>
+        <tr>
+          <td>2025年度</td>
+          <td>千葉県 50.8%、宮城県 47.7%、埼玉県 46.8%、神奈川県 46.4%、岐阜県 44.2%</td>
+          <td>広島県 29.4%、奈良県 30.9%、群馬県 32.6%、滋賀県 33.7%、福岡県 36.5%</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="grid two">
+    <div class="panel">
+      <h2>定義</h2>
+      <table>
+        <tr><th>項目</th><th>定義</th></tr>
+        <tr><td>分母</td><td><code>items.published_at IS NOT NULL</code> の案件</td></tr>
+        <tr><td>分子</td><td>最新 <code>item_transitions.to_state</code> が成約系ステータスの案件。買取移行も成約に含む。</td></tr>
+        <tr><td>都道府県</td><td>代表査定に紐づく住所を <code>Guest -> Assessment -> User</code> の順で補完。</td></tr>
+        <tr><td>年度</td><td>7月から翌6月。例: 2025年度は 2025-07-01 から 2026-06-30。</td></tr>
+      </table>
+    </div>
+    <div class="panel">
+      <h2>注意点</h2>
+      <div class="note">2025年度は途中値です。6月分の出品と、直近案件の成約進捗が入ると数値は変わります。</div>
+      <p class="source">最新ステータスで集計しているため、後日のキャンセル・進捗更新により過去年度の値も再計算時に変動する可能性があります。</p>
+      <p class="source links">元データ: <a href="result_prefecture_fiscal_year_until_20260527.csv">result_prefecture_fiscal_year_until_20260527.csv</a> / SQL: <a href="query_prefecture_fiscal_year_until_20260527.sql">query_prefecture_fiscal_year_until_20260527.sql</a></p>
+    </div>
+  </section>
+
+</div>
+</main>
+</body>
+</html>

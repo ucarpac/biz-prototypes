@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026年 担当者別 3→4→5月 CR推移 (uapp/gas_data 5/20 延伸版)</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  :root{--ink:#0f172a;--char:#24324a;--slate:#64748b;--mist:#f1f5f9;--blue:#2563eb;--blue-s:#dbeafe;--green:#059669;--green-s:#d1fae5;--amber:#d97706;--amber-s:#fef3c7;--red:#dc2626;--red-s:#fee2e2;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'BIZ UDPGothic','Hiragino Sans','Noto Sans JP',sans-serif;background:#f8fafc;color:var(--char);line-height:1.7;}
+  .container{max-width:1240px;margin:0 auto;padding:20px;}
+  .header{background:linear-gradient(135deg,#0f172a,#1d4ed8);color:#fff;padding:28px;border-radius:16px;margin-bottom:18px;}
+  .header h1{font-size:22px;font-weight:700;margin-bottom:6px;}
+  .header .sub{font-size:13px;color:#cbd5e1;}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .meta span{font-size:11px;color:#dbeafe;background:rgba(255,255,255,.12);padding:4px 10px;border-radius:999px;}
+  .sec{background:#fff;border-radius:12px;padding:20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(15,23,42,.08);}
+  .sec h2{font-size:17px;font-weight:700;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid var(--mist);}
+  .sec h3{font-size:14px;font-weight:700;margin:10px 0 6px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0;}
+  .card{padding:14px;border-radius:12px;text-align:center;}
+  .card .label{font-size:10px;color:var(--slate);}
+  .card .value{font-size:24px;font-weight:800;}
+  .card .small{font-size:10px;color:var(--slate);margin-top:4px;}
+  .chart-wrap{position:relative;height:340px;margin:10px 0 6px;}
+  .chart-tall{position:relative;height:420px;margin:10px 0 6px;}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12px;}
+  th,td{padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:left;}
+  th{background:var(--mist);font-size:11px;color:var(--slate);font-weight:700;}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;}
+  .up{color:var(--green);font-weight:700;}
+  .down{color:var(--red);font-weight:700;}
+  .flat{color:var(--slate);}
+  .ins{border-left:4px solid var(--green);background:var(--green-s);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px;}
+  .wrn{border-left:4px solid var(--red);background:var(--red-s);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px;}
+  .nt{border-left:4px solid var(--amber);background:var(--amber-s);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px;}
+  ul{margin:8px 0 8px 18px;font-size:12px;}
+  li{margin-bottom:4px;}
+  .footer{text-align:center;padding:18px;color:var(--slate);font-size:11px;}
+</style>
+<script>
+  window.PROTO_AUTH_CONFIG = {
+    title: "担当者別 3→4→5月 CR推移 (5/20延伸版)",
+    subtitle: "UcarPAC 社内向け分析レポートです。認証状態は24時間保持されます。"
+  };
+</script>
+<script src="../../auth.js"></script>
+</head>
+<body>
+<div style="max-width:1220px;margin:0 auto;padding:14px 20px 0;font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;font-size:13px;font-weight:700;position:relative;z-index:10;">
+  <a href="../ucp-cr-deliverables-20260530/" style="color:#2563eb;text-decoration:none;">&larr; UCP CR分析 成果物一覧に戻る</a>
+  <span style="margin:0 6px;color:#cbd5e1;">/</span>
+  <a href="../" style="color:#2563eb;text-decoration:none;">Reports</a>
+  <span style="margin:0 6px;color:#cbd5e1;">/</span>
+  <a href="../../" style="color:#2563eb;text-decoration:none;">Hub</a>
+</div>
+
+<div class="container">
+
+<div class="header">
+  <h1>2026年 担当者別 3→4→5月 CR推移 (5/20 延伸版)</h1>
+  <div class="sub">橋口・蓮見・水谷・小永吉・穂戸田 5名の月次成約率を、uapp.gas_data.all_deals_view を使って 5月20日まで延伸して再評価</div>
+  <div class="meta">
+    <span>作成日: 2026-05-21</span>
+    <span>データ: ucarpac-uapp.gas_data.all_deals_view</span>
+    <span>対象月: 2025-01 〜 2026-05 (5月は5/20まで)</span>
+    <span>成約判定: (sale_history=あり AND status!=キャンセル) OR status=買取移行</span>
+    <span>価格帯: sold_out_price</span>
+  </div>
+</div>
+
+<div class="sec">
+  <h2>サマリ — 3→5月の CR 推移（5/20 時点）</h2>
+  <div class="grid">
+    <div class="card" style="background:var(--mist);"><div class="label">橋口</div><div class="value" style="color:var(--char);">+8.8pt</div><div class="small">16.2% → 25.0% (3→5月)</div></div>
+    <div class="card" style="background:var(--mist);"><div class="label">水谷</div><div class="value" style="color:var(--char);">+11.8pt</div><div class="small">26.7% → 38.5% (3→5月)</div></div>
+    <div class="card" style="background:var(--mist);"><div class="label">蓮見</div><div class="value" style="color:var(--char);">+2.7pt</div><div class="small">43.2% → 32.8% → 45.9%</div></div>
+    <div class="card" style="background:var(--mist);"><div class="label">小永吉</div><div class="value" style="color:var(--char);">-2.6pt</div><div class="small">37.7% → 35.1% (35% 前後で推移)</div></div>
+    <div class="card" style="background:var(--mist);"><div class="label">穂戸田</div><div class="value" style="color:var(--char);">-11.0pt</div><div class="small">53.9% → 42.9% (3→5月)</div></div>
+  </div>
+  <div class="nt">
+    元 4/28 レポートと比較して、5 月時点では各担当の順位構造に差があります。
+    5月分は 2026-05-20 までの 20 日間のため、月末まで含めた場合の数値は変動し得ます。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>1. 3月→4月→5月 月別 CR (担当者別)</h2>
+  <div class="chart-wrap"><canvas id="diffChart"></canvas></div>
+  <table>
+    <thead>
+      <tr><th>担当</th>
+        <th class="num">3月 件数</th><th class="num">3月 成約</th><th class="num">3月 CR</th>
+        <th class="num">4月 件数</th><th class="num">4月 成約</th><th class="num">4月 CR</th>
+        <th class="num">5月 件数</th><th class="num">5月 成約</th><th class="num">5月 CR</th>
+        <th class="num">3→5月 差分</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>橋口</td><td class="num">74</td><td class="num">12</td><td class="num">16.2%</td><td class="num">63</td><td class="num">11</td><td class="num">17.5%</td><td class="num">72</td><td class="num">18</td><td class="num">25.0%</td><td class="num up">+8.8pt</td></tr>
+      <tr><td>蓮見</td><td class="num">95</td><td class="num">41</td><td class="num">43.2%</td><td class="num">67</td><td class="num">22</td><td class="num">32.8%</td><td class="num">85</td><td class="num">39</td><td class="num">45.9%</td><td class="num up">+2.7pt</td></tr>
+      <tr><td>水谷</td><td class="num">60</td><td class="num">16</td><td class="num">26.7%</td><td class="num">76</td><td class="num">24</td><td class="num">31.6%</td><td class="num">39</td><td class="num">15</td><td class="num">38.5%</td><td class="num up">+11.8pt</td></tr>
+      <tr><td>小永吉</td><td class="num">353</td><td class="num">133</td><td class="num">37.7%</td><td class="num">271</td><td class="num">95</td><td class="num">35.1%</td><td class="num">74</td><td class="num">26</td><td class="num">35.1%</td><td class="num flat">-2.6pt</td></tr>
+      <tr><td>穂戸田</td><td class="num">76</td><td class="num">41</td><td class="num">53.9%</td><td class="num">54</td><td class="num">31</td><td class="num">57.4%</td><td class="num">49</td><td class="num">21</td><td class="num">42.9%</td><td class="num down">-11.0pt</td></tr>
+    </tbody>
+  </table>
+  <div class="nt">
+    <b>橋口</b>: 5月 CR 25.0% は 4月 17.5% との差が +7.5pt。300万+ 帯は 4月 3.2% (1/31件) → 5月 20.6% (7/34件)、LP58 は 0% → 25.0% (5/20件) と前月比で差があります。
+  </div>
+  <div class="nt">
+    <b>穂戸田</b>: 5月 42.9% は 4月 57.4% との差が -14.5pt。300万+ 帯は 22.2% → 42.1%、輸出仮説群は 55.6% → 37.5%、件数は 4月 54 → 5月 49 と推移。要因は Phase 2 (4月成約率悪化分析セット) で深掘り予定。
+  </div>
+  <div class="nt">
+    <b>蓮見</b>: 4月 32.8% → 5月 45.9% (+13.1pt の戻り)。輸出仮説群は 16.7% → 55.6% (9件中5件成約) と前月比で差があります。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>2. 担当者別 月次推移 (2025-01 〜 2026-05)</h2>
+  <div class="chart-tall"><canvas id="trendChart"></canvas></div>
+  <div class="nt">
+    長期トレンドの観察: 橋口は 25年5月の 50% を 1 つのピークとし、その後 25年9月・11月・26年1〜4月で 10〜20% 帯の月が複数あり、5月は 25.0% で推移しています。穂戸田は 25年8月以降 55〜65% 帯で推移していましたが、5月は 42.9% です。蓮見は 25年8月の 58.8% 以降、35〜50% 帯を月ごとに上下しています。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>3. 価格帯別 CR (5月20日まで)</h2>
+  <div class="chart-wrap"><canvas id="priceBandChart"></canvas></div>
+  <table>
+    <thead>
+      <tr><th>担当</th>
+        <th class="num">〜100万 件数</th><th class="num">〜100万 CR</th>
+        <th class="num">100-300万 件数</th><th class="num">100-300万 CR</th>
+        <th class="num">300万+ 件数</th><th class="num">300万+ CR</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>橋口</td><td class="num">18</td><td class="num">38.9%</td><td class="num">19</td><td class="num">15.8%</td><td class="num">34</td><td class="num">20.6%</td></tr>
+      <tr><td>蓮見</td><td class="num">32</td><td class="num">53.1%</td><td class="num">20</td><td class="num">35.0%</td><td class="num">28</td><td class="num">35.7%</td></tr>
+      <tr><td>水谷</td><td class="num">11</td><td class="num">72.7%</td><td class="num">12</td><td class="num">41.7%</td><td class="num">16</td><td class="num">12.5%</td></tr>
+      <tr><td>小永吉</td><td class="num">18</td><td class="num">44.4%</td><td class="num">24</td><td class="num">25.0%</td><td class="num">27</td><td class="num">25.9%</td></tr>
+      <tr><td>穂戸田</td><td class="num">15</td><td class="num">60.0%</td><td class="num">15</td><td class="num">26.7%</td><td class="num">19</td><td class="num">42.1%</td></tr>
+    </tbody>
+  </table>
+  <div class="nt">
+    <b>5月の価格帯×担当者の観察</b>: 水谷は〜100万帯で 72.7%、300万+ 帯で 12.5% と帯ごとの差が大きい。橋口は 300万+ で 20.6% (4月 3.2% から +17.4pt の差)。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>4. LP × 担当者 (5月20日まで)</h2>
+  <div class="nt">LP10 / LP11 / LP22 / LP51 / LP58 / LP66 を中心に、件数3件以上のセルのみ表示。</div>
+  <div class="chart-tall"><canvas id="lpChart"></canvas></div>
+</div>
+
+<div class="sec">
+  <h2>5. 結論と次アクション</h2>
+  <ul>
+    <li><b>橋口</b>: 5月時点で 300万+ 帯と LP58 が 4月との差が大きい。担当範囲の判断は 5月末の数値を待ってから検討するのが妥当</li>
+    <li><b>穂戸田</b>: 5月の数値変化要因を Phase 2 (4月成約率悪化分析セット) で深掘り。輸出仮説群 -18pt と件数の減少が同月に発生</li>
+    <li><b>蓮見</b>: 4月 32.8% → 5月 45.9%。300万+ 35.7% と LP22 / LP51 系の数値が他担当より高め</li>
+    <li><b>水谷</b>: 〜100万帯 72.7% と 100-300万帯 41.7%。300万+ 帯は 12.5% で帯ごとの差が大きい</li>
+    <li><b>小永吉</b>: 5月件数 74 (5/20まで) は月末ペース 110+ で 3月並み。CR は 35% 前後で推移</li>
+  </ul>
+  <div class="wrn">
+    本レポートの5月分は <b>2026-05-20</b> までです。月末値での再計算と、商談数 (negotiation_log) を併用した深掘りは別途必要 (`gas_data.negotiation_log` が 4/14 以降停止のため要復旧確認)。
+  </div>
+</div>
+
+<div class="footer">
+  2026-05 担当者別CR推移 (5/20延伸版) | Source: ucarpac-uapp.gas_data.all_deals_view | Generated: 2026-05-21
+</div>
+
+</div>
+
+<script>
+const staffColors = {
+  '橋口': '#dc2626',
+  '蓮見': '#60a5fa',
+  '水谷': '#fb923c',
+  '小永吉': '#3b82f6',
+  '穂戸田': '#16a34a'
+};
+
+new Chart(document.getElementById('diffChart'),{
+  type:'bar',
+  data:{
+    labels:['橋口','水谷','小永吉','蓮見','穂戸田'],
+    datasets:[
+      {label:'3月 CR(%)',data:[16.2,26.7,37.7,43.2,53.9],backgroundColor:'#cbd5e1'},
+      {label:'4月 CR(%)',data:[17.5,31.6,35.1,32.8,57.4],backgroundColor:'#94a3b8'},
+      {label:'5月 CR(%) (5/20まで)',data:[25.0,38.5,35.1,45.9,42.9],backgroundColor:'#2563eb'}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom'}},
+    scales:{y:{beginAtZero:true,max:70,ticks:{callback:v=>v+'%'}}}
+  }
+});
+
+const months = ['2025-01','2025-02','2025-03','2025-04','2025-05','2025-06','2025-07','2025-08','2025-09','2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'];
+const trendData = {
+  '橋口':   [10.0,12.5,20.0, 0.0,50.0,38.5,41.7,35.3, 0.0,57.1, 0.0,25.0,12.8,19.0,16.2,17.5,25.0],
+  '蓮見':   [38.2,33.1,39.5,44.3,37.8,41.4,48.1,58.8,48.4,39.3,46.4,38.5,44.1,47.9,43.2,32.8,45.9],
+  '水谷':   [51.1,35.1,33.3,27.8,40.4,41.0,30.6,47.6,52.2,73.3,46.2,45.0,44.9,29.9,26.7,31.6,38.5],
+  '小永吉': [45.2,44.5,56.0,51.5,53.0,54.1,47.8,43.4,43.1,46.7,42.2,38.7,36.5,37.3,37.7,35.1,35.1],
+  '穂戸田': [34.6,25.4,29.2,34.2,26.7,41.0,41.4,63.4,57.8,59.7,65.5,55.4,48.1,62.1,53.9,57.4,42.9]
+};
+
+new Chart(document.getElementById('trendChart'),{
+  type:'line',
+  data:{
+    labels:months,
+    datasets:Object.keys(trendData).map(s=>({
+      label:s,
+      data:trendData[s],
+      borderColor:staffColors[s],
+      backgroundColor:staffColors[s]+'22',
+      tension:0.25,
+      borderWidth:2,
+      pointRadius:3
+    }))
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom'}},
+    scales:{y:{beginAtZero:true,max:80,ticks:{callback:v=>v+'%'}}}
+  }
+});
+
+new Chart(document.getElementById('priceBandChart'),{
+  type:'bar',
+  data:{
+    labels:['橋口','水谷','小永吉','蓮見','穂戸田'],
+    datasets:[
+      {label:'〜100万 CR(%)',data:[38.9,72.7,44.4,53.1,60.0],backgroundColor:'#86efac'},
+      {label:'100-300万 CR(%)',data:[15.8,41.7,25.0,35.0,26.7],backgroundColor:'#fbbf24'},
+      {label:'300万+ CR(%)',data:[20.6,12.5,25.9,35.7,42.1],backgroundColor:'#f87171'}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom'}},
+    scales:{y:{beginAtZero:true,max:80,ticks:{callback:v=>v+'%'}}}
+  }
+});
+
+// 5月 LP × 担当者 CR
+const lpLabels = ['LP10','LP11','LP22','LP51','LP58','LP66'];
+const lpData5 = {
+  // 5月 5/20まで 件数>=3 のみ。null は件数<3 で対象外。
+  // LP順: LP10 / LP11 / LP22 / LP51 / LP58 / LP66
+  '橋口':   [55.6, 33.3,  0.0, 33.3, 25.0, 28.6],
+  '蓮見':   [58.3, 44.4, 33.3, 72.7, 14.3, 50.0],
+  '水谷':   [33.3, 66.7, null, 62.5, 14.3, 40.0],
+  '小永吉': [45.5, 28.6, null, 44.4, 22.7, 25.0],
+  '穂戸田': [45.5, 25.0, null, 33.3, 35.7, 33.3]
+};
+new Chart(document.getElementById('lpChart'),{
+  type:'bar',
+  data:{
+    labels:lpLabels,
+    datasets:Object.keys(lpData5).map(s=>({
+      label:s,data:lpData5[s],
+      backgroundColor:staffColors[s],borderRadius:4
+    }))
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom'},
+      tooltip:{callbacks:{label:c=>c.dataset.label+': '+(c.raw===null?'-':c.raw+'%')}}},
+    scales:{y:{beginAtZero:true,max:80,ticks:{callback:v=>v+'%'}}}
+  }
+});
+</script>
+</body>
+</html>

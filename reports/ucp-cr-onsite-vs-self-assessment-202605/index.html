@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>出張査定 vs セルフ査定 — 月次推移と戦略評価</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#0f172a; --char:#24324a; --slate:#64748b; --mist:#f1f5f9;
+    --onsite:#2563eb; --onsite-s:#dbeafe;
+    --self:#f97316; --self-s:#ffedd5;
+    --good:#059669; --good-s:#d1fae5;
+    --warn:#d97706; --warn-s:#fef3c7;
+    --bad:#dc2626; --bad-s:#fee2e2;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'BIZ UDPGothic','Hiragino Sans','Noto Sans JP',sans-serif;background:#f8fafc;color:var(--char);line-height:1.75;font-size:14.5px;}
+  .container{max-width:1080px;margin:0 auto;padding:24px;}
+
+  .header{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;padding:30px;border-radius:18px;margin-bottom:18px;}
+  .header h1{font-size:24px;font-weight:800;margin-bottom:8px;line-height:1.4;}
+  .header .sub{font-size:13.5px;color:#cbd5e1;}
+  .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+  .meta span{font-size:11.5px;color:#dbeafe;background:rgba(255,255,255,.13);padding:4px 11px;border-radius:999px;}
+
+  .sec{background:#fff;border-radius:14px;padding:24px;margin-bottom:14px;box-shadow:0 1px 6px rgba(15,23,42,.06);}
+  .sec h2{font-size:18px;font-weight:800;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--mist);display:flex;align-items:center;gap:10px;}
+  .sec h2 .num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:#1e3a8a;color:#fff;border-radius:50%;font-size:13px;font-weight:800;}
+  .sec h3{font-size:15px;font-weight:700;margin:16px 0 8px;color:var(--ink);}
+
+  .lead{font-size:14px;color:var(--char);margin:10px 0 16px;line-height:1.85;}
+  .lead b{color:#1e3a8a;}
+
+  .term{background:var(--mist);border-radius:10px;padding:12px 16px;margin:10px 0;font-size:13px;color:var(--char);}
+  .term b{color:#1e3a8a;}
+
+  .compare-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+  .ccard{padding:18px;border-radius:12px;}
+  .ccard.onsite{background:var(--onsite-s);border-left:5px solid var(--onsite);}
+  .ccard.self{background:var(--self-s);border-left:5px solid var(--self);}
+  .ccard .name{font-size:15px;font-weight:800;margin-bottom:6px;}
+  .ccard.onsite .name{color:var(--onsite);}
+  .ccard.self .name{color:var(--self);}
+  .ccard .role{font-size:13px;line-height:1.7;}
+
+  .grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0;}
+  .card{padding:14px;border-radius:12px;text-align:center;background:var(--mist);}
+  .card .label{font-size:11px;color:var(--slate);font-weight:600;}
+  .card .value{font-size:26px;font-weight:800;margin:3px 0;font-variant-numeric:tabular-nums;}
+  .card .value.onsite{color:var(--onsite);}
+  .card .value.self{color:var(--self);}
+  .card .small{font-size:11px;color:var(--slate);}
+
+  .delta-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0;}
+  .delta{background:#fff;border:2px solid var(--mist);border-radius:12px;padding:14px;}
+  .delta .head{font-size:13px;font-weight:700;margin-bottom:6px;}
+  .delta.onsite .head{color:var(--onsite);}
+  .delta.self .head{color:var(--self);}
+  .delta .vals{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:800;color:var(--ink);}
+  .delta .vals .arr{color:var(--slate);font-size:14px;}
+  .delta .pct{margin-top:6px;font-size:14px;font-weight:700;}
+  .delta .pct.up{color:var(--good);}
+  .delta .pct.down{color:var(--bad);}
+
+  .chart-wrap{position:relative;height:380px;margin:14px 0 6px;}
+  .chart-bar{position:relative;height:280px;margin:14px 0 6px;}
+
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px;}
+  th,td{padding:7px 10px;border-bottom:1px solid #e2e8f0;text-align:left;}
+  th{background:var(--mist);font-size:12px;color:var(--slate);font-weight:700;}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;}
+  tr.sep{background:#fafbfc;font-weight:700;}
+  tr.partial{color:var(--slate);}
+  tr.hl{background:#fef9c3;}
+  tr.hl-good{background:var(--good-s);}
+
+  .point-list{margin:12px 0;padding:0;list-style:none;}
+  .point-list li{background:var(--mist);padding:12px 16px;border-radius:10px;margin-bottom:8px;font-size:13.5px;border-left:4px solid #1e3a8a;}
+  .point-list li b{display:block;font-size:14px;margin-bottom:3px;color:#1e3a8a;}
+  .point-list li.up{border-left-color:var(--good);}
+  .point-list li.up b{color:var(--good);}
+  .point-list li.down{border-left-color:var(--bad);}
+  .point-list li.down b{color:var(--bad);}
+  .point-list li.hot{border-left-color:var(--self);background:var(--self-s);}
+  .point-list li.hot b{color:#9a3412;}
+
+  .conclude{padding:14px 18px;border-radius:10px;margin:12px 0;font-size:13.5px;line-height:1.85;}
+  .conclude .label{font-size:14px;font-weight:800;margin-bottom:6px;display:block;}
+  .conclude.green{background:var(--good-s);border-left:5px solid var(--good);}
+  .conclude.green .label{color:var(--good);}
+  .conclude.blue{background:var(--onsite-s);border-left:5px solid var(--onsite);}
+  .conclude.blue .label{color:var(--onsite);}
+  .conclude.orange{background:var(--self-s);border-left:5px solid var(--self);}
+  .conclude.orange .label{color:#9a3412;}
+
+  .nt{border-left:4px solid var(--warn);background:var(--warn-s);padding:11px 15px;border-radius:0 8px 8px 0;margin:12px 0;font-size:12.5px;}
+
+  .footer{text-align:center;padding:20px;color:var(--slate);font-size:11.5px;}
+</style>
+<script>
+  window.PROTO_AUTH_CONFIG = {
+    title: "出張査定 vs セルフ査定 — 月ごとの件数くらべ",
+    subtitle: "UcarPAC 社内向け分析レポートです。認証状態は24時間保持されます。"
+  };
+</script>
+<script src="../../auth.js"></script>
+</head>
+<body>
+<div style="max-width:1220px;margin:0 auto;padding:14px 20px 0;font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;font-size:13px;font-weight:700;position:relative;z-index:10;">
+  <a href="../ucp-cr-deliverables-20260530/" style="color:#2563eb;text-decoration:none;">&larr; UCP CR分析 成果物一覧に戻る</a>
+  <span style="margin:0 6px;color:#cbd5e1;">/</span>
+  <a href="../" style="color:#2563eb;text-decoration:none;">Reports</a>
+  <span style="margin:0 6px;color:#cbd5e1;">/</span>
+  <a href="../../" style="color:#2563eb;text-decoration:none;">Hub</a>
+</div>
+
+<div class="container">
+
+<div class="header">
+  <h1>出張査定 vs セルフ査定<br>月次推移と戦略評価</h1>
+  <div class="sub">査定員訪問型とユーザー入力型、それぞれの件数推移を比較し、最近のセルフ化シフトが収益・成約率・スピードにどう効いているかを検証する</div>
+  <div class="meta">
+    <span>作成日: 2026-05-21</span>
+    <span>データ: ucarpac-uapp.gas_data.all_deals_view</span>
+    <span>基準日: assessment_apply_datetime (JST)</span>
+    <span>期間A: 2024-07〜2025-06 (12ヶ月)</span>
+    <span>期間B: 2025-07〜2026-04 (10ヶ月)</span>
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="num">1</span>分析の前提と用語</h2>
+
+  <div class="compare-cards">
+    <div class="ccard onsite">
+      <div class="name">出張査定</div>
+      <div class="role">高橋・財津・渡邊・松本など、<b>査定員がユーザーの自宅に訪問</b>して車両を実査定する経路。高単価車・複雑な案件に強い。</div>
+    </div>
+    <div class="ccard self">
+      <div class="name">セルフ査定</div>
+      <div class="role">ユーザー自身が <b>スマホで写真撮影＋情報入力</b> を行う経路（agent_shop = 「【UcarPAC】（サポート）」）。リードタイムが短く、スピード勝負の案件に強い。</div>
+    </div>
+  </div>
+
+  <div class="term">
+    <b>分析対象</b>: カババ・PoC・デモ・停止アカウントは除外。<br>
+    <b>基準日</b>: assessment_apply_datetime（査定申込日）。実際の査定実施日ではなく「申込が入った日」を起点に集計する。<br>
+    <b>期間設定</b>: 直近12ヶ月（B）と前年同期間12ヶ月（A）を比較。期間Bは2026-05が途中（5/20まで）のため、月平均算出時は除外し10ヶ月で計算。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="num">2</span>月平均件数の変化</h2>
+
+  <div class="grid4">
+    <div class="card" style="background:var(--onsite-s);">
+      <div class="label">出張査定 — 期間A</div>
+      <div class="value onsite">353</div>
+      <div class="small">件/月</div>
+    </div>
+    <div class="card" style="background:var(--onsite-s);">
+      <div class="label">出張査定 — 期間B</div>
+      <div class="value onsite">309</div>
+      <div class="small">件/月</div>
+    </div>
+    <div class="card" style="background:var(--self-s);">
+      <div class="label">セルフ査定 — 期間A</div>
+      <div class="value self">212</div>
+      <div class="small">件/月</div>
+    </div>
+    <div class="card" style="background:var(--self-s);">
+      <div class="label">セルフ査定 — 期間B</div>
+      <div class="value self">284</div>
+      <div class="small">件/月</div>
+    </div>
+  </div>
+
+  <div class="delta-row">
+    <div class="delta onsite">
+      <div class="head">出張査定</div>
+      <div class="vals">353件 <span class="arr">→</span> 309件</div>
+      <div class="pct down">前年比 ▼ 12%（減少）</div>
+    </div>
+    <div class="delta self">
+      <div class="head">セルフ査定</div>
+      <div class="vals">212件 <span class="arr">→</span> 284件</div>
+      <div class="pct up">前年比 ▲ 34%（増加）</div>
+    </div>
+  </div>
+
+  <div class="nt">
+    期間Bは2026-05が5/20までの不完全月のため、月平均算出から除外（10ヶ月で計算）。5月をフル月換算しても結論は変わらない。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="num">3</span>月次推移グラフ</h2>
+
+  <div class="lead">
+    青線が出張査定、オレンジ線がセルフ査定。<b>2026-03で初めてセルフが出張を上回り</b>、4月も連続で逆転。両者の差はほぼゼロに収束しつつある。
+  </div>
+
+  <div class="chart-wrap">
+    <canvas id="trendChart"></canvas>
+  </div>
+
+  <div class="nt">
+    2026-05は5/20までの途中値。フル月換算ではおおよそ 出張 270件 / セルフ 230件 程度の見込み。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="num">4</span>期間A vs 期間B 棒グラフ</h2>
+
+  <div class="chart-bar">
+    <canvas id="compareChart"></canvas>
+  </div>
+
+  <div class="lead">
+    セルフ査定（オレンジ）の伸長と、出張査定（青）の微減が同時並行で進んでいる。総数では両者の差が <b>140件/月から25件/月にまで縮小</b>した。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="num">5</span>主な変化のポイント</h2>
+
+  <ul class="point-list">
+    <li class="hot">
+      <b>2026年3月、件数がセルフ&gt;出張に逆転</b>
+      単月でセルフ389件 vs 出張364件。4月も連続でセルフ優勢（271 vs 267）。経路シェアの逆転点として記録されるべき月。
+    </li>
+    <li class="up">
+      <b>セルフ査定 +34% の構造的成長</b>
+      期間A→B で月212件→284件。スポットの増加ではなく、ほぼ全月で底上げが進んでいる。
+    </li>
+    <li class="down">
+      <b>出張査定 ▼12% の緩やかな減少</b>
+      月353件→309件。ピークの2025年1〜3月（月430〜490件）と比較すると2026年同月は約2割減。査定員のキャパ・調整コストが頭打ちになっている可能性。
+    </li>
+    <li>
+      <b>セルフ査定は波形成長</b>
+      右肩上がりではなく、2025-10〜11で一時的に底（185〜215件）を打った後、2026-01〜03で大幅回復（309〜389件）。月次キャンペーンや流入施策と連動している可能性あり。
+    </li>
+  </ul>
+</div>
+
+<div class="sec">
+  <h2><span class="num">6</span>月次データ詳細</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>年月</th>
+        <th class="num">出張査定</th>
+        <th class="num">セルフ査定</th>
+        <th class="num">合計*</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>2024-07</td><td class="num">321</td><td class="num">175</td><td class="num">522</td></tr>
+      <tr><td>2024-08</td><td class="num">276</td><td class="num">137</td><td class="num">446</td></tr>
+      <tr><td>2024-09</td><td class="num">351</td><td class="num">208</td><td class="num">602</td></tr>
+      <tr><td>2024-10</td><td class="num">354</td><td class="num">200</td><td class="num">615</td></tr>
+      <tr><td>2024-11</td><td class="num">308</td><td class="num">161</td><td class="num">520</td></tr>
+      <tr><td>2024-12</td><td class="num">269</td><td class="num">146</td><td class="num">459</td></tr>
+      <tr><td>2025-01</td><td class="num">490</td><td class="num">266</td><td class="num">824</td></tr>
+      <tr><td>2025-02</td><td class="num">433</td><td class="num">259</td><td class="num">756</td></tr>
+      <tr><td>2025-03</td><td class="num">431</td><td class="num">298</td><td class="num">795</td></tr>
+      <tr><td>2025-04</td><td class="num">339</td><td class="num">206</td><td class="num">615</td></tr>
+      <tr><td>2025-05</td><td class="num">341</td><td class="num">217</td><td class="num">612</td></tr>
+      <tr><td>2025-06</td><td class="num">323</td><td class="num">268</td><td class="num">699</td></tr>
+      <tr class="sep"><td>期間A 合計</td><td class="num">4,236</td><td class="num">2,541</td><td class="num">—</td></tr>
+      <tr><td>2025-07</td><td class="num">310</td><td class="num">247</td><td class="num">728</td></tr>
+      <tr><td>2025-08</td><td class="num">299</td><td class="num">270</td><td class="num">699</td></tr>
+      <tr><td>2025-09</td><td class="num">322</td><td class="num">244</td><td class="num">662</td></tr>
+      <tr><td>2025-10</td><td class="num">263</td><td class="num">215</td><td class="num">506</td></tr>
+      <tr><td>2025-11</td><td class="num">250</td><td class="num">185</td><td class="num">473</td></tr>
+      <tr><td>2025-12</td><td class="num">242</td><td class="num">181</td><td class="num">554</td></tr>
+      <tr><td>2026-01</td><td class="num">387</td><td class="num">309</td><td class="num">919</td></tr>
+      <tr><td>2026-02</td><td class="num">388</td><td class="num">331</td><td class="num">870</td></tr>
+      <tr class="hl"><td>2026-03</td><td class="num">364</td><td class="num"><b style="color:var(--self);">389</b></td><td class="num">868</td></tr>
+      <tr class="hl"><td>2026-04</td><td class="num">267</td><td class="num"><b style="color:var(--self);">271</b></td><td class="num">713</td></tr>
+      <tr class="partial"><td>2026-05 (5/20まで)</td><td class="num">178</td><td class="num">152</td><td class="num">447</td></tr>
+      <tr class="sep"><td>期間B 合計</td><td class="num">3,270</td><td class="num">2,994</td><td class="num">—</td></tr>
+    </tbody>
+  </table>
+
+  <div class="nt">
+    * 合計には除外対象（カババ・PoC・デモ・停止アカウント・agent_shop未設定）も含む。<br>
+    黄色強調行はセルフが出張を上回った月。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="num">7</span>セルフ化シフトの戦略的評価</h2>
+
+  <div class="lead">
+    現場では「出張査定員のスケジュール調整が間に合わない」「他社売却を防ぐためにスピード優先でセルフへ振り替える」という運用が増えている。この判断が <b>収益・成約率・スピードの3軸でどう評価できるか</b> を期間Bのデータで検証する。
+  </div>
+
+  <h3>期間B 出張 vs セルフ 主要KPI比較</h3>
+
+  <div class="term">
+    <b>CR（Close Rate, 成約率）</b>: 全期間で「出品ベース」と「申込ベース」の2種類がある。<br>
+    ・<b>CR(出品→成約)</b> = 成約数 ÷ 出品数。出品まで進んだ案件の決まりやすさ。<br>
+    ・<b>CR(申込→成約)</b> = 成約数 ÷ 査定申込数。申込起点で見たエンドツーエンドの決定率。経営判断にはこちらが本質的。
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>指標</th>
+        <th class="num">出張査定</th>
+        <th class="num">セルフ査定</th>
+        <th>差分・解釈</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>査定件数</td><td class="num">3,092</td><td class="num">2,642</td><td>セルフは出張の85%まで接近</td></tr>
+      <tr><td>出品率（査定→出品）</td><td class="num">68.1%</td><td class="num"><b>80.1%</b></td><td>セルフ +12pt（出張は約3割が出品まで届かない）</td></tr>
+      <tr><td>CR（出品→成約）</td><td class="num"><b>43.9%</b></td><td class="num">37.9%</td><td>出張 +6pt（出品後の決まりやすさは出張優位）</td></tr>
+      <tr class="hl"><td><b>CR（申込→成約）</b></td><td class="num">29.9%</td><td class="num">30.3%</td><td><b>ほぼ同等（差0.4pt）</b> — 経路選択がCRに与える影響は中立</td></tr>
+      <tr class="hl-good"><td>申込→出品 中央値</td><td class="num">7日</td><td class="num"><b>4日</b></td><td>セルフが3日短い → 他社流出リスク窓を縮小できる</td></tr>
+      <tr><td>平均車両価格</td><td class="num"><b>179万</b></td><td class="num">136万</td><td>出張 +32%（高単価車セグメントは出張優位）</td></tr>
+      <tr><td>案件あたり収益</td><td class="num"><b>16.0万</b></td><td class="num">11.7万</td><td>出張 +37% — 1件あたりの粗利は出張が圧倒</td></tr>
+      <tr><td>売上合計（10ヶ月）</td><td class="num"><b>1.48億</b></td><td class="num">0.94億</td><td>出張 +57%（件数差＋単価差の複合）</td></tr>
+    </tbody>
+  </table>
+
+  <div class="chart-bar" style="height:300px;">
+    <canvas id="kpiChart"></canvas>
+  </div>
+
+  <h3>CR（申込→成約）の月次推移</h3>
+
+  <div class="lead">
+    両経路のCRはほぼ同じ帯（22〜36%）を推移し、月によって優劣が入れ替わる。<b>セルフ化シフトによってCRが下がった証拠は見られない</b>。
+  </div>
+
+  <div class="chart-wrap">
+    <canvas id="crTrendChart"></canvas>
+  </div>
+
+  <div class="nt">
+    直近の2026-04〜05でCRが大きく下がって見えるのは、まだオークション未完了・キャンセル判定前の案件が含まれるため。直近3ヶ月の値は時間経過とともに上方修正される。
+  </div>
+
+  <h3>3つの結論</h3>
+
+  <div class="conclude green">
+    <span class="label">結論1. セルフ化シフトの判断は数字で支持される</span>
+    申込ベースCRが <b>30.3% vs 29.9%</b> でほぼ同等であり、経路を切り替えても <b>成約率が落ちていない</b>。
+    一方で出品までのリードタイムが <b>7日 → 4日に短縮</b>され、出品率も <b>68% → 80%</b> に改善。
+    「スピード優先で他社売却を防ぐ」という目的に対し、セルフ化は機能している。
+  </div>
+
+  <div class="conclude blue">
+    <span class="label">結論2. 出張査定員のキャパ拡張には依然として大きな価値がある</span>
+    1件あたり収益が <b>セルフ比 +37%（16.0万 vs 11.7万）</b>。
+    仮にセルフ2,642件をすべて出張で対応できていれば、収益で <b>約 +3,300万円/10ヶ月</b> の上振れ余地があった。
+    ただし「無理に出張で待たせて他社流出（収益0円）」と比較すれば現在の運用が合理的なため、増員は <b>「とにかく増やす」ではなく、高単価×対応可能エリアに絞った戦略的拡張</b> が望ましい。
+  </div>
+
+  <div class="conclude orange">
+    <span class="label">結論3. セルフ査定そのものの質も向上している</span>
+    期間A→B でセルフ自身が改善:<br>
+    ・CR（申込ベース）: 28.5% → <b>30.3%</b>（+1.8pt）<br>
+    ・案件あたり収益: 10.4万 → <b>11.7万</b>（+13%）<br>
+    ・平均車両価格: 124.8万 → <b>136.2万</b>（+9%）<br>
+    リードタイム短縮と入力UXの改善により、従来は出張に回していた中〜高単価層もセルフでこなせるようになってきた可能性が高い。
+  </div>
+</div>
+
+<div class="sec">
+  <h2><span class="num">8</span>アクション提案</h2>
+
+  <ul class="point-list">
+    <li class="up">
+      <b>セルフ化シフトは継続</b>
+      申込CRが維持できており、リードタイムも3日短縮。スピード優先の判断は数字で正当化される。新規流入の振り分けルールも現状維持で良い。
+    </li>
+    <li class="hot">
+      <b>出張査定員のキャパ拡張は「選んで」増やす</b>
+      増員時は「高単価セグメント × 対応可能エリア」に集中投下する方が、件数ノルマで動かすより収益貢献が大きい。
+      特に高橋・財津エリアの追加要員確保が優先候補。
+    </li>
+    <li>
+      <b>次に検証すべき項目</b>
+      ・出張→セルフへ切り替えた案件の追跡（agent_shop変更履歴が必要。`Web_Marge/マージ作成.js` の履歴ログ要確認）<br>
+      ・出張査定員1人あたりの月対応上限（高橋・財津のキャパ実測値）<br>
+      ・セルフ化により高単価車を取りこぼしていないかセグメント別検証<br>
+      ・セルフ査定のCR波形（2025-10〜11の落ち込み要因）の特定
+    </li>
+  </ul>
+</div>
+
+<div class="sec">
+  <h2><span class="num">9</span>分析の前提とデータ詳細</h2>
+  <ul style="margin-left:18px;font-size:13px;">
+    <li><b>データソース</b>: ucarpac-uapp.gas_data.all_deals_view（agent_shop カラムベース）</li>
+    <li><b>基準日</b>: assessment_apply_datetime（JST、文字列の先頭7文字を年月キーとして使用）</li>
+    <li><b>セルフ査定の定義</b>: agent_shop = 「【UcarPAC】（サポート）」</li>
+    <li><b>出張査定の定義</b>: 上記以外で、カババ/PoC/デモ/停止アカウント/未設定 を除外したもの</li>
+    <li><b>成約判定</b>: (sale_history = 'あり' AND status != 'キャンセル') OR status = '買取移行'</li>
+    <li><b>収益計算</b>: commission + (vehicle_price × 0.1 ÷ 1.1) − (purchase_bonus ÷ 1.1) − (bid_coupon ÷ 1.1)</li>
+    <li><b>リードタイム</b>: assessment_apply_datetime → listing_datetime の日数差（0〜60日のみ集計、外れ値除去）</li>
+    <li>2026-05は5/20までの不完全月。直近3ヶ月はキャンセル等で値が変動する可能性あり</li>
+    <li>カババは2025-12からagent_shopに記録され始めた（それ以前のカババ経由は別管理）</li>
+  </ul>
+</div>
+
+<div class="footer">UcarPAC CR分析 — 出張査定 vs セルフ査定 月次推移と戦略評価（2026-05-21 作成）</div>
+
+</div>
+
+<script>
+const months = ['2024-07','2024-08','2024-09','2024-10','2024-11','2024-12',
+                '2025-01','2025-02','2025-03','2025-04','2025-05','2025-06',
+                '2025-07','2025-08','2025-09','2025-10','2025-11','2025-12',
+                '2026-01','2026-02','2026-03','2026-04','2026-05*'];
+const onsite = [321,276,351,354,308,269,490,433,431,339,341,323,
+                310,299,322,263,250,242,387,388,364,267,178];
+const selfA  = [175,137,208,200,161,146,266,259,298,206,217,268,
+                247,270,244,215,185,181,309,331,389,271,152];
+
+new Chart(document.getElementById('trendChart'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [
+      {
+        label: '出張査定（査定員訪問）',
+        data: onsite,
+        borderColor: '#2563eb',
+        backgroundColor: 'rgba(37,99,235,0.12)',
+        borderWidth: 3,
+        tension: 0.35,
+        pointRadius: 4,
+        pointHoverRadius: 7,
+        fill: false
+      },
+      {
+        label: 'セルフ査定（ユーザー入力）',
+        data: selfA,
+        borderColor: '#f97316',
+        backgroundColor: 'rgba(249,115,22,0.12)',
+        borderWidth: 3,
+        tension: 0.35,
+        pointRadius: 4,
+        pointHoverRadius: 7,
+        fill: false
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 13, weight: 'bold' }, padding: 14 } },
+      tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y}件` } }
+    },
+    scales: {
+      y: { beginAtZero: true, title: { display: true, text: '件数 / 月', font: { size: 12, weight: 'bold' } } },
+      x: { ticks: { font: { size: 10 }, maxRotation: 50, minRotation: 50 } }
+    }
+  }
+});
+
+new Chart(document.getElementById('compareChart'), {
+  type: 'bar',
+  data: {
+    labels: ['出張査定', 'セルフ査定'],
+    datasets: [
+      {
+        label: '期間A (2024-07〜2025-06)',
+        data: [353, 212],
+        backgroundColor: ['rgba(37,99,235,0.45)', 'rgba(249,115,22,0.45)'],
+        borderColor: ['#2563eb', '#f97316'],
+        borderWidth: 2,
+        borderRadius: 8
+      },
+      {
+        label: '期間B (2025-07〜2026-04)',
+        data: [309, 284],
+        backgroundColor: ['rgba(37,99,235,0.95)', 'rgba(249,115,22,0.95)'],
+        borderColor: ['#1e40af', '#c2410c'],
+        borderWidth: 2,
+        borderRadius: 8
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 12, weight: 'bold' }, padding: 12 } },
+      tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: 月平均 ${ctx.parsed.y}件` } }
+    },
+    scales: { y: { beginAtZero: true, title: { display: true, text: '月平均 件数', font: { size: 12, weight: 'bold' } } } }
+  }
+});
+
+new Chart(document.getElementById('kpiChart'), {
+  type: 'bar',
+  data: {
+    labels: ['出品率 (%)', 'CR申込ベース (%)', '申込→出品 中央値 (日)', '案件あたり収益 (万円)'],
+    datasets: [
+      {
+        label: '出張査定',
+        data: [68.1, 29.9, 7, 16.0],
+        backgroundColor: 'rgba(37,99,235,0.85)',
+        borderColor: '#1e40af',
+        borderWidth: 2,
+        borderRadius: 6
+      },
+      {
+        label: 'セルフ査定',
+        data: [80.1, 30.3, 4, 11.7],
+        backgroundColor: 'rgba(249,115,22,0.85)',
+        borderColor: '#c2410c',
+        borderWidth: 2,
+        borderRadius: 6
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 12, weight: 'bold' }, padding: 12 } },
+      title: { display: true, text: '期間B (2025-07〜2026-04) 主要4指標比較', font: { size: 13, weight: 'bold' } },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => {
+            const units = ['%', '%', '日', '万円'];
+            return `${ctx.dataset.label}: ${ctx.parsed.y}${units[ctx.dataIndex]}`;
+          }
+        }
+      }
+    },
+    scales: { y: { beginAtZero: true, title: { display: true, text: '値（指標により単位が異なる）', font: { size: 11 } } } }
+  }
+});
+
+const crMonths = ['2024-07','2024-08','2024-09','2024-10','2024-11','2024-12',
+                  '2025-01','2025-02','2025-03','2025-04','2025-05','2025-06',
+                  '2025-07','2025-08','2025-09','2025-10','2025-11','2025-12',
+                  '2026-01','2026-02','2026-03','2026-04','2026-05*'];
+const onsiteCr = [34.9,33.7,31.3,29.7,29.2,34.6,23.5,24.0,21.1,28.9,29.0,30.7,
+                  29.7,35.8,32.9,30.4,34.4,29.3,24.8,29.1,28.8,25.8,12.9];
+const selfCr   = [33.1,36.5,22.6,32.0,32.9,23.3,26.3,26.6,24.5,28.6,29.5,31.3,
+                  33.6,32.6,35.7,36.3,34.1,29.3,26.5,30.5,26.5,23.2,19.7];
+
+new Chart(document.getElementById('crTrendChart'), {
+  type: 'line',
+  data: {
+    labels: crMonths,
+    datasets: [
+      {
+        label: '出張査定 CR(申込ベース) %',
+        data: onsiteCr,
+        borderColor: '#2563eb',
+        backgroundColor: 'rgba(37,99,235,0.12)',
+        borderWidth: 3,
+        tension: 0.35,
+        pointRadius: 4,
+        pointHoverRadius: 7,
+        fill: false
+      },
+      {
+        label: 'セルフ査定 CR(申込ベース) %',
+        data: selfCr,
+        borderColor: '#f97316',
+        backgroundColor: 'rgba(249,115,22,0.12)',
+        borderWidth: 3,
+        tension: 0.35,
+        pointRadius: 4,
+        pointHoverRadius: 7,
+        fill: false
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { position: 'top', labels: { font: { size: 13, weight: 'bold' }, padding: 14 } },
+      title: { display: true, text: 'CR(申込→成約) 月次推移 — 両経路はほぼ同じ帯を推移', font: { size: 13, weight: 'bold' } },
+      tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y}%` } }
+    },
+    scales: {
+      y: { beginAtZero: false, suggestedMin: 15, suggestedMax: 40, title: { display: true, text: 'CR %', font: { size: 12, weight: 'bold' } } },
+      x: { ticks: { font: { size: 10 }, maxRotation: 50, minRotation: 50 } }
+    }
+  }
+});
+</script>
+</body>
+</html>
