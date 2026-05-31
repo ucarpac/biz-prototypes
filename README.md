@@ -53,7 +53,18 @@ GitHub Pages で配信する UcarPAC の社内共有ハブです。
 | レベル | パスワード | 閲覧できるページ |
 |--------|-----------|----------------|
 | `full` | ucarpac2026 | 全ページ（UCP 社内向け） |
-| `agency` | agency2026 | `required: "agency"` のページのみ（代理店共有） |
+| `agency` | agency2026 | 代理店共有に指定したページのみ |
+
+### 社内 / 代理店の置き分け（レポートを代理店共有にする）
+
+レポートを代理店から見えるようにするには、次のどちらか：
+
+1. **ページ単位**: そのページの `PROTO_AUTH_CONFIG` に `required: "agency"` を付ける
+2. **パス一括**: `auth.js` 冒頭の `AGENCY_PATH_PREFIXES` にパスを追加（config を触らず共有可。
+   自動生成レポートや「社内 Reports と代理店ハブの両方に出すレポート」向け）
+
+そのうえで **`agency/index.html` にカードを追加**します（アクセス許可とハブ掲載は必ずセット）。
+現状 `ops/auto-kpi/` と `reports/ai-inflow-...` は `AGENCY_PATH_PREFIXES` で共有しています。
 
 各ページの `<head>` 末尾に以下を挿入します：
 
@@ -107,6 +118,17 @@ GitHub Pages で配信する UcarPAC の社内共有ハブです。
 | `/ucarpac-app/app-enhancement/prototype/<file>.html` | `← Hub / App プロトタイプ / App Enhancement / <title>` |
 
 配色はセクションで自動判定します（`ucarpac-app/` はダーク、その他はライト）。
+
+### 社内 / 代理店でパンくずを自動分岐
+
+パンくずは**閲覧者の認証レベル**に応じて変わり、押せないリンクを代理店ユーザーに見せません。
+
+| 閲覧者 | 代理店共有ページでのパンくず |
+|--------|--------------------------|
+| `full`（社内） | `← Hub / Reports / <title>` など通常の社内導線 |
+| `agency`（代理店） | `← 代理店ハブ / <title>`（必ず `/agency/` 起点。代理店ハブ自身では非表示） |
+
+代理店ユーザーは社内 Hub・Reports・ops 等の認証壁に当たりません。追加設定は不要です。
 
 ### `PROTO_AUTH_CONFIG` でのナビ制御（任意）
 
@@ -164,10 +186,13 @@ window.PROTO_AUTH_CONFIG = {
 
 ### D. 代理店共有レポートを追加
 
-上記 C に加えて：
+上記 C に加えて、代理店共有にする（どちらか）：
 
-5. `PROTO_AUTH_CONFIG` に `required: "agency"` を追加
-6. `agency/index.html` にもカードを追加
+5. ページ単位 → `PROTO_AUTH_CONFIG` に `required: "agency"` を追加、または
+   パス一括 → `auth.js` の `AGENCY_PATH_PREFIXES` にそのパスを追加
+6. `agency/index.html` にもカードを追加（アクセス許可とハブ掲載はセット）
+
+代理店ユーザーのパンくずは自動で `← 代理店ハブ / <title>` になります（社内導線は出ません）。
 
 ### E. 運用監視レポートを追加（ops/）
 

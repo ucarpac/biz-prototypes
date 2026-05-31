@@ -111,6 +111,36 @@
     return { crumbs: crumbs, dark: !!DARK_NAV_SECTIONS[top] };
   }
 
+  // 現在の閲覧者の認証レベル（"full" = 社内 / "agency" = 代理店共有）
+  function currentLevel() {
+    const s = readState();
+    return (s && s.level) || "full";
+  }
+
+  // 代理店ユーザー向けパンくず。社内専用ハブ/セクションへは誘導せず、
+  // 必ず「代理店ハブ」を起点にする（押せないリンクを見せない）。
+  function buildAgencyCrumbs() {
+    const base = getBasePath();
+    let path = location.pathname;
+    if (path.indexOf(base) === 0) path = path.slice(base.length);
+    let segs = path.split("/").filter(Boolean);
+    let file = null;
+    if (segs.length && /\.html?$/i.test(segs[segs.length - 1])) {
+      file = segs.pop();
+      if (/^index(-all)?\.html?$/i.test(file)) file = null;
+    }
+    // 代理店ハブ自身では出さない（代理店ユーザーにとってのホーム）
+    if (segs[0] === "agency" && !file) return null;
+    const leaf = CONFIG.title || document.title || "";
+    return {
+      crumbs: [
+        { label: "代理店ハブ", href: base + "agency/" },
+        { label: leaf, href: null },
+      ],
+      dark: false,
+    };
+  }
+
   function resolveNavConfig() {
     if (Array.isArray(CONFIG.nav) && CONFIG.nav.length) {
       const base = getBasePath();
@@ -124,6 +154,8 @@
       });
       return { crumbs: crumbs, dark: CONFIG.navTheme === "dark" };
     }
+    // 代理店ユーザーは社内導線を見せず、代理店ハブ起点のパンくずにする
+    if (currentLevel() === "agency") return buildAgencyCrumbs();
     return buildCrumbs();
   }
 
