@@ -1,0 +1,41 @@
+name: Update Push Notification Dashboard
+
+on:
+  schedule:
+    - cron: "0 0 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-dashboard-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: "${{ secrets.GCP_SA_KEY }}"
+
+      - name: Install dependencies
+        run: pip install -r requirements-dashboard.txt
+
+      - name: Generate dashboard data
+        run: python scripts/generate_push_dashboard_data.py --config reports/push-notification-20260528-p7k4m2q8/dashboard_config.json --output reports/push-notification-20260528-p7k4m2q8/push_notification_dashboard_data.js
+
+      - name: Commit updated dashboard data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/push-notification-20260528-p7k4m2q8/push_notification_dashboard_data.js
+          git diff --cached --quiet || git commit -m "Update push notification dashboard data"
+          git push

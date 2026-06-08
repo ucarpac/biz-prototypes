@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Push Notification Dashboard</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --line: #d9e2ee;
+      --text: #182235;
+      --muted: #5f6f85;
+      --blue: #1d4ed8;
+      --teal: #0f766e;
+      --orange: #d97706;
+      --rose: #e11d48;
+      --shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "Yu Gothic", "Meiryo", sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(29, 78, 216, 0.10), transparent 24%),
+        linear-gradient(180deg, #f9fbff 0%, var(--bg) 100%);
+    }
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 20px 56px;
+    }
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+    .stamp {
+      padding: 20px;
+    }
+    .stamp .label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .stamp .date {
+      margin-top: 10px;
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+    .summary {
+      padding: 22px 24px;
+    }
+    .summary h1 {
+      margin: 0 0 10px;
+      font-size: 34px;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+    }
+    .summary p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 14px;
+    }
+    .section {
+      margin-top: 18px;
+      padding: 22px;
+    }
+    .section h2 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: -0.03em;
+    }
+    .section .sub {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    }
+    .metric .label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+      line-height: 1.6;
+    }
+    .metric .value {
+      margin-top: 10px;
+      font-size: 34px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      font-variant-numeric: tabular-nums;
+    }
+    .metric .meta {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+      font-variant-numeric: tabular-nums;
+    }
+    .metric .status {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .status.ok {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .status.warn {
+      background: #ffedd5;
+      color: #9a3412;
+    }
+    .status.alert {
+      background: #ffe4e6;
+      color: #be123c;
+    }
+    .charts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .chart-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    }
+    .chart-card h3 {
+      margin: 0 0 6px;
+      font-size: 16px;
+    }
+    .chart-card p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+    .chart-wrap {
+      position: relative;
+      height: 260px;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 16px;
+    }
+    .note-box,
+    .table-box {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+    .note-box h3,
+    .table-box h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+    .note-box p,
+    .note-box li {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+    .note-box ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th,
+    td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    td.num,
+    th.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.8;
+    }
+    @media (max-width: 1080px) {
+      .hero,
+      .metrics,
+      .charts,
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="../../index.html">← Reports Index</a>
+
+    <div class="hero">
+      <section class="panel stamp">
+        <div class="label">Latest Snapshot</div>
+        <div class="date" id="latestDate">-</div>
+      </section>
+      <section class="panel summary">
+        <h1>OneSignal KPI Dashboard</h1>
+        <p id="summaryNote">
+          OneSignal の登録数、通知許諾、配信到達、クリックまでを同じ面で追えるようにしたレポートです。
+          現時点では 2026-05-19 時点のスナップショットを中心に整理し、履歴系列は GitHub Actions からの自動更新で今後拡充する前提にしています。
+        </p>
+      </section>
+    </div>
+
+    <section class="panel section">
+      <h2>Core Metrics</h2>
+      <p class="sub">
+        DL母数から OneSignal 登録、通知許諾、到達、クリックまでのファネルを一度に見られるようにしています。
+      </p>
+      <div class="metrics" id="metricGrid"></div>
+    </section>
+
+    <section class="panel section">
+      <h2>Trend View</h2>
+      <p class="sub">
+        現在は確定値のみを優先して反映しています。履歴データはワークフローによる追記を前提にした構成です。
+      </p>
+      <div class="charts">
+        <div class="chart-card">
+          <h3>Counts</h3>
+          <p>DL母数、OneSignal登録、通知許諾の推移</p>
+          <div class="chart-wrap"><canvas id="countChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>Rates</h3>
+          <p>登録率、許諾率、到達率、CTR を同じ尺度で比較</p>
+          <div class="chart-wrap"><canvas id="rateChart"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel section">
+      <h2>Notes & Source</h2>
+      <p class="sub">
+        この集計の前提、未確定項目、GitHub へ載せたソースをまとめています。
+      </p>
+      <div class="info-grid">
+        <div class="note-box">
+          <h3>前提と未確定事項</h3>
+          <ul>
+            <li>有効DL累計は OneSignal テーブルだけでは確定できないため、現時点では `33,855` をフォールバック値として利用しています。</li>
+            <li>Push経由DL数は今回のスナップショットに未反映です。AppsFlyer や AppDB と結合する拡張余地があります。</li>
+            <li>クリック数は `onesignal_notifications_raw.raw_json.clicked` を利用しています。</li>
+            <li>GitHub Actions は `push_notification_dashboard_data.js` を更新し、表示側の HTML は固定のまま使い回せる構成です。</li>
+          </ul>
+        </div>
+        <div class="table-box">
+          <h3>Source Files</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><a href="./README.md">README.md</a></td>
+                <td>構成、更新方法、前提の説明</td>
+              </tr>
+              <tr>
+                <td><a href="./source/onesignal_daily_kpi_template.csv">daily_kpi_template.csv</a></td>
+                <td>日次スナップショットの入力テンプレート</td>
+              </tr>
+              <tr>
+                <td><a href="./source/onesignal_kpi_plan_2026-05-25.md">kpi_plan.md</a></td>
+                <td>初期集計メモとKPI定義</td>
+              </tr>
+              <tr>
+                <td><a href="./source/onesignal_spreadsheet_setup.md">spreadsheet_setup.md</a></td>
+                <td>スプレッドシート運用方針</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="footer">
+        Generated view date: <span id="generatedDate">-</span><br>
+        Data updated date: <span id="updatedDate">-</span>
+      </div>
+    </section>
+  </div>
+
+  <script src="../../auth.js"></script>
+  <script src="./push_notification_dashboard_data.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script>
+    const dashboardData = window.__PUSH_DASHBOARD_DATA__ || {};
+    const entry = dashboardData.entry || {};
+    const topSeries = dashboardData.topSeries || [];
+
+    const formatNumber = value => new Intl.NumberFormat("ja-JP").format(Number(value || 0));
+    const formatPercent = value => `${(Number(value || 0) * 100).toFixed(1)}%`;
+    const statusClass = (value, target) => {
+      if (target == null) return "warn";
+      if (value >= target) return "ok";
+      if (value >= target * 0.9) return "warn";
+      return "alert";
+    };
+
+    document.getElementById("latestDate").textContent = entry.date || "-";
+    document.getElementById("summaryNote").textContent = dashboardData.summaryNote || document.getElementById("summaryNote").textContent;
+    document.getElementById("generatedDate").textContent = dashboardData.generatedDate || "-";
+    document.getElementById("updatedDate").textContent = dashboardData.updatedDate || "-";
+
+    const metricItems = [
+      {
+        label: "有効DL累計",
+        value: formatNumber(entry.cumulativeEffectiveDl),
+        meta: `目標 40,000`,
+        status: null
+      },
+      {
+        label: "OneSignal 登録数",
+        value: formatNumber(entry.osRegistered),
+        meta: `登録率 ${formatPercent(entry.osRegistered / (entry.cumulativeEffectiveDl || 1))}`,
+        status: { text: "登録率", value: entry.osRegistered / (entry.cumulativeEffectiveDl || 1), target: 0.90 }
+      },
+      {
+        label: "通知許諾数",
+        value: formatNumber(entry.subscribed),
+        meta: `DL基準 ${formatPercent(entry.subscribed / (entry.cumulativeEffectiveDl || 1))} / OS基準 ${formatPercent(entry.subscribed / (entry.osRegistered || 1))}`,
+        status: { text: "DL基準許諾率", value: entry.subscribed / (entry.cumulativeEffectiveDl || 1), target: 0.25 }
+      },
+      {
+        label: "配信対象数",
+        value: formatNumber(entry.delivered),
+        meta: `解除・無効化 ${formatNumber(entry.removedUnsub)} / 解除率 ${formatPercent(entry.removedUnsub / (entry.subscribed || 1))}`,
+        status: null
+      },
+      {
+        label: "到達数",
+        value: formatNumber(entry.reached),
+        meta: `到達率 ${formatPercent(entry.reached / (entry.delivered || 1))}`,
+        status: { text: "到達率", value: entry.reached / (entry.delivered || 1), target: 0.90 }
+      },
+      {
+        label: "クリック数",
+        value: formatNumber(entry.clicks),
+        meta: `CTR ${formatPercent(entry.clicks / (entry.reached || 1))}`,
+        status: { text: "CTR", value: entry.clicks / (entry.reached || 1), target: 0.10 }
+      }
+    ];
+
+    const metricGrid = document.getElementById("metricGrid");
+    metricItems.forEach(item => {
+      const el = document.createElement("div");
+      el.className = "metric";
+      let statusHtml = "";
+      if (item.status) {
+        const klass = statusClass(item.status.value, item.status.target);
+        statusHtml = `<span class="status ${klass}">${item.status.text} ${formatPercent(item.status.value)}</span>`;
+      }
+      el.innerHTML = `
+        <div class="label">${item.label}</div>
+        <div class="value">${item.value}</div>
+        <div class="meta">${item.meta}</div>
+        ${statusHtml}
+      `;
+      metricGrid.appendChild(el);
+    });
+
+    const countLabels = topSeries.map(row => row.month);
+    const countData = {
+      labels: countLabels,
+      datasets: [
+        {
+          label: "有効DL累計",
+          data: topSeries.map(() => entry.cumulativeEffectiveDl || 0),
+          borderColor: "#1d4ed8",
+          backgroundColor: "rgba(29, 78, 216, 0.12)",
+          tension: 0.3
+        },
+        {
+          label: "OneSignal登録",
+          data: topSeries.map(row => row.osRegistered || 0),
+          borderColor: "#0f766e",
+          backgroundColor: "rgba(15, 118, 110, 0.12)",
+          tension: 0.3
+        },
+        {
+          label: "通知許諾",
+          data: topSeries.map(row => row.subscribed || 0),
+          borderColor: "#d97706",
+          backgroundColor: "rgba(217, 119, 6, 0.12)",
+          tension: 0.3
+        }
+      ]
+    };
+
+    new Chart(document.getElementById("countChart"), {
+      type: "line",
+      data: countData,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: "bottom" } },
+        scales: {
+          y: {
+            ticks: {
+              callback: value => new Intl.NumberFormat("ja-JP", { notation: "compact" }).format(value)
+            }
+          }
+        }
+      }
+    });
+
+    const rateBase = {
+      registered: entry.osRegistered / (entry.cumulativeEffectiveDl || 1),
+      permission: entry.subscribed / (entry.cumulativeEffectiveDl || 1),
+      delivery: entry.reached / (entry.delivered || 1),
+      ctr: entry.clicks / (entry.reached || 1)
+    };
+
+    new Chart(document.getElementById("rateChart"), {
+      type: "bar",
+      data: {
+        labels: ["登録率", "許諾率", "到達率", "CTR"],
+        datasets: [
+          {
+            label: "Current",
+            data: [rateBase.registered, rateBase.permission, rateBase.delivery, rateBase.ctr],
+            backgroundColor: ["#1d4ed8", "#0f766e", "#d97706", "#e11d48"]
+          },
+          {
+            label: "Target",
+            data: [0.90, 0.25, 0.90, 0.10],
+            backgroundColor: "rgba(148, 163, 184, 0.35)"
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: "bottom" } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 1,
+            ticks: {
+              callback: value => `${Math.round(value * 100)}%`
+            }
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
