@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>査定員パフォーマンス分析 決算期別 2023年度〜2025年度</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  :root{--ink:#172033;--muted:#64748b;--line:#dbe3ef;--bg:#f6f8fb;--panel:#fff;--blue:#2563eb;--green:#059669;--amber:#b45309;--red:#dc2626}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;line-height:1.65}
+  .wrap{max-width:1220px;margin:0 auto;padding:20px}
+  .hero{background:#172033;color:#fff;border-radius:8px;padding:24px;margin-bottom:16px}
+  h1{font-size:24px;margin:0 0 8px}
+  .sub{color:#cbd5e1;font-size:13px}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .meta span{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);padding:4px 10px;border-radius:999px;font-size:11px;color:#e2e8f0}
+  section{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;margin-bottom:14px}
+  h2{font-size:18px;margin:0 0 12px;border-bottom:1px solid var(--line);padding-bottom:8px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:10px 0}
+  .card{border:1px solid var(--line);border-radius:8px;padding:12px;background:#fbfdff}
+  .label{font-size:11px;color:var(--muted)}
+  .value{font-size:24px;font-weight:800;margin-top:2px}
+  .note{font-size:12px;color:var(--muted);margin-top:4px}
+  .callout{border-left:4px solid var(--amber);background:#fff7ed;padding:10px 12px;border-radius:0 8px 8px 0;font-size:13px;margin-top:10px}
+  table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+  th,td{border-bottom:1px solid #e5edf6;padding:7px 8px;text-align:left}
+  th{background:#f1f5f9;color:#475569;font-size:11px}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  .chart{height:340px;position:relative}
+  .chart-tall{height:430px;position:relative}
+  .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+  .footer{font-size:11px;color:var(--muted);text-align:center;padding:12px}
+  @media(max-width:860px){.two{grid-template-columns:1fr}.chart,.chart-tall{height:300px}h1{font-size:20px}}
+</style>
+<script>
+  window.PROTO_AUTH_CONFIG = {
+    title: "査定員パフォーマンス分析",
+    subtitle: "UcarPAC 社内向け分析レポートです。認証状態は 24 時間保持されます。"
+  };
+</script>
+<script src="../../auth.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <h1>査定員パフォーマンス分析</h1>
+    <div class="sub">決算期（7月〜6月）に合わせた年度推移と、2025年度の主要取次店別パフォーマンス</div>
+    <div class="meta">
+      <span>作成日: 2026-05-27</span>
+      <span>対象期間: 2023-07-01〜2026-05-26</span>
+      <span>年度区切り: 7月〜翌6月</span>
+      <span>基準日: assessment_apply_datetime (JST)</span>
+      <span>データ: ucarpac-uapp.gas_data.all_deals_view</span>
+      <span>査定員/取次店: agent_shop</span>
+    </div>
+  </div>
+
+  <section>
+    <h2>集計定義</h2>
+    <div class="cards">
+      <div class="card"><div class="label">対象期間</div><div class="value">2023/07/01</div><div class="note">〜 2026/05/26</div></div>
+      <div class="card"><div class="label">査定数</div><div class="value">21,711</div><div class="note">期間内合計</div></div>
+      <div class="card"><div class="label">出品数</div><div class="value">15,293</div><div class="note">listing_datetimeあり</div></div>
+      <div class="card"><div class="label">成約数</div><div class="value">7,353</div><div class="note">売却歴あり・キャンセル除外 + 買取移行</div></div>
+    </div>
+    <div class="callout">
+      年度は決算期に合わせて「7月〜翌6月」で区切っています。2023年度と2024年度は12か月フル、2025年度は2025-07-01〜2026-05-26までの途中値です。
+    </div>
+  </section>
+
+  <section>
+    <h2>1. 決算期別サマリ</h2>
+    <div class="two">
+      <div class="chart"><canvas id="yearVolumeChart"></canvas></div>
+      <div class="chart"><canvas id="yearRateChart"></canvas></div>
+    </div>
+    <table>
+      <thead><tr><th>年度</th><th>期間</th><th class="num">査定数</th><th class="num">出品数</th><th class="num">成約数</th><th class="num">買取移行</th><th class="num">出品率</th><th class="num">成約率(出品)</th><th class="num">成約率(査定)</th></tr></thead>
+      <tbody>
+        <tr><td>2023年度</td><td>2023-07-01〜2024-06-30</td><td class="num">6,675</td><td class="num">4,864</td><td class="num">2,663</td><td class="num">170</td><td class="num">72.9%</td><td class="num">54.7%</td><td class="num">39.9%</td></tr>
+        <tr><td>2024年度</td><td>2024-07-01〜2025-06-30</td><td class="num">7,467</td><td class="num">5,049</td><td class="num">2,386</td><td class="num">256</td><td class="num">67.6%</td><td class="num">47.3%</td><td class="num">32.0%</td></tr>
+        <tr><td>2025年度</td><td>2025-07-01〜2026-05-26</td><td class="num">7,569</td><td class="num">5,380</td><td class="num">2,304</td><td class="num">225</td><td class="num">71.1%</td><td class="num">42.8%</td><td class="num">30.4%</td></tr>
+      </tbody>
+    </table>
+    <div class="callout">
+      2025年度は6月分を含まない途中値です。直近月は成約が後追いで増えるため、成約率は最終値より低く見えやすいです。
+    </div>
+  </section>
+
+  <section>
+    <h2>2. 決算期内の月次推移</h2>
+    <div class="chart-tall"><canvas id="monthlyChart"></canvas></div>
+    <table>
+      <thead><tr><th>月</th><th class="num">査定数</th><th class="num">出品数</th><th class="num">成約数</th><th class="num">出品率</th><th class="num">成約率(出品)</th><th class="num">成約率(査定)</th></tr></thead>
+      <tbody>
+        <tr><td>2025-07</td><td class="num">728</td><td class="num">433</td><td class="num">221</td><td class="num">59.5%</td><td class="num">51.0%</td><td class="num">30.4%</td></tr>
+        <tr><td>2025-08</td><td class="num">699</td><td class="num">484</td><td class="num">244</td><td class="num">69.2%</td><td class="num">50.4%</td><td class="num">34.9%</td></tr>
+        <tr><td>2025-09</td><td class="num">662</td><td class="num">458</td><td class="num">235</td><td class="num">69.2%</td><td class="num">51.3%</td><td class="num">35.5%</td></tr>
+        <tr><td>2025-10</td><td class="num">506</td><td class="num">383</td><td class="num">179</td><td class="num">75.7%</td><td class="num">46.7%</td><td class="num">35.4%</td></tr>
+        <tr><td>2025-11</td><td class="num">473</td><td class="num">359</td><td class="num">177</td><td class="num">75.9%</td><td class="num">49.3%</td><td class="num">37.4%</td></tr>
+        <tr><td>2025-12</td><td class="num">554</td><td class="num">424</td><td class="num">170</td><td class="num">76.5%</td><td class="num">40.1%</td><td class="num">30.7%</td></tr>
+        <tr><td>2026-01</td><td class="num">920</td><td class="num">665</td><td class="num">256</td><td class="num">72.3%</td><td class="num">38.5%</td><td class="num">27.8%</td></tr>
+        <tr><td>2026-02</td><td class="num">873</td><td class="num">634</td><td class="num">268</td><td class="num">72.6%</td><td class="num">42.3%</td><td class="num">30.7%</td></tr>
+        <tr><td>2026-03</td><td class="num">872</td><td class="num">653</td><td class="num">253</td><td class="num">74.9%</td><td class="num">38.7%</td><td class="num">29.0%</td></tr>
+        <tr><td>2026-04</td><td class="num">724</td><td class="num">544</td><td class="num">184</td><td class="num">75.1%</td><td class="num">33.8%</td><td class="num">25.4%</td></tr>
+        <tr><td>2026-05</td><td class="num">558</td><td class="num">343</td><td class="num">117</td><td class="num">61.5%</td><td class="num">34.1%</td><td class="num">21.0%</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>3. 東京査定センター（【C】【UcarPAC】）内訳</h2>
+    <table>
+      <thead><tr><th>年度</th><th>区分</th><th class="num">査定数</th><th class="num">出品数</th><th class="num">成約数</th><th class="num">出品率</th><th class="num">成約率(出品)</th><th class="num">成約率(査定)</th></tr></thead>
+      <tbody>
+        <tr><td>2023年度</td><td>カーセンサー同時</td><td class="num">35</td><td class="num">1</td><td class="num">0</td><td class="num">2.9%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>2023年度</td><td>それ以外</td><td class="num">43</td><td class="num">21</td><td class="num">9</td><td class="num">48.8%</td><td class="num">42.9%</td><td class="num">20.9%</td></tr>
+        <tr><td>2024年度</td><td>カーセンサー同時</td><td class="num">51</td><td class="num">0</td><td class="num">0</td><td class="num">0.0%</td><td class="num">-</td><td class="num">0.0%</td></tr>
+        <tr><td>2024年度</td><td>それ以外</td><td class="num">35</td><td class="num">24</td><td class="num">8</td><td class="num">68.6%</td><td class="num">33.3%</td><td class="num">22.9%</td></tr>
+        <tr><td>2025年度</td><td>それ以外</td><td class="num">7</td><td class="num">2</td><td class="num">0</td><td class="num">28.6%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+      </tbody>
+    </table>
+    <div class="callout">
+      `guest_manager_name` 相当の `assessor` に「カーセンサー同時」を含む案件で分類。東京査定センターCの低成約率は、2023年度・2024年度のカーセンサー同時案件がほぼ出品まで進んでいない影響が大きいです。2024年度は51査定に対して出品0件でした。
+    </div>
+  </section>
+
+  <section>
+    <h2>4. エリア・LP流入元の影響</h2>
+    <table>
+      <thead><tr><th>年度</th><th>取次店</th><th class="num">出品数</th><th class="num">実績CR</th><th class="num">エリア構成だけなら</th><th class="num">差分</th><th class="num">LP構成だけなら</th><th class="num">差分</th></tr></thead>
+      <tbody>
+        <tr><td>2025年度</td><td>【UcarPAC】（サポート）</td><td class="num">2,331</td><td class="num">40.6%</td><td class="num">41.0%</td><td class="num">-0.4pt</td><td class="num">43.9%</td><td class="num">-3.3pt</td></tr>
+        <tr><td>2025年度</td><td>カババ（査定）</td><td class="num">545</td><td class="num">18.5%</td><td class="num">41.9%</td><td class="num">-23.4pt</td><td class="num">18.5%</td><td class="num">0.0pt</td></tr>
+        <tr><td>2025年度</td><td>高橋(たかはし)</td><td class="num">487</td><td class="num">53.2%</td><td class="num">44.0%</td><td class="num">+9.2pt</td><td class="num">45.9%</td><td class="num">+7.3pt</td></tr>
+        <tr><td>2025年度</td><td>財津（ザイツ）</td><td class="num">164</td><td class="num">58.5%</td><td class="num">46.5%</td><td class="num">+12.0pt</td><td class="num">45.3%</td><td class="num">+13.2pt</td></tr>
+        <tr><td>2024年度</td><td>東京査定センター（【C】【UcarPAC】）それ以外</td><td class="num">24</td><td class="num">37.5%</td><td class="num">48.4%</td><td class="num">-10.9pt</td><td class="num">46.3%</td><td class="num">-8.8pt</td></tr>
+        <tr><td>2023年度</td><td>東京査定センター（【C】【UcarPAC】）それ以外</td><td class="num">21</td><td class="num">52.4%</td><td class="num">55.2%</td><td class="num">-2.8pt</td><td class="num">53.6%</td><td class="num">-1.2pt</td></tr>
+      </tbody>
+    </table>
+    <div class="callout">
+      エリア構成だけでは査定員差の大半は説明しきれません。2025年度の高橋・財津は、都道府県/LP構成で期待されるCRより実績が高く、案件ミックス以外の要因もありそうです。一方、カババはLP構成期待CRと実績CRがほぼ一致しており、LP流入元の質が低CRの主因と見てよさそうです。
+    </div>
+    <table>
+      <thead><tr><th>東京査定センターC 明細</th><th>区分</th><th class="num">出品</th><th class="num">成約</th><th class="num">CR</th></tr></thead>
+      <tbody>
+        <tr><td>2024年度</td><td>千葉県</td><td class="num">18</td><td class="num">6</td><td class="num">33.3%</td></tr>
+        <tr><td>2024年度</td><td>東京都</td><td class="num">5</td><td class="num">2</td><td class="num">40.0%</td></tr>
+        <tr><td>2024年度</td><td>LP52</td><td class="num">9</td><td class="num">2</td><td class="num">22.2%</td></tr>
+        <tr><td>2024年度</td><td>LP10</td><td class="num">5</td><td class="num">2</td><td class="num">40.0%</td></tr>
+        <tr><td>2023年度</td><td>千葉県</td><td class="num">12</td><td class="num">4</td><td class="num">33.3%</td></tr>
+        <tr><td>2023年度</td><td>東京都</td><td class="num">7</td><td class="num">6</td><td class="num">85.7%</td></tr>
+        <tr><td>2023年度</td><td>LP52</td><td class="num">8</td><td class="num">6</td><td class="num">75.0%</td></tr>
+      </tbody>
+    </table>
+    <div class="callout">
+      東京査定センターCは、出品後のエリア差・LP差もありますが、より大きいのは「カーセンサー同時」がほぼ出品化しない点です。2024年度はカーセンサー同時51査定に対して出品0件。出品後の2024年度「それ以外」も実績37.5%で、エリア構成期待48.4%、LP構成期待46.3%を下回っています。
+    </div>
+  </section>
+
+  <section>
+    <h2>5. 2025年度 取次店一覧（全件、PoC・デモ除外）</h2>
+    <div class="chart-tall"><canvas id="agent2026Chart"></canvas></div>
+    <table>
+      <thead><tr><th>取次店</th><th class="num">査定数</th><th class="num">出品数</th><th class="num">成約数</th><th class="num">出品率</th><th class="num">成約率(出品)</th><th class="num">成約率(査定)</th></tr></thead>
+      <tbody>
+        <tr><td>【UcarPAC】（サポート）</td><td class="num">2854</td><td class="num">2284</td><td class="num">864</td><td class="num">80.0%</td><td class="num">37.8%</td><td class="num">30.3%</td></tr>
+        <tr><td>カババ（査定）</td><td class="num">689</td><td class="num">551</td><td class="num">98</td><td class="num">80.0%</td><td class="num">17.8%</td><td class="num">14.2%</td></tr>
+        <tr><td>高橋(たかはし)（出張査定員）</td><td class="num">675</td><td class="num">472</td><td class="num">232</td><td class="num">69.9%</td><td class="num">49.2%</td><td class="num">34.4%</td></tr>
+        <tr><td>渡邊　宏（出張査定員）</td><td class="num">369</td><td class="num">251</td><td class="num">102</td><td class="num">68.0%</td><td class="num">40.6%</td><td class="num">27.6%</td></tr>
+        <tr><td>松本(マツモト)（出張査定員）</td><td class="num">327</td><td class="num">262</td><td class="num">115</td><td class="num">80.1%</td><td class="num">43.9%</td><td class="num">35.2%</td></tr>
+        <tr><td>財津（ザイツ）（出張査定員）</td><td class="num">220</td><td class="num">155</td><td class="num">85</td><td class="num">70.5%</td><td class="num">54.8%</td><td class="num">38.6%</td></tr>
+        <tr><td>ユーカーパック（名古屋買取）</td><td class="num">207</td><td class="num">0</td><td class="num">0</td><td class="num">0.0%</td><td class="num">-</td><td class="num">0.0%</td></tr>
+        <tr><td>Ps_AUTO（ピーズオート）</td><td class="num">182</td><td class="num">121</td><td class="num">45</td><td class="num">66.5%</td><td class="num">37.2%</td><td class="num">24.7%</td></tr>
+        <tr><td>【停止アカウント】Y2H（兵庫店）</td><td class="num">159</td><td class="num">120</td><td class="num">54</td><td class="num">75.5%</td><td class="num">45.0%</td><td class="num">34.0%</td></tr>
+        <tr><td>ハッピーカーズ国分寺店</td><td class="num">99</td><td class="num">69</td><td class="num">29</td><td class="num">69.7%</td><td class="num">42.0%</td><td class="num">29.3%</td></tr>
+        <tr><td>岡佐古（オカサコ）（出張査定員）</td><td class="num">94</td><td class="num">68</td><td class="num">31</td><td class="num">72.3%</td><td class="num">45.6%</td><td class="num">33.0%</td></tr>
+        <tr><td>株式会社BIGWIG</td><td class="num">88</td><td class="num">64</td><td class="num">17</td><td class="num">72.7%</td><td class="num">26.6%</td><td class="num">19.3%</td></tr>
+        <tr><td>佐竹（サタケ）（出張査定員）</td><td class="num">82</td><td class="num">59</td><td class="num">19</td><td class="num">72.0%</td><td class="num">32.2%</td><td class="num">23.2%</td></tr>
+        <tr><td>ワンエイト（井原（イハラ）出張査定員）</td><td class="num">74</td><td class="num">51</td><td class="num">27</td><td class="num">68.9%</td><td class="num">52.9%</td><td class="num">36.5%</td></tr>
+        <tr><td>ハッピーカーズ（福岡東店）</td><td class="num">70</td><td class="num">46</td><td class="num">14</td><td class="num">65.7%</td><td class="num">30.4%</td><td class="num">20.0%</td></tr>
+        <tr><td>（京都）高島（出張査定員）</td><td class="num">69</td><td class="num">49</td><td class="num">27</td><td class="num">71.0%</td><td class="num">55.1%</td><td class="num">39.1%</td></tr>
+        <tr><td>相澤（アイザワ）（出張査定員）</td><td class="num">66</td><td class="num">52</td><td class="num">21</td><td class="num">78.8%</td><td class="num">40.4%</td><td class="num">31.8%</td></tr>
+        <tr><td>SST（出張査定員）</td><td class="num">58</td><td class="num">42</td><td class="num">14</td><td class="num">72.4%</td><td class="num">33.3%</td><td class="num">24.1%</td></tr>
+        <tr><td>カーショップリベロ（豊中店）</td><td class="num">38</td><td class="num">27</td><td class="num">11</td><td class="num">71.1%</td><td class="num">40.7%</td><td class="num">28.9%</td></tr>
+        <tr><td>西田（出張査定員）</td><td class="num">38</td><td class="num">20</td><td class="num">6</td><td class="num">52.6%</td><td class="num">30.0%</td><td class="num">15.8%</td></tr>
+        <tr><td>泉崎 一徳（出張査定員）</td><td class="num">37</td><td class="num">31</td><td class="num">12</td><td class="num">83.8%</td><td class="num">38.7%</td><td class="num">32.4%</td></tr>
+        <tr><td>SPS（（京都）真柴出張査定員）</td><td class="num">34</td><td class="num">28</td><td class="num">11</td><td class="num">82.4%</td><td class="num">39.3%</td><td class="num">32.4%</td></tr>
+        <tr><td>金丸(カナマル)神奈川県全域（出張査定員）</td><td class="num">32</td><td class="num">25</td><td class="num">17</td><td class="num">78.1%</td><td class="num">68.0%</td><td class="num">53.1%</td></tr>
+        <tr><td>畑（出張査定員）</td><td class="num">31</td><td class="num">18</td><td class="num">7</td><td class="num">58.1%</td><td class="num">38.9%</td><td class="num">22.6%</td></tr>
+        <tr><td>東京査定センター（【B】【UcarPAC】）</td><td class="num">27</td><td class="num">19</td><td class="num">10</td><td class="num">70.4%</td><td class="num">52.6%</td><td class="num">37.0%</td></tr>
+        <tr><td>犬飼(イヌカイ)（出張査定員）</td><td class="num">27</td><td class="num">16</td><td class="num">4</td><td class="num">59.3%</td><td class="num">25.0%</td><td class="num">14.8%</td></tr>
+        <tr><td>山中（ヤマナカ）（出張査定員）</td><td class="num">26</td><td class="num">20</td><td class="num">12</td><td class="num">76.9%</td><td class="num">60.0%</td><td class="num">46.2%</td></tr>
+        <tr><td>川崎 貴洋（出張査定員）</td><td class="num">25</td><td class="num">19</td><td class="num">9</td><td class="num">76.0%</td><td class="num">47.4%</td><td class="num">36.0%</td></tr>
+        <tr><td>千葉八千代出張査定店（【スリーエムオート】）</td><td class="num">23</td><td class="num">18</td><td class="num">9</td><td class="num">78.3%</td><td class="num">50.0%</td><td class="num">39.1%</td></tr>
+        <tr><td>菊家（キクヤ）（出張査定員）</td><td class="num">23</td><td class="num">15</td><td class="num">2</td><td class="num">65.2%</td><td class="num">13.3%</td><td class="num">8.7%</td></tr>
+        <tr><td>東札幌（査定センター）</td><td class="num">22</td><td class="num">14</td><td class="num">4</td><td class="num">63.6%</td><td class="num">28.6%</td><td class="num">18.2%</td></tr>
+        <tr><td>スピンオフ</td><td class="num">20</td><td class="num">15</td><td class="num">10</td><td class="num">75.0%</td><td class="num">66.7%</td><td class="num">50.0%</td></tr>
+        <tr><td>ガレージ雅</td><td class="num">18</td><td class="num">11</td><td class="num">7</td><td class="num">61.1%</td><td class="num">63.6%</td><td class="num">38.9%</td></tr>
+        <tr><td>浅野（あさの）（出張査定員）</td><td class="num">17</td><td class="num">17</td><td class="num">6</td><td class="num">100.0%</td><td class="num">35.3%</td><td class="num">35.3%</td></tr>
+        <tr><td>株式会社WorksK（ワークスケー査定店）</td><td class="num">16</td><td class="num">11</td><td class="num">3</td><td class="num">68.8%</td><td class="num">27.3%</td><td class="num">18.8%</td></tr>
+        <tr><td>インスペクション サイトウ（西塔出張査定員）</td><td class="num">15</td><td class="num">13</td><td class="num">9</td><td class="num">86.7%</td><td class="num">69.2%</td><td class="num">60.0%</td></tr>
+        <tr><td>中村商事（中村出張査定員）</td><td class="num">14</td><td class="num">10</td><td class="num">2</td><td class="num">71.4%</td><td class="num">20.0%</td><td class="num">14.3%</td></tr>
+        <tr><td>合同会社ブルズ（本店）</td><td class="num">14</td><td class="num">11</td><td class="num">2</td><td class="num">78.6%</td><td class="num">18.2%</td><td class="num">14.3%</td></tr>
+        <tr><td>株式会社ワンドプロモーション（エージェント富士インター店）</td><td class="num">14</td><td class="num">9</td><td class="num">2</td><td class="num">64.3%</td><td class="num">22.2%</td><td class="num">14.3%</td></tr>
+        <tr><td>株式会社はなまる（大阪支店）</td><td class="num">12</td><td class="num">11</td><td class="num">6</td><td class="num">91.7%</td><td class="num">54.5%</td><td class="num">50.0%</td></tr>
+        <tr><td>Garage SMC（ガレージエスエムシー）</td><td class="num">11</td><td class="num">5</td><td class="num">2</td><td class="num">45.5%</td><td class="num">40.0%</td><td class="num">18.2%</td></tr>
+        <tr><td>中原 隆敬（出張査定員）</td><td class="num">11</td><td class="num">7</td><td class="num">4</td><td class="num">63.6%</td><td class="num">57.1%</td><td class="num">36.4%</td></tr>
+        <tr><td>金谷（かなや）（出張査定員）</td><td class="num">11</td><td class="num">9</td><td class="num">3</td><td class="num">81.8%</td><td class="num">33.3%</td><td class="num">27.3%</td></tr>
+        <tr><td>森谷（モリヤ）（出張査定員）</td><td class="num">10</td><td class="num">7</td><td class="num">4</td><td class="num">70.0%</td><td class="num">57.1%</td><td class="num">40.0%</td></tr>
+        <tr><td>ハッピーカーズ（熊本東店）</td><td class="num">9</td><td class="num">9</td><td class="num">5</td><td class="num">100.0%</td><td class="num">55.6%</td><td class="num">55.6%</td></tr>
+        <tr><td>東京査定センター（【C】【UcarPAC】）それ以外</td><td class="num">7</td><td class="num">2</td><td class="num">0</td><td class="num">28.6%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>SG査定員（エスジー査定員）</td><td class="num">6</td><td class="num">2</td><td class="num">2</td><td class="num">33.3%</td><td class="num">100.0%</td><td class="num">33.3%</td></tr>
+        <tr><td>大木（出張査定員）</td><td class="num">6</td><td class="num">3</td><td class="num">0</td><td class="num">50.0%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>有限会社ピュアオート</td><td class="num">6</td><td class="num">6</td><td class="num">1</td><td class="num">100.0%</td><td class="num">16.7%</td><td class="num">16.7%</td></tr>
+        <tr><td>株式会社はなまる（広島支店）</td><td class="num">6</td><td class="num">5</td><td class="num">3</td><td class="num">83.3%</td><td class="num">60.0%</td><td class="num">50.0%</td></tr>
+        <tr><td>株式会社はなまる（長野支店）</td><td class="num">6</td><td class="num">4</td><td class="num">4</td><td class="num">66.7%</td><td class="num">100.0%</td><td class="num">66.7%</td></tr>
+        <tr><td>株式会社はなまる（鹿児島支店）</td><td class="num">6</td><td class="num">6</td><td class="num">1</td><td class="num">100.0%</td><td class="num">16.7%</td><td class="num">16.7%</td></tr>
+        <tr><td>株式会社66AUTO（66AUTO）</td><td class="num">5</td><td class="num">4</td><td class="num">0</td><td class="num">80.0%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>（鳥取）小川（出張査定員）</td><td class="num">5</td><td class="num">3</td><td class="num">1</td><td class="num">60.0%</td><td class="num">33.3%</td><td class="num">20.0%</td></tr>
+        <tr><td>PRIME.C.S（海老根（えびね）出張査定員）</td><td class="num">4</td><td class="num">2</td><td class="num">0</td><td class="num">50.0%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>トータルリペア（アイル）</td><td class="num">3</td><td class="num">3</td><td class="num">1</td><td class="num">100.0%</td><td class="num">33.3%</td><td class="num">33.3%</td></tr>
+        <tr><td>ハッピーカーズ（熊本中央店）</td><td class="num">3</td><td class="num">0</td><td class="num">0</td><td class="num">0.0%</td><td class="num">-</td><td class="num">0.0%</td></tr>
+        <tr><td>ユーカーパック（買取）</td><td class="num">3</td><td class="num">0</td><td class="num">0</td><td class="num">0.0%</td><td class="num">-</td><td class="num">0.0%</td></tr>
+        <tr><td>有限会社ブルーム（中古車販売ＧＯ）</td><td class="num">3</td><td class="num">3</td><td class="num">0</td><td class="num">100.0%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>株式会社（ベル保険オフィス）</td><td class="num">3</td><td class="num">3</td><td class="num">0</td><td class="num">100.0%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>スガイ自動車（スガイ自動車車体）</td><td class="num">2</td><td class="num">1</td><td class="num">0</td><td class="num">50.0%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>埼玉ノース査定センター（【ラダー】）</td><td class="num">2</td><td class="num">2</td><td class="num">2</td><td class="num">100.0%</td><td class="num">100.0%</td><td class="num">100.0%</td></tr>
+        <tr><td>愛車広場ぱおぱお</td><td class="num">2</td><td class="num">1</td><td class="num">0</td><td class="num">50.0%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>くるま家八</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">100.0%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>カーケアショップ（タケウチ）</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">0.0%</td><td class="num">-</td><td class="num">0.0%</td></tr>
+        <tr><td>ハッピーカーズ（福山店）</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">100.0%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>上村石油ガス株式会社（カーコンビニ倶楽部あんかーる）</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">100.0%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>友福商事（ハッピーカーズ福岡西店）</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td class="num">100.0%</td><td class="num">100.0%</td><td class="num">100.0%</td></tr>
+        <tr><td>株式会社はなまる（新潟支店）</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">0.0%</td><td class="num">-</td><td class="num">0.0%</td></tr>
+        <tr><td>株式会社（サルカンプロダクション）</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">100.0%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>6. 2024年度 取次店一覧（全件、PoC・デモ除外）</h2>
+    <table>
+      <thead><tr><th>取次店</th><th class="num">査定数</th><th class="num">出品数</th><th class="num">成約数</th><th class="num">出品率</th><th class="num">成約率(出品)</th><th class="num">成約率(査定)</th></tr></thead>
+      <tbody>
+        <tr><td>【UcarPAC】（サポート）</td><td class="num">2542</td><td class="num">2033</td><td class="num">725</td><td class="num">80.0%</td><td class="num">35.7%</td><td class="num">28.5%</td></tr>
+        <tr><td>高橋(たかはし)（出張査定員）</td><td class="num">663</td><td class="num">480</td><td class="num">230</td><td class="num">72.4%</td><td class="num">47.9%</td><td class="num">34.7%</td></tr>
+        <tr><td>渡邊　宏（出張査定員）</td><td class="num">382</td><td class="num">250</td><td class="num">102</td><td class="num">65.4%</td><td class="num">40.8%</td><td class="num">26.7%</td></tr>
+        <tr><td>松本(マツモト)（出張査定員）</td><td class="num">375</td><td class="num">221</td><td class="num">94</td><td class="num">58.9%</td><td class="num">42.5%</td><td class="num">25.1%</td></tr>
+        <tr><td>岡佐古（オカサコ）（出張査定員）</td><td class="num">369</td><td class="num">210</td><td class="num">97</td><td class="num">56.9%</td><td class="num">46.2%</td><td class="num">26.3%</td></tr>
+        <tr><td>中古車屋FlyHigh（中古車屋フライハイ）</td><td class="num">364</td><td class="num">269</td><td class="num">122</td><td class="num">73.9%</td><td class="num">45.4%</td><td class="num">33.5%</td></tr>
+        <tr><td>【停止アカウント】Y2H（兵庫店）</td><td class="num">263</td><td class="num">158</td><td class="num">83</td><td class="num">60.1%</td><td class="num">52.5%</td><td class="num">31.6%</td></tr>
+        <tr><td>財津（ザイツ）（出張査定員）</td><td class="num">247</td><td class="num">192</td><td class="num">91</td><td class="num">77.7%</td><td class="num">47.4%</td><td class="num">36.8%</td></tr>
+        <tr><td>ユーカーパック（名古屋買取）</td><td class="num">245</td><td class="num">0</td><td class="num">0</td><td class="num">0.0%</td><td class="num">-</td><td class="num">0.0%</td></tr>
+        <tr><td>Ps_AUTO（ピーズオート）</td><td class="num">141</td><td class="num">112</td><td class="num">50</td><td class="num">79.4%</td><td class="num">44.6%</td><td class="num">35.5%</td></tr>
+        <tr><td>株式会社BIGWIG</td><td class="num">99</td><td class="num">68</td><td class="num">20</td><td class="num">68.7%</td><td class="num">29.4%</td><td class="num">20.2%</td></tr>
+        <tr><td>ハッピーカーズ（福岡東店）</td><td class="num">91</td><td class="num">69</td><td class="num">18</td><td class="num">75.8%</td><td class="num">26.1%</td><td class="num">19.8%</td></tr>
+        <tr><td>浅野（あさの）（出張査定員）</td><td class="num">89</td><td class="num">70</td><td class="num">35</td><td class="num">78.7%</td><td class="num">50.0%</td><td class="num">39.3%</td></tr>
+        <tr><td>ハッピーカーズ国分寺店</td><td class="num">57</td><td class="num">41</td><td class="num">17</td><td class="num">71.9%</td><td class="num">41.5%</td><td class="num">29.8%</td></tr>
+        <tr><td>（京都）高島（出張査定員）</td><td class="num">57</td><td class="num">43</td><td class="num">28</td><td class="num">75.4%</td><td class="num">65.1%</td><td class="num">49.1%</td></tr>
+        <tr><td>SST（出張査定員）</td><td class="num">51</td><td class="num">40</td><td class="num">16</td><td class="num">78.4%</td><td class="num">40.0%</td><td class="num">31.4%</td></tr>
+        <tr><td>東京査定センター（【C】【UcarPAC】）カーセンサー同時</td><td class="num">51</td><td class="num">0</td><td class="num">0</td><td class="num">0.0%</td><td class="num">-</td><td class="num">0.0%</td></tr>
+        <tr><td>泉崎 一徳（出張査定員）</td><td class="num">48</td><td class="num">33</td><td class="num">12</td><td class="num">68.8%</td><td class="num">36.4%</td><td class="num">25.0%</td></tr>
+        <tr><td>カーショップリベロ（豊中店）</td><td class="num">44</td><td class="num">38</td><td class="num">19</td><td class="num">86.4%</td><td class="num">50.0%</td><td class="num">43.2%</td></tr>
+        <tr><td>ユーカーパック（買取）</td><td class="num">44</td><td class="num">0</td><td class="num">0</td><td class="num">0.0%</td><td class="num">-</td><td class="num">0.0%</td></tr>
+        <tr><td>SPS（（京都）真柴出張査定員）</td><td class="num">43</td><td class="num">32</td><td class="num">16</td><td class="num">74.4%</td><td class="num">50.0%</td><td class="num">37.2%</td></tr>
+        <tr><td>株式会社ベータワン（出張査定員）</td><td class="num">43</td><td class="num">33</td><td class="num">14</td><td class="num">76.7%</td><td class="num">42.4%</td><td class="num">32.6%</td></tr>
+        <tr><td>金丸(カナマル)神奈川県全域（出張査定員）</td><td class="num">41</td><td class="num">26</td><td class="num">13</td><td class="num">63.4%</td><td class="num">50.0%</td><td class="num">31.7%</td></tr>
+        <tr><td>東京査定センター（【A】【UcarPAC】）</td><td class="num">39</td><td class="num">24</td><td class="num">12</td><td class="num">61.5%</td><td class="num">50.0%</td><td class="num">30.8%</td></tr>
+        <tr><td>東札幌（査定センター）</td><td class="num">36</td><td class="num">28</td><td class="num">17</td><td class="num">77.8%</td><td class="num">60.7%</td><td class="num">47.2%</td></tr>
+        <tr><td>東京査定センター（【C】【UcarPAC】）それ以外</td><td class="num">35</td><td class="num">24</td><td class="num">8</td><td class="num">68.6%</td><td class="num">33.3%</td><td class="num">22.9%</td></tr>
+        <tr><td>中村商事（中村出張査定員）</td><td class="num">33</td><td class="num">20</td><td class="num">8</td><td class="num">60.6%</td><td class="num">40.0%</td><td class="num">24.2%</td></tr>
+        <tr><td>犬飼(イヌカイ)（出張査定員）</td><td class="num">32</td><td class="num">27</td><td class="num">15</td><td class="num">84.4%</td><td class="num">55.6%</td><td class="num">46.9%</td></tr>
+        <tr><td>東京査定センター（【B】【UcarPAC】）</td><td class="num">30</td><td class="num">21</td><td class="num">8</td><td class="num">70.0%</td><td class="num">38.1%</td><td class="num">26.7%</td></tr>
+        <tr><td>千葉八千代出張査定店（【スリーエムオート】）</td><td class="num">25</td><td class="num">15</td><td class="num">10</td><td class="num">60.0%</td><td class="num">66.7%</td><td class="num">40.0%</td></tr>
+        <tr><td>川崎 貴洋（出張査定員）</td><td class="num">25</td><td class="num">19</td><td class="num">10</td><td class="num">76.0%</td><td class="num">52.6%</td><td class="num">40.0%</td></tr>
+        <tr><td>PRIME.C.S（海老根（えびね）出張査定員）</td><td class="num">24</td><td class="num">15</td><td class="num">4</td><td class="num">62.5%</td><td class="num">26.7%</td><td class="num">16.7%</td></tr>
+        <tr><td>ガレージ雅</td><td class="num">22</td><td class="num">16</td><td class="num">7</td><td class="num">72.7%</td><td class="num">43.8%</td><td class="num">31.8%</td></tr>
+        <tr><td>スピンオフ</td><td class="num">21</td><td class="num">16</td><td class="num">3</td><td class="num">76.2%</td><td class="num">18.8%</td><td class="num">14.3%</td></tr>
+        <tr><td>Azzurro（アズーロ）</td><td class="num">20</td><td class="num">13</td><td class="num">5</td><td class="num">65.0%</td><td class="num">38.5%</td><td class="num">25.0%</td></tr>
+        <tr><td>株式会社ワンドプロモーション（エージェント富士インター店）</td><td class="num">20</td><td class="num">11</td><td class="num">5</td><td class="num">55.0%</td><td class="num">45.5%</td><td class="num">25.0%</td></tr>
+        <tr><td>（鳥取）小川（出張査定員）</td><td class="num">19</td><td class="num">8</td><td class="num">3</td><td class="num">42.1%</td><td class="num">37.5%</td><td class="num">15.8%</td></tr>
+        <tr><td>有限会社ブルーム（中古車販売ＧＯ）</td><td class="num">18</td><td class="num">14</td><td class="num">4</td><td class="num">77.8%</td><td class="num">28.6%</td><td class="num">22.2%</td></tr>
+        <tr><td>Garage SMC（ガレージエスエムシー）</td><td class="num">17</td><td class="num">10</td><td class="num">3</td><td class="num">58.8%</td><td class="num">30.0%</td><td class="num">17.6%</td></tr>
+        <tr><td>株式会社66AUTO（66AUTO）</td><td class="num">17</td><td class="num">12</td><td class="num">1</td><td class="num">70.6%</td><td class="num">8.3%</td><td class="num">5.9%</td></tr>
+        <tr><td>トータルリペア（アイル）</td><td class="num">16</td><td class="num">11</td><td class="num">6</td><td class="num">68.8%</td><td class="num">54.5%</td><td class="num">37.5%</td></tr>
+        <tr><td>ワンエイト（井原（イハラ）出張査定員）</td><td class="num">16</td><td class="num">14</td><td class="num">6</td><td class="num">87.5%</td><td class="num">42.9%</td><td class="num">37.5%</td></tr>
+        <tr><td>中原 隆敬（出張査定員）</td><td class="num">16</td><td class="num">15</td><td class="num">13</td><td class="num">93.8%</td><td class="num">86.7%</td><td class="num">81.3%</td></tr>
+        <tr><td>インスペクション サイトウ（西塔出張査定員）</td><td class="num">15</td><td class="num">8</td><td class="num">4</td><td class="num">53.3%</td><td class="num">50.0%</td><td class="num">26.7%</td></tr>
+        <tr><td>合同会社ブルズ（本店）</td><td class="num">14</td><td class="num">10</td><td class="num">3</td><td class="num">71.4%</td><td class="num">30.0%</td><td class="num">21.4%</td></tr>
+        <tr><td>エネクスフリート株式会社（ENEOS吹田インターCS）</td><td class="num">13</td><td class="num">8</td><td class="num">3</td><td class="num">61.5%</td><td class="num">37.5%</td><td class="num">23.1%</td></tr>
+        <tr><td>茨城査定センター（【UcarPAC】）</td><td class="num">13</td><td class="num">2</td><td class="num">1</td><td class="num">15.4%</td><td class="num">50.0%</td><td class="num">7.7%</td></tr>
+        <tr><td>友福商事（ハッピーカーズ福岡西店）</td><td class="num">12</td><td class="num">7</td><td class="num">1</td><td class="num">58.3%</td><td class="num">14.3%</td><td class="num">8.3%</td></tr>
+        <tr><td>株式会社はなまる（長野支店）</td><td class="num">11</td><td class="num">10</td><td class="num">5</td><td class="num">90.9%</td><td class="num">50.0%</td><td class="num">45.5%</td></tr>
+        <tr><td>有限会社ピュアオート</td><td class="num">10</td><td class="num">8</td><td class="num">4</td><td class="num">80.0%</td><td class="num">50.0%</td><td class="num">40.0%</td></tr>
+        <tr><td>株式会社ジェイカーズ（ハッピーカーズ町田店）</td><td class="num">10</td><td class="num">9</td><td class="num">3</td><td class="num">90.0%</td><td class="num">33.3%</td><td class="num">30.0%</td></tr>
+        <tr><td>株式会社（サルカンプロダクション）</td><td class="num">10</td><td class="num">9</td><td class="num">4</td><td class="num">90.0%</td><td class="num">44.4%</td><td class="num">40.0%</td></tr>
+        <tr><td>株式会社WorksK（ワークスケー査定店）</td><td class="num">9</td><td class="num">9</td><td class="num">2</td><td class="num">100.0%</td><td class="num">22.2%</td><td class="num">22.2%</td></tr>
+        <tr><td>稲村（長野）（出張査定員）</td><td class="num">9</td><td class="num">6</td><td class="num">5</td><td class="num">66.7%</td><td class="num">83.3%</td><td class="num">55.6%</td></tr>
+        <tr><td>カーケアショップ（タケウチ）</td><td class="num">8</td><td class="num">7</td><td class="num">5</td><td class="num">87.5%</td><td class="num">71.4%</td><td class="num">62.5%</td></tr>
+        <tr><td>株式会社井上鈑金</td><td class="num">7</td><td class="num">5</td><td class="num">3</td><td class="num">71.4%</td><td class="num">60.0%</td><td class="num">42.9%</td></tr>
+        <tr><td>CAR&#39;Z（  [カーズ]）</td><td class="num">6</td><td class="num">5</td><td class="num">3</td><td class="num">83.3%</td><td class="num">60.0%</td><td class="num">50.0%</td></tr>
+        <tr><td>株式会社はなまる（仙台支店）</td><td class="num">6</td><td class="num">5</td><td class="num">3</td><td class="num">83.3%</td><td class="num">60.0%</td><td class="num">50.0%</td></tr>
+        <tr><td>上村石油ガス株式会社（カーコンビニ倶楽部あんかーる）</td><td class="num">5</td><td class="num">3</td><td class="num">0</td><td class="num">60.0%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>SG査定員（エスジー査定員）</td><td class="num">4</td><td class="num">4</td><td class="num">3</td><td class="num">100.0%</td><td class="num">75.0%</td><td class="num">75.0%</td></tr>
+        <tr><td>くるま家八</td><td class="num">4</td><td class="num">3</td><td class="num">0</td><td class="num">75.0%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>株式会社はなまる（札幌支店）</td><td class="num">4</td><td class="num">4</td><td class="num">2</td><td class="num">100.0%</td><td class="num">50.0%</td><td class="num">50.0%</td></tr>
+        <tr><td>株式会社（佐々オート）</td><td class="num">4</td><td class="num">3</td><td class="num">0</td><td class="num">75.0%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>カーショップ（ファイブテン）</td><td class="num">3</td><td class="num">1</td><td class="num">1</td><td class="num">33.3%</td><td class="num">100.0%</td><td class="num">33.3%</td></tr>
+        <tr><td>ハッピーカーズ（福山店）</td><td class="num">3</td><td class="num">3</td><td class="num">1</td><td class="num">100.0%</td><td class="num">33.3%</td><td class="num">33.3%</td></tr>
+        <tr><td>山中（ヤマナカ）（出張査定員）</td><td class="num">3</td><td class="num">2</td><td class="num">2</td><td class="num">66.7%</td><td class="num">100.0%</td><td class="num">66.7%</td></tr>
+        <tr><td>株式会社はなまる（新潟支店）</td><td class="num">3</td><td class="num">2</td><td class="num">1</td><td class="num">66.7%</td><td class="num">50.0%</td><td class="num">33.3%</td></tr>
+        <tr><td>株式会社はなまる（鹿児島支店）</td><td class="num">3</td><td class="num">2</td><td class="num">0</td><td class="num">66.7%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>株式会社（ベル保険オフィス）</td><td class="num">3</td><td class="num">2</td><td class="num">0</td><td class="num">66.7%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>埼玉ノース査定センター（【ラダー】）</td><td class="num">2</td><td class="num">0</td><td class="num">0</td><td class="num">0.0%</td><td class="num">-</td><td class="num">0.0%</td></tr>
+        <tr><td>株式会社Paddless（撮影代行）</td><td class="num">2</td><td class="num">1</td><td class="num">0</td><td class="num">50.0%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>鹿島谷（カジマヤ）（出張査定員）</td><td class="num">2</td><td class="num">2</td><td class="num">1</td><td class="num">100.0%</td><td class="num">50.0%</td><td class="num">50.0%</td></tr>
+        <tr><td>KAK MOTORS（横浜）</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td class="num">100.0%</td><td class="num">100.0%</td><td class="num">100.0%</td></tr>
+        <tr><td>demo店舗</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">0.0%</td><td class="num">-</td><td class="num">0.0%</td></tr>
+        <tr><td>河原（カワハラ）（出張査定員）</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">0.0%</td><td class="num">-</td><td class="num">0.0%</td></tr>
+        <tr><td>菊家（キクヤ）（出張査定員）</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">100.0%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>藪中（ヤブナカ）（出張査定員）</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td class="num">100.0%</td><td class="num">100.0%</td><td class="num">100.0%</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>7. 2023年度 取次店一覧（全件、PoC・デモ除外）</h2>
+    <table>
+      <thead><tr><th>取次店</th><th class="num">査定数</th><th class="num">出品数</th><th class="num">成約数</th><th class="num">出品率</th><th class="num">成約率(出品)</th><th class="num">成約率(査定)</th></tr></thead>
+      <tbody>
+        <tr><td>【UcarPAC】（サポート）</td><td class="num">1755</td><td class="num">1487</td><td class="num">713</td><td class="num">84.7%</td><td class="num">47.9%</td><td class="num">40.6%</td></tr>
+        <tr><td>高橋(たかはし)（出張査定員）</td><td class="num">590</td><td class="num">397</td><td class="num">207</td><td class="num">67.3%</td><td class="num">52.1%</td><td class="num">35.1%</td></tr>
+        <tr><td>松本(マツモト)（出張査定員）</td><td class="num">431</td><td class="num">310</td><td class="num">179</td><td class="num">71.9%</td><td class="num">57.7%</td><td class="num">41.5%</td></tr>
+        <tr><td>渡邊　宏（出張査定員）</td><td class="num">429</td><td class="num">319</td><td class="num">164</td><td class="num">74.4%</td><td class="num">51.4%</td><td class="num">38.2%</td></tr>
+        <tr><td>中古車屋FlyHigh（中古車屋フライハイ）</td><td class="num">415</td><td class="num">277</td><td class="num">168</td><td class="num">66.7%</td><td class="num">60.6%</td><td class="num">40.5%</td></tr>
+        <tr><td>岡佐古（オカサコ）（出張査定員）</td><td class="num">315</td><td class="num">216</td><td class="num">109</td><td class="num">68.6%</td><td class="num">50.5%</td><td class="num">34.6%</td></tr>
+        <tr><td>財津（ザイツ）（出張査定員）</td><td class="num">314</td><td class="num">229</td><td class="num">129</td><td class="num">72.9%</td><td class="num">56.3%</td><td class="num">41.1%</td></tr>
+        <tr><td>【停止アカウント】Y2H（兵庫店）</td><td class="num">195</td><td class="num">143</td><td class="num">77</td><td class="num">73.3%</td><td class="num">53.8%</td><td class="num">39.5%</td></tr>
+        <tr><td>Ps_AUTO（ピーズオート）</td><td class="num">148</td><td class="num">90</td><td class="num">51</td><td class="num">60.8%</td><td class="num">56.7%</td><td class="num">34.5%</td></tr>
+        <tr><td>東京査定センター（【A】【UcarPAC】）</td><td class="num">117</td><td class="num">80</td><td class="num">50</td><td class="num">68.4%</td><td class="num">62.5%</td><td class="num">42.7%</td></tr>
+        <tr><td>株式会社BIGWIG</td><td class="num">114</td><td class="num">82</td><td class="num">29</td><td class="num">71.9%</td><td class="num">35.4%</td><td class="num">25.4%</td></tr>
+        <tr><td>ハッピーカーズ（福岡東店）</td><td class="num">103</td><td class="num">69</td><td class="num">36</td><td class="num">67.0%</td><td class="num">52.2%</td><td class="num">35.0%</td></tr>
+        <tr><td>浅野（あさの）（出張査定員）</td><td class="num">102</td><td class="num">75</td><td class="num">46</td><td class="num">73.5%</td><td class="num">61.3%</td><td class="num">45.1%</td></tr>
+        <tr><td>河原（カワハラ）（出張査定員）</td><td class="num">86</td><td class="num">65</td><td class="num">29</td><td class="num">75.6%</td><td class="num">44.6%</td><td class="num">33.7%</td></tr>
+        <tr><td>エネクスフリート株式会社（ENEOS吹田インターCS）</td><td class="num">65</td><td class="num">46</td><td class="num">25</td><td class="num">70.8%</td><td class="num">54.3%</td><td class="num">38.5%</td></tr>
+        <tr><td>カーショップリベロ（豊中店）</td><td class="num">64</td><td class="num">42</td><td class="num">21</td><td class="num">65.6%</td><td class="num">50.0%</td><td class="num">32.8%</td></tr>
+        <tr><td>SST（出張査定員）</td><td class="num">62</td><td class="num">46</td><td class="num">31</td><td class="num">74.2%</td><td class="num">67.4%</td><td class="num">50.0%</td></tr>
+        <tr><td>株式会社ベータワン（出張査定員）</td><td class="num">62</td><td class="num">43</td><td class="num">16</td><td class="num">69.4%</td><td class="num">37.2%</td><td class="num">25.8%</td></tr>
+        <tr><td>（京都）高島（出張査定員）</td><td class="num">59</td><td class="num">47</td><td class="num">22</td><td class="num">79.7%</td><td class="num">46.8%</td><td class="num">37.3%</td></tr>
+        <tr><td>泉崎 一徳（出張査定員）</td><td class="num">55</td><td class="num">33</td><td class="num">18</td><td class="num">60.0%</td><td class="num">54.5%</td><td class="num">32.7%</td></tr>
+        <tr><td>東京査定センター（【C】【UcarPAC】）それ以外</td><td class="num">43</td><td class="num">21</td><td class="num">9</td><td class="num">48.8%</td><td class="num">42.9%</td><td class="num">20.9%</td></tr>
+        <tr><td>犬飼(イヌカイ)（出張査定員）</td><td class="num">42</td><td class="num">27</td><td class="num">11</td><td class="num">64.3%</td><td class="num">40.7%</td><td class="num">26.2%</td></tr>
+        <tr><td>SPS（（京都）真柴出張査定員）</td><td class="num">39</td><td class="num">22</td><td class="num">10</td><td class="num">56.4%</td><td class="num">45.5%</td><td class="num">25.6%</td></tr>
+        <tr><td>スピンオフ</td><td class="num">37</td><td class="num">24</td><td class="num">12</td><td class="num">64.9%</td><td class="num">50.0%</td><td class="num">32.4%</td></tr>
+        <tr><td>中村商事（中村出張査定員）</td><td class="num">37</td><td class="num">30</td><td class="num">16</td><td class="num">81.1%</td><td class="num">53.3%</td><td class="num">43.2%</td></tr>
+        <tr><td>茨城査定センター（【UcarPAC】）</td><td class="num">37</td><td class="num">13</td><td class="num">6</td><td class="num">35.1%</td><td class="num">46.2%</td><td class="num">16.2%</td></tr>
+        <tr><td>川崎 貴洋（出張査定員）</td><td class="num">35</td><td class="num">31</td><td class="num">16</td><td class="num">88.6%</td><td class="num">51.6%</td><td class="num">45.7%</td></tr>
+        <tr><td>東京査定センター（【C】【UcarPAC】）カーセンサー同時</td><td class="num">35</td><td class="num">1</td><td class="num">0</td><td class="num">2.9%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>PRIME.C.S（海老根（えびね）出張査定員）</td><td class="num">31</td><td class="num">23</td><td class="num">11</td><td class="num">74.2%</td><td class="num">47.8%</td><td class="num">35.5%</td></tr>
+        <tr><td>中原 隆敬（出張査定員）</td><td class="num">31</td><td class="num">21</td><td class="num">14</td><td class="num">67.7%</td><td class="num">66.7%</td><td class="num">45.2%</td></tr>
+        <tr><td>合同会社ブルズ（本店）</td><td class="num">31</td><td class="num">25</td><td class="num">12</td><td class="num">80.6%</td><td class="num">48.0%</td><td class="num">38.7%</td></tr>
+        <tr><td>ガレージ雅</td><td class="num">30</td><td class="num">22</td><td class="num">13</td><td class="num">73.3%</td><td class="num">59.1%</td><td class="num">43.3%</td></tr>
+        <tr><td>東札幌（査定センター）</td><td class="num">30</td><td class="num">18</td><td class="num">11</td><td class="num">60.0%</td><td class="num">61.1%</td><td class="num">36.7%</td></tr>
+        <tr><td>株式会社ワンドプロモーション（エージェント富士インター店）</td><td class="num">29</td><td class="num">22</td><td class="num">11</td><td class="num">75.9%</td><td class="num">50.0%</td><td class="num">37.9%</td></tr>
+        <tr><td>金丸(カナマル)神奈川県全域（出張査定員）</td><td class="num">27</td><td class="num">19</td><td class="num">6</td><td class="num">70.4%</td><td class="num">31.6%</td><td class="num">22.2%</td></tr>
+        <tr><td>千葉八千代出張査定店（【スリーエムオート】）</td><td class="num">26</td><td class="num">22</td><td class="num">11</td><td class="num">84.6%</td><td class="num">50.0%</td><td class="num">42.3%</td></tr>
+        <tr><td>ケーズファクトリー（Ks FACTORY）</td><td class="num">22</td><td class="num">17</td><td class="num">10</td><td class="num">77.3%</td><td class="num">58.8%</td><td class="num">45.5%</td></tr>
+        <tr><td>トータルリペア（アイル）</td><td class="num">22</td><td class="num">17</td><td class="num">11</td><td class="num">77.3%</td><td class="num">64.7%</td><td class="num">50.0%</td></tr>
+        <tr><td>株式会社66AUTO（66AUTO）</td><td class="num">21</td><td class="num">9</td><td class="num">5</td><td class="num">42.9%</td><td class="num">55.6%</td><td class="num">23.8%</td></tr>
+        <tr><td>株式会社（サルカンプロダクション）</td><td class="num">21</td><td class="num">14</td><td class="num">5</td><td class="num">66.7%</td><td class="num">35.7%</td><td class="num">23.8%</td></tr>
+        <tr><td>遠藤自動車商会（福島）（遠藤自動車商会）</td><td class="num">21</td><td class="num">16</td><td class="num">6</td><td class="num">76.2%</td><td class="num">37.5%</td><td class="num">28.6%</td></tr>
+        <tr><td>Garage SMC（ガレージエスエムシー）</td><td class="num">20</td><td class="num">12</td><td class="num">3</td><td class="num">60.0%</td><td class="num">25.0%</td><td class="num">15.0%</td></tr>
+        <tr><td>東京査定センター（【B】【UcarPAC】）</td><td class="num">20</td><td class="num">13</td><td class="num">7</td><td class="num">65.0%</td><td class="num">53.8%</td><td class="num">35.0%</td></tr>
+        <tr><td>Azzurro（アズーロ）</td><td class="num">18</td><td class="num">13</td><td class="num">5</td><td class="num">72.2%</td><td class="num">38.5%</td><td class="num">27.8%</td></tr>
+        <tr><td>CAR&#39;Z（  [カーズ]）</td><td class="num">18</td><td class="num">13</td><td class="num">4</td><td class="num">72.2%</td><td class="num">30.8%</td><td class="num">22.2%</td></tr>
+        <tr><td>ハッピーカーズ国分寺店</td><td class="num">18</td><td class="num">10</td><td class="num">7</td><td class="num">55.6%</td><td class="num">70.0%</td><td class="num">38.9%</td></tr>
+        <tr><td>鹿島谷（カジマヤ）（出張査定員）</td><td class="num">17</td><td class="num">11</td><td class="num">6</td><td class="num">64.7%</td><td class="num">54.5%</td><td class="num">35.3%</td></tr>
+        <tr><td>坂本(サカモト)静岡（出張査定員）</td><td class="num">16</td><td class="num">8</td><td class="num">5</td><td class="num">50.0%</td><td class="num">62.5%</td><td class="num">31.3%</td></tr>
+        <tr><td>（鳥取）小川（出張査定員）</td><td class="num">15</td><td class="num">12</td><td class="num">4</td><td class="num">80.0%</td><td class="num">33.3%</td><td class="num">26.7%</td></tr>
+        <tr><td>C.O.W（シーオーダブリュー）</td><td class="num">14</td><td class="num">10</td><td class="num">4</td><td class="num">71.4%</td><td class="num">40.0%</td><td class="num">28.6%</td></tr>
+        <tr><td>カーショップ（ファイブテン）</td><td class="num">14</td><td class="num">10</td><td class="num">6</td><td class="num">71.4%</td><td class="num">60.0%</td><td class="num">42.9%</td></tr>
+        <tr><td>有限会社ピュアオート</td><td class="num">13</td><td class="num">10</td><td class="num">6</td><td class="num">76.9%</td><td class="num">60.0%</td><td class="num">46.2%</td></tr>
+        <tr><td>有限会社ブルーム（中古車販売ＧＯ）</td><td class="num">12</td><td class="num">7</td><td class="num">2</td><td class="num">58.3%</td><td class="num">28.6%</td><td class="num">16.7%</td></tr>
+        <tr><td>株式会社はなまる（仙台支店）</td><td class="num">12</td><td class="num">8</td><td class="num">1</td><td class="num">66.7%</td><td class="num">12.5%</td><td class="num">8.3%</td></tr>
+        <tr><td>友福商事（ハッピーカーズ福岡西店）</td><td class="num">10</td><td class="num">7</td><td class="num">2</td><td class="num">70.0%</td><td class="num">28.6%</td><td class="num">20.0%</td></tr>
+        <tr><td>株式会社はなまる（広島支店）</td><td class="num">9</td><td class="num">7</td><td class="num">6</td><td class="num">77.8%</td><td class="num">85.7%</td><td class="num">66.7%</td></tr>
+        <tr><td>株式会社はなまる（長野支店）</td><td class="num">9</td><td class="num">7</td><td class="num">3</td><td class="num">77.8%</td><td class="num">42.9%</td><td class="num">33.3%</td></tr>
+        <tr><td>株式会社井上鈑金</td><td class="num">9</td><td class="num">6</td><td class="num">3</td><td class="num">66.7%</td><td class="num">50.0%</td><td class="num">33.3%</td></tr>
+        <tr><td>株式会社（佐々オート）</td><td class="num">9</td><td class="num">5</td><td class="num">4</td><td class="num">55.6%</td><td class="num">80.0%</td><td class="num">44.4%</td></tr>
+        <tr><td>SG査定員（エスジー査定員）</td><td class="num">5</td><td class="num">4</td><td class="num">2</td><td class="num">80.0%</td><td class="num">50.0%</td><td class="num">40.0%</td></tr>
+        <tr><td>レートリヒ株式会社（セイナカーズ）</td><td class="num">5</td><td class="num">4</td><td class="num">2</td><td class="num">80.0%</td><td class="num">50.0%</td><td class="num">40.0%</td></tr>
+        <tr><td>上村石油ガス株式会社（カーコンビニ倶楽部あんかーる）</td><td class="num">5</td><td class="num">3</td><td class="num">3</td><td class="num">60.0%</td><td class="num">100.0%</td><td class="num">60.0%</td></tr>
+        <tr><td>埼玉ノース査定センター（【ラダー】）</td><td class="num">5</td><td class="num">4</td><td class="num">2</td><td class="num">80.0%</td><td class="num">50.0%</td><td class="num">40.0%</td></tr>
+        <tr><td>KAK MOTORS（横浜）</td><td class="num">4</td><td class="num">3</td><td class="num">2</td><td class="num">75.0%</td><td class="num">66.7%</td><td class="num">50.0%</td></tr>
+        <tr><td>藪中（ヤブナカ）（出張査定員）</td><td class="num">4</td><td class="num">2</td><td class="num">2</td><td class="num">50.0%</td><td class="num">100.0%</td><td class="num">50.0%</td></tr>
+        <tr><td>高野（タカノ）（出張査定員）</td><td class="num">4</td><td class="num">3</td><td class="num">0</td><td class="num">75.0%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>株式会社はなまる（新潟支店）</td><td class="num">3</td><td class="num">3</td><td class="num">3</td><td class="num">100.0%</td><td class="num">100.0%</td><td class="num">100.0%</td></tr>
+        <tr><td>株式会社はなまる（鹿児島支店）</td><td class="num">3</td><td class="num">3</td><td class="num">1</td><td class="num">100.0%</td><td class="num">33.3%</td><td class="num">33.3%</td></tr>
+        <tr><td>株式会社（ベル保険オフィス）</td><td class="num">3</td><td class="num">3</td><td class="num">3</td><td class="num">100.0%</td><td class="num">100.0%</td><td class="num">100.0%</td></tr>
+        <tr><td>Ksガレージ（ケーズガレージ）</td><td class="num">2</td><td class="num">0</td><td class="num">0</td><td class="num">0.0%</td><td class="num">-</td><td class="num">0.0%</td></tr>
+        <tr><td>くるま家八</td><td class="num">2</td><td class="num">2</td><td class="num">2</td><td class="num">100.0%</td><td class="num">100.0%</td><td class="num">100.0%</td></tr>
+        <tr><td>カーケアショップ（タケウチ）</td><td class="num">2</td><td class="num">2</td><td class="num">2</td><td class="num">100.0%</td><td class="num">100.0%</td><td class="num">100.0%</td></tr>
+        <tr><td>ハッピーカーズ南アルプス店</td><td class="num">2</td><td class="num">1</td><td class="num">1</td><td class="num">50.0%</td><td class="num">100.0%</td><td class="num">50.0%</td></tr>
+        <tr><td>株式会社はなまる（札幌支店）</td><td class="num">2</td><td class="num">1</td><td class="num">1</td><td class="num">50.0%</td><td class="num">100.0%</td><td class="num">50.0%</td></tr>
+        <tr><td>KSL自動車 Corporation（【ケーエスエルジドウシャ　コーポレーション】）</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td class="num">100.0%</td><td class="num">100.0%</td><td class="num">100.0%</td></tr>
+        <tr><td>株式会社はなまる（東京支店）</td><td class="num">1</td><td class="num">1</td><td class="num">0</td><td class="num">100.0%</td><td class="num">0.0%</td><td class="num">0.0%</td></tr>
+        <tr><td>船橋出張（査定センター）</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num">0.0%</td><td class="num">-</td><td class="num">0.0%</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>8. 読み取り</h2>
+    <div class="cards">
+      <div class="card"><div class="label">成約率(出品)</div><div class="value">54.7% → 47.3% → 42.8%</div><div class="note">決算期ベースでも低下傾向</div></div>
+      <div class="card"><div class="label">出品率</div><div class="value">67〜73%</div><div class="note">2025年度は71.1%</div></div>
+      <div class="card"><div class="label">2025年度最大件数</div><div class="value">UcarPAC</div><div class="note">2,849査定 / CR 37.7%</div></div>
+      <div class="card"><div class="label">2025年度高CR</div><div class="value">財津 54.8%</div><div class="note">主要取次店内</div></div>
+    </div>
+    <div class="callout">
+      2025年度は2026年6月を含まない途中値です。査定申込から成約までのタイムラグがあるため、直近月の成約率は最終着地より低く表示されます。月末または翌月中旬に再集計すると、4月・5月の成約率は変動します。
+    </div>
+  </section>
+
+  <div class="footer">Generated from fiscal-year CSVs. Fiscal year is July through June.</div>
+</div>
+
+<script>
+const years = ['2023年度','2024年度','2025年度'];
+new Chart(document.getElementById('yearVolumeChart'), {
+  type: 'bar',
+  data: { labels: years, datasets: [
+    { label: '査定数', data: [6675,7467,7569], backgroundColor: '#2563eb' },
+    { label: '出品数', data: [4864,5049,5380], backgroundColor: '#059669' },
+    { label: '成約数', data: [2663,2386,2304], backgroundColor: '#b45309' }
+  ]},
+  options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}, scales:{y:{beginAtZero:true}} }
+});
+
+new Chart(document.getElementById('yearRateChart'), {
+  type: 'line',
+  data: { labels: years, datasets: [
+    { label: '出品率', data: [72.9,67.6,71.1], borderColor:'#2563eb', backgroundColor:'#2563eb', tension:.2 },
+    { label: '成約率(出品)', data: [54.7,47.3,42.8], borderColor:'#dc2626', backgroundColor:'#dc2626', tension:.2 },
+    { label: '成約率(査定)', data: [39.9,32.0,30.4], borderColor:'#059669', backgroundColor:'#059669', tension:.2 }
+  ]},
+  options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}, scales:{y:{min:0,max:80,ticks:{callback:v=>v+'%'}}} }
+});
+
+const months = ['23-07','23-08','23-09','23-10','23-11','23-12','24-01','24-02','24-03','24-04','24-05','24-06','24-07','24-08','24-09','24-10','24-11','24-12','25-01','25-02','25-03','25-04','25-05','25-06','25-07','25-08','25-09','25-10','25-11','25-12','26-01','26-02','26-03','26-04','26-05'];
+new Chart(document.getElementById('monthlyChart'), {
+  type: 'line',
+  data: { labels: months, datasets: [
+    { label:'成約率(出品)', data:[54.9,52.6,57.5,55.8,57.2,57.7,53.5,49.3,56.5,49.7,55.1,58.7,50.9,51.7,44.6,51.1,54.7,51.1,39.5,41.9,43.1,52.6,46.9,48.1,51.0,50.4,51.3,46.7,49.3,40.1,38.5,42.3,38.7,33.8,34.1], borderColor:'#dc2626', backgroundColor:'#dc2626', yAxisID:'yRate', tension:.18 },
+    { label:'出品率', data:[75.2,73.3,70.7,73.0,75.5,77.5,74.0,72.1,70.1,73.7,71.6,69.6,71.1,71.5,68.6,68.8,62.9,68.2,70.8,68.8,60.8,65.1,71.3,65.7,59.5,69.2,69.2,75.7,75.9,76.5,72.3,72.6,74.9,75.1,61.5], borderColor:'#2563eb', backgroundColor:'#2563eb', yAxisID:'yRate', tension:.18 },
+    { label:'査定数', data:[557,506,593,511,507,427,703,673,689,467,538,504,522,446,602,615,520,459,824,756,795,616,613,699,728,699,662,506,473,554,920,873,872,724,558], type:'bar', backgroundColor:'rgba(100,116,139,.25)', yAxisID:'yCount' }
+  ]},
+  options: {
+    responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}},
+    scales:{
+      yRate:{position:'left', min:0, max:80, ticks:{callback:v=>v+'%'}},
+      yCount:{position:'right', beginAtZero:true, grid:{drawOnChartArea:false}}
+    }
+  }
+});
+
+new Chart(document.getElementById('agent2026Chart'), {
+  type: 'bar',
+  data: { labels: ['UcarPAC','カババ','高橋','渡邊','松本','財津','名古屋買取','Ps_AUTO','Y2H','国分寺','岡佐古','BIGWIG','佐竹','井原','福岡東','京都高島','相澤','SST','豊中店','西田'],
+    datasets: [
+      { label:'査定数', data:[2849,688,672,369,327,220,207,182,159,99,94,88,82,74,70,69,66,57,37,37], backgroundColor:'#2563eb', yAxisID:'yCount' },
+      { label:'成約率(出品)', data:[37.7,17.9,49.3,40.8,44.1,54.8,0,37.2,45.0,42.0,45.6,26.6,30.5,52.9,30.4,55.1,40.4,33.3,44.0,30.0], backgroundColor:'#f59e0b', yAxisID:'yRate' }
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}},
+    scales:{
+      yCount:{position:'left', beginAtZero:true},
+      yRate:{position:'right', min:0, max:70, grid:{drawOnChartArea:false}, ticks:{callback:v=>v+'%'}}
+    }
+  }
+});
+</script>
+</body>
+</html>

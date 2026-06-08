@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="ja">
+<script src="../auth.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UcarPAC App 通知最適化プロトタイプ</title>
+  <style>
+    :root {
+      --pink: #F84CA2;
+      --dark-blue: #1c2663;
+      --white: #FFFFFF;
+      --text-black: #404040;
+      --text-gray: #737373;
+      --text-disabled: #B3B3B3;
+      --text-placeholder: rgba(28,38,99,0.3);
+      --button-gray: #CACEE2;
+      --button-link: #4099FF;
+      --back-white: #FAFAFA;
+      --back-gray: #EDF1F4;
+      --back-blue: #091355;
+      --back-dark-blue: #0a1348;
+      --back-light-pink: #ffd8e8;
+      --error: #EB4646;
+      --ruled-line: #F2F2F2;
+      --border-gray: #7C7C7C;
+      --gradient-primary: linear-gradient(90deg, #1ddcff, #4db4ff);
+      --gradient-pink: linear-gradient(90deg, #f84ca2, #f84ca2);
+      --gradient-disabled: linear-gradient(90deg, #e5e5e5, #e5e5e5);
+      --font-sans: 'Noto Sans JP', 'Hiragino Sans', system-ui, sans-serif;
+      --font-number: 'Righteous', 'Noto Sans JP', sans-serif;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --radius-sm: 5px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-chip: 22px;
+      --radius-button: 30px;
+      --shadow-light: 0 0 14px rgba(0,0,0,0.11);
+      --shadow-heavy: 0 18px 44px rgba(28,38,99,0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text-black);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(248,76,162,0.18), transparent 28%),
+        radial-gradient(circle at 88% 16%, rgba(29,220,255,0.18), transparent 30%),
+        linear-gradient(180deg, #fbfdff 0%, #edf1f4 100%);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .back-link {
+      color: var(--text-under-blue, #0056BA);
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: underline;
+    }
+
+    .date-pill {
+      min-height: 32px;
+      padding: 7px 12px;
+      color: var(--dark-blue);
+      background: var(--white);
+      border: 1px solid #cddced;
+      border-radius: var(--radius-chip);
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: var(--shadow-light);
+      white-space: nowrap;
+    }
+
+    .hero {
+      display: grid;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .hero-copy {
+      padding: 8px 2px 0;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 5px 12px;
+      color: var(--pink);
+      background: var(--back-light-pink);
+      border-radius: var(--radius-chip);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 16px 0 12px;
+      color: var(--dark-blue);
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1.5;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      margin: 0 0 16px;
+      color: var(--text-gray);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .badge {
+      min-height: 30px;
+      padding: 6px 12px;
+      color: var(--white);
+      background: var(--dark-blue);
+      border-radius: var(--radius-chip);
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: var(--shadow-light);
+    }
+
+    .badge.pink {
+      background: var(--pink);
+    }
+
+    .badge.blue {
+      color: var(--dark-blue);
+      background: var(--gradient-primary);
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .primary-button,
+    .pink-button,
+    .white-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 43px;
+      padding: 0 20px;
+      border-radius: var(--radius-button);
+      font-size: 14px;
+      font-weight: 800;
+      transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+      white-space: nowrap;
+    }
+
+    .primary-button {
+      color: var(--dark-blue);
+      background: var(--gradient-primary);
+      box-shadow: 0 8px 20px rgba(64,153,255,0.28);
+    }
+
+    .pink-button {
+      color: var(--white);
+      background: var(--gradient-pink);
+      box-shadow: 0 8px 20px rgba(248,76,162,0.28);
+    }
+
+    .white-button {
+      color: var(--dark-blue);
+      background: var(--white);
+      border: 1px solid var(--text-black);
+    }
+
+    .primary-button:active,
+    .pink-button:active,
+    .white-button:active,
+    .chip:active,
+    .mini-button:active {
+      transform: scale(0.96);
+    }
+
+    .phone-wrap {
+      display: flex;
+      justify-content: center;
+      min-height: 620px;
+    }
+
+    .phone {
+      width: min(100%, 375px);
+      min-height: 610px;
+      padding: 14px;
+      background: #101735;
+      border-radius: 34px;
+      box-shadow: var(--shadow-heavy);
+      position: relative;
+    }
+
+    .phone::before {
+      content: "";
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      width: 86px;
+      height: 18px;
+      background: #0b1029;
+      border-radius: 0 0 14px 14px;
+      transform: translateX(-50%);
+      z-index: 4;
+    }
+
+    .screen {
+      min-height: 582px;
+      overflow: hidden;
+      background: var(--back-white);
+      border-radius: 24px;
+      position: relative;
+    }
+
+    .app-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 42px;
+      padding: 10px 18px 0;
+      color: var(--dark-blue);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .signal {
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .signal span {
+      width: 5px;
+      background: var(--dark-blue);
+      border-radius: 5px;
+    }
+
+    .signal span:nth-child(1) {
+      height: 7px;
+    }
+
+    .signal span:nth-child(2) {
+      height: 10px;
+    }
+
+    .signal span:nth-child(3) {
+      height: 13px;
+    }
+
+    .app-shell {
+      padding: 8px 16px 18px;
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .app-title {
+      color: var(--dark-blue);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .coin {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      color: var(--white);
+      background: var(--pink);
+      border-radius: 50%;
+      font-size: 16px;
+      font-weight: 900;
+      box-shadow: 0 6px 18px rgba(248,76,162,0.35);
+      animation: pulse 1800ms ease-in-out infinite;
+    }
+
+    .progress-track {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .progress-step {
+      height: 7px;
+      background: #d9e1eb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .progress-step span {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: var(--gradient-primary);
+      border-radius: inherit;
+      transition: width 360ms ease;
+    }
+
+    .progress-step.active span {
+      width: 100%;
+    }
+
+    .scene {
+      display: none;
+      min-height: 454px;
+      animation: sceneIn 280ms ease both;
+    }
+
+    .scene.active {
+      display: block;
+    }
+
+    .scene-label {
+      margin-bottom: 8px;
+      color: var(--text-gray);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .diagnosis-card,
+    .setting-card,
+    .route-card,
+    .result-card,
+    .source-card {
+      width: 100%;
+      padding: 16px;
+      background: var(--white);
+      border: 1px solid #cddced;
+      border-radius: 13px;
+      box-shadow: var(--shadow-light);
+    }
+
+    .diagnosis-card {
+      min-height: 260px;
+      touch-action: pan-y;
+      position: relative;
+      transform: translateX(0) rotate(0);
+      transition: transform 220ms ease, opacity 220ms ease, border-color 220ms ease;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .variant-tag {
+      min-width: 54px;
+      min-height: 30px;
+      padding: 6px 10px;
+      text-align: center;
+      color: var(--white);
+      background: var(--dark-blue);
+      border-radius: var(--radius-chip);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .score {
+      color: var(--pink);
+      font-size: 26px;
+      font-weight: 900;
+      line-height: 1.5;
+    }
+
+    .notification-preview {
+      padding: 14px;
+      background: #f2f6fb;
+      border-radius: var(--radius-md);
+      border: 1px solid #d9e5f2;
+      margin-bottom: 14px;
+    }
+
+    .notification-app {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      color: var(--text-gray);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .app-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      color: var(--white);
+      background: var(--pink);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .notification-title {
+      color: var(--dark-blue);
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    .notification-body {
+      margin-top: 4px;
+      color: var(--text-black);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .metric {
+      padding: 10px 8px;
+      background: var(--back-white);
+      border-radius: var(--radius-md);
+      text-align: center;
+    }
+
+    .metric strong {
+      display: block;
+      color: var(--dark-blue);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--text-gray);
+      font-size: 10px;
+      line-height: 1.5;
+    }
+
+    .swipe-hint {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-gray);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .swipe-pill {
+      min-width: 94px;
+      padding: 7px 10px;
+      color: var(--dark-blue);
+      background: var(--gradient-primary);
+      border-radius: var(--radius-chip);
+      text-align: center;
+      animation: nudge 1300ms ease-in-out infinite;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0 16px;
+    }
+
+    .chip {
+      min-height: 43px;
+      padding: 0 14px;
+      color: var(--text-black);
+      background: var(--white);
+      border: 1px solid var(--ruled-line);
+      border-radius: var(--radius-chip);
+      font-size: 13px;
+      font-weight: 800;
+      transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+    }
+
+    .chip.selected {
+      color: var(--white);
+      background: var(--dark-blue);
+    }
+
+    .setting-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .setting-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 13px;
+      background: var(--back-white);
+      border-radius: var(--radius-md);
+      border: 1px solid #e4e9f1;
+    }
+
+    .setting-title {
+      color: var(--dark-blue);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .setting-desc {
+      color: var(--text-gray);
+      font-size: 11px;
+      line-height: 1.5;
+      margin-top: 2px;
+    }
+
+    .switch {
+      width: 52px;
+      height: 30px;
+      padding: 3px;
+      background: #d2d7e4;
+      border-radius: 20px;
+      transition: background 180ms ease;
+    }
+
+    .switch span {
+      display: block;
+      width: 24px;
+      height: 24px;
+      background: var(--white);
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: transform 180ms ease;
+    }
+
+    .switch.on {
+      background: var(--pink);
+    }
+
+    .switch.on span {
+      transform: translateX(22px);
+    }
+
+    .slider-wrap {
+      margin: 16px 0;
+      padding: 14px;
+      background: var(--white);
+      border: 1px solid #e4e9f1;
+      border-radius: var(--radius-md);
+    }
+
+    .slider-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      color: var(--dark-blue);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--pink);
+    }
+
+    .route-stage {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .route-node {
+      display: grid;
+      grid-template-columns: 42px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      background: var(--white);
+      border: 1px solid #d9e5f2;
+      border-radius: var(--radius-md);
+      opacity: 0.45;
+      transform: translateY(6px);
+      transition: opacity 260ms ease, transform 260ms ease, border-color 260ms ease;
+    }
+
+    .route-node.done {
+      opacity: 1;
+      transform: translateY(0);
+      border-color: var(--button-link);
+    }
+
+    .node-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      color: var(--white);
+      background: var(--dark-blue);
+      border-radius: 50%;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .node-title {
+      color: var(--dark-blue);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .node-desc {
+      color: var(--text-gray);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .checkmark {
+      width: 24px;
+      height: 24px;
+      color: var(--white);
+      background: var(--pink);
+      border-radius: 50%;
+      text-align: center;
+      line-height: 24px;
+      font-weight: 900;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: opacity 220ms ease, transform 220ms ease;
+    }
+
+    .route-node.done .checkmark {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .chart {
+      height: 132px;
+      margin: 14px 0;
+      padding: 12px;
+      background: linear-gradient(180deg, #ffffff 0%, #f2f7ff 100%);
+      border: 1px solid #dce8f5;
+      border-radius: var(--radius-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chart svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .car-price {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      margin-top: 12px;
+      padding: 14px;
+      background: var(--back-blue);
+      border-radius: var(--radius-md);
+      color: var(--white);
+    }
+
+    .price-label {
+      font-size: 12px;
+      color: var(--text-light-blue, #bfdbfe);
+    }
+
+    .price-value {
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 1.5;
+    }
+
+    .price-diff {
+      min-width: 74px;
+      padding: 8px 10px;
+      color: var(--white);
+      background: var(--pink);
+      border-radius: var(--radius-chip);
+      text-align: center;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .bottom-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .mini-button {
+      min-height: 43px;
+      border-radius: var(--radius-button);
+      font-size: 13px;
+      font-weight: 800;
+      transition: transform 180ms ease, opacity 180ms ease;
+    }
+
+    .mini-button.primary {
+      color: var(--dark-blue);
+      background: var(--gradient-primary);
+    }
+
+    .mini-button.pink {
+      color: var(--white);
+      background: var(--gradient-pink);
+    }
+
+    .mini-button.ghost {
+      color: var(--dark-blue);
+      background: var(--white);
+      border: 1px solid #cddced;
+    }
+
+    .toast {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 78px;
+      padding: 14px;
+      color: var(--white);
+      background: rgba(9,19,85,0.94);
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      font-weight: 700;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(20px);
+      transition: opacity 220ms ease, transform 220ms ease;
+      z-index: 8;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .tabbar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      height: 64px;
+      background: var(--white);
+      border-top: 1px solid #e4e9f1;
+      border-radius: 0 0 24px 24px;
+      overflow: hidden;
+    }
+
+    .tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-disabled);
+      font-size: 10px;
+      font-weight: 800;
+      gap: 2px;
+    }
+
+    .tab.active {
+      color: var(--pink);
+    }
+
+    .tab-icon {
+      font-size: 17px;
+      line-height: 1;
+    }
+
+    .research {
+      display: grid;
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .section-title {
+      margin: 0;
+      color: var(--dark-blue);
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    .research-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .source-card {
+      padding: 14px;
+    }
+
+    .source-card h3 {
+      margin: 0 0 8px;
+      color: var(--dark-blue);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .source-card p {
+      margin: 0;
+      color: var(--text-gray);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .source-card a {
+      color: #0056BA;
+      font-weight: 700;
+      word-break: break-all;
+    }
+
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .kpi-card {
+      padding: 16px;
+      color: var(--white);
+      background: var(--back-blue);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-light);
+    }
+
+    .kpi-card strong {
+      display: block;
+      font-size: 26px;
+      line-height: 1.5;
+    }
+
+    .kpi-card span {
+      display: block;
+      color: var(--text-light-blue, #bfdbfe);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .screen-flash {
+      animation: flash 520ms ease;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.08);
+      }
+    }
+
+    @keyframes sceneIn {
+      from {
+        opacity: 0;
+        transform: translateX(16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes nudge {
+      0%, 100% {
+        transform: translateX(0);
+      }
+      50% {
+        transform: translateX(7px);
+      }
+    }
+
+    @keyframes flash {
+      0% {
+        background-color: rgba(248,76,162,0.18);
+      }
+      100% {
+        background-color: transparent;
+      }
+    }
+
+    @media (min-width: 760px) {
+      .page {
+        padding: 28px 24px 56px;
+      }
+
+      .hero {
+        grid-template-columns: 1fr 410px;
+        gap: 38px;
+      }
+
+      h1 {
+        font-size: 40px;
+      }
+
+      .lead {
+        font-size: 16px;
+      }
+
+      .research-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .kpi-strip {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (max-width: 360px) {
+      .hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .primary-button,
+      .pink-button,
+      .white-button {
+        width: 100%;
+      }
+
+      .metric-row {
+        grid-template-columns: 1fr;
+      }
+
+      .bottom-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+<!-- ucp-prototype-nav:start -->
+<style>
+  .ucp-prototype-nav {
+    position: fixed;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2147483647;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 7px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.78);
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.22);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    font-family: "Noto Sans JP", "Hiragino Sans", system-ui, sans-serif;
+  }
+  .ucp-prototype-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.13);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .ucp-prototype-nav a:first-child {
+    background: #f84ca2;
+  }
+  @media (max-width: 520px) {
+    .ucp-prototype-nav {
+      top: auto;
+      bottom: 14px;
+      width: calc(100% - 28px);
+      justify-content: center;
+    }
+    .ucp-prototype-nav a {
+      flex: 1;
+      justify-content: center;
+    }
+  }
+</style>
+<nav class="ucp-prototype-nav" aria-label="プロトタイプ内ナビゲーション">
+  <a href="./">← プロトタイプ一覧</a>
+  <a href="../">全体トップ</a>
+</nav>
+<!-- ucp-prototype-nav:end -->
+  <script>
+    window.PROTO_AUTH_CONFIG = {
+      title: 'UcarPAC App 通知最適化プロトタイプ',
+      description: 'プッシュ通知の開封率と通知経由申込数を検証する社内プロトタイプ',
+      ttlHours: 24
+    };
+  </script>
+
+  <main class="page">
+    <div class="topbar">
+      <a class="back-link" href="../index.html">Reports に戻る</a>
+      <div class="date-pill">更新日 2026-05-29</div>
+    </div>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow">日次差分 / プッシュ通知の最適化</span>
+        <h1>通知タップからAI査定、申込までをゲーム感覚で進める</h1>
+        <p class="lead">
+          愛車の相場変動、売り時、出費管理の通知をユーザー自身が選び、通知文言テストから申込導線までを一画面で検証するプロトタイプです。
+        </p>
+        <div class="hero-badges">
+          <span class="badge pink">個人情報不要</span>
+          <span class="badge blue">AI査定</span>
+          <span class="badge">電話1社のみ</span>
+          <span class="badge">8,000店が入札</span>
+        </div>
+        <div class="hero-actions">
+          <button class="primary-button" id="startDemo">診断を開始</button>
+          <button class="white-button" id="jumpSettings">通知設定を見る</button>
+        </div>
+        <div class="kpi-strip">
+          <div class="kpi-card">
+            <strong id="heroOpenRate">13.8%</strong>
+            <span>想定開封率</span>
+          </div>
+          <div class="kpi-card">
+            <strong id="heroApplyRate">4.1%</strong>
+            <span>通知経由申込率</span>
+          </div>
+          <div class="kpi-card">
+            <strong>3案</strong>
+            <span>通知文言テスト</span>
+          </div>
+          <div class="kpi-card">
+            <strong>24h</strong>
+            <span>認証保持</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-wrap">
+        <div class="phone">
+          <div class="screen" id="screen">
+            <div class="app-status">
+              <span>9:41</span>
+              <span class="signal"><span></span><span></span><span></span></span>
+            </div>
+
+            <div class="app-shell">
+              <div class="app-header">
+                <div>
+                  <div class="app-title">通知クエスト</div>
+                  <div class="scene-label" id="sceneLabel">Step 1 / 通知文言テスト</div>
+                </div>
+                <div class="coin" id="questCoin">0</div>
+              </div>
+
+              <div class="progress-track">
+                <div class="progress-step active"><span></span></div>
+                <div class="progress-step"><span></span></div>
+                <div class="progress-step"><span></span></div>
+              </div>
+
+              <section class="scene active" id="sceneTest">
+                <div class="diagnosis-card" id="variantCard">
+                  <div class="card-top">
+                    <div>
+                      <div class="variant-tag" id="variantTag">A案</div>
+                    </div>
+                    <div class="score" id="variantScore">13.8%</div>
+                  </div>
+
+                  <div class="notification-preview">
+                    <div class="notification-app">
+                      <span class="app-icon">U</span>
+                      <span>UcarPAC</span>
+                      <span>今</span>
+                    </div>
+                    <div class="notification-title" id="noticeTitle">愛車の相場が12万円UP</div>
+                    <div class="notification-body" id="noticeBody">
+                      プリウス Sの相場が先週より上昇。個人情報なしでAI査定を更新できます。
+                    </div>
+                  </div>
+
+                  <div class="metric-row">
+                    <div class="metric">
+                      <strong id="metricOpen">13.8%</strong>
+                      <span>開封率</span>
+                    </div>
+                    <div class="metric">
+                      <strong id="metricRestart">7.4%</strong>
+                      <span>再起動率</span>
+                    </div>
+                    <div class="metric">
+                      <strong id="metricApply">4.1%</strong>
+                      <span>申込率</span>
+                    </div>
+                  </div>
+
+                  <div class="swipe-hint">
+                    <span>左右にスワイプして文言を比較</span>
+                    <span class="swipe-pill">次の案へ</span>
+                  </div>
+                </div>
+
+                <div class="chips" aria-label="通知文言選択">
+                  <button class="chip selected" data-variant="0">相場UP</button>
+                  <button class="chip" data-variant="1">売り時</button>
+                  <button class="chip" data-variant="2">出費連動</button>
+                </div>
+
+                <div class="bottom-actions">
+                  <button class="mini-button ghost" id="prevVariant">前の文言</button>
+                  <button class="mini-button primary" id="nextVariant">次の文言</button>
+                </div>
+              </section>
+
+              <section class="scene" id="sceneSettings">
+                <div class="setting-card">
+                  <div class="scene-label">通知設定UI</div>
+                  <div class="notification-title">自分で選ぶから、消されにくい通知へ</div>
+                  <div class="notification-body">
+                    頻度と種類を先に選ばせ、ユーザーの許容量を超えない通知体験にします。
+                  </div>
+
+                  <div class="slider-wrap">
+                    <div class="slider-head">
+                      <span>通知頻度</span>
+                      <span id="frequencyLabel">週2回</span>
+                    </div>
+                    <input id="frequencyRange" type="range" min="1" max="5" value="2">
+                  </div>
+
+                  <div class="setting-list">
+                    <div class="setting-item">
+                      <div>
+                        <div class="setting-title">相場変動のお知らせ</div>
+                        <div class="setting-desc">5万円以上の変動だけ通知</div>
+                      </div>
+                      <button class="switch on" data-setting="price"><span></span></button>
+                    </div>
+
+                    <div class="setting-item">
+                      <div>
+                        <div class="setting-title">売り時アラート</div>
+                        <div class="setting-desc">3ヶ月後予測と比較して通知</div>
+                      </div>
+                      <button class="switch on" data-setting="timing"><span></span></button>
+                    </div>
+
+                    <div class="setting-item">
+                      <div>
+                        <div class="setting-title">出費管理リマインド</div>
+                        <div class="setting-desc">給油、保険、車検の記録忘れを通知</div>
+                      </div>
+                      <button class="switch" data-setting="expense"><span></span></button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="bottom-actions">
+                  <button class="mini-button ghost" id="backToTest">文言に戻る</button>
+                  <button class="mini-button primary" id="goRoute">導線を試す</button>
+                </div>
+              </section>
+
+              <section class="scene" id="sceneRoute">
+                <div class="route-card">
+                  <div class="scene-label">通知→査定導線</div>
+                  <div class="notification-title">タップ後は迷わせず、査定更新から申込へ</div>
+                  <div class="notification-body">
+                    通知の価値と次の行動を一致させ、価格更新、AI査定、売却相談の順に進めます。
+                  </div>
+
+                  <div class="car-price">
+                    <div>
+                      <div class="price-label">トヨタ プリウス S 2020年</div>
+                      <div class="price-value">142万円</div>
+                    </div>
+                    <div class="price-diff">+12万</div>
+                  </div>
+
+                  <div class="chart">
+                    <svg viewBox="0 0 300 110" role="img" aria-label="将来予測グラフ">
+                      <defs>
+                        <linearGradient id="lineGrad" x1="0" x2="1" y1="0" y2="0">
+                          <stop offset="0%" stop-color="#1ddcff"></stop>
+                          <stop offset="100%" stop-color="#f84ca2"></stop>
+                        </linearGradient>
+                      </defs>
+                      <line x1="10" y1="86" x2="290" y2="86" stroke="#d8e2ef" stroke-width="1"></line>
+                      <line x1="10" y1="56" x2="290" y2="56" stroke="#d8e2ef" stroke-width="1"></line>
+                      <line x1="10" y1="26" x2="290" y2="26" stroke="#d8e2ef" stroke-width="1"></line>
+                      <path d="M12 72 C52 62, 72 58, 108 48 C150 36, 178 42, 212 28 C248 16, 270 24, 292 18" fill="none" stroke="url(#lineGrad)" stroke-width="5" stroke-linecap="round"></path>
+                      <circle cx="212" cy="28" r="7" fill="#f84ca2"></circle>
+                      <circle cx="292" cy="18" r="7" fill="#1c2663"></circle>
+                      <text x="10" y="104" font-size="11" fill="#737373">今月</text>
+                      <text x="130" y="104" font-size="11" fill="#737373">3ヶ月</text>
+                      <text x="250" y="104" font-size="11" fill="#737373">6ヶ月</text>
+                    </svg>
+                  </div>
+
+                  <div class="route-stage">
+                    <div class="route-node done" data-node="0">
+                      <div class="node-icon">1</div>
+                      <div>
+                        <div class="node-title">通知をタップ</div>
+                        <div class="node-desc">相場UPの理由を先に表示</div>
+                      </div>
+                      <div class="checkmark">✓</div>
+                    </div>
+
+                    <div class="route-node" data-node="1">
+                      <div class="node-icon">2</div>
+                      <div>
+                        <div class="node-title">AI査定を更新</div>
+                        <div class="node-desc">写真なしでも価格更新</div>
+                      </div>
+                      <div class="checkmark">✓</div>
+                    </div>
+
+                    <div class="route-node" data-node="2">
+                      <div class="node-icon">3</div>
+                      <div>
+                        <div class="node-title">売却相談へ</div>
+                        <div class="node-desc">電話1社、8,000店入札を提示</div>
+                      </div>
+                      <div class="checkmark">✓</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="bottom-actions">
+                  <button class="mini-button primary" id="advanceRoute">次へ進める</button>
+                  <button class="mini-button pink" id="applyNow">申込CTA</button>
+                </div>
+              </section>
+            </div>
+
+            <div class="toast" id="toast">通知文言A案を保存しました</div>
+
+            <nav class="tabbar" aria-label="アプリ内ナビゲーション">
+              <div class="tab active">
+                <span class="tab-icon">◆</span>
+                <span>査定</span>
+              </div>
+              <div class="tab">
+                <span class="tab-icon">¥</span>
+                <span>出費</span>
+              </div>
+              <div class="tab">
+                <span class="tab-icon">↑</span>
+                <span>通知</span>
+              </div>
+              <div class="tab">
+                <span class="tab-icon">●</span>
+                <span>マイページ</span>
+              </div>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="research">
+      <h2 class="section-title">検証材料と反映メモ</h2>
+
+      <div class="research-grid">
+        <article class="source-card">
+          <h3>通知文言テスト</h3>
+          <p>
+            Firebase Notifications Composerは、通知メッセージ改善のためにAnalyticsベースのA/Bテストを利用できる。
+            出典: Firebase Cloud Messaging documentation, 参照日: 2026-05-29,
+            <a href="https://firebase.google.com/docs/cloud-messaging/send/firebase-console?hl=ja">https://firebase.google.com/docs/cloud-messaging/send/firebase-console?hl=ja</a>
+          </p>
+        </article>
+
+        <article class="source-card">
+          <h3>通知設定UI</h3>
+          <p>
+            通知はユーザーが内容を判断できるよう、簡潔で十分な文脈を持つ本文が推奨される。
+            出典: Apple Human Interface Guidelines Notifications, 参照日: 2026-05-29,
+            <a href="https://developer.apple.com/design/human-interface-guidelines/notifications">https://developer.apple.com/design/human-interface-guidelines/notifications</a>
+          </p>
+        </article>
+
+        <article class="source-card">
+          <h3>KPIベンチマーク</h3>
+          <p>
+            Push通知の直接開封率、opt-in、月間送信数は業界や運用戦略で大きく変わるため、アプリ内KPIで日次差分を見る。
+            出典: Airship Mobile App Push Notification Benchmarks for 2025, 参照日: 2026-05-29,
+            <a href="https://www.airship.com/resources/benchmark-report/mobile-app-push-notification-benchmarks-for-2023/">https://www.airship.com/resources/benchmark-report/mobile-app-push-notification-benchmarks-for-2023/</a>
+          </p>
+        </article>
+      </div>
+
+      <div class="result-card">
+        <div class="scene-label">kpi-history反映案</div>
+        <div class="notification-title">push-open-rate / push-apply-count</div>
+        <div class="notification-body">
+          2026-05-29の日次差分として、A案「相場UP通知」を暫定勝ち筋、頻度は週2回、種類は相場変動と売り時アラートを初期ONに設定。
+          通知タップ後はAI査定更新画面へ直行し、価格更新後に売却相談CTAを表示する。
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const variants = [
+      {
+        tag: 'A案',
+        title: '愛車の相場が12万円UP',
+        body: 'プリウス Sの相場が先週より上昇。個人情報なしでAI査定を更新できます。',
+        open: '13.8%',
+        restart: '7.4%',
+        apply: '4.1%',
+        score: '13.8%',
+        toast: 'A案「相場UP」を保存しました'
+      },
+      {
+        tag: 'B案',
+        title: '今売ると3ヶ月後より高い予測',
+        body: 'AIが相場の下落タイミングを検知。売り時シミュレーションを確認しましょう。',
+        open: '12.1%',
+        restart: '6.8%',
+        apply: '3.7%',
+        score: '12.1%',
+        toast: 'B案「売り時」を保存しました'
+      },
+      {
+        tag: 'C案',
+        title: '今月の維持費が18,400円増えています',
+        body: 'ガソリン代と保険料を反映。愛車の価値と出費をまとめて確認できます。',
+        open: '10.9%',
+        restart: '6.2%',
+        apply: '2.9%',
+        score: '10.9%',
+        toast: 'C案「出費連動」を保存しました'
+      }
+    ];
+
+    const scenes = ['sceneTest', 'sceneSettings', 'sceneRoute'];
+    const labels = [
+      'Step 1 / 通知文言テスト',
+      'Step 2 / 通知設定UI',
+      'Step 3 / 通知→査定導線'
+    ];
+
+    let currentVariant = 0;
+    let currentScene = 0;
+    let questPoint = 0;
+    let routeStep = 0;
+    let dragStartX = 0;
+    let dragging = false;
+
+    const variantCard = document.getElementById('variantCard');
+    const toast = document.getElementById('toast');
+    const screen = document.getElementById('screen');
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      window.setTimeout(() => {
+        toast.classList.remove('show');
+      }, 1700);
+    }
+
+    function addPoint(value) {
+      questPoint += value;
+      document.getElementById('questCoin').textContent = questPoint;
+      screen.classList.remove('screen-flash');
+      void screen.offsetWidth;
+      screen.classList.add('screen-flash');
+    }
+
+    function setScene(index) {
+      currentScene = Math.max(0, Math.min(index, scenes.length - 1));
+      scenes.forEach((id, sceneIndex) => {
+        document.getElementById(id).classList.toggle('active', sceneIndex === currentScene);
+      });
+      document.querySelectorAll('.progress-step').forEach((step, stepIndex) => {
+        step.classList.toggle('active', stepIndex <= currentScene);
+      });
+      document.getElementById('sceneLabel').textContent = labels[currentScene];
+      addPoint(5);
+    }
+
+    function renderVariant(index) {
+      currentVariant = (index + variants.length) % variants.length;
+      const data = variants[currentVariant];
+      document.getElementById('variantTag').textContent = data.tag;
+      document.getElementById('noticeTitle').textContent = data.title;
+      document.getElementById('noticeBody').textContent = data.body;
+      document.getElementById('metricOpen').textContent = data.open;
+      document.getElementById('metricRestart').textContent = data.restart;
+      document.getElementById('metricApply').textContent = data.apply;
+      document.getElementById('variantScore').textContent = data.score;
+      document.getElementById('heroOpenRate').textContent = data.open;
+      document.getElementById('heroApplyRate').textContent = data.apply;
+      document.querySelectorAll('.chip[data-variant]').forEach((chip) => {
+        chip.classList.toggle('selected', Number(chip.dataset.variant) === currentVariant);
+      });
+      showToast(data.toast);
+      addPoint(3);
+    }
+
+    function nextVariant() {
+      variantCard.style.transform = 'translateX(28px) rotate(2deg)';
+      window.setTimeout(() => {
+        renderVariant(currentVariant + 1);
+        variantCard.style.transform = 'translateX(0) rotate(0)';
+      }, 160);
+    }
+
+    function prevVariant() {
+      variantCard.style.transform = 'translateX(-28px) rotate(-2deg)';
+      window.setTimeout(() => {
+        renderVariant(currentVariant - 1);
+        variantCard.style.transform = 'translateX(0) rotate(0)';
+      }, 160);
+    }
+
+    function updateFrequency(value) {
+      const labelsByValue = {
+        1: '週1回',
+        2: '週2回',
+        3: '週3回',
+        4: '重要時のみ',
+        5: '毎日'
+      };
+      document.getElementById('frequencyLabel').textContent = labelsByValue[value];
+      showToast(`通知頻度を${labelsByValue[value]}に変更しました`);
+      addPoint(2);
+    }
+
+    function advanceRoute() {
+      routeStep = Math.min(routeStep + 1, 2);
+      document.querySelectorAll('.route-node').forEach((node) => {
+        node.classList.toggle('done', Number(node.dataset.node) <= routeStep);
+      });
+      if (routeStep === 1) {
+        showToast('AI査定を更新しました。価格は142万円です');
+      } else if (routeStep === 2) {
+        showToast('売却相談CTAを表示しました');
+      }
+      addPoint(6);
+    }
+
+    document.getElementById('startDemo').addEventListener('click', () => {
+      setScene(0);
+      showToast('通知クエストを開始しました');
+    });
+
+    document.getElementById('jumpSettings').addEventListener('click', () => {
+      setScene(1);
+      showToast('通知設定に移動しました');
+    });
+
+    document.getElementById('nextVariant').addEventListener('click', nextVariant);
+    document.getElementById('prevVariant').addEventListener('click', prevVariant);
+
+    document.querySelectorAll('.chip[data-variant]').forEach((chip) => {
+      chip.addEventListener('click', () => {
+        renderVariant(Number(chip.dataset.variant));
+      });
+    });
+
+    document.getElementById('backToTest').addEventListener('click', () => {
+      setScene(0);
+    });
+
+    document.getElementById('goRoute').addEventListener('click', () => {
+      setScene(2);
+      showToast('通知タップ後の導線を開始しました');
+    });
+
+    document.getElementById('frequencyRange').addEventListener('input', (event) => {
+      updateFrequency(event.target.value);
+    });
+
+    document.querySelectorAll('.switch').forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        toggle.classList.toggle('on');
+        const title = toggle.closest('.setting-item').querySelector('.setting-title').textContent;
+        const enabled = toggle.classList.contains('on') ? 'ON' : 'OFF';
+        showToast(`${title}を${enabled}にしました`);
+        addPoint(2);
+      });
+    });
+
+    document.getElementById('advanceRoute').addEventListener('click', advanceRoute);
+
+    document.getElementById('applyNow').addEventListener('click', () => {
+      routeStep = 2;
+      document.querySelectorAll('.route-node').forEach((node) => {
+        node.classList.add('done');
+      });
+      showToast('申込導線の検証完了: 通知経由申込数に反映');
+      addPoint(12);
+    });
+
+    variantCard.addEventListener('pointerdown', (event) => {
+      dragging = true;
+      dragStartX = event.clientX;
+      variantCard.setPointerCapture(event.pointerId);
+    });
+
+    variantCard.addEventListener('pointermove', (event) => {
+      if (!dragging) return;
+      const diff = event.clientX - dragStartX;
+      const rotate = diff / 32;
+      variantCard.style.transform = `translateX(${diff}px) rotate(${rotate}deg)`;
+    });
+
+    variantCard.addEventListener('pointerup', (event) => {
+      if (!dragging) return;
+      dragging = false;
+      const diff = event.clientX - dragStartX;
+      if (diff > 70) {
+        prevVariant();
+      } else if (diff < -70) {
+        nextVariant();
+      } else {
+        variantCard.style.transform = 'translateX(0) rotate(0)';
+      }
+    });
+
+    window.setTimeout(() => {
+      showToast('A案が暫定トップです。スワイプで比較できます');
+    }, 700);
+  </script>
+</body>
+</html>

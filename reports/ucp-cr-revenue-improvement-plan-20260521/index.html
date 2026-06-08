@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>2026年 売上改善・体制最適化 統合計画 (5/20 延伸版)</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  :root{--ink:#0f172a;--char:#24324a;--slate:#64748b;--mist:#f1f5f9;--blue:#2563eb;--blue-s:#dbeafe;--green:#059669;--green-s:#d1fae5;--amber:#d97706;--amber-s:#fef3c7;--red:#dc2626;--red-s:#fee2e2;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'BIZ UDPGothic','Hiragino Sans','Noto Sans JP',sans-serif;background:#f8fafc;color:var(--char);line-height:1.7;}
+  .container{max-width:1240px;margin:0 auto;padding:20px;}
+  .header{background:linear-gradient(135deg,#0f172a,#1d4ed8);color:#fff;padding:28px;border-radius:16px;margin-bottom:18px;}
+  .header h1{font-size:22px;font-weight:700;margin-bottom:6px;}
+  .header .sub{font-size:13px;color:#cbd5e1;}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .meta span{font-size:11px;color:#dbeafe;background:rgba(255,255,255,.12);padding:4px 10px;border-radius:999px;}
+  .sec{background:#fff;border-radius:12px;padding:20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(15,23,42,.08);}
+  .sec h2{font-size:17px;font-weight:700;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid var(--mist);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0;}
+  .card{padding:14px;border-radius:12px;text-align:center;background:var(--mist);}
+  .card .label{font-size:10px;color:var(--slate);}
+  .card .value{font-size:24px;font-weight:800;}
+  .card .small{font-size:10px;color:var(--slate);margin-top:4px;}
+  .chart-wrap{position:relative;height:340px;margin:10px 0 6px;}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12px;}
+  th,td{padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:left;}
+  th{background:var(--mist);font-size:11px;color:var(--slate);font-weight:700;}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;}
+  .nt{border-left:4px solid var(--amber);background:var(--amber-s);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px;}
+  ul{margin:8px 0 8px 18px;font-size:12px;}
+  li{margin-bottom:4px;}
+  .footer{text-align:center;padding:18px;color:var(--slate);font-size:11px;}
+</style>
+<script>
+  window.PROTO_AUTH_CONFIG = {
+    title: "売上改善・体制最適化 統合計画 (5/20延伸版)",
+    subtitle: "UcarPAC 社内向け分析レポートです。認証状態は24時間保持されます。"
+  };
+</script>
+<script src="../../auth.js"></script>
+</head>
+<body>
+
+
+<div class="container">
+
+<div class="header">
+  <h1>2026年 売上改善・体制最適化 統合計画 (5/20 延伸版)</h1>
+  <div class="sub">売上改善アクションプラン・統合計画書・最適化計画書・最適配置計画書 4本を統合し、Phase 3 実績 (+5,568万/年) を起点に再シミュレーション</div>
+  <div class="meta">
+    <span>作成日: 2026-05-21</span>
+    <span>データ: ucarpac-uapp.gas_data.all_deals_view</span>
+    <span>Period A: 2024-07 〜 2025-06 (12ヶ月)</span>
+    <span>Period B: 2025-07 〜 2026-05-20 (10.7ヶ月)</span>
+  </div>
+</div>
+
+<div class="sec">
+  <h2>サマリ — 実績ベース + 上積み余地</h2>
+  <div class="grid">
+    <div class="card"><div class="label">既達成 (Period B)</div><div class="value">+5,568万</div><div class="small">年換算、月平均 +464万</div></div>
+    <div class="card"><div class="label">加算金管理</div><div class="value">+370〜1,000万</div><div class="small">税超過 33.9% → 20% 抑制</div></div>
+    <div class="card"><div class="label">売切価格適正化</div><div class="value">+300万</div><div class="small">LP66 / LP11 見直し</div></div>
+    <div class="card"><div class="label">体制安定化</div><div class="value">-480万</div><div class="small">出品新人 1 名、売上 ±0</div></div>
+    <div class="card"><div class="label">統合シナリオ</div><div class="value">+190〜+1,820万</div><div class="small">保守 / 中間 / 楽観</div></div>
+  </div>
+  <div class="nt">
+    既に Period A → B の取り組みで年 +5,568 万円相当を達成済み。本計画は <b>その上に積み上げる上積み余地</b> を示すもの。各シナリオは相関関係ベースの想定で、因果関係を確定するものではありません。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>1. 加算金消費税消化率の分布 (Period B)</h2>
+  <div class="chart-wrap"><canvas id="taxBandChart"></canvas></div>
+  <table>
+    <thead><tr><th>帯</th><th class="num">件数</th><th class="num">比率</th><th class="num">平均売上(k)</th><th class="num">売上合計(万)</th><th class="num">加算金合計(万)</th><th class="num">平均車両価格(万)</th></tr></thead>
+    <tbody>
+      <tr><td>加算金なし</td><td class="num">587</td><td class="num">28.7%</td><td class="num">156</td><td class="num">9,152</td><td class="num">0</td><td class="num">86</td></tr>
+      <tr><td>50%未満</td><td class="num">178</td><td class="num">8.7%</td><td class="num">223</td><td class="num">3,977</td><td class="num">790</td><td class="num">179</td></tr>
+      <tr><td>50-85%</td><td class="num">338</td><td class="num">16.5%</td><td class="num">172</td><td class="num">5,815</td><td class="num">4,126</td><td class="num">207</td></tr>
+      <tr><td>85-100%</td><td class="num">251</td><td class="num">12.3%</td><td class="num">163</td><td class="num">4,099</td><td class="num">5,389</td><td class="num">282</td></tr>
+      <tr><td><b>100-120% (税超過)</b></td><td class="num"><b>306</b></td><td class="num"><b>15.0%</b></td><td class="num">127</td><td class="num">3,898</td><td class="num">7,598</td><td class="num">276</td></tr>
+      <tr><td><b>120%超 (税超過)</b></td><td class="num"><b>387</b></td><td class="num"><b>18.9%</b></td><td class="num"><b>66</b></td><td class="num">2,555</td><td class="num">4,067</td><td class="num">91</td></tr>
+    </tbody>
+  </table>
+  <div class="nt">
+    税超過 (>100%) 帯は合計 693 件 (33.9%) で、元レポートの「税超過率 33%」と一致。税超過帯の平均売上は 66〜127k で、税超過なし帯 (156〜223k) より低い水準。加算金管理の余地を示唆する分布です。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>2. 統合シナリオ別の年間効果見積もり</h2>
+  <div class="chart-wrap"><canvas id="scenarioChart"></canvas></div>
+  <table>
+    <thead><tr><th>シナリオ</th><th class="num">加算金管理</th><th class="num">売切適正化</th><th class="num">体制 (人件費)</th><th class="num">運用改善上積み</th><th class="num">純効果 / 年</th></tr></thead>
+    <tbody>
+      <tr><td>保守</td><td class="num">+370</td><td class="num">+300</td><td class="num">-480</td><td class="num">+0</td><td class="num"><b>+190 万</b></td></tr>
+      <tr><td>中間</td><td class="num">+740</td><td class="num">+300</td><td class="num">-480</td><td class="num">+500</td><td class="num"><b>+1,060 万</b></td></tr>
+      <tr><td>楽観</td><td class="num">+1,000</td><td class="num">+300</td><td class="num">-480</td><td class="num">+1,000</td><td class="num"><b>+1,820 万</b></td></tr>
+    </tbody>
+  </table>
+  <div class="nt">
+    これらの数値は Period B 実績の <b>+5,568 万/年に上積みする想定額</b>。加算金管理 +370〜1,000 万の幅は、税超過案件 693 件のうち何件を 85% 以下にシフトできるか (税超過抑制率) で決まります。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>3. 元レポート (4月) と 5月時点での更新点</h2>
+  <table>
+    <thead><tr><th>項目</th><th>4月時点</th><th>5月時点</th><th>更新理由</th></tr></thead>
+    <tbody>
+      <tr><td>全量持込 月平均売上差</td><td class="num">+503 万</td><td class="num">+464 万</td><td>Period B 期間延長 (9ヶ月→10.7ヶ月)</td></tr>
+      <tr><td>商談獲得率</td><td class="num">+6.8pp</td><td class="num">+約7pp</td><td>5/18 までの negotiation_log 反映</td></tr>
+      <tr><td>4月成約率</td><td class="num">29.6% (途中)</td><td class="num">34.5% (確定)</td><td>4月途中スナップショット → 確定値</td></tr>
+      <tr><td>体制配置の前提</td><td>穂戸田=最良、橋口=継続課題</td><td>5月で順位構造変化</td><td>橋口 +8.8pt、穂戸田 -11.0pt 等 (Phase 1)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="sec">
+  <h2>4. 観察と次アクション</h2>
+  <ul>
+    <li><b>既達成の +5,568万/年</b> は件数増加 (198→222件/月) + 平均売上 +9k + 落札社数 +0.4 の複合効果</li>
+    <li><b>加算金管理</b>: 税超過帯 693 件 (33.9%) と税超過なし帯 587 件 (28.7%) の平均売上差から余地を見積もり。ただし「税超過案件 = 難案件」の性質を考慮した検証が必要</li>
+    <li><b>体制安定化</b>: 人件費 -480 万/年は加算金管理 (+370〜) または運用改善 (+500〜) で回収可。判断は 90 日後を目処に</li>
+    <li><b>担当者配置</b>: Phase 1 で確認された 5 月時点の順位構造変化を踏まえ、最適配置計画の前提を再評価する余地あり</li>
+    <li><b>蓮見の件数縮小 (-318)</b> は既に進行中。Period A 出品メイン → B 交渉サブの役割変更可能性。本 Phase では役割変更の追加効果は計上していません</li>
+  </ul>
+  <div class="nt">
+    5月分は 2026-05-20 までです。月末値での再計算と、施策の組み合わせ効果 (重複控除) の数値化は別途必要。各想定は相関関係ベースで、施策実行は段階的な検証アプローチで進めることを推奨します。
+  </div>
+</div>
+
+<div class="footer">
+  Phase 4: 売上改善・体制最適化 統合計画 (5/20 延伸版) | Source: ucarpac-uapp.gas_data | Generated: 2026-05-21
+</div>
+
+</div>
+
+<script>
+new Chart(document.getElementById('taxBandChart'),{
+  type:'bar',
+  data:{
+    labels:['加算金なし','50%未満','50-85%','85-100%','100-120%','120%超'],
+    datasets:[
+      {label:'件数',data:[587,178,338,251,306,387],backgroundColor:['#94a3b8','#86efac','#34d399','#fbbf24','#fb923c','#dc2626'],yAxisID:'y'},
+      {label:'平均売上(k)',type:'line',data:[156,223,172,163,127,66],borderColor:'#2563eb',backgroundColor:'#2563eb22',yAxisID:'y1',tension:0.25,borderWidth:2}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom'}},
+    scales:{
+      y:{type:'linear',position:'left',beginAtZero:true,title:{display:true,text:'件数'}},
+      y1:{type:'linear',position:'right',beginAtZero:true,grid:{drawOnChartArea:false},title:{display:true,text:'平均売上(千円)'},ticks:{callback:v=>v+'k'}}
+    }
+  }
+});
+
+new Chart(document.getElementById('scenarioChart'),{
+  type:'bar',
+  data:{
+    labels:['保守','中間','楽観'],
+    datasets:[
+      {label:'加算金管理(万)',data:[370,740,1000],backgroundColor:'#86efac',stack:'pos'},
+      {label:'売切適正化(万)',data:[300,300,300],backgroundColor:'#34d399',stack:'pos'},
+      {label:'運用改善上積み(万)',data:[0,500,1000],backgroundColor:'#10b981',stack:'pos'},
+      {label:'体制 (人件費 -480万)',data:[-480,-480,-480],backgroundColor:'#dc2626',stack:'neg'}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{position:'bottom'},
+      tooltip:{callbacks:{footer:items=>{
+        const total = items.reduce((s,i)=>s+i.raw,0);
+        return '純効果: '+total+' 万/年';
+      }}}
+    },
+    scales:{x:{stacked:true},y:{stacked:true,ticks:{callback:v=>v.toLocaleString()+'万'}}}
+  }
+});
+</script>
+</body>
+</html>

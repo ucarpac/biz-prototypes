@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2024年期・2025年期 CSファネル比較</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1f2933;
+      --muted: #64748b;
+      --line: #d9e2ec;
+      --blue: #2563eb;
+      --green: #059669;
+      --red: #dc2626;
+      --bg: #f7f9fc;
+      --panel: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.55;
+    }
+    header {
+      padding: 32px 40px 20px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+    }
+    main { padding: 24px 40px 48px; max-width: 1280px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 12px; font-size: 18px; }
+    p { margin: 6px 0; }
+    .meta { color: var(--muted); font-size: 13px; }
+    .notice {
+      margin-top: 16px;
+      padding: 12px 14px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      gap: 12px;
+      margin: 18px 0 8px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 14px;
+    }
+    .card .label { color: var(--muted); font-size: 12px; }
+    .card .value { font-size: 24px; font-weight: 700; margin-top: 4px; }
+    .pos { color: var(--green); }
+    .neg { color: var(--red); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    th:first-child, td:first-child { text-align: left; }
+    th {
+      background: #edf2f7;
+      font-size: 12px;
+      color: #334155;
+    }
+    tr:last-child td { border-bottom: 0; }
+    .bar-table td:nth-child(2) { width: 280px; }
+    .bar {
+      height: 8px;
+      background: #dbeafe;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar span {
+      display: block;
+      height: 100%;
+      background: var(--blue);
+      border-radius: 999px;
+    }
+    .rate-legend {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin: -4px 0 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .legend-chip::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      border: 1px solid transparent;
+    }
+    .legend-chip.up::before { background: #dcfce7; border-color: #86efac; }
+    .legend-chip.down::before { background: #fee2e2; border-color: #fca5a5; }
+    .legend-chip.flat::before { background: #eff6ff; border-color: #bfdbfe; }
+    .rate-table th {
+      background: #e8eef8;
+    }
+    .rate-table tbody tr:nth-child(1),
+    .rate-table tbody tr:nth-child(2),
+    .rate-table tbody tr:nth-child(3),
+    .rate-table tbody tr:nth-child(4) {
+      background: #f8fbff;
+    }
+    .rate-table tbody tr:nth-child(5),
+    .rate-table tbody tr:nth-child(6),
+    .rate-table tbody tr:nth-child(7),
+    .rate-table tbody tr:nth-child(8) {
+      background: #fbfdf9;
+    }
+    .rate-table .period {
+      font-weight: 700;
+      color: #334155;
+    }
+    .rate-table .category {
+      text-align: center;
+      color: #334155;
+      font-weight: 700;
+      background: rgba(226, 232, 240, 0.55);
+    }
+    .rate-table .na {
+      color: #94a3b8;
+      background: #f8fafc;
+      text-align: center;
+    }
+    .rate-table .up {
+      color: #166534;
+      background: #dcfce7;
+      font-weight: 700;
+    }
+    .rate-table .down {
+      color: #991b1b;
+      background: #fee2e2;
+      font-weight: 700;
+    }
+    .rate-table .flat {
+      color: #1e40af;
+      background: #eff6ff;
+      font-weight: 700;
+    }
+    .rate-table .base {
+      color: #334155;
+      background: rgba(255, 255, 255, 0.72);
+    }
+    .driver-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(220px, 1fr));
+      gap: 10px;
+      margin: 10px 0 14px;
+    }
+    .driver-box {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 12px;
+    }
+    .driver-box .label {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .driver-box .value {
+      font-size: 20px;
+      font-weight: 700;
+      margin-top: 3px;
+    }
+    .driver-table td:nth-child(2),
+    .driver-table td:nth-child(3),
+    .driver-table td:nth-child(4) {
+      font-weight: 700;
+    }
+    .driver-note {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    .chart-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 14px;
+      margin: 12px 0 18px;
+    }
+    .chart-title {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 10px;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .chart-legend {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .legend-line {
+      width: 22px;
+      height: 3px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+    .legend-line.onsite { background: #2563eb; }
+    .legend-line.self { background: #f97316; }
+    .line-chart {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .period-bars {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .period-card {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 12px;
+      background: #f8fafc;
+    }
+    .period-card .title {
+      color: #334155;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .bar-row {
+      display: grid;
+      grid-template-columns: 82px 1fr 58px;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0;
+      font-size: 13px;
+    }
+    .bar-track {
+      height: 16px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar-track span {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+    }
+    .bar-track .onsite { background: #2563eb; }
+    .bar-track .self { background: #f97316; }
+    .notes {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 14px 16px;
+      font-size: 14px;
+    }
+    .notes ul { margin: 8px 0 0 20px; padding: 0; }
+    @media (max-width: 900px) {
+      header, main { padding-left: 18px; padding-right: 18px; }
+      .cards { grid-template-columns: repeat(2, minmax(140px, 1fr)); }
+      .driver-summary { grid-template-columns: 1fr; }
+      .period-bars { grid-template-columns: 1fr; }
+      table { font-size: 12px; }
+      th, td { padding: 7px 8px; }
+    }
+  </style>
+  <script>
+    window.PROTO_AUTH_CONFIG = {
+      title: "2024年期・2025年期 CSファネル比較",
+      subtitle: "UcarPAC 社内向け分析レポートです。認証状態は24時間保持されます。"
+    };
+  </script>
+  <script src="../../auth.js"></script>
+</head>
+<body>
+  <header>
+    <h1>2024年期・2025年期 CSファネル比較</h1>
+    <p class="meta">条件: 実施日基準(営業) / 全体 / 全体 / 全体 / 全体　|　期: 7月〜6月　|　作成: 2026-06-04 JST</p>
+    <div class="notice">
+      スプレッドシート/GASは未更新です。2025年期は2026-06-30までの期ですが、2026-06-04時点でBigQueryに入っている実績分までの暫定値です。
+      2025年期は2026年6月が未完了のため、実質11ヶ月分での比較です。2024年期12ヶ月分と比べても主要後段KPIは前年を上回っており、6月分を加味すると差分はさらに改善する可能性があります。
+      `master` シートで案件ステップ定義を確認しました。通話可能=ステップ2以上、通話成功=ステップ3以上です。
+      BigQuery側では `guest_transitions.to_state` と `state_scores_master.score` を突合し、同じステップ点数で集計しています。
+    </div>
+  </header>
+  <main>
+    <section class="cards">
+      <div class="card"><div class="label">売上前年差</div><div class="value pos">+3,432万円</div></div>
+      <div class="card"><div class="label">売上前年比</div><div class="value pos">+12.5%</div></div>
+      <div class="card"><div class="label">BID成約前年差</div><div class="value pos">+114台</div></div>
+      <div class="card"><div class="label">台単価前年差</div><div class="value pos">+8,733円</div></div>
+    </section>
+
+    <h2>①2025年期に試みたこと</h2>
+    <div class="notes">
+      <ul>
+        <li>60日以内の案件は送客対象として、後段へ進める対象を広げた。</li>
+        <li>お客様対応でスピード優先の場合は、出張査定を待たせずセルフ査定をご案内して出品を上げる運用にした。</li>
+        <li>埼玉・大阪エリアなどで出張査定員が離脱した分は、セルフ査定へ寄せて査定・出品の処理量を維持した。</li>
+        <li>オークションで流れた案件を、できるだけ交渉へ持ってくる運用にした。</li>
+        <li>流れた案件は買取も積極的に行い、BID以外の成約機会を拾うようにした。</li>
+        <li>流れた後の案件交渉は担当者の役割を変え、交渉・買取へつなげる体制にした。</li>
+      </ul>
+    </div>
+
+    <h2>②その結果</h2>
+    <div class="driver-summary">
+      <div class="driver-box"><div class="label">売上</div><div class="value pos">+3,432万円</div><p>2.75億円から3.10億円へ増加。</p></div>
+      <div class="driver-box"><div class="label">後段KPI</div><div class="value pos">出品 +645台</div><p>査定 +487件、成約(BID) +114件。</p></div>
+      <div class="driver-box"><div class="label">BID+買取</div><div class="value pos">+123件</div><p>買取は253件から262件へ増加。</p></div>
+      <div class="driver-box"><div class="label">セルフ査定</div><div class="value pos">月平均 +34%</div><p>212件/月から284件/月へ増加。</p></div>
+    </div>
+    <table class="driver-table">
+      <thead>
+        <tr>
+          <th>領域</th>
+          <th>実績</th>
+          <th>前年差</th>
+          <th>見方</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>売上</td><td>¥275,448,443 → ¥309,764,863</td><td class="pos">+¥34,316,420</td><td>成約数と台単価が同時に伸びた。</td></tr>
+        <tr><td>出品・査定</td><td>査定 7,197 → 7,684 / 出品 4,866 → 5,511</td><td class="pos">査定 +487 / 出品 +645</td><td>同じ期内で送客から査定・出品まで進んだ案件が増えた。</td></tr>
+        <tr><td>出張査定・セルフ査定</td><td>出張 353件/月 → 309件/月 / セルフ 212件/月 → 284件/月</td><td class="pos">セルフ +34%</td><td>出張査定員のキャパ減をセルフ査定で補い、出品台数を落とさず運用できた。</td></tr>
+        <tr><td>スピード・CR</td><td>申込→出品中央値: 出張 7日 / セルフ 4日、申込CR: 出張 29.9% / セルフ 30.3%</td><td class="pos">セルフが3日短い</td><td>スピード優先でセルフへ案内しても、申込ベースの成約率はほぼ同等だった。</td></tr>
+        <tr><td>成約</td><td>BID 2,117 → 2,231 / BID+買取 2,370 → 2,493</td><td class="pos">BID +114 / BID+買取 +123</td><td>流れた案件を買取でも拾う戦略の成果が件数に出た。</td></tr>
+      </tbody>
+    </table>
+
+    <h2>出張査定 vs セルフ査定 数値グラフ</h2>
+    <div class="chart-panel">
+      <div class="chart-title">
+        <span>月次推移（査定申込日基準）</span>
+        <span class="chart-legend"><span class="legend-line onsite"></span>出張査定</span>
+        <span class="chart-legend"><span class="legend-line self"></span>セルフ査定</span>
+      </div>
+      <svg class="line-chart" viewBox="0 0 1040 330" role="img" aria-label="出張査定とセルフ査定の月次推移グラフ">
+        <rect x="0" y="0" width="1040" height="330" fill="#ffffff"></rect>
+        <line x1="54" y1="18" x2="974" y2="18" stroke="#e2e8f0"></line>
+        <line x1="54" y1="64" x2="974" y2="64" stroke="#e2e8f0"></line>
+        <line x1="54" y1="110" x2="974" y2="110" stroke="#e2e8f0"></line>
+        <line x1="54" y1="156" x2="974" y2="156" stroke="#e2e8f0"></line>
+        <line x1="54" y1="202" x2="974" y2="202" stroke="#e2e8f0"></line>
+        <line x1="54" y1="248" x2="974" y2="248" stroke="#94a3b8"></line>
+        <line x1="54" y1="18" x2="54" y2="248" stroke="#94a3b8"></line>
+        <text x="18" y="22" font-size="11" fill="#64748b">500</text>
+        <text x="18" y="68" font-size="11" fill="#64748b">400</text>
+        <text x="18" y="114" font-size="11" fill="#64748b">300</text>
+        <text x="18" y="160" font-size="11" fill="#64748b">200</text>
+        <text x="18" y="206" font-size="11" fill="#64748b">100</text>
+        <text x="26" y="252" font-size="11" fill="#64748b">0</text>
+        <polyline points="54.0,100.3 95.8,121.0 137.6,86.5 179.5,85.2 221.3,106.3 263.1,124.3 304.9,22.6 346.7,48.8 388.5,49.7 430.4,92.1 472.2,91.1 514.0,99.4 555.8,105.4 597.6,110.5 639.5,99.9 681.3,127.0 723.1,133.0 764.9,136.7 806.7,70.0 848.5,69.5 890.4,80.6 932.2,125.2 974.0,166.1" fill="none" stroke="#2563eb" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"></polyline>
+        <polyline points="54.0,167.5 95.8,185.0 137.6,152.3 179.5,156.0 221.3,173.9 263.1,180.8 304.9,125.6 346.7,128.9 388.5,110.9 430.4,153.2 472.2,148.2 514.0,124.7 555.8,134.4 597.6,123.8 639.5,135.8 681.3,149.1 723.1,162.9 764.9,164.7 806.7,105.9 848.5,95.7 890.4,69.1 932.2,123.3 974.0,178.1" fill="none" stroke="#f97316" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"></polyline>
+        <circle cx="890.4" cy="80.6" r="4.5" fill="#2563eb"></circle>
+        <circle cx="890.4" cy="69.1" r="5" fill="#f97316"></circle>
+        <circle cx="932.2" cy="125.2" r="4.5" fill="#2563eb"></circle>
+        <circle cx="932.2" cy="123.3" r="5" fill="#f97316"></circle>
+        <text x="836" y="45" font-size="12" font-weight="700" fill="#c2410c">2026-03 セルフ389 &gt; 出張364</text>
+        <text x="836" y="60" font-size="12" font-weight="700" fill="#c2410c">2026-04 セルフ271 &gt; 出張267</text>
+        <text x="42" y="274" font-size="11" fill="#64748b">2024-07</text>
+        <text x="287" y="274" font-size="11" fill="#64748b">2025-01</text>
+        <text x="536" y="274" font-size="11" fill="#64748b">2025-07</text>
+        <text x="788" y="274" font-size="11" fill="#64748b">2026-01</text>
+        <text x="870" y="274" font-size="11" fill="#64748b">2026-03</text>
+        <text x="916" y="274" font-size="11" fill="#64748b">2026-04</text>
+        <text x="954" y="274" font-size="11" fill="#64748b">2026-05*</text>
+        <text x="54" y="310" font-size="12" fill="#64748b">期間A: 2024-07〜2025-06 / 期間B: 2025-07〜2026-04。2026-05は5/20までの途中値。</text>
+      </svg>
+
+      <div class="period-bars">
+        <div class="period-card">
+          <div class="title">期間A 月平均（2024-07〜2025-06）</div>
+          <div class="bar-row"><span>出張査定</span><div class="bar-track"><span class="onsite" style="width:100%;"></span></div><b>353件</b></div>
+          <div class="bar-row"><span>セルフ査定</span><div class="bar-track"><span class="self" style="width:60%;"></span></div><b>212件</b></div>
+        </div>
+        <div class="period-card">
+          <div class="title">期間B 月平均（2025-07〜2026-04）</div>
+          <div class="bar-row"><span>出張査定</span><div class="bar-track"><span class="onsite" style="width:88%;"></span></div><b>309件</b></div>
+          <div class="bar-row"><span>セルフ査定</span><div class="bar-track"><span class="self" style="width:80%;"></span></div><b>284件</b></div>
+        </div>
+      </div>
+      <p class="driver-note">出張査定は月平均353件から309件へ減少。一方でセルフ査定は212件から284件へ増加し、2026年3月・4月はセルフ査定が出張査定を上回っています。</p>
+    </div>
+
+    <h2>③要因</h2>
+    <table class="driver-table">
+      <thead>
+        <tr>
+          <th>領域</th>
+          <th>よくなったこと</th>
+          <th>実績根拠</th>
+          <th>見方</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>送客対象の拡大</td><td class="pos">60日以内の案件を送客し、後段母数を増やした</td><td>送客 +288件 / 査定 +487件 / 出品 +645台</td><td>送客増が査定・出品までつながった。</td></tr>
+        <tr><td>セルフ査定への振替</td><td class="pos">スピード優先案件をセルフ査定へ案内した</td><td>セルフ査定 212件/月 → 284件/月、申込→出品中央値 4日</td><td>出張査定を待たせるより早く出品へ進められ、他社流出リスクを抑えた。</td></tr>
+        <tr><td>流れ案件の交渉</td><td class="pos">オークション後に流れた案件を交渉へ戻した</td><td>成約(BID) +114件 / 売上 +3,432万円</td><td>出品後の案件を放置せず、成約へ戻す動きが売上に寄与した。</td></tr>
+        <tr><td>買取活用</td><td class="pos">BID以外の成約手段として買取を積極化した</td><td>買取 +9件 / BID+買取成約合計 +123件</td><td>BIDだけで見えない成約も含めると、前年より成約総量は増えている。</td></tr>
+        <tr><td>担当者の役割変更</td><td class="pos">流れた後の案件交渉の担当役割を変えた</td><td>高件数担当 +213件 / +2,053万円、高単価担当 台単価 +45,119円</td><td>処理量を担う役割と単価を担う役割の分担が成果に出た。</td></tr>
+        <tr><td>LP伸長</td><td class="pos">伸長LPが後段KPIを押し上げた</td><td>LP58、LP11、LP51、LP10で出品・成約が増加</td><td>特にLP51・LP11は出品増だけでなく成約増への寄与が大きい。</td></tr>
+      </tbody>
+    </table>
+
+    <h2>④課題</h2>
+    <div class="notes">
+      <ul>
+        <li>工数が逼迫しており、流れ案件の交渉・買取対応を継続拡大するには処理余力が課題。</li>
+        <li>出品案内の効率化が必要。送客対象を広げた分、案内・確認・後追いの標準化が重要。</li>
+        <li>人員の補充が必要。成果が出ている運用を維持するには、担当者の役割分担と出張査定員の離脱エリアを前提にした体制強化が必要。</li>
+      </ul>
+    </div>
+
+    <h2>集計結果</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>期</th>
+          <th>申込</th>
+          <th>S有効申込</th>
+          <th>通話可能</th>
+          <th>通話成功</th>
+          <th>送客</th>
+          <th>査定</th>
+          <th>出品</th>
+          <th>成約(BID)</th>
+          <th>売上</th>
+          <th>台単価</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2024年期</td>
+          <td>74,730</td>
+          <td>64,507</td>
+          <td>71,256</td>
+          <td>35,285</td>
+          <td>7,467</td>
+          <td>7,197</td>
+          <td>4,866</td>
+          <td>2,117</td>
+          <td>¥275,448,443</td>
+          <td>¥130,113</td>
+        </tr>
+        <tr>
+          <td>2025年期</td>
+          <td>75,203</td>
+          <td>65,363</td>
+          <td>71,567</td>
+          <td>23,263</td>
+          <td>7,755</td>
+          <td>7,684</td>
+          <td>5,511</td>
+          <td>2,231</td>
+          <td>¥309,764,863</td>
+          <td>¥138,846</td>
+        </tr>
+        <tr>
+          <td>前年差</td>
+          <td class="pos">+473</td>
+          <td class="pos">+856</td>
+          <td class="pos">+311</td>
+          <td class="neg">-12,022</td>
+          <td class="pos">+288</td>
+          <td class="pos">+487</td>
+          <td class="pos">+645</td>
+          <td class="pos">+114</td>
+          <td class="pos">+¥34,316,420</td>
+          <td class="pos">+¥8,733</td>
+        </tr>
+        <tr>
+          <td>前年比</td>
+          <td class="pos">+0.6%</td>
+          <td class="pos">+1.3%</td>
+          <td class="pos">+0.4%</td>
+          <td class="neg">-34.1%</td>
+          <td class="pos">+3.9%</td>
+          <td class="pos">+6.8%</td>
+          <td class="pos">+13.3%</td>
+          <td class="pos">+5.4%</td>
+          <td class="pos">+12.5%</td>
+          <td class="pos">+6.7%</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>割合比較</h2>
+    <div class="rate-legend">
+      <span class="legend-chip up">2025年期が上昇</span>
+      <span class="legend-chip down">2025年期が低下</span>
+      <span class="legend-chip flat">ほぼ横ばい</span>
+    </div>
+    <table class="rate-table">
+      <thead>
+        <tr>
+          <th>期</th>
+          <th>区分</th>
+          <th>S有効申込</th>
+          <th>通話可能</th>
+          <th>通話成功</th>
+          <th>送客</th>
+          <th>査定</th>
+          <th>出品</th>
+          <th>成約(BID)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="period">2024年期</td><td class="category">申込〜</td><td class="base">86.32%</td><td class="base">95.35%</td><td class="base">47.22%</td><td class="base">9.99%</td><td class="base">9.63%</td><td class="base">6.51%</td><td class="base">2.83%</td></tr>
+        <tr><td class="period">2024年期</td><td class="category">前ステ</td><td class="na">ー</td><td class="base">110.46%</td><td class="base">49.52%</td><td class="base">21.16%</td><td class="base">96.38%</td><td class="base">67.61%</td><td class="base">43.51%</td></tr>
+        <tr><td class="period">2024年期</td><td class="category">有効→</td><td class="na">ー</td><td class="na">ー</td><td class="na">ー</td><td class="base">11.58%</td><td class="base">11.16%</td><td class="base">7.54%</td><td class="base">3.28%</td></tr>
+        <tr><td class="period">2024年期</td><td class="category">査定→</td><td class="na">ー</td><td class="na">ー</td><td class="na">ー</td><td class="na">ー</td><td class="na">ー</td><td class="base">67.61%</td><td class="base">29.42%</td></tr>
+        <tr><td class="period">2025年期</td><td class="category">申込〜</td><td class="up">86.92%</td><td class="down">95.17%</td><td class="down">30.93%</td><td class="up">10.31%</td><td class="up">10.22%</td><td class="up">7.33%</td><td class="up">2.97%</td></tr>
+        <tr><td class="period">2025年期</td><td class="category">前ステ</td><td class="na">ー</td><td class="down">109.49%</td><td class="down">32.51%</td><td class="up">33.34%</td><td class="up">99.08%</td><td class="up">71.72%</td><td class="down">40.48%</td></tr>
+        <tr><td class="period">2025年期</td><td class="category">有効→</td><td class="na">ー</td><td class="na">ー</td><td class="na">ー</td><td class="up">11.86%</td><td class="up">11.76%</td><td class="up">8.43%</td><td class="up">3.41%</td></tr>
+        <tr><td class="period">2025年期</td><td class="category">査定→</td><td class="na">ー</td><td class="na">ー</td><td class="na">ー</td><td class="na">ー</td><td class="na">ー</td><td class="up">71.72%</td><td class="down">29.03%</td></tr>
+      </tbody>
+    </table>
+
+    <h2>買取比較</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>期</th>
+          <th>申込</th>
+          <th>出品</th>
+          <th>成約(BID)</th>
+          <th>買取</th>
+          <th>成約合計</th>
+          <th>出品成約</th>
+          <th>申込成約</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2024年期</td>
+          <td>74,730</td>
+          <td>4,866</td>
+          <td>2,117</td>
+          <td>253</td>
+          <td>2,370</td>
+          <td>48.70%</td>
+          <td>3.17%</td>
+        </tr>
+        <tr>
+          <td>2025年期</td>
+          <td>75,203</td>
+          <td>5,511</td>
+          <td>2,231</td>
+          <td>262</td>
+          <td>2,493</td>
+          <td>45.24%</td>
+          <td>3.32%</td>
+        </tr>
+        <tr>
+          <td>前年差</td>
+          <td class="pos">+473</td>
+          <td class="pos">+645</td>
+          <td class="pos">+114</td>
+          <td class="pos">+9</td>
+          <td class="pos">+123</td>
+          <td class="neg">-3.46pt</td>
+          <td class="pos">+0.14pt</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="driver-note">
+      買取を「出品後に流れた案件を拾う戦略」として見ると、買取件数は 253件 → 262件で +9件、BID+買取の成約合計は 2,370件 → 2,493件で +123件です。
+      件数ベースでは前年より実行できており、成果ありと見ます。
+    </p>
+
+    <h2>差分の見方</h2>
+    <table class="bar-table">
+      <thead>
+        <tr><th>指標</th><th>前年差</th><th>前年比</th><th>コメント</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>出品</td><td><div class="bar"><span style="width:100%"></span></div></td><td class="pos">+13.3%</td><td>後段ファネルで最も大きく増加。</td></tr>
+        <tr><td>売上</td><td><div class="bar"><span style="width:92%"></span></div></td><td class="pos">+12.5%</td><td>BID成約数増と台単価上昇の両方が寄与。</td></tr>
+        <tr><td>査定</td><td><div class="bar"><span style="width:51%"></span></div></td><td class="pos">+6.8%</td><td>同じ期内で送客から査定まで進んだ件数が増加。</td></tr>
+        <tr><td>成約(BID)</td><td><div class="bar"><span style="width:40%"></span></div></td><td class="pos">+5.4%</td><td>出品増に対して成約増はやや控えめ。</td></tr>
+        <tr><td>通話成功</td><td><div class="bar"><span style="width:38%; background:#ef4444"></span></div></td><td class="neg">-34.1%</td><td>masterと同じステップ3以上で集計。LP66・LP52の減少が大きい。</td></tr>
+      </tbody>
+    </table>
+
+    <h2>差分要因（LP別）</h2>
+    <div class="driver-summary">
+      <div class="driver-box"><div class="label">出品増の主因</div><div class="value pos">LP58 / LP11 / LP51 / LP10</div></div>
+      <div class="driver-box"><div class="label">後段の相殺要因</div><div class="value neg">LP66 / LP52 の減少</div></div>
+      <div class="driver-box"><div class="label">通話成功の減少主因</div><div class="value neg">LP66 / LP52</div></div>
+    </div>
+    <p class="driver-note">
+      LP66は単独/同時を分けて備考管理し、単独には電話、同時にはSMS・価格メール中心など、対応工数を意図的に調整しています。
+      そのため通話成功ステータスの低下は、対応放棄ではなく工数配分とステータス運用の変化を反映したものです。
+      後段KPIでは出品・成約・売上が前年を上回っており、検証と戦略の成果は出ていると評価します。
+    </p>
+
+    <h2>出品が増えたLP</h2>
+    <table class="driver-table">
+      <thead>
+        <tr>
+          <th>LP</th>
+          <th>出品前年差</th>
+          <th>成約前年差</th>
+          <th>売上前年差</th>
+          <th>見方</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>LP58</td><td class="pos">+563</td><td class="pos">+98</td><td class="pos">+1,730万円</td><td>2025年期から大きく立ち上がった新規増加枠。</td></tr>
+        <tr><td>LP11</td><td class="pos">+331</td><td class="pos">+111</td><td class="pos">+1,620万円</td><td>送客・査定・出品・成約がそろって増加。</td></tr>
+        <tr><td>LP51</td><td class="pos">+240</td><td class="pos">+121</td><td class="pos">+1,696万円</td><td>成約増の最大寄与。出品成約率も改善。</td></tr>
+        <tr><td>LP10</td><td class="pos">+228</td><td class="pos">+56</td><td class="pos">+918万円</td><td>出品増は大きいが、出品成約率はやや低下。</td></tr>
+        <tr><td>LP50</td><td class="pos">+42</td><td class="pos">+22</td><td class="pos">+488万円</td><td>規模は中位だが後段まで増加。</td></tr>
+      </tbody>
+    </table>
+    <p class="driver-note">LP別の出品前年差は出品日基準で見た要因分解です。メイン集計では期またぎを除くため、同一期内フロー基準の出品前年差は +645台です。</p>
+
+    <h2>2025年期の売上を伸ばした実績要因</h2>
+    <table class="driver-table">
+      <thead>
+        <tr>
+          <th>実績項目</th>
+          <th>2024年期</th>
+          <th>2025年期</th>
+          <th>前年差</th>
+          <th>見方</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>全体売上</td>
+          <td>2.75億円</td>
+          <td>3.10億円</td>
+          <td class="pos">+3,432万円</td>
+          <td>BID成約数 +114 と台単価 +8,733円の両方で増加。</td>
+        </tr>
+        <tr>
+          <td>担当者の役割変更</td>
+          <td>高件数担当 791件 / 1.08億円<br>高単価担当 614件 / 台単価 112,471円</td>
+          <td>高件数担当 1,004件 / 1.29億円<br>高単価担当 346件 / 台単価 157,590円</td>
+          <td class="pos">高件数担当 +213件 / +2,053万円<br>高単価担当 台単価 +45,119円</td>
+          <td>高件数担当が処理量を伸ばし、高単価担当は件数を抑えながら台単価を上げた。役割を分けたことで、量と質の両面から売上増につながった。</td>
+        </tr>
+        <tr>
+          <td>その他担当の寄与</td>
+          <td>主担当以外でも一定件数を担当</td>
+          <td>主担当以外の処理件数・売上寄与が拡大</td>
+          <td class="pos">合計で売上増を補完</td>
+          <td>役割変更の中心担当だけでなく、周辺担当も処理を支え、全体の売上増を下支えした。</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="driver-note">
+      配置計画書 v4 の集計ロジックは、担当者別のclosed件数、avg_rev、消費税消化率、価格帯別avg_revを見て、担当者ごとの実績差を確認するものです。
+      今回のFY実績では、担当者の役割を変えたことで、高件数担当の処理件数増、高単価担当の台単価上昇、その他担当の売上寄与が重なり、2025年期の売上増につながっています。
+    </p>
+
+    <h2>ステータス管理チェック</h2>
+    <table class="driver-table">
+      <thead>
+        <tr>
+          <th>指標</th>
+          <th>現在の表</th>
+          <th>ステータス到達版</th>
+          <th>確認結果</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>通話可能</td><td>71,256 → 71,567<br>+311</td><td>同左</td><td>`guest_transitions.to_state` の最新score 2以上で再現。</td></tr>
+        <tr><td>通話成功</td><td>35,285 → 23,263<br>-12,022</td><td>同左</td><td>`guest_transitions.to_state` の最新score 3以上で再現。</td></tr>
+        <tr><td>送客</td><td>7,467 → 7,755<br>+288</td><td>9,749 → 8,659<br>-1,090</td><td>score 4以上への到達日で見ると前年差はマイナス。</td></tr>
+        <tr><td>査定</td><td>7,197 → 7,684<br>+487</td><td>6,124 → 6,708<br>+584</td><td>表示表は同一期内フロー基準。score 5以上への到達日でも査定は増加。</td></tr>
+        <tr><td>出品</td><td>4,866 → 5,511<br>+645</td><td>4,979 → 5,567<br>+588</td><td>表示表は同一期内フロー基準。score 6以上への到達日でも出品は増加。</td></tr>
+        <tr><td>売却ステップ</td><td>BID成約 2,117 → 2,231<br>+114</td><td>score 7到達 2,021 → 2,144<br>+123</td><td>買取込み戦略評価の成約合計 +123 と近い。</td></tr>
+      </tbody>
+    </table>
+    <p class="driver-note">
+      確認結果として、通話可能/通話成功だけでなく、送客・査定・出品・売却も `master` のステータスscoreで管理されています。
+      ただし後段は「最新ステータス」ではなく「各scoreに初めて到達した日」で見る必要があります。
+      通話成功の前年差 -12,022 は、2025年期に `not_assessment_end` (score2) が大きく増え、2024年期に多かった `not_assessment_refuse` / `not_assessment` などのscore3ステータスが減った影響が大きいです。
+      そのため、実際の電話接続数そのものの前年差ではなく、master上のステータス分類差として解釈します。
+    </p>
+
+    <h2>集計方法</h2>
+    <div class="notes">
+      <p>確認した `新CS!B2:B6` は `実施日基準(営業) / 全体 / 全体 / 全体 / 全体` です。`マージ` の参照列は、申込=P列、送客=Q列、査定=R列、出品=S列、成約=T列です。`実施日基準(経常)` との違いは成約基準で、経常はU列（車両引渡日）を参照します。このHTMLでは営業基準の成約日を使い、査定・出品の表示だけは期またぎによる逆転を避けるため、同じ期内で送客→査定→出品まで進んだ件数に補正しています。</p>
+      <p>`master` シートの定義では、案件ステップは 有効申込=1、通話可能=2、通話成功=3、送客=4、査定=5、出品=6、売却=7 です。</p>
+      <p>出張査定員とセルフ査定の確認元レポートでは、`ucarpac-uapp.gas_data.all_deals_view` を使い、基準日は `assessment_apply_datetime`、セルフ査定は `agent_shop = 【UcarPAC】（サポート）`、出張査定はそれ以外の有効な査定員として集計しています。期間Aは2024-07〜2025-06、期間Bは2025-07〜2026-04です。</p>
+      <ul>
+        <li>申込: `all_lp_view.application_date` で集計。</li>
+        <li>S有効申込: `all_lp_view.category = '送客'` を使用。</li>
+        <li>通話可能: `guest_transitions.to_state` を `state_scores_master.score` に突合し、スコア2以上で集計。</li>
+        <li>通話成功: `guest_transitions.to_state` を `state_scores_master.score` に突合し、スコア3以上で集計。</li>
+        <li>送客: `all_deals_view.assessment_apply_datetime` で集計。</li>
+        <li>査定: 同じ期内に送客され、同じ期内に査定された案件で集計。</li>
+        <li>出品: 同じ期内に送客・査定され、同じ期内に出品された案件で集計。</li>
+        <li>成約(BID): `all_deals_view.status = '成約'` かつ成約日基準。</li>
+        <li>買取: `all_deals_view.status = '買取移行'` かつ成約日基準をproxyとして使用。</li>
+        <li>売上: `手数料 + 車両価格 * 0.1 / 1.1 - 買取加算額 / 1.1 - BIDクーポン / 1.1`。</li>
+        <li>台単価: 売上 ÷ 成約(BID)。</li>
+      </ul>
+    </div>
+  </main>
+</body>
+</html>

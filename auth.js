@@ -33,6 +33,176 @@
     return "/";
   }
 
+  // ---------------------------------------------------------------------------
+  // 自動パンくず（Hub 戻りリンク）
+  // 各ページに手書きする必要はありません。auth.js が現在の URL とベースパスから
+  // 「Hub / セクション / 現在ページ」のリンクを絶対パスで自動生成します。
+  // ベースパス基準の絶対リンクなので、ファイルがどの階層にあってもリンクは壊れません。
+  //
+  // PROTO_AUTH_CONFIG での制御:
+  //   title       … 末尾（現在ページ）のラベル。省略時は <title> を使用
+  //   breadcrumb  … false でパンくずを無効化
+  //   navTheme    … "dark" | "light" で配色を上書き（既定はセクションで自動判定）
+  //   nav         … [{label, href}, ...] でパンくずを完全に手動指定（href はベース相対）
+  // ---------------------------------------------------------------------------
+  const SECTION_LABELS = {
+    "ucarpac-app": "App プロトタイプ",
+    "reports": "Reports",
+    "ops": "運用監視レポート",
+    "agency": "代理店ハブ",
+  };
+  const SUBSECTION_LABELS = {
+    "ops/auto-kpi": "Auto KPI",
+    "ops/competitor-watch": "競合ウォッチ",
+    "ops/appsflyer": "AppsFlyer",
+    "ucarpac-app/app-enhancement": "App Enhancement",
+  };
+  // 既定でダーク配色にするセクション（ページ自体がダークテーマのもの）
+  const DARK_NAV_SECTIONS = { "ucarpac-app": true };
+
+  function prettify(seg) {
+    return String(seg)
+      .replace(/\.html?$/i, "")
+      .replace(/[-_]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function buildCrumbs() {
+    const base = getBasePath();
+    let path = location.pathname;
+    if (path.indexOf(base) === 0) path = path.slice(base.length);
+    let segs = path.split("/").filter(Boolean);
+
+    // 末尾のファイル名を切り出す。index 系はディレクトリ表示として扱う
+    let file = null;
+    if (segs.length && /\.html?$/i.test(segs[segs.length - 1])) {
+      file = segs.pop();
+      if (/^index(-all)?\.html?$/i.test(file)) file = null;
+    }
+
+    const crumbs = [{ label: "Hub", href: base }];
+    if (segs.length === 0 && !file) return null; // ルート Hub では出さない
+
+    const top = segs[0];
+    if (top) {
+      crumbs.push({ label: SECTION_LABELS[top] || prettify(top), href: base + top + "/" });
+    }
+    let subKey = null;
+    if (segs.length >= 2) {
+      subKey = top + "/" + segs[1];
+      if (SUBSECTION_LABELS[subKey]) {
+        crumbs.push({ label: SUBSECTION_LABELS[subKey], href: base + top + "/" + segs[1] + "/" });
+      }
+    }
+
+    const leafLabel = CONFIG.title || document.title || "";
+    if (file) {
+      crumbs.push({ label: leafLabel || prettify(file), href: null });
+    } else {
+      const sectionIsCurrent = segs.length === 1;
+      const subsectionIsCurrent = segs.length === 2 && subKey && SUBSECTION_LABELS[subKey];
+      if (!sectionIsCurrent && !subsectionIsCurrent) {
+        // section/subsection に当てはまらない深いインデックス（reports/<slug>/ 等）
+        crumbs.push({ label: leafLabel || prettify(segs[segs.length - 1]), href: null });
+      }
+    }
+    crumbs[crumbs.length - 1].href = null; // 末尾は現在ページなのでリンクなし
+    return { crumbs: crumbs, dark: !!DARK_NAV_SECTIONS[top] };
+  }
+
+  // 現在の閲覧者の認証レベル（"full" = 社内 / "agency" = 代理店共有）
+  function currentLevel() {
+    const s = readState();
+    return (s && s.level) || "full";
+  }
+
+  // 代理店ユーザー向けパンくず。社内専用ハブ/セクションへは誘導せず、
+  // 必ず「代理店ハブ」を起点にする（押せないリンクを見せない）。
+  function buildAgencyCrumbs() {
+    const base = getBasePath();
+    let path = location.pathname;
+    if (path.indexOf(base) === 0) path = path.slice(base.length);
+    let segs = path.split("/").filter(Boolean);
+    let file = null;
+    if (segs.length && /\.html?$/i.test(segs[segs.length - 1])) {
+      file = segs.pop();
+      if (/^index(-all)?\.html?$/i.test(file)) file = null;
+    }
+    // 代理店ハブ自身では出さない（代理店ユーザーにとってのホーム）
+    if (segs[0] === "agency" && !file) return null;
+    const leaf = CONFIG.title || document.title || "";
+    return {
+      crumbs: [
+        { label: "代理店ハブ", href: base + "agency/" },
+        { label: leaf, href: null },
+      ],
+      dark: false,
+    };
+  }
+
+  function resolveNavConfig() {
+    if (Array.isArray(CONFIG.nav) && CONFIG.nav.length) {
+      const base = getBasePath();
+      const crumbs = CONFIG.nav.map(function (c, i) {
+        const isLast = i === CONFIG.nav.length - 1;
+        let href = null;
+        if (!isLast && c.href != null) {
+          href = /^(https?:)?\//.test(c.href) ? c.href : base + String(c.href).replace(/^\//, "");
+        }
+        return { label: c.label, href: href };
+      });
+      return { crumbs: crumbs, dark: CONFIG.navTheme === "dark" };
+    }
+    // 代理店ユーザーは社内導線を見せず、代理店ハブ起点のパンくずにする
+    if (currentLevel() === "agency") return buildAgencyCrumbs();
+    return buildCrumbs();
+  }
+
+  function renderBreadcrumb() {
+    if (CONFIG.breadcrumb === false) return;
+    if (!document.body || document.getElementById("proto-breadcrumb")) return;
+    const data = resolveNavConfig();
+    if (!data || !data.crumbs || data.crumbs.length < 2) return;
+
+    const dark = CONFIG.navTheme ? CONFIG.navTheme === "dark" : data.dark;
+    const c = dark
+      ? { bg: "rgba(17,24,39,0.96)", border: "rgba(255,255,255,0.10)", link: "#cbd5e1", sep: "#475569", cur: "#e2e8f0" }
+      : { bg: "#ffffff", border: "#e2e8f0", link: "#1a5cd8", sep: "#b0bccc", cur: "#5f7182" };
+
+    const nav = document.createElement("nav");
+    nav.id = "proto-breadcrumb";
+    nav.style.cssText =
+      "margin:0;padding:10px 20px;font:600 13px/1.4 -apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;" +
+      "background:" + c.bg + ";border-bottom:1px solid " + c.border + ";" +
+      (dark ? "backdrop-filter:blur(8px);" : "") +
+      "display:flex;flex-wrap:wrap;align-items:center;gap:0;";
+
+    data.crumbs.forEach(function (crumb, i) {
+      if (i > 0) {
+        const sep = document.createElement("span");
+        sep.textContent = "/";
+        sep.style.cssText = "margin:0 8px;color:" + c.sep + ";";
+        nav.appendChild(sep);
+      }
+      const label = i === 0 ? "← " + crumb.label : crumb.label;
+      if (crumb.href) {
+        const a = document.createElement("a");
+        a.href = crumb.href;
+        a.textContent = label;
+        a.style.cssText = "color:" + c.link + ";text-decoration:none;";
+        nav.appendChild(a);
+      } else {
+        const span = document.createElement("span");
+        span.textContent = label;
+        span.style.cssText = "color:" + c.cur + ";";
+        nav.appendChild(span);
+      }
+    });
+
+    document.body.insertBefore(nav, document.body.firstChild);
+  }
+
   function getCookie(name) {
     const encoded = `${name}=`;
     const found = document.cookie.split(";").map((item) => item.trim()).find((item) => item.indexOf(encoded) === 0);
@@ -194,7 +364,10 @@
   }
 
   async function main() {
-    if (hasValidAuth()) return;
+    if (hasValidAuth()) {
+      renderBreadcrumb();
+      return;
+    }
 
     const overlay = createOverlay();
     const input = document.getElementById("proto-auth-input");
@@ -210,12 +383,14 @@
           persistAuth("full");
           overlay.remove();
           document.body.style.overflow = "";
+          renderBreadcrumb();
           return;
         }
         if (hash === PASS_HASH_AGENCY && REQUIRED === "agency") {
           persistAuth("agency");
           overlay.remove();
           document.body.style.overflow = "";
+          renderBreadcrumb();
           return;
         }
       } catch (_) {

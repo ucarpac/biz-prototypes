@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>交渉担当者 最適配置計画書 v4 — 最新データ前提検証</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.1.0/dist/chartjs-plugin-annotation.min.js"></script>
+<style>
+  :root{--ink:#0f172a;--char:#24324a;--slate:#64748b;--mist:#f1f5f9;--blue:#2563eb;--blue-s:#dbeafe;--green:#059669;--green-s:#d1fae5;--amber:#d97706;--amber-s:#fef3c7;--red:#dc2626;--red-s:#fee2e2;--pink:#e1006e;--pink-s:#fce7f3;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'BIZ UDPGothic','Hiragino Sans','Noto Sans JP',sans-serif;background:#f8fafc;color:var(--char);line-height:1.7;}
+  .container{max-width:1240px;margin:0 auto;padding:20px;}
+  .header{background:linear-gradient(135deg,#0f172a,#1d4ed8);color:#fff;padding:28px;border-radius:16px;margin-bottom:18px;}
+  .header h1{font-size:22px;font-weight:700;margin-bottom:6px;}
+  .header .sub{font-size:13px;color:#cbd5e1;}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .meta span{font-size:11px;color:#dbeafe;background:rgba(255,255,255,.12);padding:4px 10px;border-radius:999px;}
+  .sec{background:#fff;border-radius:12px;padding:20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(15,23,42,.08);}
+  .sec h2{font-size:17px;font-weight:700;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid var(--mist);}
+  .sec h3{font-size:14px;font-weight:700;margin:14px 0 8px;color:var(--ink);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0;}
+  .card{padding:14px;border-radius:12px;text-align:center;}
+  .card .label{font-size:10px;color:var(--slate);}
+  .card .value{font-size:24px;font-weight:800;}
+  .card .small{font-size:10px;color:var(--slate);margin-top:4px;}
+  .chart-wrap{position:relative;height:340px;margin:10px 0 6px;}
+  .chart-tall{position:relative;height:420px;margin:10px 0 6px;}
+  .chart-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0;}
+  @media(max-width:780px){.chart-grid2{grid-template-columns:1fr;}}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12px;}
+  th,td{padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:left;}
+  th{background:var(--mist);font-size:11px;color:var(--slate);font-weight:700;}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;}
+  .up{color:var(--green);font-weight:700;}
+  .down{color:var(--red);font-weight:700;}
+  .flat{color:var(--slate);}
+  .ok{color:var(--green);font-weight:700;}
+  .warn{color:var(--amber);font-weight:700;}
+  .ng{color:var(--red);font-weight:700;}
+  .ins{border-left:4px solid var(--green);background:var(--green-s);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px;}
+  .wrn{border-left:4px solid var(--red);background:var(--red-s);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px;}
+  .nt{border-left:4px solid var(--amber);background:var(--amber-s);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px;}
+  .rb{background:linear-gradient(135deg,#0f172a,#1e3a5f);color:#fff;padding:22px;border-radius:12px;margin:14px 0;}
+  .rb .big{font-size:22px;font-weight:800;}
+  .rb .det{font-size:13px;margin-top:6px;opacity:.92;line-height:1.6;}
+  ul{margin:8px 0 8px 18px;font-size:12px;}
+  li{margin-bottom:4px;}
+  .badge{display:inline-block;padding:1px 7px;border-radius:8px;font-size:10px;font-weight:700;color:#fff;}
+  .ba{background:var(--pink);}.bb{background:var(--blue);}
+  .footer{text-align:center;padding:18px;color:var(--slate);font-size:11px;}
+</style>
+<script>
+  window.PROTO_AUTH_CONFIG = {
+    title: "交渉担当者 最適配置計画書 v4 — 最新データ前提検証",
+    subtitle: "UcarPAC 社内向け分析レポートです。認証状態は24時間保持されます。"
+  };
+</script>
+<script src="../../auth.js"></script>
+</head>
+<body>
+
+
+<div class="container">
+
+<div class="header">
+  <h1>交渉担当者 最適配置計画書 v4 — 最新データ前提検証</h1>
+  <div class="sub">2026-04 通常期間 + 4/30〜5/15 育休期間（自然実験）で、計画書 v4 の主要前提が成立しているか検証</div>
+  <div class="meta">
+    <span>作成日: 2026-05-21</span>
+    <span>データ: ucarpac-uapp.gas_data.all_deals_view</span>
+    <span>対象期間: 2025-01 〜 2026-05-20</span>
+    <span>元計画書: 2026-04-14 作成、実績 2024/01-2026/03</span>
+    <span><span class="badge ba">A</span> = 蓮見、<span class="badge bb">B</span> = 小永吉</span>
+  </div>
+</div>
+
+<!-- ===== 結論 ===== -->
+<div class="sec">
+  <h2>結論</h2>
+  <div class="rb">
+    <div class="big">計画書 v4 の方向性は正しい。ただし A の目標件数 55件 は下方修正（45件）を検討</div>
+    <div class="det">
+      4月通常期間では計画書の主要前提（B 92件/月、A 品質曲線、価格帯×担当者差、100万超供給量）はおおむね維持されている。
+      小永吉さん育休（4/30-5/15、16日）が偶然のストレステストとなり、蓮見さんが 70件/月相当で稼働した結果、avg_rev は 140K→84K (-40%)、消費税消化率は 68.5%→110.6% に推移した。
+      計画書 P3「56件+ で 101.8%」の予測より大きく劣化しており、Aを 55件まで上げる前提は脆い可能性がある。
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card" style="background:var(--green-s);"><div class="label">前提検証 OK</div><div class="value ok">4 / 6</div><div class="small">B件数 / A品質 / 価格帯差 / 100万超供給</div></div>
+    <div class="card" style="background:var(--amber-s);"><div class="label">要再検討</div><div class="value warn">2 / 6</div><div class="small">A 月32件目標（4月単月 22件）、A 55件目標（自然実験で品質劣化）</div></div>
+    <div class="card" style="background:var(--mist);"><div class="label">不在期間 closed</div><div class="value">87件</div><div class="small">不在前 104件 → 16日で -16%（未消化）</div></div>
+    <div class="card" style="background:var(--pink-s);"><div class="label">蓮見ストレス時 avg_rev</div><div class="value" style="color:var(--pink);">84K</div><div class="small">通常時 140K から -40%</div></div>
+    <div class="card" style="background:var(--blue-s);"><div class="label">蓮見ストレス時 消費税消化率</div><div class="value" style="color:var(--blue);">110.6%</div><div class="small">通常時 68.5% / 計画書予測 101.8% より悪化</div></div>
+  </div>
+</div>
+
+<!-- ===== 1. 検証する前提 ===== -->
+<div class="sec">
+  <h2>1. 検証する前提と結果</h2>
+
+  <table>
+    <thead><tr><th>#</th><th>計画書 v4 の前提</th><th>4月実測</th><th>育休期間実測</th><th>評価</th></tr></thead>
+    <tbody>
+      <tr><td>P1</td><td>B 92件/月（closed）</td><td class="num">95件</td><td class="num">3件 (不在中)</td><td class="ok">維持</td></tr>
+      <tr><td>P2</td><td>A 32件/月（closed）</td><td class="num">22件</td><td class="num">37件 / 16日 ≈ 70/月</td><td class="warn">4月単月で下振れ</td></tr>
+      <tr><td>P3</td><td>A 品質曲線 ~35件 = 75.1%</td><td class="num">22件で 78.7%</td><td class="num">70件で 110.6%</td><td class="warn">通常時OK、ストレス時は予測より悪化</td></tr>
+      <tr><td>P4</td><td>B 品質曲線 91-105件 = 90.5%</td><td class="num">95件で 88.1%</td><td>—</td><td class="ok">やや改善</td></tr>
+      <tr><td>P5</td><td>価格帯×担当者 avg_rev 差</td><td>100-300万: +46K (計画書 +30K)</td><td>—</td><td class="ok">整合 (300万+ はサンプル不足)</td></tr>
+      <tr><td>P6</td><td>100万超 供給 月50件</td><td class="num">108件 (closed)</td><td>—</td><td class="ok">十分（Aに30件配分余裕）</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== 2. 蓮見・小永吉の月次推移 ===== -->
+<div class="sec">
+  <h2>2. 蓮見(A) と 小永吉(B) の月別件数（2025/01 〜 2026/05）</h2>
+  <div class="chart-wrap"><canvas id="chartMonthlyCount"></canvas></div>
+  <div class="chart-wrap"><canvas id="chartMonthlyAvgRev"></canvas></div>
+  <table>
+    <thead><tr><th>月</th>
+      <th class="num">蓮見 closed</th><th class="num">蓮見 avg_rev</th><th class="num">蓮見 消費税%</th>
+      <th class="num">小永吉 closed</th><th class="num">小永吉 avg_rev</th><th class="num">小永吉 消費税%</th>
+    </tr></thead>
+    <tbody id="monthlyTbody"></tbody>
+  </table>
+  <div class="nt">
+    蓮見さんは 2025/08-12 と 2026/04 で月次 closed が 20件台に落ち、すでに「サブ担当期」運用が定着している様子。<br>
+    小永吉さんは 2026/01 以降 120-130件台で推移し、計画書の B 92件 を超える負荷で稼働している。
+  </div>
+</div>
+
+<!-- ===== 3. 価格帯別 ===== -->
+<div class="sec">
+  <h2>3. 価格帯 × 担当者の avg_rev（2026-04 単月）</h2>
+  <div class="chart-grid2">
+    <div class="chart-wrap"><canvas id="chartPriceBandRev"></canvas></div>
+    <div class="chart-wrap"><canvas id="chartPriceBandTax"></canvas></div>
+  </div>
+  <table>
+    <thead><tr><th>価格帯</th><th>担当</th><th class="num">closed</th><th class="num">avg_rev</th><th class="num">消費税%</th><th>計画書 v4 P5</th></tr></thead>
+    <tbody>
+      <tr><td>~100万</td><td><span class="badge ba">A</span> 蓮見</td><td class="num">8</td><td class="num">71K</td><td class="num">104.2%</td><td>計画書 82K</td></tr>
+      <tr><td>~100万</td><td><span class="badge bb">B</span> 小永吉</td><td class="num">47</td><td class="num">57K</td><td class="num">104.9%</td><td>計画書 69K</td></tr>
+      <tr style="background:var(--green-s);"><td>100-300万</td><td><span class="badge ba">A</span> 蓮見</td><td class="num">12</td><td class="num up">210K</td><td class="num">63.6%</td><td>計画書 194K</td></tr>
+      <tr style="background:var(--green-s);"><td>100-300万</td><td><span class="badge bb">B</span> 小永吉</td><td class="num">18</td><td class="num">164K</td><td class="num">92.4%</td><td>計画書 164K</td></tr>
+      <tr style="background:var(--amber-s);"><td>300万+</td><td><span class="badge ba">A</span> 蓮見</td><td class="num warn">2</td><td class="num">187K</td><td class="num">101.6%</td><td>計画書 302K (サンプル不足)</td></tr>
+      <tr style="background:var(--amber-s);"><td>300万+</td><td><span class="badge bb">B</span> 小永吉</td><td class="num">30</td><td class="num">257K</td><td class="num">85.4%</td><td>計画書 227K</td></tr>
+    </tbody>
+  </table>
+  <div class="ins">
+    100-300万帯で蓮見 avg_rev 210K vs 小永吉 164K（差 +46K）。計画書 P5 の +30K 想定よりさらに大きい差。高額車ルーティングは引き続き有効。
+  </div>
+  <div class="nt">
+    300万+ 帯は蓮見さん 4月 N=2 でサンプル不足のため、A の優位性を 4月単月では断定できない。2025年累積で再評価が必要。
+  </div>
+</div>
+
+<!-- ===== 4. 自然実験 ===== -->
+<div class="sec">
+  <h2>4. 自然実験 — 小永吉さん育休（4/30〜5/15、16日）</h2>
+  <p style="font-size:13px;">closing_date を軸に、不在前16日 / 不在中16日 / 不在後5日 で比較。計画書 v4「Bを 92→85件に減らす」シナリオの実観測検証。</p>
+
+  <div class="chart-grid2">
+    <div class="chart-wrap"><canvas id="chartLeaveCount"></canvas></div>
+    <div class="chart-wrap"><canvas id="chartLeaveAvgRev"></canvas></div>
+  </div>
+
+  <h3>セグメント別 closed 件数</h3>
+  <table>
+    <thead><tr><th>担当</th><th class="num">不在前<br>(4/14-4/29)</th><th class="num">不在中<br>(4/30-5/15)</th><th class="num">不在後<br>(5/16-5/20)</th><th>解釈</th></tr></thead>
+    <tbody>
+      <tr style="background:var(--blue-s);"><td><span class="badge bb">B</span> 小永吉</td><td class="num">60</td><td class="num down">3</td><td class="num">25</td><td>育休でほぼゼロ → 復帰後すぐ通常ペース</td></tr>
+      <tr style="background:var(--pink-s);"><td><span class="badge ba">A</span> 蓮見</td><td class="num">10</td><td class="num up">37</td><td class="num">11</td><td><b>+270% 急増、月換算 ~70件/月ペース</b></td></tr>
+      <tr><td>橋口</td><td class="num">7</td><td class="num">18</td><td class="num">3</td><td>+157%、軽案件中心？</td></tr>
+      <tr><td>水谷</td><td class="num">13</td><td class="num">10</td><td class="num">5</td><td>横ばい</td></tr>
+      <tr><td>穂戸田</td><td class="num">14</td><td class="num">16</td><td class="num">6</td><td>微増</td></tr>
+      <tr><td>清水</td><td class="num">—</td><td class="num">1</td><td class="num">2</td><td>不在中・後にカバー新規参入</td></tr>
+      <tr><td>市村</td><td class="num">—</td><td class="num">2</td><td class="num">—</td><td>同</td></tr>
+      <tr style="background:var(--mist);font-weight:700;"><td>合計</td><td class="num">104</td><td class="num">87</td><td class="num">52</td><td>不在中は -16% の未消化</td></tr>
+    </tbody>
+  </table>
+
+  <h3>蓮見さんのストレステスト</h3>
+  <table>
+    <thead><tr><th>指標</th><th class="num">不在前 (10件)</th><th class="num">不在中 (37件)</th><th class="num">不在後 (11件)</th><th>計画書 v4 P3 の予測</th></tr></thead>
+    <tbody>
+      <tr><td>月換算ペース</td><td class="num">~19件</td><td class="num warn">~70件</td><td class="num">~66件</td><td>目標 55件</td></tr>
+      <tr><td>avg_rev_closed</td><td class="num">140K</td><td class="num down">84K</td><td class="num">158K</td><td>36-55件 115K / 56件+ 101K</td></tr>
+      <tr><td>消費税消化率</td><td class="num">68.5%</td><td class="num down">110.6%</td><td class="num">80.1%</td><td>36-55件 97.9% / 56件+ 101.8%</td></tr>
+    </tbody>
+  </table>
+
+  <div class="wrn">
+    <b>計画書 v4 の予測を超える劣化:</b><br>
+    蓮見さんが 70件/月ペースで稼働した結果、avg_rev は計画書の悲観値（56件+ 帯 101K）を下回る 84K まで低下。
+    消費税消化率も計画書予測 101.8% を超える 110.6% を記録。
+    「Aを 55件まで上げて品質維持」は急増シナリオでは脆い可能性がある。
+  </div>
+
+  <div class="nt">
+    <b>留保事項:</b> N=37 / 16日 のサンプル。急な不在による「準備なしの増員」であり、計画書想定の「事前準備した55件運用」とは性質が異なる可能性。
+    また、不在期間に流入する案件構成（高難度案件偏在）が通常と異なる可能性も。
+  </div>
+</div>
+
+<!-- ===== 5. 再シミュレーション ===== -->
+<div class="sec">
+  <h2>5. 月間売上の再シミュレーション</h2>
+
+  <table>
+    <thead><tr><th>パターン</th><th>A の件数 × avg_rev</th><th>B の件数 × avg_rev</th><th class="num">A 売上</th><th class="num">B 売上</th><th class="num">合計</th></tr></thead>
+    <tbody>
+      <tr><td>計画書 v4 想定</td><td>55 × 121K</td><td>85 × 137K</td><td class="num">668万</td><td class="num">1,165万</td><td class="num"><b>1,833万</b></td></tr>
+      <tr><td>4月通常時 実測</td><td>22 × 158K</td><td>95 × 140K</td><td class="num">348万</td><td class="num">1,329万</td><td class="num">1,677万</td></tr>
+      <tr style="background:var(--red-s);"><td>自然実験ストレス時</td><td>~70 × 84K</td><td>~6 × 51K</td><td class="num">588万</td><td class="num">31万</td><td class="num down">619万</td></tr>
+      <tr style="background:var(--green-s);font-weight:700;"><td>中間案（提言）</td><td>45 × 130K</td><td>85 × 137K</td><td class="num">585万</td><td class="num">1,165万</td><td class="num">1,750万</td></tr>
+    </tbody>
+  </table>
+  <div class="ins">
+    <b>中間案:</b> A 55件 → 45件 に下方修正。avg_rev は 35件帯 160K と 36-55件帯 115K の中間補間 130K を想定。計画書 v4 の 1,833万 より約 80万低いが、品質維持のリスクは抑えられる。
+  </div>
+</div>
+
+<!-- ===== 6. 提言 ===== -->
+<div class="sec">
+  <h2>6. 計画書 v5 への提言</h2>
+  <table>
+    <thead><tr><th>提言</th><th>根拠</th></tr></thead>
+    <tbody>
+      <tr><td>方向性は維持 (Bへの集中を分散)</td><td>自然実験で 1名不在で 16% の処理低下を観測。属人リスクは実在</td></tr>
+      <tr style="background:var(--amber-s);"><td><b>A 目標件数を 55件 → 45件 に下方修正</b></td><td>70件ペースで avg_rev -40% / 消費税消化率 +42pt。55件超で品質劣化が計画書予測より早く来る可能性</td></tr>
+      <tr><td>段階的増員プロセス (45→50→55) を導入</td><td>各段階で avg_rev を追跡し、劣化が見られたら止める運用</td></tr>
+      <tr><td>高額車ルーティング (100万超を A 優先) は継続</td><td>100-300万帯で A-B 差 +46K（計画書 +30K より大きい）</td></tr>
+      <tr><td>300万+ 帯のサンプル拡張 (2025年累積で再評価)</td><td>蓮見 4月 N=2 で判断不能</td></tr>
+      <tr><td>出品新人1名採用 (40万/月) は計画通り</td><td>変更なし。Aの専任化を可能にする</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== 7. 残課題 ===== -->
+<div class="sec">
+  <h2>7. 残課題（次回検証）</h2>
+  <ul>
+    <li>蓮見 300万+ 帯のサンプル拡張（2025/06-2026/04 累積で再評価）</li>
+    <li>全担当者を含めた再シミュレーション（橋口・水谷・穂戸田・池上）</li>
+    <li>不在期間 16% 消化不足の追跡（5/16以降にスライドしたか、キャンセル増えたか）</li>
+    <li>5月末値での再実行（5/20 → 5/31）</li>
+  </ul>
+</div>
+
+<div class="footer">
+  生成: 2026-05-21 ／ データ: ucarpac-uapp.gas_data.all_deals_view ／ 検証クエリ: query_staff_monthly_workload.sql, query_staff_price_band.sql, query_supply_high_price.sql, query_leave_natural_experiment.sql
+</div>
+
+</div>
+
+<script>
+  // 月次データ (蓮見・小永吉)
+  const monthly = [
+    ['2025-01', 89,  103, 105.6,  57, 124, 74.0],
+    ['2025-02', 45,  113, 103.0,  57, 121, 92.1],
+    ['2025-03', 66,  95,  107.5,  98, 142, 76.7],
+    ['2025-04', 47,  104, 107.8,  69, 93,  96.7],
+    ['2025-05', 34,  98,  99.7,   97, 125, 79.9],
+    ['2025-06', 53,  122, 99.5,   98, 119, 88.7],
+    ['2025-07', 51,  131, 91.7,  107, 109, 87.3],
+    ['2025-08', 20,  184, 56.8,  119, 108, 87.3],
+    ['2025-09', 31,  159, 69.1,  110, 110, 89.9],
+    ['2025-10', 24,  219, 57.9,  105, 107, 87.1],
+    ['2025-11', 39,  109, 88.3,   81, 103, 77.9],
+    ['2025-12', 15,  112, 98.0,   74, 116, 94.9],
+    ['2026-01', 30,  168, 58.1,  134, 112, 97.9],
+    ['2026-02', 35,  188, 54.7,  123, 109, 92.4],
+    ['2026-03', 41,  116, 80.0,  133, 93, 101.8],
+    ['2026-04', 22,  158, 78.7,   95, 140, 88.1],
+    ['2026-05', 39,  103, 98.2,   26, 125, 87.1]
+  ];
+
+  // テーブル描画
+  const tbody = document.getElementById('monthlyTbody');
+  monthly.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r[0]}</td>
+      <td class="num">${r[1]}</td><td class="num">${r[2]}K</td><td class="num">${r[3]}%</td>
+      <td class="num">${r[4]}</td><td class="num">${r[5]}K</td><td class="num">${r[6]}%</td>`;
+    tbody.appendChild(tr);
+  });
+
+  const months = monthly.map(r => r[0]);
+  const hasumiCount = monthly.map(r => r[1]);
+  const konagayoshiCount = monthly.map(r => r[4]);
+  const hasumiRev = monthly.map(r => r[2]);
+  const konagayoshiRev = monthly.map(r => r[5]);
+
+  new Chart(document.getElementById('chartMonthlyCount'), {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [
+        { label: '蓮見 (A) closed', data: hasumiCount, borderColor: '#e1006e', backgroundColor: 'rgba(225,0,110,.1)', tension: .2 },
+        { label: '小永吉 (B) closed', data: konagayoshiCount, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,.1)', tension: .2 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        title: { display: true, text: '月別 closed 件数 (蓮見 vs 小永吉)' },
+        annotation: {
+          annotations: {
+            target55: { type: 'line', yMin: 55, yMax: 55, borderColor: '#d97706', borderWidth: 1, borderDash: [4,4], label: { display:true, content:'計画書 A 目標 55件', position:'end', color:'#d97706', font:{size:10}, backgroundColor:'rgba(255,255,255,.8)' }},
+            target92: { type: 'line', yMin: 92, yMax: 92, borderColor: '#2563eb', borderWidth: 1, borderDash: [4,4], label: { display:true, content:'計画書 B 目標 85件', position:'start', color:'#2563eb', font:{size:10}, backgroundColor:'rgba(255,255,255,.8)' }}
+          }
+        }
+      },
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+
+  new Chart(document.getElementById('chartMonthlyAvgRev'), {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [
+        { label: '蓮見 (A) avg_rev (K)', data: hasumiRev, borderColor: '#e1006e', backgroundColor: 'rgba(225,0,110,.1)', tension: .2 },
+        { label: '小永吉 (B) avg_rev (K)', data: konagayoshiRev, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,.1)', tension: .2 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { title: { display: true, text: '月別 avg_rev_closed (K)' } },
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+
+  // 価格帯チャート
+  new Chart(document.getElementById('chartPriceBandRev'), {
+    type: 'bar',
+    data: {
+      labels: ['~100万', '100-300万', '300万+'],
+      datasets: [
+        { label: '蓮見 (A)', data: [71, 210, 187], backgroundColor: 'rgba(225,0,110,.7)' },
+        { label: '小永吉 (B)', data: [57, 164, 257], backgroundColor: 'rgba(37,99,235,.7)' }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: '2026-04 価格帯×担当者 avg_rev_closed (K)' } } }
+  });
+
+  new Chart(document.getElementById('chartPriceBandTax'), {
+    type: 'bar',
+    data: {
+      labels: ['~100万', '100-300万', '300万+'],
+      datasets: [
+        { label: '蓮見 (A)', data: [104.2, 63.6, 101.6], backgroundColor: 'rgba(225,0,110,.7)' },
+        { label: '小永吉 (B)', data: [104.9, 92.4, 85.4], backgroundColor: 'rgba(37,99,235,.7)' }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: '2026-04 価格帯×担当者 消費税消化率 (%)' } } }
+  });
+
+  // 育休期間チャート
+  new Chart(document.getElementById('chartLeaveCount'), {
+    type: 'bar',
+    data: {
+      labels: ['小永吉', '蓮見', '橋口', '水谷', '穂戸田'],
+      datasets: [
+        { label: '不在前 (4/14-4/29, 16日)', data: [60, 10, 7, 13, 14], backgroundColor: 'rgba(100,116,139,.7)' },
+        { label: '不在中 (4/30-5/15, 16日)', data: [3, 37, 18, 10, 16], backgroundColor: 'rgba(220,38,38,.7)' },
+        { label: '不在後 (5/16-5/20, 5日)', data: [25, 11, 3, 5, 6], backgroundColor: 'rgba(5,150,105,.7)' }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: '育休期間 closed 件数 (担当者別)' } } }
+  });
+
+  new Chart(document.getElementById('chartLeaveAvgRev'), {
+    type: 'bar',
+    data: {
+      labels: ['小永吉', '蓮見', '橋口', '水谷', '穂戸田'],
+      datasets: [
+        { label: '不在前 avg_rev (K)', data: [114, 140, 115, 129, 190], backgroundColor: 'rgba(100,116,139,.7)' },
+        { label: '不在中 avg_rev (K)', data: [51, 84, 138, 123, 156], backgroundColor: 'rgba(220,38,38,.7)' },
+        { label: '不在後 avg_rev (K)', data: [124, 158, 428, 224, 280], backgroundColor: 'rgba(5,150,105,.7)' }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: '育休期間 avg_rev_closed (K)' } } }
+  });
+</script>
+</body>
+</html>

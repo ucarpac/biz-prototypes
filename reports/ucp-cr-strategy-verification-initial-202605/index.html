@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>2026-05 戦略変更の検証 — 絞り込み → 全量持込</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  :root{--ink:#0f172a;--char:#24324a;--slate:#64748b;--mist:#f1f5f9;--blue:#2563eb;--blue-s:#dbeafe;--green:#059669;--green-s:#d1fae5;--amber:#d97706;--amber-s:#fef3c7;--red:#dc2626;--red-s:#fee2e2;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'BIZ UDPGothic','Hiragino Sans','Noto Sans JP',sans-serif;background:#f8fafc;color:var(--char);line-height:1.7;}
+  .container{max-width:1240px;margin:0 auto;padding:20px;}
+  .header{background:linear-gradient(135deg,#0f172a,#1d4ed8);color:#fff;padding:28px;border-radius:16px;margin-bottom:18px;}
+  .header h1{font-size:22px;font-weight:700;margin-bottom:6px;}
+  .header .sub{font-size:13px;color:#cbd5e1;}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .meta span{font-size:11px;color:#dbeafe;background:rgba(255,255,255,.12);padding:4px 10px;border-radius:999px;}
+  .sec{background:#fff;border-radius:12px;padding:20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(15,23,42,.08);}
+  .sec h2{font-size:17px;font-weight:700;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid var(--mist);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0;}
+  .card{padding:14px;border-radius:12px;text-align:center;background:var(--mist);}
+  .card .label{font-size:10px;color:var(--slate);}
+  .card .value{font-size:22px;font-weight:800;}
+  .card .small{font-size:10px;color:var(--slate);margin-top:4px;}
+  .chart-wrap{position:relative;height:340px;margin:10px 0 6px;}
+  .chart-tall{position:relative;height:420px;margin:10px 0 6px;}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12px;}
+  th,td{padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:left;}
+  th{background:var(--mist);font-size:11px;color:var(--slate);font-weight:700;}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;}
+  .nt{border-left:4px solid var(--amber);background:var(--amber-s);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px;}
+  .ok{border-left:4px solid var(--green);background:var(--green-s);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px;}
+  ul{margin:8px 0 8px 18px;font-size:12px;}
+  li{margin-bottom:4px;}
+  .footer{text-align:center;padding:18px;color:var(--slate);font-size:11px;}
+  .verdict{font-size:13px;}
+  .verdict span.match{color:var(--green);font-weight:700;}
+  .verdict span.misc{color:var(--amber);font-weight:700;}
+</style>
+<script>
+  window.PROTO_AUTH_CONFIG = {
+    title: "戦略変更の検証 — 絞り込み → 全量持込 (初版)",
+    subtitle: "UcarPAC 社内向け分析レポートです。認証状態は24時間保持されます。"
+  };
+</script>
+<script src="../../auth.js"></script>
+</head>
+<body>
+
+
+<div class="container">
+
+<div class="header">
+  <h1>2026-05 戦略変更の検証 — 絞り込み → 全量持込</h1>
+  <div class="sub">橋口さんの「A=絞り込み / B=全量持込」仮説をデータで検証 (申込→出品→成約のファネル、希望価格、売上)</div>
+  <div class="meta">
+    <span>作成日: 2026-05-21</span>
+    <span>データ: ucarpac-uapp.gas_data.all_deals_view</span>
+    <span>基準日: assessment_apply_datetime</span>
+    <span>対象期間: 2024-04-01 〜 2026-05-20</span>
+  </div>
+</div>
+
+<div class="sec">
+  <h2>結論サマリ — 仮説は基本的にデータと一致</h2>
+  <div class="grid">
+    <div class="card"><div class="label">A 期</div><div class="value">421件/月</div><div class="small">絞り込み (出品/月)</div></div>
+    <div class="card"><div class="label">B1 期</div><div class="value">458件/月</div><div class="small">移行期 (出品/月)</div></div>
+    <div class="card"><div class="label">B2 期</div><div class="value">505件/月</div><div class="small">全量持込 (出品/月)</div></div>
+    <div class="card"><div class="label">A→B2 出品数差</div><div class="value">+20%</div><div class="small">+84件/月</div></div>
+    <div class="card"><div class="label">A→B2 CR 差</div><div class="value">-7.6pp</div><div class="small">47.2% → 39.6%</div></div>
+    <div class="card"><div class="label">A→B2 売上差</div><div class="value">+199万/月</div><div class="small">2,304 → 2,503 万</div></div>
+  </div>
+  <div class="ok">
+    橋口さんの仮説 (出品数↑、CR↓、売上↑) は <b>全ての主要指標で裏付けられた</b>。希望価格中央値も 140 → 180 万 (+29%) で「希望が高くても一旦出品」の効果が観察できる。
+  </div>
+  <div class="nt">
+    一方で、戦略の転換点はデータ上 <b>2025-10 以降</b> が明確 (橋口さんの記憶 2025-06 とは 3-4ヶ月のずれ)。2025-07〜09 は「移行期」と読め、この B1 期が実は売上ピーク (月 2,934 万) です。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>1. 仮説検証マトリクス</h2>
+  <table>
+    <thead><tr><th>指標</th><th class="num">A 絞り込み</th><th class="num">B2 全量持込</th><th class="num">差分</th><th>仮説</th><th>判定</th></tr></thead>
+    <tbody>
+      <tr><td>申込数 / 月</td><td class="num">622</td><td class="num">695</td><td class="num">+12%</td><td>—</td><td class="verdict"><span class="misc">仮説外: 申込自体が増えている</span></td></tr>
+      <tr><td>出品数 / 月</td><td class="num">421</td><td class="num">505</td><td class="num">+20%</td><td>↑</td><td class="verdict"><span class="match">✅ 一致</span></td></tr>
+      <tr><td>出品率 (=申込→出品)</td><td class="num">67.6%</td><td class="num">72.7%</td><td class="num">+5.1pp</td><td>↑</td><td class="verdict"><span class="match">✅ 一致</span></td></tr>
+      <tr><td>CR (出品成約率)</td><td class="num">47.2%</td><td class="num">39.6%</td><td class="num">-7.6pp</td><td>↓</td><td class="verdict"><span class="match">✅ 一致</span></td></tr>
+      <tr><td>売上 / 月</td><td class="num">2,304 万</td><td class="num">2,503 万</td><td class="num">+199 万 (+8.6%)</td><td>↑</td><td class="verdict"><span class="match">✅ 一致</span></td></tr>
+      <tr><td>希望価格中央値</td><td class="num">140 万</td><td class="num">180 万</td><td class="num">+29%</td><td>↑ (希望が高くても)</td><td class="verdict"><span class="match">✅ 一致</span></td></tr>
+      <tr><td>高額帯比率 (300万+)</td><td class="num">30.5%</td><td class="num">36.1%</td><td class="num">+5.6pp</td><td>↑</td><td class="verdict"><span class="match">✅ 一致</span></td></tr>
+      <tr><td>希望-入札ギャップ中央値</td><td class="num">37 万</td><td class="num">46 万</td><td class="num">+24%</td><td>—</td><td class="verdict"><span class="misc">希望と市場の乖離が広がる</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="sec">
+  <h2>2. 3 区分の月平均比較</h2>
+  <div class="chart-wrap"><canvas id="threeSegChart"></canvas></div>
+  <table>
+    <thead>
+      <tr><th>区分</th><th>期間</th><th class="num">月数</th><th class="num">申込</th><th class="num">出品</th><th class="num">成約</th><th class="num">出品率</th><th class="num">CR</th><th class="num">売上(万)</th><th class="num">希望中央値(万)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>A 絞り込み</td><td>2024-07〜2025-06</td><td class="num">12</td><td class="num">622</td><td class="num">421</td><td class="num">199</td><td class="num">67.6%</td><td class="num">47.2%</td><td class="num">2,304</td><td class="num">140</td></tr>
+      <tr><td>B1 移行期</td><td>2025-07〜2025-09</td><td class="num">3</td><td class="num">696</td><td class="num">458</td><td class="num">233</td><td class="num">65.8%</td><td class="num">50.9%</td><td class="num"><b>2,934</b></td><td class="num">150</td></tr>
+      <tr><td>B2 全量持込</td><td>2025-10〜2026-05/20</td><td class="num">7.7</td><td class="num">695</td><td class="num"><b>505</b></td><td class="num">200</td><td class="num"><b>72.7%</b></td><td class="num"><b>39.6%</b></td><td class="num">2,503</td><td class="num"><b>180</b></td></tr>
+    </tbody>
+  </table>
+  <div class="nt">
+    <b>B1 移行期 (2025-07〜09) が実は売上ピーク</b>: 月平均 2,934 万 (A 比 +630万、B2 比 +431万)。
+    出品率も CR も「中間水準」で、案件の量と質のバランスが最も良かった時期。
+    B2 では件数増加 (+47/月) は実現したが、CR 低下 (-11.3pp) により成約数は逆に -33/月 減少。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>3. 月次推移グラフ — 戦略の効果が見え始める時期</h2>
+  <div class="chart-tall"><canvas id="monthlyChart"></canvas></div>
+  <div class="nt">
+    出品率は 2025-10 以降に明確に 75% 帯へ上昇。CR は 2026-01 以降に 30-40% 帯に低下。
+    希望価格中央値は 2026-01 以降に 200 万円超の月が連続。
+    橋口さんの戦略変更が <b>2025-10 以降に運用に反映された</b> と読める動き。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>4. 売上と件数のトレードオフ</h2>
+  <div class="chart-wrap"><canvas id="tradeoffChart"></canvas></div>
+  <table>
+    <thead><tr><th>区分</th><th class="num">成約数/月</th><th class="num">売上/月(万)</th><th class="num">1件あたり売上(万)</th></tr></thead>
+    <tbody>
+      <tr><td>A 絞り込み</td><td class="num">199</td><td class="num">2,304</td><td class="num">11.6</td></tr>
+      <tr><td>B1 移行期</td><td class="num"><b>233</b></td><td class="num"><b>2,934</b></td><td class="num"><b>12.6</b></td></tr>
+      <tr><td>B2 全量持込</td><td class="num">200</td><td class="num">2,503</td><td class="num">12.5</td></tr>
+    </tbody>
+  </table>
+  <div class="nt">
+    1 件あたり売上は B1 / B2 で約 12.5 万円と同水準 (A 比 +9%)。つまり「希望が高くても一旦出品」の効果で平均単価は上がっている。
+    一方、成約数は B2 で B1 より -33/月 落ちており、件数を取り戻すまでには至っていません。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>5. 観察と次アクション</h2>
+  <ul>
+    <li><b>戦略の方向性は正しい</b>: A→B2 で出品数 +20%、売上 +8.6%。仮説通り「件数増で売上を上げる」が成立</li>
+    <li><b>転換点のタイムラグ</b>: 戦略変更の意思決定 (2025-06頃) から実運用への反映 (2025-10頃) まで 3-4 ヶ月のずれ。次回戦略変更時は意思決定 → 実運用までのギャップを短縮する余地</li>
+    <li><b>B1 期がピーク</b>: 売上月 2,934 万を実現した B1 期 (2025-07〜09) の特性 (出品率 65.8%・CR 50.9%) は再現の余地がある</li>
+    <li><b>B2 期の CR 低下要因</b>: 希望価格中央値 +30 万、高額帯比率 +5.6pp、ギャップ +11 万 = 「売りにくい案件」の比率上昇が原因。Phase 4 の加算金管理・売切適正化と組み合わせて改善余地あり</li>
+    <li><b>2026-01 以降の CR 低下</b>: 38.6% → 32.3% (4月) と顕著。Phase 1/2 で確認された「4月成約率悪化」「仮説車種群悪化」と整合。難案件の積み上げが影響している可能性</li>
+    <li><b>申込数の増加 (+12%)</b>: 仮説外だが営業力向上 or 流入元拡大の効果と推測。Phase 2 の LP 別分析と組み合わせて確認推奨</li>
+  </ul>
+  <div class="nt">
+    本検証は <b>2026-05-20 までのデータ</b>。5月分は 20 日間のため、月末値で再計算する必要があります。
+    B2 期の月数 (7.7ヶ月) はサンプルとしては十分だが、四季変動の影響を排除するには 12ヶ月分のデータ蓄積が望ましいです。
+  </div>
+</div>
+
+<div class="footer">
+  戦略変更の検証 — 絞り込み → 全量持込 (5/20 延伸版) | Source: ucarpac-uapp.gas_data | Generated: 2026-05-21
+</div>
+
+</div>
+
+<script>
+new Chart(document.getElementById('threeSegChart'),{
+  type:'bar',
+  data:{
+    labels:['出品数/月','成約数/月','売上/月 (万)','希望中央値(万)','出品率(%)','CR(%)','高額帯比率(%)'],
+    datasets:[
+      {label:'A 絞り込み',data:[421,199,2304,140,67.6,47.2,30.5],backgroundColor:'#94a3b8'},
+      {label:'B1 移行期',data:[458,233,2934,150,65.8,50.9,32.5],backgroundColor:'#fbbf24'},
+      {label:'B2 全量持込',data:[505,200,2503,180,72.7,39.6,36.1],backgroundColor:'#2563eb'}
+    ]
+  },
+  options:{
+    indexAxis:'y',
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom'}},
+    scales:{x:{beginAtZero:true}}
+  }
+});
+
+const months = ['2024-04','2024-05','2024-06','2024-07','2024-08','2024-09','2024-10','2024-11','2024-12','2025-01','2025-02','2025-03','2025-04','2025-05','2025-06','2025-07','2025-08','2025-09','2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'];
+
+new Chart(document.getElementById('monthlyChart'),{
+  type:'line',
+  data:{
+    labels:months,
+    datasets:[
+      {label:'出品率(%)',data:[73.7,71.6,69.6,71.1,71.5,68.6,68.8,62.9,68.2,70.8,68.8,60.8,65.2,71.4,65.7,59.5,69.2,69.2,75.7,75.9,76.5,72.1,72.9,74.9,74.8,53.9],borderColor:'#16a34a',backgroundColor:'#16a34a22',tension:0.25,borderWidth:2,yAxisID:'y'},
+      {label:'CR(%)',data:[49.7,55.1,58.7,50.9,51.7,44.6,51.1,54.7,51.1,39.5,41.9,43.1,52.6,46.7,48.1,51.0,50.4,51.3,46.7,49.3,40.1,38.6,41.8,38.5,32.3,29.9],borderColor:'#dc2626',backgroundColor:'#dc262622',tension:0.25,borderWidth:2,yAxisID:'y'},
+      {label:'売上(万) ÷ 100',data:[20.93,25.49,25.69,24.04,19.65,23.66,20.82,23.01,17.82,26.02,23.95,22.96,20.03,24.63,29.84,28.72,30.51,28.78,22.00,22.65,21.03,32.86,31.91,27.56,23.50,11.21],borderColor:'#2563eb',backgroundColor:'#2563eb22',tension:0.25,borderWidth:2,borderDash:[6,4],yAxisID:'y'}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{position:'bottom'},
+      annotation:{}
+    },
+    scales:{y:{beginAtZero:true,max:100,title:{display:true,text:'% / 売上÷100'}}}
+  }
+});
+
+new Chart(document.getElementById('tradeoffChart'),{
+  type:'bar',
+  data:{
+    labels:['A 絞り込み','B1 移行期','B2 全量持込'],
+    datasets:[
+      {label:'成約数/月',data:[199,233,200],backgroundColor:'#94a3b8',yAxisID:'y'},
+      {label:'1件あたり売上(万)',data:[11.6,12.6,12.5],backgroundColor:'#fbbf24',yAxisID:'y1'}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom'}},
+    scales:{
+      y:{type:'linear',position:'left',beginAtZero:true,title:{display:true,text:'成約数/月'}},
+      y1:{type:'linear',position:'right',beginAtZero:true,grid:{drawOnChartArea:false},title:{display:true,text:'1件あたり売上(万)'}}
+    }
+  }
+});
+</script>
+</body>
+</html>

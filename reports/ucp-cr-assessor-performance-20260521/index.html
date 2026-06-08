@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>2026年 査定員 (取次店) パフォーマンス分析 (5/20 延伸版)</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  :root{--ink:#0f172a;--char:#24324a;--slate:#64748b;--mist:#f1f5f9;--blue:#2563eb;--blue-s:#dbeafe;--green:#059669;--green-s:#d1fae5;--amber:#d97706;--amber-s:#fef3c7;--red:#dc2626;--red-s:#fee2e2;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'BIZ UDPGothic','Hiragino Sans','Noto Sans JP',sans-serif;background:#f8fafc;color:var(--char);line-height:1.7;}
+  .container{max-width:1240px;margin:0 auto;padding:20px;}
+  .header{background:linear-gradient(135deg,#0f172a,#1d4ed8);color:#fff;padding:28px;border-radius:16px;margin-bottom:18px;}
+  .header h1{font-size:22px;font-weight:700;margin-bottom:6px;}
+  .header .sub{font-size:13px;color:#cbd5e1;}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .meta span{font-size:11px;color:#dbeafe;background:rgba(255,255,255,.12);padding:4px 10px;border-radius:999px;}
+  .sec{background:#fff;border-radius:12px;padding:20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(15,23,42,.08);}
+  .sec h2{font-size:17px;font-weight:700;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid var(--mist);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0;}
+  .card{padding:14px;border-radius:12px;text-align:center;background:var(--mist);}
+  .card .label{font-size:10px;color:var(--slate);}
+  .card .value{font-size:22px;font-weight:800;}
+  .card .small{font-size:10px;color:var(--slate);margin-top:4px;}
+  .chart-wrap{position:relative;height:340px;margin:10px 0 6px;}
+  .chart-tall{position:relative;height:460px;margin:10px 0 6px;}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12px;}
+  th,td{padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:left;}
+  th{background:var(--mist);font-size:11px;color:var(--slate);font-weight:700;}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;}
+  .nt{border-left:4px solid var(--amber);background:var(--amber-s);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px;}
+  ul{margin:8px 0 8px 18px;font-size:12px;}
+  li{margin-bottom:4px;}
+  .footer{text-align:center;padding:18px;color:var(--slate);font-size:11px;}
+</style>
+<script>
+  window.PROTO_AUTH_CONFIG = {
+    title: "査定員 (取次店) パフォーマンス分析 (5/20延伸版)",
+    subtitle: "UcarPAC 社内向け分析レポートです。認証状態は24時間保持されます。"
+  };
+</script>
+<script src="../../auth.js"></script>
+</head>
+<body>
+
+
+<div class="container">
+
+<div class="header">
+  <h1>2026年 査定員 (取次店) パフォーマンス分析 (5/20 延伸版)</h1>
+  <div class="sub">査定員パフォーマンス分析 3 版 (04-08 / 04-18 / 04-19) を統合し、uapp.gas_data の agent_shop ベースで Period A/B + 5/20 まで延伸して再評価</div>
+  <div class="meta">
+    <span>作成日: 2026-05-21</span>
+    <span>データ: ucarpac-uapp.gas_data.all_deals_view (agent_shop)</span>
+    <span>基準日: assessment_apply_datetime</span>
+    <span>Period A: 2024-07 〜 2025-06 (12ヶ月)</span>
+    <span>Period B: 2025-07 〜 2026-05-20 (10.7ヶ月)</span>
+  </div>
+</div>
+
+<div class="sec">
+  <h2>サマリ — Period B 主要取次店 (件数上位)</h2>
+  <div class="grid">
+    <div class="card"><div class="label">最大件数</div><div class="value">【UcarPAC】</div><div class="small">2,794件 / CR 37.3% / 9,831万</div></div>
+    <div class="card"><div class="label">出張査定員 最大</div><div class="value">高橋</div><div class="small">654件 / CR 49.9% / 3,830万</div></div>
+    <div class="card"><div class="label">CR 上昇幅 最大</div><div class="value">財津 +7.4pt</div><div class="small">47.4% → 54.8%</div></div>
+    <div class="card"><div class="label">件数 (Period B)</div><div class="value">2,047</div><div class="small">主要 20 取次店合計</div></div>
+    <div class="card"><div class="label">平均 CR (Period B)</div><div class="value">約 38%</div><div class="small">取次店平均</div></div>
+  </div>
+  <div class="nt">
+    本レポートは件数 >= 20 の取次店を対象。件数の少ない取次店 (< 30) は変動が大きく、ランキング上位下位の解釈には注意が必要です。5月分は 5/20 までです。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>1. Period B 主要取次店一覧 (件数上位)</h2>
+  <table>
+    <thead>
+      <tr><th>取次店</th><th class="num">査定</th><th class="num">出品</th><th class="num">成約</th><th class="num">出品率</th><th class="num">CR</th><th class="num">売上(万)</th><th class="num">平均/件(k)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>【UcarPAC】(サポート)</td><td class="num">2,794</td><td class="num">2,226</td><td class="num">831</td><td class="num">79.7%</td><td class="num">37.3%</td><td class="num">9,831</td><td class="num">118</td></tr>
+      <tr><td>カババ(査定)</td><td class="num">687</td><td class="num">531</td><td class="num">97</td><td class="num">77.3%</td><td class="num">18.3%</td><td class="num">1,699</td><td class="num">175</td></tr>
+      <tr><td>高橋(たかはし)(出張査定員)</td><td class="num">654</td><td class="num">457</td><td class="num">228</td><td class="num">69.9%</td><td class="num">49.9%</td><td class="num">3,830</td><td class="num">168</td></tr>
+      <tr><td>渡邊 宏(出張査定員)</td><td class="num">362</td><td class="num">245</td><td class="num">100</td><td class="num">67.7%</td><td class="num">40.8%</td><td class="num">1,755</td><td class="num">175</td></tr>
+      <tr><td>松本(マツモト)(出張査定員)</td><td class="num">319</td><td class="num">254</td><td class="num">112</td><td class="num">79.6%</td><td class="num">44.1%</td><td class="num">1,762</td><td class="num">157</td></tr>
+      <tr><td>財津(ザイツ)(出張査定員)</td><td class="num">220</td><td class="num">155</td><td class="num">85</td><td class="num">70.5%</td><td class="num">54.8%</td><td class="num">1,203</td><td class="num">141</td></tr>
+      <tr><td>Ps_AUTO(ピーズオート)</td><td class="num">182</td><td class="num">120</td><td class="num">45</td><td class="num">65.9%</td><td class="num">37.5%</td><td class="num">808</td><td class="num">179</td></tr>
+      <tr><td>【停止アカウント】Y2H(兵庫店)</td><td class="num">159</td><td class="num">120</td><td class="num">54</td><td class="num">75.5%</td><td class="num">45.0%</td><td class="num">900</td><td class="num">167</td></tr>
+      <tr><td>ハッピーカーズ国分寺店</td><td class="num">98</td><td class="num">69</td><td class="num">29</td><td class="num">70.4%</td><td class="num">42.0%</td><td class="num">521</td><td class="num">180</td></tr>
+      <tr><td>岡佐古(オカサコ)(出張査定員)</td><td class="num">94</td><td class="num">68</td><td class="num">31</td><td class="num">72.3%</td><td class="num">45.6%</td><td class="num">560</td><td class="num">181</td></tr>
+    </tbody>
+  </table>
+  <div class="nt">
+    UcarPAC (サポート) は最大シェア (2,794 件)。CR 37.3% は他主要取次店より低めだが件数で売上総額をリード。高橋・財津・松本は CR 44〜55% で安定。カババ (査定) は件数多く CR 18.3% で他より低い水準。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>2. Period B 件数と平均売上の関係</h2>
+  <div class="chart-tall"><canvas id="overviewChart"></canvas></div>
+</div>
+
+<div class="sec">
+  <h2>3. Period A → B 比較 (CR 上昇幅)</h2>
+  <div class="chart-wrap"><canvas id="upChart"></canvas></div>
+  <table>
+    <thead><tr><th>取次店</th><th class="num">A 出品</th><th class="num">A CR</th><th class="num">B 出品</th><th class="num">B CR</th><th class="num">CR 差分(pp)</th></tr></thead>
+    <tbody>
+      <tr><td>スピンオフ</td><td class="num">16</td><td class="num">18.8%</td><td class="num">14</td><td class="num">64.3%</td><td class="num"><b>+45.5</b></td></tr>
+      <tr><td>東京査定センター</td><td class="num">21</td><td class="num">38.1%</td><td class="num">19</td><td class="num">52.6%</td><td class="num"><b>+14.5</b></td></tr>
+      <tr><td>金丸(神奈川県全域)</td><td class="num">26</td><td class="num">50.0%</td><td class="num">24</td><td class="num">62.5%</td><td class="num"><b>+12.5</b></td></tr>
+      <tr><td>ワンエイト(井原)</td><td class="num">14</td><td class="num">42.9%</td><td class="num">51</td><td class="num">52.9%</td><td class="num">+10.1</td></tr>
+      <tr><td>財津(ザイツ)</td><td class="num">192</td><td class="num">47.4%</td><td class="num">155</td><td class="num">54.8%</td><td class="num">+7.4</td></tr>
+      <tr><td>ハッピーカーズ(福岡東店)</td><td class="num">69</td><td class="num">26.1%</td><td class="num">46</td><td class="num">30.4%</td><td class="num">+4.3</td></tr>
+      <tr><td>泉崎 一徳</td><td class="num">33</td><td class="num">36.4%</td><td class="num">31</td><td class="num">38.7%</td><td class="num">+2.3</td></tr>
+      <tr><td>高橋(たかはし)</td><td class="num">480</td><td class="num">47.9%</td><td class="num">457</td><td class="num">49.9%</td><td class="num">+2.0</td></tr>
+      <tr><td>【UcarPAC】(サポート)</td><td class="num">2,033</td><td class="num">35.7%</td><td class="num">2,226</td><td class="num">37.3%</td><td class="num">+1.7</td></tr>
+    </tbody>
+  </table>
+  <div class="nt">
+    件数 < 30 の取次店 (スピンオフ 14件、東京査定センター 19件 等) は変動幅が大きいため、ランキング上位の数値は参考値として扱う必要があります。財津・高橋・UcarPAC は件数も多く CR 上昇傾向が示唆されます。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>4. Period A → B 比較 (CR 下降)</h2>
+  <div class="chart-wrap"><canvas id="downChart"></canvas></div>
+  <table>
+    <thead><tr><th>取次店</th><th class="num">A 出品</th><th class="num">A CR</th><th class="num">B 出品</th><th class="num">B CR</th><th class="num">CR 差分(pp)</th></tr></thead>
+    <tbody>
+      <tr><td>東札幌(査定センター)</td><td class="num">28</td><td class="num">60.7%</td><td class="num">12</td><td class="num">25.0%</td><td class="num">-35.7</td></tr>
+      <tr><td>犬飼(イヌカイ)</td><td class="num">27</td><td class="num">55.6%</td><td class="num">16</td><td class="num">25.0%</td><td class="num">-30.6</td></tr>
+      <tr><td>千葉八千代</td><td class="num">15</td><td class="num">66.7%</td><td class="num">18</td><td class="num">50.0%</td><td class="num">-16.7</td></tr>
+      <tr><td>カーショップリベロ(豊中店)</td><td class="num">38</td><td class="num">50.0%</td><td class="num">23</td><td class="num">39.1%</td><td class="num">-10.9</td></tr>
+      <tr><td>(京都)高島</td><td class="num">43</td><td class="num">65.1%</td><td class="num">48</td><td class="num">54.2%</td><td class="num">-10.9</td></tr>
+      <tr><td>SPS((京都)真柴)</td><td class="num">32</td><td class="num">50.0%</td><td class="num">26</td><td class="num">42.3%</td><td class="num">-7.7</td></tr>
+      <tr><td>【停止アカウント】Y2H</td><td class="num">158</td><td class="num">52.5%</td><td class="num">120</td><td class="num">45.0%</td><td class="num">-7.5</td></tr>
+      <tr><td>Ps_AUTO</td><td class="num">112</td><td class="num">44.6%</td><td class="num">120</td><td class="num">37.5%</td><td class="num">-7.1</td></tr>
+      <tr><td>SST</td><td class="num">40</td><td class="num">40.0%</td><td class="num">42</td><td class="num">33.3%</td><td class="num">-6.7</td></tr>
+      <tr><td>株式会社BIGWIG</td><td class="num">68</td><td class="num">29.4%</td><td class="num">62</td><td class="num">25.8%</td><td class="num">-3.6</td></tr>
+    </tbody>
+  </table>
+  <div class="nt">
+    東札幌・犬飼・千葉八千代は件数縮小と CR 低下が同時発生。Y2H は「停止アカウント」と表記され、現在新規依頼を受けていない可能性。Ps_AUTO・BIGWIG は件数維持しつつ CR が下方推移。詳細要因は別途調査が必要です。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>5. 観察と次アクション</h2>
+  <ul>
+    <li><b>件数主導の貢献</b>: UcarPAC (サポート) 2,794 件、カババ (査定) 687 件、高橋 654 件で全 Period B の主要部分を構成</li>
+    <li><b>CR 維持型</b>: 高橋・松本・財津・岡佐古・ハッピーカーズ国分寺店は CR 42〜55% で Period A→B も維持または上昇</li>
+    <li><b>カババ (査定)</b>: 件数 687 で多いが CR 18.3% で他主要取次店より低い。新規流入チャネルとして件数を稼ぐ構造のため、CR は別途見るべき</li>
+    <li><b>【PoC】スズキ自販東京 各店</b>: 出品率 2〜12% と低水準。査定完了後の取下げや停止が多い可能性、要因確認推奨</li>
+    <li><b>停止アカウント Y2H (兵庫店)</b>: 件数 120、CR 45.0%。停止理由と再開可能性の確認</li>
+    <li><b>5月分は 5/20 まで</b>。月末値での再計算は別途必要</li>
+  </ul>
+  <div class="nt">
+    元レポート (2026-04-19 版) は全期間集計のため直接比較していません。元レポートのセクション「月次成約率推移」「主要取次店 × LP 流入元クロス」「月次推移詳細」は本分析では未実装のため、Phase 5b として後続対応推奨。
+  </div>
+</div>
+
+<div class="footer">
+  Phase 5: 査定員 (取次店) パフォーマンス分析 (5/20 延伸版) | Source: ucarpac-uapp.gas_data.all_deals_view | Generated: 2026-05-21
+</div>
+
+</div>
+
+<script>
+new Chart(document.getElementById('overviewChart'),{
+  type:'scatter',
+  data:{
+    datasets:[
+      {label:'取次店 (件数 >= 20)',
+       data:[
+         {x:2794,y:37.3,r:14,name:'UcarPAC'},
+         {x:687,y:18.3,r:9,name:'カババ'},
+         {x:654,y:49.9,r:9,name:'高橋'},
+         {x:362,y:40.8,r:7,name:'渡邊'},
+         {x:319,y:44.1,r:7,name:'松本'},
+         {x:220,y:54.8,r:6,name:'財津'},
+         {x:182,y:37.5,r:5,name:'Ps_AUTO'},
+         {x:159,y:45.0,r:5,name:'Y2H'},
+         {x:98,y:42.0,r:4,name:'ハッピーカーズ国分寺'},
+         {x:94,y:45.6,r:4,name:'岡佐古'},
+         {x:86,y:25.8,r:4,name:'BIGWIG'},
+         {x:80,y:31.5,r:4,name:'佐竹'},
+         {x:74,y:52.9,r:4,name:'ワンエイト'},
+         {x:69,y:54.2,r:4,name:'(京都)高島'},
+         {x:68,y:30.4,r:4,name:'HC福岡東'},
+         {x:64,y:50.0,r:3,name:'相澤'}
+       ],
+       backgroundColor:'#2563eb88',borderColor:'#2563eb'}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:c=>{return `${c.raw.name}: ${c.raw.x}件 / CR ${c.raw.y}%`;}}}
+    },
+    scales:{
+      x:{title:{display:true,text:'査定件数 (Period B)'},type:'logarithmic'},
+      y:{title:{display:true,text:'CR (%)'},min:0,max:70}
+    }
+  }
+});
+
+new Chart(document.getElementById('upChart'),{
+  type:'bar',
+  data:{
+    labels:['スピンオフ','東京査定C','金丸','ワンエイト','財津','ハッピー福岡東','泉崎','高橋','UcarPAC'],
+    datasets:[
+      {label:'A CR(%)',data:[18.8,38.1,50.0,42.9,47.4,26.1,36.4,47.9,35.7],backgroundColor:'#94a3b8'},
+      {label:'B CR(%)',data:[64.3,52.6,62.5,52.9,54.8,30.4,38.7,49.9,37.3],backgroundColor:'#16a34a'}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom'}},
+    scales:{y:{beginAtZero:true,max:70,ticks:{callback:v=>v+'%'}}}
+  }
+});
+
+new Chart(document.getElementById('downChart'),{
+  type:'bar',
+  data:{
+    labels:['東札幌','犬飼','千葉八千代','カーリベロ','(京都)高島','SPS','Y2H','Ps_AUTO','SST','BIGWIG'],
+    datasets:[
+      {label:'A CR(%)',data:[60.7,55.6,66.7,50.0,65.1,50.0,52.5,44.6,40.0,29.4],backgroundColor:'#94a3b8'},
+      {label:'B CR(%)',data:[25.0,25.0,50.0,39.1,54.2,42.3,45.0,37.5,33.3,25.8],backgroundColor:'#dc2626'}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'bottom'}},
+    scales:{y:{beginAtZero:true,max:70,ticks:{callback:v=>v+'%'}}}
+  }
+});
+</script>
+</body>
+</html>

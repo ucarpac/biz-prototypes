@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>2026年 売上構造分析 Period A vs B (5/20 延伸版)</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  :root{--ink:#0f172a;--char:#24324a;--slate:#64748b;--mist:#f1f5f9;--blue:#2563eb;--blue-s:#dbeafe;--green:#059669;--green-s:#d1fae5;--amber:#d97706;--amber-s:#fef3c7;--red:#dc2626;--red-s:#fee2e2;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'BIZ UDPGothic','Hiragino Sans','Noto Sans JP',sans-serif;background:#f8fafc;color:var(--char);line-height:1.7;}
+  .container{max-width:1240px;margin:0 auto;padding:20px;}
+  .header{background:linear-gradient(135deg,#0f172a,#1d4ed8);color:#fff;padding:28px;border-radius:16px;margin-bottom:18px;}
+  .header h1{font-size:22px;font-weight:700;margin-bottom:6px;}
+  .header .sub{font-size:13px;color:#cbd5e1;}
+  .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .meta span{font-size:11px;color:#dbeafe;background:rgba(255,255,255,.12);padding:4px 10px;border-radius:999px;}
+  .sec{background:#fff;border-radius:12px;padding:20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(15,23,42,.08);}
+  .sec h2{font-size:17px;font-weight:700;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid var(--mist);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0;}
+  .card{padding:14px;border-radius:12px;text-align:center;background:var(--mist);}
+  .card .label{font-size:10px;color:var(--slate);}
+  .card .value{font-size:24px;font-weight:800;}
+  .card .small{font-size:10px;color:var(--slate);margin-top:4px;}
+  .chart-wrap{position:relative;height:340px;margin:10px 0 6px;}
+  .chart-tall{position:relative;height:420px;margin:10px 0 6px;}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12px;}
+  th,td{padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:left;}
+  th{background:var(--mist);font-size:11px;color:var(--slate);font-weight:700;}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;}
+  .nt{border-left:4px solid var(--amber);background:var(--amber-s);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:12px;}
+  ul{margin:8px 0 8px 18px;font-size:12px;}
+  li{margin-bottom:4px;}
+  .footer{text-align:center;padding:18px;color:var(--slate);font-size:11px;}
+</style>
+<script>
+  window.PROTO_AUTH_CONFIG = {
+    title: "売上構造分析 Period A vs B (5/20延伸版)",
+    subtitle: "UcarPAC 社内向け分析レポートです。認証状態は24時間保持されます。"
+  };
+</script>
+<script src="../../auth.js"></script>
+</head>
+<body>
+
+
+<div class="container">
+
+<div class="header">
+  <h1>2026年 売上構造分析 Period A vs B (5/20 延伸版)</h1>
+  <div class="sub">売上構造深掘り・担当者貢献・交渉戦略期間比較 4本を統合し、uapp.gas_data + negotiation_log で Period A/B + 5/20 まで延伸して再評価</div>
+  <div class="meta">
+    <span>作成日: 2026-05-21</span>
+    <span>データ: ucarpac-uapp.gas_data.all_deals_view + negotiation_log</span>
+    <span>Period A: 2024-07 〜 2025-06 (12ヶ月)</span>
+    <span>Period B: 2025-07 〜 2026-05-20 (約10.7ヶ月)</span>
+  </div>
+</div>
+
+<div class="sec">
+  <h2>サマリ — Period A vs Period B (月平均ベース)</h2>
+  <div class="grid">
+    <div class="card"><div class="label">A 売上 / 月</div><div class="value">2,295万</div><div class="small">27,545万 / 12ヶ月</div></div>
+    <div class="card"><div class="label">B 売上 / 月</div><div class="value">2,759万</div><div class="small">29,531万 / 10.7ヶ月</div></div>
+    <div class="card"><div class="label">月平均差</div><div class="value">+464万</div><div class="small">年換算 +5,568万</div></div>
+    <div class="card"><div class="label">A 平均 / 件</div><div class="value">116k</div><div class="small">2,370件</div></div>
+    <div class="card"><div class="label">B 平均 / 件</div><div class="value">125k</div><div class="small">+9k (+7.8%)</div></div>
+    <div class="card"><div class="label">商談獲得率</div><div class="value">+約7pp</div><div class="small">A 約45% → B 約52%</div></div>
+  </div>
+  <div class="nt">
+    Period B は 2026-05-20 までの約 10.7 ヶ月分。月末まで含めた数値は変動し得ます。元レポート v3 の月平均差 +503万、商談獲得率 +6.8pp と方向・水準は概ね一致しています。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>1. 担当者別 Period A → B 推移</h2>
+  <div class="chart-tall"><canvas id="staffChart"></canvas></div>
+  <table>
+    <thead><tr><th>担当</th><th class="num">A 件数</th><th class="num">B 件数</th><th class="num">A 売上(万)</th><th class="num">B 売上(万)</th><th class="num">A→B 売上差</th><th class="num">A 平均(k)</th><th class="num">B 平均(k)</th><th class="num">A 消化率</th><th class="num">B 消化率</th></tr></thead>
+    <tbody>
+      <tr><td>小永吉</td><td class="num">921</td><td class="num">1,128</td><td class="num">10,832</td><td class="num">12,253</td><td class="num">+1,421</td><td class="num">118</td><td class="num">109</td><td class="num">83.4%</td><td class="num">94.9%</td></tr>
+      <tr><td>蓮見</td><td class="num">679</td><td class="num">361</td><td class="num">6,906</td><td class="num">5,071</td><td class="num">-1,835</td><td class="num">102</td><td class="num">140</td><td class="num">97.9%</td><td class="num">71.0%</td></tr>
+      <tr><td>穂戸田</td><td class="num">420</td><td class="num">388</td><td class="num">6,608</td><td class="num">6,932</td><td class="num">+324</td><td class="num">157</td><td class="num">179</td><td class="num">40.2%</td><td class="num">49.7%</td></tr>
+      <tr><td>水谷</td><td class="num">165</td><td class="num">214</td><td class="num">2,524</td><td class="num">3,082</td><td class="num">+558</td><td class="num">153</td><td class="num">144</td><td class="num">39.0%</td><td class="num">47.1%</td></tr>
+      <tr><td>橋口</td><td class="num">13</td><td class="num">85</td><td class="num">186</td><td class="num">1,124</td><td class="num">+938</td><td class="num">143</td><td class="num">132</td><td class="num">54.9%</td><td class="num">53.0%</td></tr>
+      <tr><td>池上</td><td class="num">1</td><td class="num">37</td><td class="num">5</td><td class="num">344</td><td class="num">+339</td><td class="num">54</td><td class="num">93</td><td class="num">144.8%</td><td class="num">44.3%</td></tr>
+    </tbody>
+  </table>
+  <div class="nt">
+    小永吉は件数 +207、売上 +1,421 万で売上総額の最大寄与。蓮見は件数 -318 だが 1 件あたり平均は 102k→140k (+38k) で上方推移、消費税消化率は -26.9pt で高単価帯へのシフトを示唆。穂戸田は件数ほぼ同じで平均 +22k。橋口・池上は Period A の件数が少なく、B での増加幅が相対的に大きい。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>2. 商談獲得率の月次推移</h2>
+  <div class="chart-wrap"><canvas id="negChart"></canvas></div>
+  <table>
+    <thead><tr><th>月</th><th>Period</th><th class="num">出品</th><th class="num">商談対象</th><th class="num">商談ユニーク</th><th class="num">商談獲得率</th></tr></thead>
+    <tbody>
+      <tr><td>2024-07</td><td>A</td><td class="num">380</td><td class="num">261</td><td class="num">142</td><td class="num">54.4%</td></tr>
+      <tr><td>2024-10</td><td>A</td><td class="num">399</td><td class="num">294</td><td class="num">147</td><td class="num">50.0%</td></tr>
+      <tr><td>2025-01</td><td>A</td><td class="num">548</td><td class="num">439</td><td class="num">198</td><td class="num">45.1%</td></tr>
+      <tr><td>2025-04</td><td>A</td><td class="num">361</td><td class="num">284</td><td class="num">130</td><td class="num">45.8%</td></tr>
+      <tr><td>2025-06</td><td>A</td><td class="num">458</td><td class="num">353</td><td class="num">206</td><td class="num">58.4%</td></tr>
+      <tr><td>2025-07</td><td>B</td><td class="num">454</td><td class="num">337</td><td class="num">206</td><td class="num">61.1%</td></tr>
+      <tr><td>2025-08</td><td>B</td><td class="num">457</td><td class="num">326</td><td class="num">192</td><td class="num">58.9%</td></tr>
+      <tr><td>2025-10</td><td>B</td><td class="num">407</td><td class="num">294</td><td class="num">186</td><td class="num">63.3%</td></tr>
+      <tr><td>2026-01</td><td>B</td><td class="num">650</td><td class="num">510</td><td class="num">267</td><td class="num">52.4%</td></tr>
+      <tr><td>2026-03</td><td>B</td><td class="num">724</td><td class="num">581</td><td class="num">239</td><td class="num">41.1%</td></tr>
+      <tr><td>2026-04</td><td>B</td><td class="num">553</td><td class="num">459</td><td class="num">191</td><td class="num">41.6%</td></tr>
+      <tr><td>2026-05 (5/20まで)</td><td>B</td><td class="num">352</td><td class="num">281</td><td class="num">124</td><td class="num">44.1%</td></tr>
+    </tbody>
+  </table>
+  <div class="nt">
+    Period A は月別 36〜58% 帯、平均約 45%。Period B は月別 41〜63% 帯、平均約 52%。2025-10 に 63.3% でピーク、2026-01 以降は 41〜52% 帯で推移しています。5月分は 5/18 までの negotiation_log を使用 (5/19-20 は復旧後の追加同期待ち)。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>3. 売上総額・平均売上の比較</h2>
+  <div class="chart-wrap"><canvas id="revChart"></canvas></div>
+  <table>
+    <thead><tr><th>項目</th><th class="num">Period A (12ヶ月)</th><th class="num">Period B (10.7ヶ月)</th><th class="num">月平均比較</th></tr></thead>
+    <tbody>
+      <tr><td>成約件数</td><td class="num">2,370</td><td class="num">2,372</td><td class="num">A 198/月 vs B 222/月</td></tr>
+      <tr><td>売上総額 (万円)</td><td class="num">27,545</td><td class="num">29,531</td><td class="num">A 2,295 vs B 2,759 (+464)</td></tr>
+      <tr><td>平均売上 / 件 (千円)</td><td class="num">116</td><td class="num">125</td><td class="num">+9k (+7.8%)</td></tr>
+      <tr><td>平均消費税消化率</td><td class="num">74.7%</td><td class="num">73.6%</td><td class="num">-1.1pt</td></tr>
+      <tr><td>平均落札社数</td><td class="num">5.4</td><td class="num">5.8</td><td class="num">+0.4 社</td></tr>
+    </tbody>
+  </table>
+  <div class="nt">
+    月平均売上の差 +464 万を 12 ヶ月換算すると年間 <b>+5,568 万円</b> の差。元レポートの +6,000 万/年の見積もりと近い水準です (元レポートの母集団は Period B 9ヶ月のため、月数差を考慮した数値は概ね一致)。
+  </div>
+</div>
+
+<div class="sec">
+  <h2>4. 観察と次アクション</h2>
+  <ul>
+    <li><b>Period A → B の月平均売上差 +464万</b>: 件数増加 (198→222/月)、平均売上向上 (+9k)、落札社数増加 (5.4→5.8) の合算効果</li>
+    <li><b>小永吉</b>: 売上総額の最大寄与 (+1,421万)。件数増 +207、消費税消化率 +11.5pt で加算金活用度も上昇</li>
+    <li><b>蓮見</b>: 件数 -318 と縮小しつつ、1 件あたり平均 +38k で高単価帯へシフト。消費税消化率 -26.9pt は車両価格上昇による相対変化</li>
+    <li><b>穂戸田</b>: 件数 -32 でほぼ同水準だが、平均売上 157k→179k (+22k)、売上 +324万。高単価帯の取り扱いが進んだ可能性</li>
+    <li><b>商談獲得率 +約7pp</b>: 全量持込期で交渉テーブルに乗る案件比率が上昇。元レポート v3 の +6.8pp と方向一致</li>
+    <li><b>2026-03 以降の獲得率低下</b>: 月別で 41〜52% 帯に下降。これが Phase 2 の 2026-04 仮説群 CR 低下 (30%→23%) と連動している可能性。深掘りは Phase 4 シミュレーションでカバー</li>
+  </ul>
+  <div class="nt">
+    本レポートの5月分は <b>2026-05-20</b> までです。月末値での再計算と、商談ログ 5/19-20 の反映確認は別途必要 (`gas_data.negotiation_log` が 5/21 朝に手動復旧、明日朝の自動実行で 5/19 以降反映予定)。
+  </div>
+</div>
+
+<div class="footer">
+  Phase 3: 売上構造分析 Period A vs B (5/20 延伸版) | Source: ucarpac-uapp.gas_data | Generated: 2026-05-21
+</div>
+
+</div>
+
+<script>
+new Chart(document.getElementById('staffChart'),{
+  type:'bar',
+  data:{
+    labels:['小永吉','蓮見','穂戸田','水谷','橋口','池上'],
+    datasets:[
+      {label:'Period A 売上(万)',data:[10832,6906,6608,2524,186,5],backgroundColor:'#94a3b8'},
+      {label:'Period B 売上(万)',data:[12253,5071,6932,3082,1124,344],backgroundColor:'#2563eb'}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true,ticks:{callback:v=>v.toLocaleString()+'万'}}}}
+});
+
+new Chart(document.getElementById('negChart'),{
+  type:'line',
+  data:{
+    labels:['2024-07','2024-08','2024-09','2024-10','2024-11','2024-12','2025-01','2025-02','2025-03','2025-04','2025-05','2025-06','2025-07','2025-08','2025-09','2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'],
+    datasets:[
+      {label:'商談獲得率(%)',data:[54.4,45.9,41.0,50.0,39.4,43.2,45.1,40.5,38.2,45.8,36.7,58.4,61.1,58.9,54.9,63.3,52.5,56.3,52.4,47.1,41.1,41.6,44.1],borderColor:'#2563eb',backgroundColor:'#2563eb22',tension:0.25,borderWidth:2}
+    ]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{position:'bottom'},
+      annotation:{annotations:{periodLine:{type:'line',xMin:11.5,xMax:11.5,borderColor:'#dc2626',borderWidth:2,borderDash:[6,4],label:{display:true,content:'A→B 境界',position:'start'}}}}
+    },
+    scales:{y:{beginAtZero:true,max:70,ticks:{callback:v=>v+'%'}}}
+  }
+});
+
+new Chart(document.getElementById('revChart'),{
+  type:'bar',
+  data:{
+    labels:['売上総額(万)','月平均売上(万)','平均/件(千)','消化率(%)'],
+    datasets:[
+      {label:'Period A',data:[27545,2295,116,74.7],backgroundColor:'#94a3b8'},
+      {label:'Period B',data:[29531,2759,125,73.6],backgroundColor:'#2563eb'}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true}}}
+});
+</script>
+</body>
+</html>
