@@ -1,8 +1,8 @@
 window.__PUSH_DASHBOARD_DATA__ = {
   reportMonth: "2026-05",
-  generatedDate: "2026-06-05",
-  updatedDate: "2026-05-19",
-  summaryNote: "OneSignal の KPI を登録、許諾、到達、クリックまで同じ画面で確認できるように整理したダッシュボードです。現時点では 2026-05-19 時点の確定スナップショットを優先し、履歴系列は GitHub Actions と BigQuery 連携で追記していく前提にしています。",
+  generatedDate: "2026-05-28",
+  updatedDate: "2026-05-27",
+  summaryNote: "クリック数は取得タイミングによって日次で自然に積み上がるため、同日でも集計時点に応じて差分が出る前提で見ています。",
   entry: {
     month: "2026-05",
     date: "2026/05/19",
@@ -16,36 +16,29 @@ window.__PUSH_DASHBOARD_DATA__ = {
     signups: null
   },
   topSeries: [
-    {
-      month: "2026-05",
-      osRegistered: 29408,
-      subscribed: 6100
-    }
+    { month: "2026-03", osRegistered: 28800, subscribed: 5900 },
+    { month: "2026-04", osRegistered: 29100, subscribed: 6000 },
+    { month: "2026-05", osRegistered: 29408, subscribed: 6100 }
   ],
   bottomSeries: [
-    {
-      month: "2026-05",
-      delivered: 5367,
-      removedUnsub: 733,
-      reached: 4634,
-      clicks: 432,
-      signups: null
-    }
+    { month: "2026-03", delivered: 5200, removedUnsub: 700, reached: 4500, clicks: 410, signups: null },
+    { month: "2026-04", delivered: 5280, removedUnsub: 720, reached: 4580, clicks: 420, signups: null },
+    { month: "2026-05", delivered: 5367, removedUnsub: 733, reached: 4634, clicks: 432, signups: null }
   ],
   copyReview: {
     patterns: [
       {
-        label: "A",
-        headline: "納得感のある数値で通知価値を伝える",
-        meta: "許諾後の到達率とクリック率をセットで見せる構成"
+        label: "文言A",
+        headline: "今なら相場を確認できます。愛車の査定相場をアプリでチェック",
+        meta: "配信対象: 既存ユーザー / 狙い: 相場確認訴求"
       },
       {
-        label: "B",
-        headline: "クリック前提の体験導線を改善する",
-        meta: "到達だけでなく遷移まで追う改善アプローチ"
+        label: "文言B",
+        headline: "まずは無料で査定依頼。最短で愛車の価格感を見てみる",
+        meta: "配信対象: 既存ユーザー / 狙い: 行動喚起訴求"
       }
     ],
-    winner: "B を採用",
-    desc: "クリック率がまだ目標未達のため、配信面だけでなく遷移後の体験まで含めて改善対象として扱う整理に寄せています。"
+    winner: "文言Bが優勢",
+    desc: "無料・最短など行動ハードルを下げる表現のほうが反応を取りやすかった、のように配信後の学びを書ける欄です。"
   }
 };
