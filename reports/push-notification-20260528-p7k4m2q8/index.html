@@ -3,506 +3,756 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Push Notification Dashboard</title>
+  <title>プッシュ通知 月次レポート</title>
   <style>
     :root {
-      --bg: #f4f7fb;
+      --paper: #f6f8fc;
       --panel: #ffffff;
-      --line: #d9e2ee;
-      --text: #182235;
-      --muted: #5f6f85;
-      --blue: #1d4ed8;
+      --ink: #182235;
+      --ink2: #556277;
+      --ink3: #8591a3;
+      --rule: #1b2a41;
+      --hair: #d9e2ee;
+      --accent: #2563eb;
       --teal: #0f766e;
-      --orange: #d97706;
+      --gold: #d97706;
       --rose: #e11d48;
-      --shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+      --violet: #7c3aed;
+      --sky: #0ea5b7;
+      --good: #0f766e;
+      --bad: #dc2626;
+      --shadow: 0 18px 40px rgba(31, 41, 55, 0.08);
+      --sans: "Yu Gothic", "Meiryo", sans-serif;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      color: var(--text);
-      font-family: "Yu Gothic", "Meiryo", sans-serif;
       background:
-        radial-gradient(circle at top right, rgba(29, 78, 216, 0.10), transparent 24%),
-        linear-gradient(180deg, #f9fbff 0%, var(--bg) 100%);
-    }
-    a {
-      color: var(--blue);
-      text-decoration: none;
+        radial-gradient(circle at top right, rgba(37,99,235,0.10), transparent 26%),
+        linear-gradient(180deg, #fbfcff 0%, var(--paper) 100%);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
     }
     .wrap {
-      max-width: 1200px;
+      max-width: 1120px;
       margin: 0 auto;
-      padding: 28px 20px 56px;
+      padding: 34px 24px 72px;
     }
     .back {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      font-weight: 700;
-      margin-bottom: 20px;
-    }
-    .hero {
-      display: grid;
-      grid-template-columns: 240px 1fr;
-      gap: 18px;
-      margin-bottom: 20px;
-    }
-    .panel {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      box-shadow: var(--shadow);
-    }
-    .stamp {
-      padding: 20px;
-    }
-    .stamp .label {
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-    .stamp .date {
-      margin-top: 10px;
-      font-size: 34px;
+      color: var(--accent);
+      text-decoration: none;
       font-weight: 800;
-      letter-spacing: -0.04em;
+      margin-bottom: 18px;
     }
-    .summary {
-      padding: 22px 24px;
+    .kicker {
+      font-size: 12px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
     }
-    .summary h1 {
-      margin: 0 0 10px;
-      font-size: 34px;
-      line-height: 1.1;
+    .mast {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 24px;
+      padding-bottom: 14px;
+      border-bottom: 3px double var(--rule);
+      flex-wrap: wrap;
+    }
+    .mast h1 {
+      margin: 8px 0 0;
+      font-size: 38px;
+      line-height: 1.08;
       letter-spacing: -0.03em;
     }
-    .summary p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.8;
-      font-size: 14px;
+    .mast .meta {
+      text-align: right;
     }
-    .section {
-      margin-top: 18px;
-      padding: 22px;
+    .mast .meta .mo {
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1;
     }
-    .section h2 {
-      margin: 0 0 8px;
-      font-size: 24px;
-      letter-spacing: -0.03em;
+    .mast .meta .gen {
+      font-size: 12px;
+      color: var(--ink3);
+      margin-top: 4px;
     }
-    .section .sub {
-      margin: 0 0 18px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.7;
-    }
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 14px;
-    }
-    .metric {
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 18px;
+    .lead {
+      margin-top: 16px;
+      padding: 18px 20px;
+      border: 1px solid var(--hair);
+      border-radius: 20px;
       background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      box-shadow: var(--shadow);
+      color: var(--ink2);
     }
-    .metric .label {
-      font-size: 13px;
-      color: var(--muted);
+    .sec {
+      margin-top: 42px;
+    }
+    .sec-h {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 6px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .sec-h .no {
+      font-size: 14px;
+      color: var(--accent);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
+    .sec-h h2 {
+      font-size: 22px;
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+    .sec-h .sub {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--ink3);
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .card-grid.lower-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .card-grid.lower-top {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-bottom: 14px;
+    }
+    .card-grid.lower-bottom {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .metric-card {
+      border: 1px solid var(--hair);
+      background: var(--panel);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 18px 18px 16px;
+      display: flex;
+      flex-direction: column;
+      min-height: 170px;
+    }
+    .metric-card .item {
+      font-size: 14px;
+      color: var(--ink2);
       font-weight: 700;
       line-height: 1.6;
     }
-    .metric .value {
-      margin-top: 10px;
-      font-size: 34px;
-      font-weight: 800;
-      line-height: 1;
-      letter-spacing: -0.04em;
-      font-variant-numeric: tabular-nums;
-    }
-    .metric .meta {
+    .metric-card .value {
       margin-top: 12px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.7;
+      font-size: 42px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
       font-variant-numeric: tabular-nums;
     }
-    .metric .status {
-      display: inline-block;
-      margin-top: 8px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 800;
-    }
-    .status.ok {
-      background: #dcfce7;
-      color: #166534;
-    }
-    .status.warn {
-      background: #ffedd5;
-      color: #9a3412;
-    }
-    .status.alert {
-      background: #ffe4e6;
-      color: #be123c;
-    }
-    .charts {
+    .metric-card .meta {
+      margin-top: auto;
+      padding-top: 14px;
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
+      gap: 6px;
     }
+    .metric-card .kpi {
+      font-size: 12px;
+      color: var(--ink3);
+      font-variant-numeric: tabular-nums;
+    }
+    .metric-card .kpi b {
+      color: var(--ink2);
+      font-weight: 700;
+    }
+    .metric-card .note {
+      font-size: 12px;
+      color: var(--ink3);
+      line-height: 1.6;
+    }
+    .metric-card .status {
+      font-size: 12px;
+      font-weight: 800;
+      margin-left: 8px;
+    }
+    .ok { color: var(--good); }
+    .ng { color: var(--bad); }
+    .neu { color: var(--ink); }
+    .gridc {
+      display: grid;
+      gap: 16px;
+      margin-top: 18px;
+    }
+    .g3 { grid-template-columns: repeat(2, 1fr); }
+    .g4 { grid-template-columns: repeat(4, 1fr); }
     .chart-card {
-      border: 1px solid var(--line);
+      border: 1px solid var(--hair);
+      background: var(--panel);
+      padding: 14px 14px 16px;
       border-radius: 18px;
-      padding: 16px;
-      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      box-shadow: var(--shadow);
     }
     .chart-card h3 {
-      margin: 0 0 6px;
-      font-size: 16px;
+      margin: 0 0 8px;
+      font-size: 14px;
     }
-    .chart-card p {
+    .cwrap {
+      position: relative;
+      width: 100%;
+      height: 170px;
+    }
+    .cnote {
+      font-size: 11px;
+      color: var(--ink3);
+      margin-top: 8px;
+    }
+    .legend-mini {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--ink2);
+    }
+    .legend-mini span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .legend-mini i {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      display: inline-block;
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+    .memo {
+      border: 1px solid var(--hair);
+      background: var(--panel);
+      padding: 22px 24px;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+    .memo .ttl {
+      font-size: 15px;
+      margin: 0 0 8px;
+      font-weight: 800;
+    }
+    .memo .body {
+      font-size: 14px;
+      color: var(--ink2);
+      min-height: 54px;
+    }
+    .memo .body p {
+      margin: 0 0 10px;
+    }
+    .copy-review {
+      margin-top: 18px;
+      border: 1px solid var(--hair);
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 22px 24px;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+    .copy-review .ttl {
+      font-size: 15px;
       margin: 0 0 12px;
-      color: var(--muted);
+      font-weight: 800;
+    }
+    .copy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .copy-card {
+      border: 1px solid var(--hair);
+      border-radius: 16px;
+      background: var(--panel);
+      padding: 14px 16px;
+    }
+    .copy-card .label {
       font-size: 12px;
+      color: var(--accent);
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+    .copy-card .headline {
+      font-size: 14px;
+      color: var(--ink);
+      font-weight: 700;
+      line-height: 1.7;
+      min-height: 48px;
+    }
+    .copy-card .meta {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--ink3);
       line-height: 1.7;
     }
-    .chart-wrap {
-      position: relative;
-      height: 260px;
-    }
-    .info-grid {
+    .copy-win {
+      border-top: 1px solid var(--hair);
+      padding-top: 14px;
       display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 16px;
+      gap: 6px;
     }
-    .note-box,
-    .table-box {
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 18px;
-      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-    }
-    .note-box h3,
-    .table-box h3 {
-      margin: 0 0 10px;
-      font-size: 16px;
-    }
-    .note-box p,
-    .note-box li {
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.8;
-    }
-    .note-box ul {
-      margin: 0;
-      padding-left: 18px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    th,
-    td {
-      padding: 10px 8px;
-      border-bottom: 1px solid var(--line);
-      text-align: left;
-      vertical-align: top;
-    }
-    th {
-      color: var(--muted);
+    .copy-win .label {
       font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+      color: var(--ink3);
+      font-weight: 700;
     }
-    td.num,
-    th.num {
-      text-align: right;
-      font-variant-numeric: tabular-nums;
+    .copy-win .winner {
+      font-size: 18px;
+      color: var(--ink);
+      font-weight: 800;
+      letter-spacing: -0.01em;
     }
-    .footer {
-      margin-top: 18px;
-      color: var(--muted);
+    .copy-win .desc {
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.7;
+    }
+    .defs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 24px;
+      margin-top: 14px;
       font-size: 12px;
-      line-height: 1.8;
+      color: var(--ink3);
     }
-    @media (max-width: 1080px) {
-      .hero,
-      .metrics,
-      .charts,
-      .info-grid {
-        grid-template-columns: 1fr;
-      }
+    .defs div b {
+      color: var(--ink2);
+      font-weight: 700;
+    }
+    @media (max-width: 900px) {
+      .g3, .g4, .card-grid, .card-grid.lower-grid, .card-grid.lower-top, .card-grid.lower-bottom { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 620px) {
+      .g3, .g4, .defs, .card-grid, .card-grid.lower-grid, .card-grid.lower-top, .card-grid.lower-bottom { grid-template-columns: 1fr; }
+      .copy-grid { grid-template-columns: 1fr; }
+      .mast h1 { font-size: 28px; }
     }
   </style>
 </head>
 <body>
+  <script>
+    window.PROTO_AUTH_CONFIG = {
+      title: "Push Notification Report",
+      subtitle: "OneSignal の配信結果と配信可能母数を確認するための社内レポートです。"
+    };
+  </script>
+  <script src="../../auth.js"></script>
   <div class="wrap">
-    <a class="back" href="../../index.html">← Reports Index</a>
-
-    <div class="hero">
-      <section class="panel stamp">
-        <div class="label">Latest Snapshot</div>
-        <div class="date" id="latestDate">-</div>
-      </section>
-      <section class="panel summary">
-        <h1>OneSignal KPI Dashboard</h1>
-        <p id="summaryNote">
-          OneSignal の登録数、通知許諾、配信到達、クリックまでを同じ面で追えるようにしたレポートです。
-          現時点では 2026-05-19 時点のスナップショットを中心に整理し、履歴系列は GitHub Actions からの自動更新で今後拡充する前提にしています。
-        </p>
-      </section>
+    <a class="back" href="../">← Reports に戻る</a>
+    <div class="mast">
+      <div>
+        <div class="kicker">Monthly Push Report</div>
+        <h1>プッシュ通知 月次レポート</h1>
+      </div>
+      <div class="meta">
+        <div class="mo" id="reportMonth">2026-05</div>
+        <div class="gen" id="generatedDate">generated 2026-05-27</div>
+      </div>
     </div>
 
-    <section class="panel section">
-      <h2>Core Metrics</h2>
-      <p class="sub">
-        DL母数から OneSignal 登録、通知許諾、到達、クリックまでのファネルを一度に見られるようにしています。
-      </p>
-      <div class="metrics" id="metricGrid"></div>
-    </section>
+    <div class="lead">
+      上段は登録・配信可能母数、下段は配信後の反応をまとめています。現時点ではクリック率より先に、配信許可率と配信対象UU数の改善を優先して見る想定です。
+    </div>
 
-    <section class="panel section">
-      <h2>Trend View</h2>
-      <p class="sub">
-        現在は確定値のみを優先して反映しています。履歴データはワークフローによる追記を前提にした構成です。
-      </p>
-      <div class="charts">
+    <div class="sec">
+      <div class="sec-h">
+        <span class="no">01</span>
+        <h2>登録・配信許可</h2>
+        <span class="sub" id="updatedDate">データ更新日: 2026-05-27</span>
+      </div>
+      <div class="card-grid" id="cardsUpper"></div>
+      <div class="gridc g3">
         <div class="chart-card">
-          <h3>Counts</h3>
-          <p>DL母数、OneSignal登録、通知許諾の推移</p>
-          <div class="chart-wrap"><canvas id="countChart"></canvas></div>
+          <h3>OneSignal登録数 推移</h3>
+          <div class="cwrap"><canvas id="chReg"></canvas></div>
         </div>
         <div class="chart-card">
-          <h3>Rates</h3>
-          <p>登録率、許諾率、到達率、CTR を同じ尺度で比較</p>
-          <div class="chart-wrap"><canvas id="rateChart"></canvas></div>
+          <h3>配信対象数 × 配信許可率 推移</h3>
+          <div class="cwrap"><canvas id="chSubPermit"></canvas></div>
+          <div class="legend-mini">
+            <span><i style="background:#d97706"></i>配信対象数（左軸）</span>
+            <span><i style="background:#0f766e"></i>配信許可率（右軸）</span>
+            <span><i style="background:#9aa4b2"></i>KPI 22%</span>
+          </div>
+          <div class="cnote">線: 配信対象数 / 線: 配信許可率 / 破線: KPI 22%</div>
         </div>
       </div>
-    </section>
+    </div>
 
-    <section class="panel section">
-      <h2>Notes & Source</h2>
-      <p class="sub">
-        この集計の前提、未確定項目、GitHub へ載せたソースをまとめています。
-      </p>
-      <div class="info-grid">
-        <div class="note-box">
-          <h3>前提と未確定事項</h3>
-          <ul>
-            <li>有効DL累計は OneSignal テーブルだけでは確定できないため、現時点では `33,855` をフォールバック値として利用しています。</li>
-            <li>Push経由DL数は今回のスナップショットに未反映です。AppsFlyer や AppDB と結合する拡張余地があります。</li>
-            <li>クリック数は `onesignal_notifications_raw.raw_json.clicked` を利用しています。</li>
-            <li>GitHub Actions は `push_notification_dashboard_data.js` を更新し、表示側の HTML は固定のまま使い回せる構成です。</li>
-          </ul>
+    <div class="sec">
+      <div class="sec-h">
+        <span class="no">02</span>
+        <h2>配信結果</h2>
+        <span class="sub">impact / delivery / click</span>
+      </div>
+      <div class="card-grid lower-top" id="cardsLowerTop"></div>
+      <div class="card-grid lower-bottom" id="cardsLowerBottom"></div>
+      <div class="gridc g4">
+        <div class="chart-card">
+          <h3>削除・解除数 × 削除・解除率</h3>
+          <div class="cwrap"><canvas id="chRemove"></canvas></div>
+          <div class="legend-mini">
+            <span><i style="background:#f9a8b8"></i>削除または解除UU数（左軸）</span>
+            <span><i style="background:#e11d48"></i>削除・解除率（右軸）</span>
+            <span><i style="background:#9aa4b2"></i>KPI 10%</span>
+          </div>
+          <div class="cnote">線: 削除または解除UU数 / 線: 削除・解除率</div>
         </div>
-        <div class="table-box">
-          <h3>Source Files</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>File</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><a href="./README.md">README.md</a></td>
-                <td>構成、更新方法、前提の説明</td>
-              </tr>
-              <tr>
-                <td><a href="./source/onesignal_daily_kpi_template.csv">daily_kpi_template.csv</a></td>
-                <td>日次スナップショットの入力テンプレート</td>
-              </tr>
-              <tr>
-                <td><a href="./source/onesignal_kpi_plan_2026-05-25.md">kpi_plan.md</a></td>
-                <td>初期集計メモとKPI定義</td>
-              </tr>
-              <tr>
-                <td><a href="./source/onesignal_spreadsheet_setup.md">spreadsheet_setup.md</a></td>
-                <td>スプレッドシート運用方針</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="chart-card">
+          <h3>到達UU数 × 到達率</h3>
+          <div class="cwrap"><canvas id="chReach"></canvas></div>
+          <div class="legend-mini">
+            <span><i style="background:#7dd3fc"></i>到達UU数（左軸）</span>
+            <span><i style="background:#0ea5b7"></i>到達率（右軸）</span>
+            <span><i style="background:#9aa4b2"></i>KPI 90%</span>
+          </div>
+          <div class="cnote">線: 到達UU数 / 線: 到達率 / 破線: KPI 90%</div>
+        </div>
+        <div class="chart-card">
+          <h3>クリック数 × クリック率</h3>
+          <div class="cwrap"><canvas id="chClick"></canvas></div>
+          <div class="legend-mini">
+            <span><i style="background:#c4b5fd"></i>クリック数（左軸）</span>
+            <span><i style="background:#7c3aed"></i>クリック率（右軸）</span>
+            <span><i style="background:#9aa4b2"></i>KPI 10%</span>
+          </div>
+          <div class="cnote">線: クリック数 / 線: クリック率 / 破線: KPI 10%</div>
+        </div>
+        <div class="chart-card">
+          <h3>プッシュ経由申込率 推移</h3>
+          <div class="cwrap"><canvas id="chApply"></canvas></div>
+          <div class="cnote">申込率は実装後に Push経由申込数 ÷ クリック数 で管理</div>
         </div>
       </div>
-      <div class="footer">
-        Generated view date: <span id="generatedDate">-</span><br>
-        Data updated date: <span id="updatedDate">-</span>
+      <div class="copy-review">
+        <div class="ttl">配信文言メモ</div>
+        <div class="copy-grid" id="copyReviewGrid"></div>
+        <div class="copy-win" id="copyReviewSummary"></div>
       </div>
-    </section>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h">
+        <span class="no">03</span>
+        <h2>今月の要点</h2>
+      </div>
+      <div class="memo">
+        <div class="ttl">簡易総括</div>
+        <div class="body">
+          <p id="summaryLine1">下流KPIは極端に悪くありません。到達率 86.34%、クリック率 9.32% と、送れた後の反応は一定水準です。</p>
+          <p id="summaryLine2">一方で、配信許可率は 20.74% なので、配信後の文言改善より先に通知可能母数をどう増やすかが最優先です。</p>
+          <p id="summaryLine3">クリック数は取得タイミングによって日次で自然に積み上がるため、同日でも集計時点に応じて差分が出る前提で見ています。</p>
+        </div>
+        <div class="defs">
+          <div><b>配信許可率</b> = 配信対象UU数 ÷ OneSignal登録数</div>
+          <div><b>削除・解除率</b> = 削除または解除UU数 ÷ 配信数</div>
+          <div><b>到達率</b> = 到達UU数 ÷ 配信数</div>
+          <div><b>クリック率</b> = クリック数 ÷ 到達UU数</div>
+          <div><b>申込率</b> = 申込数 ÷ クリック数</div>
+          <div><b>配信数</b> = 配信タイミングでのSubscribed</div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <script src="../../auth.js"></script>
   <script src="./push_notification_dashboard_data.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <script>
     const dashboardData = window.__PUSH_DASHBOARD_DATA__ || {};
-    const entry = dashboardData.entry || {};
-    const topSeries = dashboardData.topSeries || [];
 
-    const formatNumber = value => new Intl.NumberFormat("ja-JP").format(Number(value || 0));
-    const formatPercent = value => `${(Number(value || 0) * 100).toFixed(1)}%`;
-    const statusClass = (value, target) => {
-      if (target == null) return "warn";
-      if (value >= target) return "ok";
-      if (value >= target * 0.9) return "warn";
-      return "alert";
+    const entry = dashboardData.entry || {
+      month: "2026-05",
+      date: "2026/05/19",
+      osRegistered: 29408,
+      subscribed: 6100,
+      delivered: 5367,
+      removedUnsub: 733,
+      reached: 4634,
+      clicks: 432,
+      signups: null
     };
 
-    document.getElementById("latestDate").textContent = entry.date || "-";
-    document.getElementById("summaryNote").textContent = dashboardData.summaryNote || document.getElementById("summaryNote").textContent;
-    document.getElementById("generatedDate").textContent = dashboardData.generatedDate || "-";
-    document.getElementById("updatedDate").textContent = dashboardData.updatedDate || "-";
+    function derive(m) {
+      const permitReg = m.osRegistered ? m.subscribed / m.osRegistered : 0;
+      const removeRate = m.delivered ? m.removedUnsub / m.delivered : 0;
+      const reachRate = m.delivered ? m.reached / m.delivered : 0;
+      const clickRate = m.reached ? m.clicks / m.reached : 0;
+      const applyRate = (m.signups && m.clicks) ? m.signups / m.clicks : null;
+      return { ...m, permitReg, removeRate, reachRate, clickRate, applyRate };
+    }
 
-    const metricItems = [
-      {
-        label: "有効DL累計",
-        value: formatNumber(entry.cumulativeEffectiveDl),
-        meta: `目標 40,000`,
-        status: null
-      },
-      {
-        label: "OneSignal 登録数",
-        value: formatNumber(entry.osRegistered),
-        meta: `登録率 ${formatPercent(entry.osRegistered / (entry.cumulativeEffectiveDl || 1))}`,
-        status: { text: "登録率", value: entry.osRegistered / (entry.cumulativeEffectiveDl || 1), target: 0.90 }
-      },
-      {
-        label: "通知許諾数",
-        value: formatNumber(entry.subscribed),
-        meta: `DL基準 ${formatPercent(entry.subscribed / (entry.cumulativeEffectiveDl || 1))} / OS基準 ${formatPercent(entry.subscribed / (entry.osRegistered || 1))}`,
-        status: { text: "DL基準許諾率", value: entry.subscribed / (entry.cumulativeEffectiveDl || 1), target: 0.25 }
-      },
-      {
-        label: "配信対象数",
-        value: formatNumber(entry.delivered),
-        meta: `解除・無効化 ${formatNumber(entry.removedUnsub)} / 解除率 ${formatPercent(entry.removedUnsub / (entry.subscribed || 1))}`,
-        status: null
-      },
-      {
-        label: "到達数",
-        value: formatNumber(entry.reached),
-        meta: `到達率 ${formatPercent(entry.reached / (entry.delivered || 1))}`,
-        status: { text: "到達率", value: entry.reached / (entry.delivered || 1), target: 0.90 }
-      },
-      {
-        label: "クリック数",
-        value: formatNumber(entry.clicks),
-        meta: `CTR ${formatPercent(entry.clicks / (entry.reached || 1))}`,
-        status: { text: "CTR", value: entry.clicks / (entry.reached || 1), target: 0.10 }
-      }
+    const topSeries = (dashboardData.topSeries || [
+      { month: "2026-03", osRegistered: 28800, subscribed: 5900 },
+      { month: "2026-04", osRegistered: 29100, subscribed: 6000 },
+      { month: "2026-05", osRegistered: 29408, subscribed: 6100 }
+    ]).map(derive);
+
+    const bottomSeries = (dashboardData.bottomSeries || [
+      { month: "2026-03", delivered: 5200, removedUnsub: 700, reached: 4500, clicks: 410, signups: null },
+      { month: "2026-04", delivered: 5280, removedUnsub: 720, reached: 4580, clicks: 420, signups: null },
+      { month: "2026-05", delivered: 5367, removedUnsub: 733, reached: 4634, clicks: 432, signups: null }
+    ]).map(derive);
+
+    const m = derive(entry);
+
+    const pct = (x, d = 2) => x == null ? " - " : (x * 100).toFixed(d) + "%";
+    const ci = x => Math.round(x || 0).toLocaleString("ja-JP");
+
+    const upperRows = [
+      { item: "OneSignal登録数", tgt: null, act: ci(m.osRegistered), cls: "neu", note: "Subscriptionの総数" },
+      { item: "配信対象UU数（通知配信可能な数）", tgt: null, act: ci(m.subscribed), cls: "neu", note: "Subscribedの数" },
+      { item: "配信許可率（OneSignal登録数ベース）", tgt: "22.00%", act: pct(m.permitReg), cls: m.permitReg >= 0.22 ? "ok" : "ng", status: m.permitReg >= 0.22 ? "達成" : "未達", note: "配信対象 ÷ 登録数" }
     ];
 
-    const metricGrid = document.getElementById("metricGrid");
-    metricItems.forEach(item => {
-      const el = document.createElement("div");
-      el.className = "metric";
-      let statusHtml = "";
-      if (item.status) {
-        const klass = statusClass(item.status.value, item.status.target);
-        statusHtml = `<span class="status ${klass}">${item.status.text} ${formatPercent(item.status.value)}</span>`;
-      }
-      el.innerHTML = `
-        <div class="label">${item.label}</div>
-        <div class="value">${item.value}</div>
-        <div class="meta">${item.meta}</div>
-        ${statusHtml}
+    const lowerTopRows = [
+      { item: "配信数", tgt: null, act: ci(m.delivered), cls: "neu", note: "配信タイミングでのSubscribedの数" },
+      { item: "削除または解除UU数", tgt: null, act: ci(m.removedUnsub), cls: "neu", note: "配信できなくなった数" },
+      { item: "削除・解除率", tgt: "10.00%", act: pct(m.removeRate), cls: m.removeRate <= 0.10 ? "ok" : "ng", status: m.removeRate <= 0.10 ? "達成" : "未達", note: "削除または解除UU数 ÷ 配信数" }
+    ];
+
+    const lowerBottomRows = [
+      { item: "到達UU数", tgt: null, act: ci(m.reached), cls: "neu", note: "実際に通知が届いた数" },
+      { item: "到達率", tgt: "90.00%", act: pct(m.reachRate), cls: m.reachRate >= 0.90 ? "ok" : "ng", status: m.reachRate >= 0.90 ? "達成" : "未達", note: "到達UU数 ÷ 配信数" },
+      { item: "クリック数", tgt: null, act: ci(m.clicks), cls: "neu", note: "通知クリック数" },
+      { item: "クリック率", tgt: "10.00%", act: pct(m.clickRate), cls: m.clickRate >= 0.10 ? "ok" : "ng", status: m.clickRate >= 0.10 ? "達成" : "未達", note: "クリック数 ÷ 到達UU数" }
+    ];
+
+    const copyReview = dashboardData.copyReview || {
+      patterns: [
+        {
+          label: "文言A",
+          headline: "今なら相場を確認できます。愛車の査定相場をアプリでチェック",
+          meta: "配信対象: 既存ユーザー / 狙い: 相場確認訴求"
+        },
+        {
+          label: "文言B",
+          headline: "まずは無料で査定依頼。最短で愛車の価格感を見てみる",
+          meta: "配信対象: 既存ユーザー / 狙い: 行動喚起訴求"
+        }
+      ],
+      winner: "文言Bが優勢",
+      desc: "無料・最短など行動ハードルを下げる表現のほうが反応を取りやすかった、のように配信後の学びを書ける欄です。"
+    };
+
+    function renderCards(id, rows) {
+      let html = "";
+      rows.forEach(r => {
+        const status = r.status ? `<span class="status ${r.cls}">${r.status}</span>` : "";
+        const kpi = r.tgt ? `<div class="kpi"><b>KPI</b> ${r.tgt}${status}</div>` : "";
+        html += `<div class="metric-card">
+          <div class="item">${r.item}</div>
+          <div class="value ${r.cls}">${r.act}</div>
+          <div class="meta">
+            ${kpi}
+            <div class="note">${r.note}</div>
+          </div>
+        </div>`;
+      });
+      document.getElementById(id).innerHTML = html;
+    }
+
+    function renderCopyReview() {
+      const cards = copyReview.patterns.map(p => `
+        <div class="copy-card">
+          <div class="label">${p.label}</div>
+          <div class="headline">${p.headline}</div>
+          <div class="meta">${p.meta}</div>
+        </div>
+      `).join("");
+
+      document.getElementById("copyReviewGrid").innerHTML = cards;
+      document.getElementById("copyReviewSummary").innerHTML = `
+        <div class="label">勝ち筋メモ</div>
+        <div class="winner">${copyReview.winner}</div>
+        <div class="desc">${copyReview.desc}</div>
       `;
-      metricGrid.appendChild(el);
-    });
+    }
 
-    const countLabels = topSeries.map(row => row.month);
-    const countData = {
-      labels: countLabels,
-      datasets: [
-        {
-          label: "有効DL累計",
-          data: topSeries.map(() => entry.cumulativeEffectiveDl || 0),
-          borderColor: "#1d4ed8",
-          backgroundColor: "rgba(29, 78, 216, 0.12)",
-          tension: 0.3
-        },
-        {
-          label: "OneSignal登録",
-          data: topSeries.map(row => row.osRegistered || 0),
-          borderColor: "#0f766e",
-          backgroundColor: "rgba(15, 118, 110, 0.12)",
-          tension: 0.3
-        },
-        {
-          label: "通知許諾",
-          data: topSeries.map(row => row.subscribed || 0),
-          borderColor: "#d97706",
-          backgroundColor: "rgba(217, 119, 6, 0.12)",
-          tension: 0.3
-        }
-      ]
-    };
+    renderCards("cardsUpper", upperRows);
+    renderCards("cardsLowerTop", lowerTopRows);
+    renderCards("cardsLowerBottom", lowerBottomRows);
+    renderCopyReview();
 
-    new Chart(document.getElementById("countChart"), {
-      type: "line",
-      data: countData,
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: "bottom" } },
-        scales: {
-          y: {
-            ticks: {
-              callback: value => new Intl.NumberFormat("ja-JP", { notation: "compact" }).format(value)
-            }
-          }
-        }
+    const reportMonth = dashboardData.reportMonth || entry.month;
+    const generatedDate = dashboardData.generatedDate || "2026-05-27";
+    const updatedDate = dashboardData.updatedDate || generatedDate;
+
+    document.getElementById("reportMonth").textContent = reportMonth;
+    document.getElementById("generatedDate").textContent = `generated ${generatedDate}`;
+    document.getElementById("updatedDate").textContent = `データ更新日: ${updatedDate}`;
+    document.getElementById("summaryLine1").textContent = `下流KPIは極端に悪くありません。到達率 ${pct(m.reachRate)}、クリック率 ${pct(m.clickRate)} と、送れた後の反応は一定水準です。`;
+    document.getElementById("summaryLine2").textContent = `一方で、配信許可率は ${pct(m.permitReg)} なので、配信後の文言改善より先に通知可能母数をどう増やすかが最優先です。`;
+    document.getElementById("summaryLine3").textContent = dashboardData.summaryNote || "クリック数は取得タイミングによって日次で自然に積み上がるため、同日でも集計時点に応じて差分が出る前提で見ています。";
+
+    function lineChart(id, labels, data, color, target, maxHint, isPct) {
+      const datasets = [{
+        data,
+        borderColor: color,
+        backgroundColor: color,
+        borderWidth: 2,
+        pointRadius: 3,
+        pointBackgroundColor: color,
+        tension: 0.3,
+        spanGaps: true
+      }];
+
+      if (target != null) {
+        datasets.push({
+          data: labels.map(() => target),
+          borderColor: "#9aa4b2",
+          borderWidth: 1.5,
+          borderDash: [5, 4],
+          pointRadius: 0
+        });
       }
-    });
 
-    const rateBase = {
-      registered: entry.osRegistered / (entry.cumulativeEffectiveDl || 1),
-      permission: entry.subscribed / (entry.cumulativeEffectiveDl || 1),
-      delivery: entry.reached / (entry.delivered || 1),
-      ctr: entry.clicks / (entry.reached || 1)
-    };
-
-    new Chart(document.getElementById("rateChart"), {
-      type: "bar",
-      data: {
-        labels: ["登録率", "許諾率", "到達率", "CTR"],
-        datasets: [
-          {
-            label: "Current",
-            data: [rateBase.registered, rateBase.permission, rateBase.delivery, rateBase.ctr],
-            backgroundColor: ["#1d4ed8", "#0f766e", "#d97706", "#e11d48"]
+      new Chart(document.getElementById(id), {
+        type: "line",
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          plugins: {
+            legend: { display: false }
           },
-          {
-            label: "Target",
-            data: [0.90, 0.25, 0.90, 0.10],
-            backgroundColor: "rgba(148, 163, 184, 0.35)"
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: "bottom" } },
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 1,
-            ticks: {
-              callback: value => `${Math.round(value * 100)}%`
+          scales: {
+            x: {
+              grid: { display: false }
+            },
+            y: {
+              suggestedMax: maxHint,
+              grid: { color: "#e9eef5" },
+              ticks: {
+                callback: value => isPct ? value + "%" : ci(value)
+              }
             }
           }
         }
+      });
+    }
+
+    function dualLineChart(id, labels, leftData, rightData, options) {
+      const datasets = [
+        {
+          type: "line",
+          data: leftData,
+          borderColor: options.leftColor,
+          backgroundColor: options.leftColor,
+          borderWidth: 2,
+          pointRadius: 3,
+          pointBackgroundColor: options.leftColor,
+          tension: 0.3,
+          yAxisID: "y"
+        },
+        {
+          type: "line",
+          data: rightData,
+          borderColor: options.rightColor,
+          backgroundColor: options.rightColor,
+          borderWidth: 2,
+          pointRadius: 3,
+          pointBackgroundColor: options.rightColor,
+          tension: 0.3,
+          yAxisID: "y1"
+        }
+      ];
+
+      if (options.target != null) {
+        datasets.push({
+          type: "line",
+          data: labels.map(() => options.target),
+          borderColor: "#9aa4b2",
+          borderWidth: 1.5,
+          borderDash: [5, 4],
+          pointRadius: 0,
+          yAxisID: "y1"
+        });
       }
-    });
+
+      new Chart(document.getElementById(id), {
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              grid: { display: false }
+            },
+            y: {
+              position: "left",
+              suggestedMax: options.leftMax,
+              grid: { color: "#e9eef5" },
+              ticks: {
+                callback: value => ci(value)
+              }
+            },
+            y1: {
+              position: "right",
+              suggestedMax: options.rightMax,
+              grid: { drawOnChartArea: false },
+              ticks: {
+                callback: value => value + "%"
+              }
+            }
+          }
+        }
+      });
+    }
+
+    lineChart("chReg", topSeries.map(d => d.month), topSeries.map(d => d.osRegistered), "#2563eb", null, 30000, false);
+    dualLineChart(
+      "chSubPermit",
+      topSeries.map(d => d.month),
+      topSeries.map(d => d.subscribed),
+      topSeries.map(d => +(d.permitReg * 100).toFixed(2)),
+      { leftColor: "#d97706", rightColor: "#0f766e", target: 22, leftMax: 6500, rightMax: 25 }
+    );
+
+    dualLineChart(
+      "chRemove",
+      bottomSeries.map(d => d.month),
+      bottomSeries.map(d => d.removedUnsub),
+      bottomSeries.map(d => +(d.removeRate * 100).toFixed(2)),
+      { leftColor: "#f9a8b8", rightColor: "#e11d48", target: 10, leftMax: 800, rightMax: 15 }
+    );
+    dualLineChart(
+      "chReach",
+      bottomSeries.map(d => d.month),
+      bottomSeries.map(d => d.reached),
+      bottomSeries.map(d => +(d.reachRate * 100).toFixed(2)),
+      { leftColor: "#7dd3fc", rightColor: "#0ea5b7", target: 90, leftMax: 5000, rightMax: 100 }
+    );
+    dualLineChart(
+      "chClick",
+      bottomSeries.map(d => d.month),
+      bottomSeries.map(d => d.clicks),
+      bottomSeries.map(d => +(d.clickRate * 100).toFixed(2)),
+      { leftColor: "#c4b5fd", rightColor: "#7c3aed", target: 10, leftMax: 500, rightMax: 12 }
+    );
+    lineChart("chApply", bottomSeries.map(d => d.month), [0, 0, 0], "#94a3b8", null, 10, true);
   </script>
 </body>
 </html>
