@@ -154,6 +154,80 @@ q_cost = f"""
 df_cost = client.query(q_cost).to_dataframe()
 
 # ============================================================
+# BQクエリ: TikTok / Apple Ads CPI（月次・OS別）
+# ============================================================
+q_platform_cpi = f"""
+WITH tiktok_dedup AS (
+  SELECT *
+  FROM `ucarpac-uapp.ucarpac_data.tiktok_ads_report_raw_v2`
+  WHERE stat_time_day BETWEEN '{START_DATE}' AND '{END_DATE}'
+  QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY stat_time_day, campaign_id, adgroup_id, ad_id
+    ORDER BY extracted_at DESC
+  ) = 1
+),
+tiktok AS (
+  SELECT
+    FORMAT_DATE('%Y/%m', stat_time_day) AS ym,
+    SUM(CASE
+      WHEN NOT REGEXP_CONTAINS(LOWER(campaign_name), r'ios|iphone|apple') THEN spend
+      ELSE 0
+    END) AS tiktok_android_cost,
+    SUM(CASE
+      WHEN NOT REGEXP_CONTAINS(LOWER(campaign_name), r'ios|iphone|apple') THEN conversion
+      ELSE 0
+    END) AS tiktok_android_installs,
+    SUM(CASE
+      WHEN REGEXP_CONTAINS(LOWER(campaign_name), r'ios|iphone|apple') THEN spend
+      ELSE 0
+    END) AS tiktok_ios_cost,
+    SUM(CASE
+      WHEN REGEXP_CONTAINS(LOWER(campaign_name), r'ios|iphone|apple') THEN conversion
+      ELSE 0
+    END) AS tiktok_ios_installs
+  FROM tiktok_dedup
+  WHERE objective_type = 'APP_PROMOTION'
+    AND app_promotion_type = 'APP_INSTALL'
+  GROUP BY ym
+),
+asa_dedup AS (
+  SELECT *
+  FROM `ucarpac-uapp.ucarpac_data.apple_search_ads_campaign_daily`
+  WHERE report_date BETWEEN '{START_DATE}' AND '{END_DATE}'
+  QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY report_date, campaign_id
+    ORDER BY extracted_at DESC
+  ) = 1
+),
+asa AS (
+  SELECT
+    FORMAT_DATE('%Y/%m', report_date) AS ym,
+    SUM(local_spend) AS apple_ads_ios_cost,
+    SUM(total_installs) AS apple_ads_ios_installs
+  FROM asa_dedup
+  GROUP BY ym
+),
+months AS (
+  SELECT ym FROM tiktok
+  UNION DISTINCT
+  SELECT ym FROM asa
+)
+SELECT
+  m.ym,
+  IFNULL(t.tiktok_android_cost, 0) AS tiktok_android_cost,
+  IFNULL(t.tiktok_android_installs, 0) AS tiktok_android_installs,
+  IFNULL(t.tiktok_ios_cost, 0) AS tiktok_ios_cost,
+  IFNULL(t.tiktok_ios_installs, 0) AS tiktok_ios_installs,
+  IFNULL(a.apple_ads_ios_cost, 0) AS apple_ads_ios_cost,
+  IFNULL(a.apple_ads_ios_installs, 0) AS apple_ads_ios_installs
+FROM months m
+LEFT JOIN tiktok t USING (ym)
+LEFT JOIN asa a USING (ym)
+ORDER BY ym
+"""
+df_platform_cpi = client.query(q_platform_cpi).to_dataframe()
+
+# ============================================================
 # AppsFlyer API: インストール数（Android + iOS）
 # ============================================================
 print("\nAppsFlyer: インストール数取得中...")
@@ -229,6 +303,7 @@ print(df_af[['ym','installs','gads_android_installs','gads_ios_installs','asa_in
 # ============================================================
 df = df_conv.merge(df_cost, on='ym', how='left').fillna(0)
 df = df.merge(df_af, on='ym', how='left').fillna(0)
+df = df.merge(df_platform_cpi, on='ym', how='left').fillna(0)
 
 # Google Ads CPIはGoogle Ads側のコンバージョンを使用する要望に対応
 df['gads_android_installs'] = df['bq_gads_android_installs']
@@ -309,6 +384,18 @@ df['gads_ios_cpi'] = df.apply(
 # ASA CPI = AF Total Cost ÷ AF Apple Search Ads installs (ASAはAFコストを継続使用)
 df['asa_cpi'] = df.apply(
     lambda r: round(r['asa_cost'] / r['asa_installs']) if r.get('asa_installs', 0) > 0 and r.get('asa_cost', 0) > 0 else None, axis=1
+)
+df['tiktok_android_cpi'] = df.apply(
+    lambda r: round(r['tiktok_android_cost'] / r['tiktok_android_installs'])
+              if r.get('tiktok_android_installs', 0) > 0 and r.get('tiktok_android_cost', 0) > 0 else None, axis=1
+)
+df['tiktok_ios_cpi'] = df.apply(
+    lambda r: round(r['tiktok_ios_cost'] / r['tiktok_ios_installs'])
+              if r.get('tiktok_ios_installs', 0) > 0 and r.get('tiktok_ios_cost', 0) > 0 else None, axis=1
+)
+df['apple_ads_ios_cpi'] = df.apply(
+    lambda r: round(r['apple_ads_ios_cost'] / r['apple_ads_ios_installs'])
+              if r.get('apple_ads_ios_installs', 0) > 0 and r.get('apple_ads_ios_cost', 0) > 0 else None, axis=1
 )
 
 print("\n=== 最終集計 ===")
@@ -887,6 +974,9 @@ cpi_list           = [int(x) if x is not None and not pd.isna(x) else None for x
 gads_android_cpi_list = [int(x) if x is not None and not pd.isna(x) else None for x in df['gads_android_cpi'].tolist()]
 gads_ios_cpi_list     = [int(x) if x is not None and not pd.isna(x) else None for x in df['gads_ios_cpi'].tolist()]
 asa_cpi_list          = [int(x) if x is not None and not pd.isna(x) else None for x in df['asa_cpi'].tolist()]
+tiktok_android_cpi_list = [int(x) if x is not None and not pd.isna(x) else None for x in df['tiktok_android_cpi'].tolist()]
+tiktok_ios_cpi_list     = [int(x) if x is not None and not pd.isna(x) else None for x in df['tiktok_ios_cpi'].tolist()]
+apple_ads_ios_cpi_list  = [int(x) if x is not None and not pd.isna(x) else None for x in df['apple_ads_ios_cpi'].tolist()]
 # 収益チャート用データ
 # 売上は「取締役会基準の売上高（消費税調整込み）」、利益は「手数料収入（広告費引く前）」を使用
 revenue_man   = df['revenue_man_yen'].tolist()
@@ -957,6 +1047,9 @@ else:
             f"<td>{fmt_yen_positive(r['contract_cpa_jpy'])}</td>"
             f"</tr>"
         )
+cohort_os_chart_df = df_cohort_os[df_cohort_os['applications_within_1m'] > 0].copy()
+cohort_os_labels = cohort_os_chart_df['os'].tolist()
+cohort_os_applications = [int(v) for v in cohort_os_chart_df['applications_within_1m'].tolist()]
 
 old_os_rows_html = ''
 if df_old_os.empty:
@@ -1118,6 +1211,8 @@ html = f"""<!DOCTYPE html>
   .chart-title {{ font-size: 14px; font-weight: 600; color: #d1d5db; margin-bottom: 18px; }}
   .chart-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }}
   canvas {{ max-height: 300px; }}
+  .dl-chart-wrap {{ height: 300px; margin-top: 10px; }}
+  .dl-chart-wrap canvas {{ max-height: none; }}
 
   /* 注記 */
   .notice {{
@@ -1305,7 +1400,9 @@ html = f"""<!DOCTYPE html>
   <div class="chart-card" style="margin-bottom:0;">
     <div class="chart-title">新規DL数 推移</div>
     <div id="legend-chart_dl" class="custom-legend"></div>
-    <canvas id="chart_dl" style="max-height:180px;"></canvas>
+    <div class="dl-chart-wrap">
+      <canvas id="chart_dl"></canvas>
+    </div>
   </div>
 
   <!-- Chart Cohort: 登録1ヶ月以内申込率 -->
@@ -1321,6 +1418,9 @@ html = f"""<!DOCTYPE html>
   <!-- 今月コホート OS別 -->
   <div class="chart-card" style="margin-bottom:0;">
     <div class="chart-title">今月コホート OS別（オーガニック含む全体）</div>
+    <div class="os-pie-wrap">
+      <canvas id="chart_cohort_os_pie"></canvas>
+    </div>
     <div class="cohort-os-panel">
       <table class="compact-table">
         <thead>
@@ -1465,6 +1565,9 @@ const cpiData            = {json.dumps(cpi_list)};
 const gadsAndroidCpiData = {json.dumps(gads_android_cpi_list)};
 const gadsIosCpiData     = {json.dumps(gads_ios_cpi_list)};
 const asaCpiData         = {json.dumps(asa_cpi_list)};
+const tiktokAndroidCpiData = {json.dumps(tiktok_android_cpi_list)};
+const tiktokIosCpiData     = {json.dumps(tiktok_ios_cpi_list)};
+const appleAdsIosCpiData   = {json.dumps(apple_ads_ios_cpi_list)};
 const costsMan    = {costs_man};
 const revenueMan  = {revenue_man};
 const profitMan   = {profit_list};
@@ -1485,6 +1588,8 @@ const cohortTotal      = {cohort_total};
 const cohortRate       = {cohort_rate};
 const cohortIncomplete = {["true" if x else "false" for x in cohort_incomplete]};
 const avgCohortRate    = {avg_cohort_rate};
+const cohortOsLabels       = {json.dumps(cohort_os_labels, ensure_ascii=False)};
+const cohortOsApplications = {json.dumps(cohort_os_applications, ensure_ascii=False)};
 
 // 既存ユーザーデータ
 const oldAppsRate       = {old_apps_rate};
@@ -1662,6 +1767,24 @@ const cCPI = new Chart(document.getElementById('chart_cpi'), {{
         label: 'Google Ads iOS CPI（円）',
         data: gadsIosCpiData,
         borderColor: '#fb923c', backgroundColor: 'rgba(251,146,60,0.08)',
+        fill: false, tension: 0.4, pointRadius: 5, spanGaps: true
+      }},
+      {{
+        label: 'TikTok Android CPI（円）',
+        data: tiktokAndroidCpiData,
+        borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,0.08)',
+        fill: false, tension: 0.4, pointRadius: 5, spanGaps: true
+      }},
+      {{
+        label: 'TikTok iOS CPI（円）',
+        data: tiktokIosCpiData,
+        borderColor: '#818cf8', backgroundColor: 'rgba(129,140,248,0.08)',
+        fill: false, tension: 0.4, pointRadius: 5, spanGaps: true
+      }},
+      {{
+        label: 'Apple Ads iOS CPI（円）',
+        data: appleAdsIosCpiData,
+        borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.08)',
         fill: false, tension: 0.4, pointRadius: 5, spanGaps: true
       }}
     ]
@@ -1844,6 +1967,44 @@ const cCohort = new Chart(document.getElementById('chart_cohort'), {{
   }}
 }});
 initCustomLegend(cCohort, 'legend-chart_cohort');
+
+// Current cohort OS mix: applications within 1 month
+const cohortOsPieEl = document.getElementById('chart_cohort_os_pie');
+if (cohortOsPieEl) {{
+  new Chart(cohortOsPieEl, {{
+    type: 'doughnut',
+    data: {{
+      labels: cohortOsLabels,
+      datasets: [{{
+        data: cohortOsApplications,
+        backgroundColor: ['#38bdf8', '#f472b6', '#94a3b8', '#f59e0b'],
+        borderColor: '#161922',
+        borderWidth: 2
+      }}]
+    }},
+    options: {{
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {{
+        legend: {{
+          position: 'bottom',
+          labels: {{ color: TICK, boxWidth: 10, padding: 12 }}
+        }},
+        tooltip: {{
+          callbacks: {{
+            label: (ctx) => {{
+              const total = ctx.dataset.data.reduce((sum, v) => sum + Number(v || 0), 0);
+              const val = Number(ctx.raw || 0);
+              const pct = total ? (val / total * 100).toFixed(1) : '0.0';
+              return ctx.label + ': ' + val + '件 (' + pct + '%)';
+            }}
+          }}
+        }}
+      }},
+      cutout: '58%'
+    }}
+  }});
+}}
 
 // Chart Old Apps: 既存ユーザー申込割合
 const oldAppsPointColors = cohortIncomplete.map(inc => inc === "true" ? 'rgba(168,85,247,0.35)' : '#a855f7');
