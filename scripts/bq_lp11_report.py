@@ -316,6 +316,7 @@ print(df[['ym','applications','contracts','installs','cost_jpy','cpi','apply_cpa
 
 # CSV保存
 df.to_csv('lp11_cpa_final.csv', encoding='utf-8-sig', index=False)
+current_month_start = date(today.year, today.month, 1).strftime('%Y-%m-%d')
 
 # ============================================================
 # BQクエリ: 1ヶ月以上前登録ユーザーの月間申込数（実発生ベース）
@@ -333,6 +334,146 @@ GROUP BY 1
 ORDER BY 1
 """
 df_old_user_apps = client.query(q_old_apps).to_dataframe()
+
+# ============================================================
+# 今月既存ユーザー施策 OS別（オーガニック含む全体）
+# ============================================================
+q_old_os = f"""
+DECLARE start_date DATE DEFAULT DATE '{current_month_start}';
+DECLARE end_date DATE DEFAULT CURRENT_DATE('Asia/Tokyo');
+
+WITH latest_device AS (
+  SELECT
+    user_uuid,
+    CASE
+      WHEN LOWER(token_type) = 'android' THEN 'Android'
+      WHEN LOWER(token_type) = 'ios' THEN 'iOS'
+      ELSE 'OS不明'
+    END AS os
+  FROM `ucarpac-uapp.ucarpac_data.app_toc_device_tokens`
+  QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY user_uuid
+    ORDER BY SAFE.PARSE_DATETIME('%Y-%m-%d %H:%M:%S', updated_at) DESC,
+             SAFE.PARSE_DATETIME('%Y-%m-%d %H:%M:%S', created_at) DESC,
+             id DESC
+  ) = 1
+),
+eligible_users AS (
+  SELECT
+    u.id AS app_user_id,
+    COALESCE(d.os, 'OS不明') AS os
+  FROM `ucarpac-uapp.ucarpac_data.app_toc_guest_users` u
+  LEFT JOIN latest_device d USING (user_uuid)
+  WHERE DATE(TIMESTAMP(u.created_at)) <= DATE_SUB(end_date, INTERVAL 30 DAY)
+),
+old_apps AS (
+  SELECT
+    COALESCE(d.os, 'OS不明') AS os,
+    COUNT(DISTINCT g.id) AS old_applications,
+    COUNT(DISTINCT IF(it.item_id IS NOT NULL, g.id, NULL)) AS old_contracts
+  FROM `ucarpac-uapp.ucarpac_data.guests` g
+  JOIN `ucarpac-uapp.ucarpac_data.app_toc_guest_users` u
+    ON CAST(g.id AS STRING) = CAST(u.ucp_guest_id AS STRING)
+  LEFT JOIN latest_device d USING (user_uuid)
+  LEFT JOIN `ucarpac-uapp.ucarpac_data.assessments` a ON a.guest_id = g.id
+  LEFT JOIN `ucarpac-uapp.ucarpac_data.item_transitions` it
+    ON it.item_id = a.item_id
+   AND it.to_state = 'c2b_deal_passed'
+  WHERE LOWER(COALESCE(g.from_app, '')) IN ('1', 'true', 't', 'yes')
+    AND DATE(TIMESTAMP(g.created_at)) BETWEEN start_date AND end_date
+    AND DATE_DIFF(DATE(TIMESTAMP(g.created_at)), DATE(TIMESTAMP(u.created_at)), DAY) > 30
+  GROUP BY os
+),
+eligible AS (
+  SELECT os, COUNT(DISTINCT app_user_id) AS eligible_users
+  FROM eligible_users
+  GROUP BY os
+),
+google_cost AS (
+  WITH stats AS (
+    SELECT campaign_id, SUM(metrics_cost_micros) / 1000000 AS media_cost_jpy
+    FROM `ucarpac-uapp.google_ads_reports.ads_CampaignBasicStats_9108194620`
+    WHERE segments_date BETWEEN start_date AND end_date
+      AND campaign_id IN (
+        22209354661, 22618223504, 22563843801, 22570164617, 22411984951,
+        23520368820, 23638330077, 23638330296, 22135376777
+      )
+    GROUP BY campaign_id
+  ),
+  campaigns AS (
+    SELECT campaign_id, campaign_name
+    FROM `ucarpac-uapp.google_ads_reports.ads_Campaign_9108194620`
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY campaign_id ORDER BY _DATA_DATE DESC) = 1
+  )
+  SELECT
+    CASE WHEN REGEXP_CONTAINS(UPPER(campaign_name), r'IOS') THEN 'iOS' ELSE 'Android' END AS os,
+    ROUND(SUM(media_cost_jpy) * 1.2, 0) AS cost_jpy
+  FROM stats
+  LEFT JOIN campaigns USING (campaign_id)
+  GROUP BY os
+),
+tiktok_cost AS (
+  WITH dedup AS (
+    SELECT *
+    FROM `ucarpac-uapp.ucarpac_data.tiktok_ads_report_raw_v2`
+    WHERE stat_time_day BETWEEN start_date AND end_date
+    QUALIFY ROW_NUMBER() OVER (
+      PARTITION BY stat_time_day, campaign_id, adgroup_id, ad_id
+      ORDER BY extracted_at DESC
+    ) = 1
+  )
+  SELECT
+    CASE WHEN REGEXP_CONTAINS(LOWER(campaign_name), r'ios|iphone|apple') THEN 'iOS' ELSE 'Android' END AS os,
+    ROUND(SUM(spend), 0) AS cost_jpy
+  FROM dedup
+  WHERE objective_type = 'APP_PROMOTION'
+    AND app_promotion_type = 'APP_INSTALL'
+  GROUP BY os
+),
+asa_cost AS (
+  WITH dedup AS (
+    SELECT *
+    FROM `ucarpac-uapp.ucarpac_data.apple_search_ads_campaign_daily`
+    WHERE report_date BETWEEN start_date AND end_date
+    QUALIFY ROW_NUMBER() OVER (
+      PARTITION BY report_date, campaign_id
+      ORDER BY extracted_at DESC
+    ) = 1
+  )
+  SELECT 'iOS' AS os, ROUND(SUM(local_spend), 0) AS cost_jpy
+  FROM dedup
+),
+cost AS (
+  SELECT os, SUM(cost_jpy) AS cost_jpy
+  FROM (
+    SELECT * FROM google_cost
+    UNION ALL SELECT * FROM tiktok_cost
+    UNION ALL SELECT * FROM asa_cost
+  )
+  GROUP BY os
+),
+base AS (
+  SELECT os FROM eligible
+  UNION DISTINCT
+  SELECT os FROM old_apps
+)
+SELECT
+  b.os,
+  IFNULL(e.eligible_users, 0) AS eligible_users,
+  IFNULL(a.old_applications, 0) AS old_applications,
+  ROUND(SAFE_DIVIDE(IFNULL(a.old_applications, 0), SUM(IFNULL(a.old_applications, 0)) OVER()) * 100, 1) AS application_share_pct,
+  ROUND(SAFE_DIVIDE(IFNULL(a.old_applications, 0), IFNULL(e.eligible_users, 0)) * 100, 2) AS application_rate_pct,
+  IFNULL(a.old_contracts, 0) AS old_contracts,
+  IFNULL(c.cost_jpy, 0) AS app_install_ad_cost_jpy,
+  ROUND(SAFE_DIVIDE(IFNULL(c.cost_jpy, 0), NULLIF(IFNULL(a.old_applications, 0), 0)), 0) AS application_cpa_jpy,
+  ROUND(SAFE_DIVIDE(IFNULL(c.cost_jpy, 0), NULLIF(IFNULL(a.old_contracts, 0), 0)), 0) AS contract_cpa_jpy
+FROM base b
+LEFT JOIN eligible e USING (os)
+LEFT JOIN old_apps a USING (os)
+LEFT JOIN cost c USING (os)
+ORDER BY CASE b.os WHEN 'Android' THEN 1 WHEN 'iOS' THEN 2 WHEN 'OS不明' THEN 8 ELSE 9 END
+"""
+df_old_os = client.query(q_old_os).to_dataframe()
 
 # ============================================================
 # BQクエリ: コホート申込率（登録から1ヶ月以内）
@@ -402,7 +543,6 @@ df_cohort = client.query(q_cohort).to_dataframe()
 # ============================================================
 # 今月アプリ登録コホート OS別（オーガニック含む全体）
 # ============================================================
-current_month_start = date(today.year, today.month, 1).strftime('%Y-%m-%d')
 q_cohort_os = f"""
 DECLARE start_date DATE DEFAULT DATE '{current_month_start}';
 DECLARE end_date DATE DEFAULT CURRENT_DATE('Asia/Tokyo');
@@ -795,6 +935,13 @@ def fmt_yen(v):
     except:
         return '-'
 
+def fmt_yen_positive(v):
+    try:
+        if v is None or pd.isna(v) or float(v) <= 0: return '-'
+        return f"¥{int(v):,}"
+    except:
+        return '-'
+
 cohort_os_rows_html = ''
 if df_cohort_os.empty:
     cohort_os_rows_html = '<tr><td colspan="6" class="empty-cell">データなし</td></tr>'
@@ -806,8 +953,24 @@ else:
             f"<td>{fmt_int(r['registered_users'])}</td>"
             f"<td>{fmt_int(r['applications_within_1m'])}</td>"
             f"<td>{fmt_pct(r['application_rate_pct'], 2)}</td>"
-            f"<td>{fmt_yen(r['application_cpa_jpy'])}</td>"
-            f"<td>{fmt_yen(r['contract_cpa_jpy'])}</td>"
+            f"<td>{fmt_yen_positive(r['application_cpa_jpy'])}</td>"
+            f"<td>{fmt_yen_positive(r['contract_cpa_jpy'])}</td>"
+            f"</tr>"
+        )
+
+old_os_rows_html = ''
+if df_old_os.empty:
+    old_os_rows_html = '<tr><td colspan="6" class="empty-cell">データなし</td></tr>'
+else:
+    for _, r in df_old_os.iterrows():
+        old_os_rows_html += (
+            f"<tr>"
+            f"<td>{r['os']}</td>"
+            f"<td>{fmt_int(r['eligible_users'])}</td>"
+            f"<td>{fmt_int(r['old_applications'])}</td>"
+            f"<td>{fmt_pct(r['application_rate_pct'], 2)}</td>"
+            f"<td>{fmt_yen_positive(r['application_cpa_jpy'])}</td>"
+            f"<td>{fmt_yen_positive(r['contract_cpa_jpy'])}</td>"
             f"</tr>"
         )
 
@@ -1176,8 +1339,8 @@ html = f"""<!DOCTYPE html>
   </div>
 </div>
 
-<!-- 2列レイアウト: 有効DL数と既存ユーザー施策 -->
-<div class="charts-2col">
+<!-- 3列レイアウト: 有効DL数と既存ユーザー施策 -->
+<div class="charts-3col">
   <!-- Chart Store Valid Downloads: GooglePlay / AppStore 有効DL -->
   <div class="chart-card" style="margin-bottom:0;">
     <div class="chart-title">有効ダウンロード数（現在インストール推定）</div>
@@ -1199,6 +1362,28 @@ html = f"""<!DOCTYPE html>
     </div>
     <div id="legend-chart_old_apps" class="custom-legend"></div>
     <canvas id="chart_old_apps"></canvas>
+  </div>
+
+  <!-- 既存ユーザー施策 OS別 -->
+  <div class="chart-card" style="margin-bottom:0;">
+    <div class="chart-title">既存ユーザー施策 OS別（オーガニック含む全体）</div>
+    <div class="cohort-os-panel">
+      <table class="compact-table">
+        <thead>
+          <tr>
+            <th>OS</th>
+            <th>対象DL</th>
+            <th>既存申込</th>
+            <th>申込率</th>
+            <th>申込CPA</th>
+            <th>成約CPA</th>
+          </tr>
+        </thead>
+        <tbody>
+          {old_os_rows_html}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
