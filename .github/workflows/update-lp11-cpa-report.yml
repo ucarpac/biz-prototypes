@@ -1,0 +1,48 @@
+name: Update LP11 CPA Report
+
+on:
+  schedule:
+    - cron: "0 2 * * *" # 11:00 JST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-lp11-cpa-report
+  cancel-in-progress: false
+
+jobs:
+  update-report:
+    runs-on: ubuntu-latest
+    env:
+      APPSFLYER_TOKEN: ${{ secrets.APPSFLYER_TOKEN }}
+      TZ: Asia/Tokyo
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: "${{ secrets.GCP_SA_KEY }}"
+
+      - name: Install dependencies
+        run: pip install -r requirements-lp11-report.txt
+
+      - name: Generate LP11 CPA report
+        run: python scripts/update_lp11_report.py
+
+      - name: Commit updated LP11 CPA report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/lp11-cpa-report-20260410/index.html
+          git diff --cached --quiet || git commit -m "Auto-update LP11 CPA report"
+          git push
