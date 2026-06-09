@@ -400,6 +400,139 @@ ORDER BY 1
 df_cohort = client.query(q_cohort).to_dataframe()
 
 # ============================================================
+# 今月アプリ登録コホート OS別（オーガニック含む全体）
+# ============================================================
+current_month_start = date(today.year, today.month, 1).strftime('%Y-%m-%d')
+q_cohort_os = f"""
+DECLARE start_date DATE DEFAULT DATE '{current_month_start}';
+DECLARE end_date DATE DEFAULT CURRENT_DATE('Asia/Tokyo');
+
+WITH latest_device AS (
+  SELECT
+    user_uuid,
+    CASE
+      WHEN LOWER(token_type) = 'android' THEN 'Android'
+      WHEN LOWER(token_type) = 'ios' THEN 'iOS'
+      ELSE 'OS不明'
+    END AS os
+  FROM `ucarpac-uapp.ucarpac_data.app_toc_device_tokens`
+  QUALIFY ROW_NUMBER() OVER (
+    PARTITION BY user_uuid
+    ORDER BY SAFE.PARSE_DATETIME('%Y-%m-%d %H:%M:%S', updated_at) DESC,
+             SAFE.PARSE_DATETIME('%Y-%m-%d %H:%M:%S', created_at) DESC,
+             id DESC
+  ) = 1
+),
+app_users AS (
+  SELECT
+    u.id AS app_user_id,
+    u.user_uuid,
+    CAST(u.ucp_guest_id AS STRING) AS ucp_guest_id,
+    DATE(SAFE.PARSE_DATETIME('%Y-%m-%d %H:%M:%S', u.created_at)) AS app_registered_date,
+    COALESCE(d.os, 'OS不明') AS os
+  FROM `ucarpac-uapp.ucarpac_data.app_toc_guest_users` u
+  LEFT JOIN latest_device d USING (user_uuid)
+  WHERE DATE(SAFE.PARSE_DATETIME('%Y-%m-%d %H:%M:%S', u.created_at)) BETWEEN start_date AND end_date
+),
+within_1m AS (
+  SELECT
+    u.os,
+    COUNT(DISTINCT u.app_user_id) AS registered_users,
+    COUNT(DISTINCT IF(g.id IS NOT NULL, u.app_user_id, NULL)) AS applications_within_1m,
+    COUNT(DISTINCT IF(it.item_id IS NOT NULL, u.app_user_id, NULL)) AS contracts_within_1m
+  FROM app_users u
+  LEFT JOIN `ucarpac-uapp.ucarpac_data.guests` g
+    ON CAST(g.id AS STRING) = u.ucp_guest_id
+   AND LOWER(COALESCE(g.from_app, '')) IN ('1', 'true', 't', 'yes')
+   AND DATE(SAFE.PARSE_DATETIME('%Y-%m-%d %H:%M:%S', g.created_at))
+       BETWEEN u.app_registered_date AND DATE_ADD(u.app_registered_date, INTERVAL 30 DAY)
+  LEFT JOIN `ucarpac-uapp.ucarpac_data.assessments` a ON a.guest_id = g.id
+  LEFT JOIN `ucarpac-uapp.ucarpac_data.item_transitions` it
+    ON it.item_id = a.item_id
+   AND it.to_state = 'c2b_deal_passed'
+  GROUP BY u.os
+),
+google_cost AS (
+  WITH stats AS (
+    SELECT campaign_id, SUM(metrics_cost_micros) / 1000000 AS media_cost_jpy
+    FROM `ucarpac-uapp.google_ads_reports.ads_CampaignBasicStats_9108194620`
+    WHERE segments_date BETWEEN start_date AND end_date
+      AND campaign_id IN (
+        22209354661, 22618223504, 22563843801, 22570164617, 22411984951,
+        23520368820, 23638330077, 23638330296, 22135376777
+      )
+    GROUP BY campaign_id
+  ),
+  campaigns AS (
+    SELECT campaign_id, campaign_name
+    FROM `ucarpac-uapp.google_ads_reports.ads_Campaign_9108194620`
+    QUALIFY ROW_NUMBER() OVER (PARTITION BY campaign_id ORDER BY _DATA_DATE DESC) = 1
+  )
+  SELECT
+    CASE WHEN REGEXP_CONTAINS(UPPER(campaign_name), r'IOS') THEN 'iOS' ELSE 'Android' END AS os,
+    ROUND(SUM(media_cost_jpy) * 1.2, 0) AS cost_jpy
+  FROM stats
+  LEFT JOIN campaigns USING (campaign_id)
+  GROUP BY os
+),
+tiktok_cost AS (
+  WITH dedup AS (
+    SELECT *
+    FROM `ucarpac-uapp.ucarpac_data.tiktok_ads_report_raw_v2`
+    WHERE stat_time_day BETWEEN start_date AND end_date
+    QUALIFY ROW_NUMBER() OVER (
+      PARTITION BY stat_time_day, campaign_id, adgroup_id, ad_id
+      ORDER BY extracted_at DESC
+    ) = 1
+  )
+  SELECT
+    CASE WHEN REGEXP_CONTAINS(LOWER(campaign_name), r'ios|iphone|apple') THEN 'iOS' ELSE 'Android' END AS os,
+    ROUND(SUM(spend), 0) AS cost_jpy
+  FROM dedup
+  WHERE objective_type = 'APP_PROMOTION'
+    AND app_promotion_type = 'APP_INSTALL'
+  GROUP BY os
+),
+asa_cost AS (
+  WITH dedup AS (
+    SELECT *
+    FROM `ucarpac-uapp.ucarpac_data.apple_search_ads_campaign_daily`
+    WHERE report_date BETWEEN start_date AND end_date
+    QUALIFY ROW_NUMBER() OVER (
+      PARTITION BY report_date, campaign_id
+      ORDER BY extracted_at DESC
+    ) = 1
+  )
+  SELECT 'iOS' AS os, ROUND(SUM(local_spend), 0) AS cost_jpy
+  FROM dedup
+),
+cost AS (
+  SELECT os, SUM(cost_jpy) AS cost_jpy
+  FROM (
+    SELECT * FROM google_cost
+    UNION ALL SELECT * FROM tiktok_cost
+    UNION ALL SELECT * FROM asa_cost
+  )
+  GROUP BY os
+)
+SELECT
+  w.os,
+  w.registered_users,
+  ROUND(SAFE_DIVIDE(w.registered_users, SUM(w.registered_users) OVER()) * 100, 1) AS registered_share_pct,
+  w.applications_within_1m,
+  ROUND(SAFE_DIVIDE(w.applications_within_1m, SUM(w.applications_within_1m) OVER()) * 100, 1) AS application_share_pct,
+  ROUND(SAFE_DIVIDE(w.applications_within_1m, w.registered_users) * 100, 2) AS application_rate_pct,
+  w.contracts_within_1m,
+  IFNULL(c.cost_jpy, 0) AS app_install_ad_cost_jpy,
+  ROUND(SAFE_DIVIDE(IFNULL(c.cost_jpy, 0), NULLIF(w.applications_within_1m, 0)), 0) AS application_cpa_jpy,
+  ROUND(SAFE_DIVIDE(IFNULL(c.cost_jpy, 0), NULLIF(w.contracts_within_1m, 0)), 0) AS contract_cpa_jpy
+FROM within_1m w
+LEFT JOIN cost c USING (os)
+ORDER BY CASE w.os WHEN 'Android' THEN 1 WHEN 'iOS' THEN 2 WHEN 'OS不明' THEN 8 ELSE 9 END
+"""
+df_cohort_os = client.query(q_cohort_os).to_dataframe()
+
+# ============================================================
 # Google Sheets API: 有効DL数 (分母) の取得
 # ============================================================
 print("\nGoogle Sheets: 有効DL数データ取得中...")
@@ -641,6 +774,43 @@ avg_cohort_rate = round(df_cohort_sliced['rate_within_1m'].mean(), 2) if not df_
 old_apps_rate = df_cohort_sliced['rate_after_1m'].tolist()
 avg_old_apps_rate = round(df_cohort_sliced['rate_after_1m'].mean(), 2) if not df_cohort_sliced.empty else 0
 
+def fmt_int(v):
+    try:
+        if v is None or pd.isna(v): return '-'
+        return f"{int(v):,}"
+    except:
+        return '-'
+
+def fmt_pct(v, digits=1):
+    try:
+        if v is None or pd.isna(v): return '-'
+        return f"{float(v):.{digits}f}%"
+    except:
+        return '-'
+
+def fmt_yen(v):
+    try:
+        if v is None or pd.isna(v): return '-'
+        return f"¥{int(v):,}"
+    except:
+        return '-'
+
+cohort_os_rows_html = ''
+if df_cohort_os.empty:
+    cohort_os_rows_html = '<tr><td colspan="6" class="empty-cell">データなし</td></tr>'
+else:
+    for _, r in df_cohort_os.iterrows():
+        cohort_os_rows_html += (
+            f"<tr>"
+            f"<td>{r['os']}</td>"
+            f"<td>{fmt_int(r['registered_users'])}</td>"
+            f"<td>{fmt_int(r['applications_within_1m'])}</td>"
+            f"<td>{fmt_pct(r['application_rate_pct'], 2)}</td>"
+            f"<td>{fmt_yen(r['application_cpa_jpy'])}</td>"
+            f"<td>{fmt_yen(r['contract_cpa_jpy'])}</td>"
+            f"</tr>"
+        )
+
 # ============================================================
 # 有効DL数（現在インストール推定）: Google Sheets 実績タブ
 # ============================================================
@@ -806,6 +976,31 @@ html = f"""<!DOCTYPE html>
   }}
   td:first-child {{ text-align: left; font-weight: 600; color: #fff; }}
   tr:hover td {{ background: #1c1f2e; }}
+  .cohort-detail-grid {{
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(360px, .85fr);
+    gap: 18px;
+    align-items: start;
+  }}
+  .cohort-os-panel {{
+    border: 1px solid #252836;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #12151e;
+  }}
+  .mini-table-title {{
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #e5e7eb;
+    border-bottom: 1px solid #252836;
+  }}
+  .compact-table {{ font-size: 12px; }}
+  .compact-table th, .compact-table td {{ padding: 9px 10px; }}
+  .empty-cell {{ text-align: center !important; color: #6b7280 !important; }}
+  @media (max-width: 1100px) {{
+    .cohort-detail-grid {{ grid-template-columns: 1fr; }}
+  }}
 
   /* カスタムレジェンド（チェックボックス） */
   .custom-legend {{
@@ -961,8 +1156,30 @@ html = f"""<!DOCTYPE html>
     <div class="notice" style="margin-bottom:14px; margin-top:0;">
       ⚠️ 分母: UUID新規登録数 ｜ 分子: 登録から30日以内に査定申込みを開始した人数
     </div>
-    <div id="legend-chart_cohort" class="custom-legend"></div>
-    <canvas id="chart_cohort"></canvas>
+    <div class="cohort-detail-grid">
+      <div>
+        <div id="legend-chart_cohort" class="custom-legend"></div>
+        <canvas id="chart_cohort"></canvas>
+      </div>
+      <div class="cohort-os-panel">
+        <div class="mini-table-title">今月コホート OS別（オーガニック含む全体）</div>
+        <table class="compact-table">
+          <thead>
+            <tr>
+              <th>OS</th>
+              <th>登録</th>
+              <th>1ヶ月内申込</th>
+              <th>申込率</th>
+              <th>申込CPA</th>
+              <th>成約CPA</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cohort_os_rows_html}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 
