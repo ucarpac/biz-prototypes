@@ -960,7 +960,7 @@ else:
 
 old_os_rows_html = ''
 if df_old_os.empty:
-    old_os_rows_html = '<tr><td colspan="6" class="empty-cell">データなし</td></tr>'
+    old_os_rows_html = '<tr><td colspan="4" class="empty-cell">データなし</td></tr>'
 else:
     for _, r in df_old_os.iterrows():
         old_os_rows_html += (
@@ -969,10 +969,11 @@ else:
             f"<td>{fmt_int(r['eligible_users'])}</td>"
             f"<td>{fmt_int(r['old_applications'])}</td>"
             f"<td>{fmt_pct(r['application_rate_pct'], 2)}</td>"
-            f"<td>{fmt_yen_positive(r['application_cpa_jpy'])}</td>"
-            f"<td>{fmt_yen_positive(r['contract_cpa_jpy'])}</td>"
             f"</tr>"
         )
+old_os_chart_df = df_old_os[df_old_os['old_applications'] > 0].copy()
+old_os_labels = old_os_chart_df['os'].tolist()
+old_os_applications = [int(v) for v in old_os_chart_df['old_applications'].tolist()]
 
 # ============================================================
 # 有効DL数（現在インストール推定）: Google Sheets 実績タブ
@@ -1157,6 +1158,7 @@ html = f"""<!DOCTYPE html>
   .compact-table {{ font-size: 12px; }}
   .compact-table th, .compact-table td {{ padding: 9px 10px; }}
   .empty-cell {{ text-align: center !important; color: #6b7280 !important; }}
+  .os-pie-wrap {{ height: 190px; margin-bottom: 14px; }}
 
   /* カスタムレジェンド（チェックボックス） */
   .custom-legend {{
@@ -1367,6 +1369,9 @@ html = f"""<!DOCTYPE html>
   <!-- 既存ユーザー施策 OS別 -->
   <div class="chart-card" style="margin-bottom:0;">
     <div class="chart-title">既存ユーザー施策 OS別（オーガニック含む全体）</div>
+    <div class="os-pie-wrap">
+      <canvas id="chart_old_os_pie"></canvas>
+    </div>
     <div class="cohort-os-panel">
       <table class="compact-table">
         <thead>
@@ -1375,8 +1380,6 @@ html = f"""<!DOCTYPE html>
             <th>対象DL</th>
             <th>既存申込</th>
             <th>申込率</th>
-            <th>申込CPA</th>
-            <th>成約CPA</th>
           </tr>
         </thead>
         <tbody>
@@ -1486,6 +1489,8 @@ const avgCohortRate    = {avg_cohort_rate};
 // 既存ユーザーデータ
 const oldAppsRate       = {old_apps_rate};
 const avgOldAppsRate    = {avg_old_apps_rate};
+const oldOsLabels       = {json.dumps(old_os_labels, ensure_ascii=False)};
+const oldOsApplications = {json.dumps(old_os_applications, ensure_ascii=False)};
 
 // 有効DL数（現在インストール推定）
 const storeValidMonths = {json.dumps(store_valid_months, ensure_ascii=False)};
@@ -1889,6 +1894,44 @@ const cOldApps = new Chart(document.getElementById('chart_old_apps'), {{
   }}
 }});
 initCustomLegend(cOldApps, 'legend-chart_old_apps');
+
+// Existing user OS mix: current month applications
+const oldOsPieEl = document.getElementById('chart_old_os_pie');
+if (oldOsPieEl) {{
+  new Chart(oldOsPieEl, {{
+    type: 'doughnut',
+    data: {{
+      labels: oldOsLabels,
+      datasets: [{{
+        data: oldOsApplications,
+        backgroundColor: ['#38bdf8', '#f472b6', '#94a3b8', '#f59e0b'],
+        borderColor: '#161922',
+        borderWidth: 2
+      }}]
+    }},
+    options: {{
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {{
+        legend: {{
+          position: 'bottom',
+          labels: {{ color: TICK, boxWidth: 10, padding: 12 }}
+        }},
+        tooltip: {{
+          callbacks: {{
+            label: (ctx) => {{
+              const total = ctx.dataset.data.reduce((sum, v) => sum + Number(v || 0), 0);
+              const val = Number(ctx.raw || 0);
+              const pct = total ? (val / total * 100).toFixed(1) : '0.0';
+              return ctx.label + ': ' + val + '件 (' + pct + '%)';
+            }}
+          }}
+        }}
+      }},
+      cutout: '58%'
+    }}
+  }});
+}}
 
 // Chart Store Valid Downloads: active installs estimate
 const cStoreValidDL = new Chart(document.getElementById('chart_store_valid_dl'), {{

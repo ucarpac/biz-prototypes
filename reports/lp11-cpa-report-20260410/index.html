@@ -127,6 +127,7 @@
   .compact-table { font-size: 12px; }
   .compact-table th, .compact-table td { padding: 9px 10px; }
   .empty-cell { text-align: center !important; color: #6b7280 !important; }
+  .os-pie-wrap { height: 190px; margin-bottom: 14px; }
 
   /* カスタムレジェンド（チェックボックス） */
   .custom-legend {
@@ -247,7 +248,7 @@
     <div class="meta">
       <span>集計基準: 申込日ベース</span>
       <span>対象期間: 2025-07-01 〜 2026-06-09</span>
-      <span>データ取得: 2026年06月09日 20:05</span>
+      <span>データ取得: 2026年06月09日 20:10</span>
     </div>
   </div>
   <button class="reload-btn" onclick="superReload()">
@@ -414,6 +415,9 @@
   <!-- 既存ユーザー施策 OS別 -->
   <div class="chart-card" style="margin-bottom:0;">
     <div class="chart-title">既存ユーザー施策 OS別（オーガニック含む全体）</div>
+    <div class="os-pie-wrap">
+      <canvas id="chart_old_os_pie"></canvas>
+    </div>
     <div class="cohort-os-panel">
       <table class="compact-table">
         <thead>
@@ -422,12 +426,10 @@
             <th>対象DL</th>
             <th>既存申込</th>
             <th>申込率</th>
-            <th>申込CPA</th>
-            <th>成約CPA</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td>Android</td><td>30,642</td><td>3</td><td>0.01%</td><td>¥57,015</td><td>-</td></tr><tr><td>iOS</td><td>21,739</td><td>9</td><td>0.04%</td><td>¥14,447</td><td>-</td></tr><tr><td>OS不明</td><td>374</td><td>2</td><td>0.53%</td><td>-</td><td>-</td></tr>
+          <tr><td>Android</td><td>30,642</td><td>3</td><td>0.01%</td></tr><tr><td>iOS</td><td>21,739</td><td>9</td><td>0.04%</td></tr><tr><td>OS不明</td><td>374</td><td>2</td><td>0.53%</td></tr>
         </tbody>
       </table>
     </div>
@@ -602,6 +604,8 @@ const avgCohortRate    = 2.36;
 // 既存ユーザーデータ
 const oldAppsRate       = [0.01, 0.13, 0.12, 0.13, 0.14, 0.19, 0.27, 0.15, 0.15, 0.13, 0.11, 0.04];
 const avgOldAppsRate    = 0.13;
+const oldOsLabels       = ["Android", "iOS", "OS不明"];
+const oldOsApplications = [3, 9, 2];
 
 // 有効DL数（現在インストール推定）
 const storeValidMonths = ["2025/05", "2025/06", "2025/07", "2025/08", "2025/09", "2025/10", "2025/11", "2025/12", "2026/01", "2026/02", "2026/03", "2026/04", "2026/05", "2026/06"];
@@ -1178,6 +1182,44 @@ const cOldApps = new Chart(document.getElementById('chart_old_apps'), {
   }
 });
 initCustomLegend(cOldApps, 'legend-chart_old_apps');
+
+// Existing user OS mix: current month applications
+const oldOsPieEl = document.getElementById('chart_old_os_pie');
+if (oldOsPieEl) {
+  new Chart(oldOsPieEl, {
+    type: 'doughnut',
+    data: {
+      labels: oldOsLabels,
+      datasets: [{
+        data: oldOsApplications,
+        backgroundColor: ['#38bdf8', '#f472b6', '#94a3b8', '#f59e0b'],
+        borderColor: '#161922',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: TICK, boxWidth: 10, padding: 12 }
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const total = ctx.dataset.data.reduce((sum, v) => sum + Number(v || 0), 0);
+              const val = Number(ctx.raw || 0);
+              const pct = total ? (val / total * 100).toFixed(1) : '0.0';
+              return ctx.label + ': ' + val + '件 (' + pct + '%)';
+            }
+          }
+        }
+      },
+      cutout: '58%'
+    }
+  });
+}
 
 // Chart Store Valid Downloads: active installs estimate
 const cStoreValidDL = new Chart(document.getElementById('chart_store_valid_dl'), {
