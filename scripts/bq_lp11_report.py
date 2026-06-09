@@ -940,8 +940,10 @@ html = f"""<!DOCTYPE html>
 
   /* 2列チャートレイアウト */
   .charts-2col {{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }}
+  .charts-3col {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }}
   @media (max-width: 1024px) {{
     .charts-2col {{ grid-template-columns: 1fr; }}
+    .charts-3col {{ grid-template-columns: 1fr; }}
   }}
 
   /* チャートカード */
@@ -976,12 +978,6 @@ html = f"""<!DOCTYPE html>
   }}
   td:first-child {{ text-align: left; font-weight: 600; color: #fff; }}
   tr:hover td {{ background: #1c1f2e; }}
-  .cohort-detail-grid {{
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(360px, .85fr);
-    gap: 18px;
-    align-items: start;
-  }}
   .cohort-os-panel {{
     border: 1px solid #252836;
     border-radius: 8px;
@@ -998,9 +994,6 @@ html = f"""<!DOCTYPE html>
   .compact-table {{ font-size: 12px; }}
   .compact-table th, .compact-table td {{ padding: 9px 10px; }}
   .empty-cell {{ text-align: center !important; color: #6b7280 !important; }}
-  @media (max-width: 1100px) {{
-    .cohort-detail-grid {{ grid-template-columns: 1fr; }}
-  }}
 
   /* カスタムレジェンド（チェックボックス） */
   .custom-legend {{
@@ -1141,8 +1134,8 @@ html = f"""<!DOCTYPE html>
   <canvas id="chart1b"></canvas>
 </div>
 
-<!-- 2列レイアウト: コホート関連 -->
-<div class="charts-2col">
+<!-- 3列レイアウト: コホート関連 -->
+<div class="charts-3col">
   <!-- 新規DL数 推移 -->
   <div class="chart-card" style="margin-bottom:0;">
     <div class="chart-title">新規DL数 推移</div>
@@ -1156,29 +1149,29 @@ html = f"""<!DOCTYPE html>
     <div class="notice" style="margin-bottom:14px; margin-top:0;">
       ⚠️ 分母: UUID新規登録数 ｜ 分子: 登録から30日以内に査定申込みを開始した人数
     </div>
-    <div class="cohort-detail-grid">
-      <div>
-        <div id="legend-chart_cohort" class="custom-legend"></div>
-        <canvas id="chart_cohort"></canvas>
-      </div>
-      <div class="cohort-os-panel">
-        <div class="mini-table-title">今月コホート OS別（オーガニック含む全体）</div>
-        <table class="compact-table">
-          <thead>
-            <tr>
-              <th>OS</th>
-              <th>登録</th>
-              <th>1ヶ月内申込</th>
-              <th>申込率</th>
-              <th>申込CPA</th>
-              <th>成約CPA</th>
-            </tr>
-          </thead>
-          <tbody>
-            {cohort_os_rows_html}
-          </tbody>
-        </table>
-      </div>
+    <div id="legend-chart_cohort" class="custom-legend"></div>
+    <canvas id="chart_cohort"></canvas>
+  </div>
+
+  <!-- 今月コホート OS別 -->
+  <div class="chart-card" style="margin-bottom:0;">
+    <div class="chart-title">今月コホート OS別（オーガニック含む全体）</div>
+    <div class="cohort-os-panel">
+      <table class="compact-table">
+        <thead>
+          <tr>
+            <th>OS</th>
+            <th>登録</th>
+            <th>1ヶ月内申込</th>
+            <th>申込率</th>
+            <th>申込CPA</th>
+            <th>成約CPA</th>
+          </tr>
+        </thead>
+        <tbody>
+          {cohort_os_rows_html}
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
