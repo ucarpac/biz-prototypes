@@ -1282,6 +1282,90 @@ html = f"""<!DOCTYPE html>
   .compact-table th, .compact-table td {{ padding: 9px 10px; }}
   .empty-cell {{ text-align: center !important; color: #6b7280 !important; }}
   .os-pie-wrap {{ height: 190px; margin-bottom: 14px; }}
+  .allocation-board {{
+    background: #161922;
+    border: 1px solid #252836;
+    border-radius: 14px;
+    padding: 22px;
+    margin: -8px 0 24px;
+  }}
+  .allocation-head {{
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }}
+  .allocation-title {{
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 6px;
+  }}
+  .allocation-sub {{
+    font-size: 12px;
+    color: #94a3b8;
+    line-height: 1.7;
+  }}
+  .decision-pill {{
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    border-radius: 999px;
+    padding: 8px 12px;
+    background: rgba(16,185,129,.14);
+    color: #34d399;
+    font-size: 12px;
+    font-weight: 800;
+  }}
+  .allocation-grid {{
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 16px;
+  }}
+  .allocation-card {{
+    background: #12151e;
+    border: 1px solid #252836;
+    border-radius: 10px;
+    padding: 14px;
+  }}
+  .allocation-card .label {{
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }}
+  .allocation-card .value {{
+    color: #fff;
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1;
+  }}
+  .allocation-card .note {{
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.5;
+    margin-top: 8px;
+  }}
+  .allocation-table th,
+  .allocation-table td {{
+    font-size: 12px;
+    padding: 10px 11px;
+  }}
+  .allocation-table td.win {{
+    color: #34d399;
+    font-weight: 800;
+  }}
+  .allocation-table td.lose {{
+    color: #f87171;
+    font-weight: 800;
+  }}
+  @media (max-width: 900px) {{
+    .allocation-head {{ flex-direction: column; }}
+    .allocation-grid {{ grid-template-columns: 1fr; }}
+    .decision-pill {{ white-space: normal; }}
+  }}
 
   /* カスタムレジェンド（チェックボックス） */
   .custom-legend {{
@@ -1410,6 +1494,62 @@ html = f"""<!DOCTYPE html>
     <div><span class="kpi-badge {clear_profit_cls}">{clear_profit_diff if clear_profit_diff else '比較なし'}</span></div>
     <div class="kpi-sub">前月({prev_ym}): {f"¥{prev_clear_profit:,.1f}万" if prev_clear_profit is not None else '-'}</div>
   </div>
+</div>
+
+<!-- 広告配分判断: 前月実績から今月配分を決める -->
+<div class="allocation-board">
+  <div class="allocation-head">
+    <div>
+      <div class="allocation-title">広告配分判断（前月実績 → 今月配分）</div>
+      <div class="allocation-sub">
+        前月 2026/05 のOS別実績で判断。削除前CPIではなく、有効DL CPI・申込CPA・成約CPAを優先して配分を決める。
+      </div>
+    </div>
+    <div class="decision-pill">推奨: iOS増額 / Androidは改善枠に限定</div>
+  </div>
+
+  <div class="allocation-grid">
+    <div class="allocation-card">
+      <div class="label">今月の初期配分案</div>
+      <div class="value">iOS 40-50%</div>
+      <div class="note">前月はiOSの申込CPA・成約CPAが大きく優位。Androidは削除率改善を確認しながら配分。</div>
+    </div>
+    <div class="allocation-card">
+      <div class="label">増額判断の主指標</div>
+      <div class="value">成約CPA</div>
+      <div class="note">成約数が少ない月は、申込CPAと有効DL CPIを補助指標にする。</div>
+    </div>
+    <div class="allocation-card">
+      <div class="label">Android増額条件</div>
+      <div class="value">削除率 &lt; 60%</div>
+      <div class="note">または申込CPAが15,000円未満まで改善したキャンペーンに限定。</div>
+    </div>
+  </div>
+
+  <table class="allocation-table">
+    <thead>
+      <tr>
+        <th>判断軸（2026/05）</th>
+        <th>Android / Google</th>
+        <th>iOS / App Store</th>
+        <th>判定</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>広告費</td><td>¥2,197,509</td><td>¥385,756</td><td>Android配分が大きい</td></tr>
+      <tr><td>DL/獲得</td><td>5,601</td><td>934</td><td>Androidが量を獲得</td></tr>
+      <tr><td>削除/減少</td><td>4,551</td><td>544</td><td class="win">iOS優位</td></tr>
+      <tr><td>削除率</td><td class="lose">81.3%</td><td class="win">58.2%</td><td class="win">iOS優位</td></tr>
+      <tr><td>削除前CPI</td><td class="win">¥392</td><td>¥413</td><td>Androidやや優位</td></tr>
+      <tr><td>有効DL</td><td>1,050</td><td>390</td><td>Androidが量を維持</td></tr>
+      <tr><td>有効DL CPI</td><td class="lose">¥2,093</td><td class="win">¥989</td><td class="win">iOS優位</td></tr>
+      <tr><td>申込数</td><td>62</td><td>92</td><td class="win">iOS優位</td></tr>
+      <tr><td>有効DL→申込率</td><td class="lose">5.9%</td><td class="win">23.6%</td><td class="win">iOS優位</td></tr>
+      <tr><td>申込CPA</td><td class="lose">¥35,444</td><td class="win">¥4,193</td><td class="win">iOS大幅優位</td></tr>
+      <tr><td>成約数</td><td>5</td><td>3</td><td>Androidが件数優位</td></tr>
+      <tr><td>成約CPA</td><td class="lose">¥439,502</td><td class="win">¥128,585</td><td class="win">iOS大幅優位</td></tr>
+    </tbody>
+  </table>
 </div>
 
 <!-- KPI直下: 申込・成約 / 詳細ファネル -->
