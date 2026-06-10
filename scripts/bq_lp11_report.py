@@ -1300,6 +1300,19 @@ html = f"""<!DOCTYPE html>
     margin: 0;
     min-width: 0;
   }}
+  .allocation-profit-card {{
+    display: flex;
+    flex-direction: column;
+  }}
+  .allocation-profit-chart {{
+    flex: 1;
+    min-height: 430px;
+  }}
+  .allocation-profit-chart canvas {{
+    width: 100% !important;
+    height: 100% !important;
+    max-height: none;
+  }}
   .allocation-head {{
     display: flex;
     justify-content: space-between;
@@ -1374,6 +1387,7 @@ html = f"""<!DOCTYPE html>
   }}
   @media (max-width: 900px) {{
     .allocation-chart-row {{ grid-template-columns: 1fr; }}
+    .allocation-profit-chart {{ min-height: 320px; }}
     .allocation-head {{ flex-direction: column; }}
     .allocation-grid {{ grid-template-columns: 1fr; }}
     .decision-pill {{ white-space: normal; }}
@@ -1565,10 +1579,12 @@ html = f"""<!DOCTYPE html>
     </table>
   </div>
 
-  <div class="chart-card">
+  <div class="chart-card allocation-profit-card">
     <div class="chart-title">広告費・売上・利益（月次）</div>
     <div id="legend-chart1b" class="custom-legend"></div>
-    <canvas id="chart1b"></canvas>
+    <div class="allocation-profit-chart">
+      <canvas id="chart1b"></canvas>
+    </div>
   </div>
 </div>
 
@@ -1881,6 +1897,7 @@ const c1b = new Chart(document.getElementById('chart1b'), {{
   }},
   options: {{
     responsive: true,
+    maintainAspectRatio: false,
     interaction: {{ mode: 'index', intersect: false }},
     plugins: {{ legend: {{ display: false }} }},
     scales: {{
