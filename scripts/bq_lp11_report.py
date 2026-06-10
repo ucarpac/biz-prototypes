@@ -1282,12 +1282,23 @@ html = f"""<!DOCTYPE html>
   .compact-table th, .compact-table td {{ padding: 9px 10px; }}
   .empty-cell {{ text-align: center !important; color: #6b7280 !important; }}
   .os-pie-wrap {{ height: 190px; margin-bottom: 14px; }}
+  .allocation-chart-row {{
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+    gap: 20px;
+    align-items: stretch;
+    margin: -8px 0 24px;
+  }}
   .allocation-board {{
     background: #161922;
     border: 1px solid #252836;
     border-radius: 14px;
     padding: 22px;
-    margin: -8px 0 24px;
+    margin: 0;
+  }}
+  .allocation-chart-row .chart-card {{
+    margin: 0;
+    min-width: 0;
   }}
   .allocation-head {{
     display: flex;
@@ -1362,6 +1373,7 @@ html = f"""<!DOCTYPE html>
     font-weight: 800;
   }}
   @media (max-width: 900px) {{
+    .allocation-chart-row {{ grid-template-columns: 1fr; }}
     .allocation-head {{ flex-direction: column; }}
     .allocation-grid {{ grid-template-columns: 1fr; }}
     .decision-pill {{ white-space: normal; }}
@@ -1496,60 +1508,68 @@ html = f"""<!DOCTYPE html>
   </div>
 </div>
 
-<!-- 広告配分判断: 前月実績から今月配分を決める -->
-<div class="allocation-board">
-  <div class="allocation-head">
-    <div>
-      <div class="allocation-title">広告配分判断（前月実績 → 今月配分）</div>
-      <div class="allocation-sub">
-        前月 2026/05 のOS別実績で判断。削除前CPIではなく、有効DL CPI・申込CPA・成約CPAを優先して配分を決める。
+<div class="allocation-chart-row">
+  <!-- 広告配分判断: 前月実績から今月配分を決める -->
+  <div class="allocation-board">
+    <div class="allocation-head">
+      <div>
+        <div class="allocation-title">広告配分判断（前月実績 → 今月配分）</div>
+        <div class="allocation-sub">
+          前月 2026/05 のOS別実績で判断。削除前CPIではなく、有効DL CPI・申込CPA・成約CPAを優先して配分を決める。
+        </div>
+      </div>
+      <div class="decision-pill">推奨: iOS増額 / Androidは改善枠に限定</div>
+    </div>
+
+    <div class="allocation-grid">
+      <div class="allocation-card">
+        <div class="label">今月の初期配分案</div>
+        <div class="value">iOS 40-50%</div>
+        <div class="note">前月はiOSの申込CPA・成約CPAが大きく優位。Androidは削除率改善を確認しながら配分。</div>
+      </div>
+      <div class="allocation-card">
+        <div class="label">増額判断の主指標</div>
+        <div class="value">成約CPA</div>
+        <div class="note">成約数が少ない月は、申込CPAと有効DL CPIを補助指標にする。</div>
+      </div>
+      <div class="allocation-card">
+        <div class="label">Android増額条件</div>
+        <div class="value">削除率 &lt; 60%</div>
+        <div class="note">または申込CPAが15,000円未満まで改善したキャンペーンに限定。</div>
       </div>
     </div>
-    <div class="decision-pill">推奨: iOS増額 / Androidは改善枠に限定</div>
+
+    <table class="allocation-table">
+      <thead>
+        <tr>
+          <th>判断軸（2026/05）</th>
+          <th>Android / Google</th>
+          <th>iOS / App Store</th>
+          <th>判定</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>広告費</td><td>¥2,197,509</td><td>¥385,756</td><td>Android配分が大きい</td></tr>
+        <tr><td>DL/獲得</td><td>5,601</td><td>934</td><td>Androidが量を獲得</td></tr>
+        <tr><td>削除/減少</td><td>4,551</td><td>544</td><td class="win">iOS優位</td></tr>
+        <tr><td>削除率</td><td class="lose">81.3%</td><td class="win">58.2%</td><td class="win">iOS優位</td></tr>
+        <tr><td>削除前CPI</td><td class="win">¥392</td><td>¥413</td><td>Androidやや優位</td></tr>
+        <tr><td>有効DL</td><td>1,050</td><td>390</td><td>Androidが量を維持</td></tr>
+        <tr><td>有効DL CPI</td><td class="lose">¥2,093</td><td class="win">¥989</td><td class="win">iOS優位</td></tr>
+        <tr><td>申込数</td><td>62</td><td>92</td><td class="win">iOS優位</td></tr>
+        <tr><td>有効DL→申込率</td><td class="lose">5.9%</td><td class="win">23.6%</td><td class="win">iOS優位</td></tr>
+        <tr><td>申込CPA</td><td class="lose">¥35,444</td><td class="win">¥4,193</td><td class="win">iOS大幅優位</td></tr>
+        <tr><td>成約数</td><td>5</td><td>3</td><td>Androidが件数優位</td></tr>
+        <tr><td>成約CPA</td><td class="lose">¥439,502</td><td class="win">¥128,585</td><td class="win">iOS大幅優位</td></tr>
+      </tbody>
+    </table>
   </div>
 
-  <div class="allocation-grid">
-    <div class="allocation-card">
-      <div class="label">今月の初期配分案</div>
-      <div class="value">iOS 40-50%</div>
-      <div class="note">前月はiOSの申込CPA・成約CPAが大きく優位。Androidは削除率改善を確認しながら配分。</div>
-    </div>
-    <div class="allocation-card">
-      <div class="label">増額判断の主指標</div>
-      <div class="value">成約CPA</div>
-      <div class="note">成約数が少ない月は、申込CPAと有効DL CPIを補助指標にする。</div>
-    </div>
-    <div class="allocation-card">
-      <div class="label">Android増額条件</div>
-      <div class="value">削除率 &lt; 60%</div>
-      <div class="note">または申込CPAが15,000円未満まで改善したキャンペーンに限定。</div>
-    </div>
+  <div class="chart-card">
+    <div class="chart-title">広告費・売上・利益（月次）</div>
+    <div id="legend-chart1b" class="custom-legend"></div>
+    <canvas id="chart1b"></canvas>
   </div>
-
-  <table class="allocation-table">
-    <thead>
-      <tr>
-        <th>判断軸（2026/05）</th>
-        <th>Android / Google</th>
-        <th>iOS / App Store</th>
-        <th>判定</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>広告費</td><td>¥2,197,509</td><td>¥385,756</td><td>Android配分が大きい</td></tr>
-      <tr><td>DL/獲得</td><td>5,601</td><td>934</td><td>Androidが量を獲得</td></tr>
-      <tr><td>削除/減少</td><td>4,551</td><td>544</td><td class="win">iOS優位</td></tr>
-      <tr><td>削除率</td><td class="lose">81.3%</td><td class="win">58.2%</td><td class="win">iOS優位</td></tr>
-      <tr><td>削除前CPI</td><td class="win">¥392</td><td>¥413</td><td>Androidやや優位</td></tr>
-      <tr><td>有効DL</td><td>1,050</td><td>390</td><td>Androidが量を維持</td></tr>
-      <tr><td>有効DL CPI</td><td class="lose">¥2,093</td><td class="win">¥989</td><td class="win">iOS優位</td></tr>
-      <tr><td>申込数</td><td>62</td><td>92</td><td class="win">iOS優位</td></tr>
-      <tr><td>有効DL→申込率</td><td class="lose">5.9%</td><td class="win">23.6%</td><td class="win">iOS優位</td></tr>
-      <tr><td>申込CPA</td><td class="lose">¥35,444</td><td class="win">¥4,193</td><td class="win">iOS大幅優位</td></tr>
-      <tr><td>成約数</td><td>5</td><td>3</td><td>Androidが件数優位</td></tr>
-      <tr><td>成約CPA</td><td class="lose">¥439,502</td><td class="win">¥128,585</td><td class="win">iOS大幅優位</td></tr>
-    </tbody>
-  </table>
 </div>
 
 <!-- KPI直下: 申込・成約 / 詳細ファネル -->
@@ -1565,13 +1585,6 @@ html = f"""<!DOCTYPE html>
     <div id="legend-chart_funnel" class="custom-legend"></div>
     <canvas id="chart_funnel"></canvas>
   </div>
-</div>
-
-<!-- KPIカード直結: 広告費・売上・利益 -->
-<div class="chart-card" style="margin-top:0;">
-  <div class="chart-title">広告費・売上・利益（月次）</div>
-  <div id="legend-chart1b" class="custom-legend"></div>
-  <canvas id="chart1b"></canvas>
 </div>
 
 <!-- 3列レイアウト: コホート関連 -->
