@@ -1,31 +1,40 @@
 # OneSignal KPI Dashboard
 
-このフォルダは、OneSignal の通知 KPI を GitHub 上で管理しつつ、BigQuery からの自動更新にもつなげるための最小構成です。
+このフォルダは、OneSignal の月次ダッシュボードを GitHub Pages で公開するための一式です。
 
-## 含まれるもの
+## Files
 
 - `index.html`
-  ダッシュボード表示本体
+  ダッシュボード本体です。現在値の表示に加えて、保存済みスナップショットをタブ切替で見られます。
 - `push_notification_dashboard_data.js`
-  フロント表示用のデータ
+  現在表示用のデータです。
 - `dashboard_config.json`
-  BigQuery 参照先と表示用テキスト
-- `source/`
-  集計メモ、テンプレート CSV、スプレッドシート運用メモ
+  更新時の補助設定です。
+- `dashboard_history.js`
+  履歴タブの一覧です。
+- `history/<YYYY-MM>/`
+  更新前に保存した月次スナップショットです。
 
-## 現在の前提
+## Update Flow
 
-- 2026-05-19 時点のスナップショットを初期値として反映
-- 有効DL累計は `33,855` をフォールバック値として使用
-- Push 経由 DL 数は未反映
-- クリック数は `onesignal_notifications_raw.raw_json.clicked` を利用
+1. 更新前に現在のダッシュボードを履歴として保存
+2. `push_notification_dashboard_data.js` などを新しい月の内容に更新
+3. GitHub に push して公開反映
 
-## 更新方法
+## Save Snapshot
 
-1. GitHub Actions から `scripts/generate_push_dashboard_data.py` を実行
-2. `push_notification_dashboard_data.js` を更新
-3. `index.html` は固定表示レイヤーとして使い回す
+更新前に次のコマンドを実行します。
 
-## 補足
+```powershell
+py scripts/archive_push_dashboard_snapshot.py --report-dir reports/push-notification-20260528-p7k4m2q8
+```
 
-履歴系列はまだ薄いため、今回のコミットでは「確定しているスナップショットを安全に残す」ことを優先しています。今後、BigQuery から過去月系列を埋めることで、チャートの継続監視にもそのまま広げられます。
+これで次の2つが更新されます。
+
+- `reports/push-notification-20260528-p7k4m2q8/history/<YYYY-MM>/`
+- `reports/push-notification-20260528-p7k4m2q8/dashboard_history.js`
+
+## Notes
+
+- 履歴はリンク一覧ではなく、現在ページ内のタブからページ遷移なしで確認できます。
+- スナップショット側では履歴欄を自動で隠すため、入れ子表示にはなりません。
