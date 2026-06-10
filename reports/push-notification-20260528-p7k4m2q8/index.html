@@ -434,7 +434,7 @@
     </div>
 
     <div class="lead">
-      上段は登録・配信可能母数、下段は配信後の反応をまとめています。現時点ではクリック率より先に、配信許可率と配信対象UU数の改善を優先して見る想定です。
+      上段はスナップショット日の登録・送信対象母数、下段は通知完了日の送信実績を分けて確認します。クリック数は現データでは未取得のため、converted はクリックではなくCVとして扱います。
     </div>
 
     <div class="sec">
@@ -450,14 +450,14 @@
           <div class="cwrap"><canvas id="chReg"></canvas></div>
         </div>
         <div class="chart-card">
-          <h3>配信対象数 × 配信許可率 推移</h3>
+          <h3>送信対象母数 × 対象率 推移</h3>
           <div class="cwrap"><canvas id="chSubPermit"></canvas></div>
           <div class="legend-mini">
-            <span><i style="background:#d97706"></i>配信対象数（左軸）</span>
-            <span><i style="background:#0f766e"></i>配信許可率（右軸）</span>
+            <span><i style="background:#d97706"></i>送信対象母数（左軸）</span>
+            <span><i style="background:#0f766e"></i>対象率（右軸）</span>
             <span><i style="background:#9aa4b2"></i>KPI 22%</span>
           </div>
-          <div class="cnote">線: 配信対象数 / 線: 配信許可率 / 破線: KPI 22%</div>
+          <div class="cnote">線: 送信対象母数 / 線: 対象率 / 破線: KPI 22%</div>
         </div>
       </div>
     </div>
@@ -465,46 +465,44 @@
     <div class="sec">
       <div class="sec-h">
         <span class="no">02</span>
-        <h2>配信結果</h2>
-        <span class="sub">impact / delivery / click</span>
+        <h2>通知実績</h2>
+        <span class="sub">completed_at / successful / failed / converted</span>
       </div>
       <div class="card-grid lower-top" id="cardsLowerTop"></div>
       <div class="card-grid lower-bottom" id="cardsLowerBottom"></div>
       <div class="gridc g4">
         <div class="chart-card">
-          <h3>削除・解除数 × 削除・解除率</h3>
+          <h3>通知失敗数 × 失敗率</h3>
           <div class="cwrap"><canvas id="chRemove"></canvas></div>
           <div class="legend-mini">
-            <span><i style="background:#f9a8b8"></i>削除または解除UU数（左軸）</span>
-            <span><i style="background:#e11d48"></i>削除・解除率（右軸）</span>
+            <span><i style="background:#f9a8b8"></i>通知失敗数（左軸）</span>
+            <span><i style="background:#e11d48"></i>失敗率（右軸）</span>
             <span><i style="background:#9aa4b2"></i>KPI 10%</span>
           </div>
-          <div class="cnote">線: 削除または解除UU数 / 線: 削除・解除率</div>
+          <div class="cnote">線: 通知失敗数 / 線: 失敗率</div>
         </div>
         <div class="chart-card">
-          <h3>到達UU数 × 到達率</h3>
+          <h3>送信成功数 × 成功率</h3>
           <div class="cwrap"><canvas id="chReach"></canvas></div>
           <div class="legend-mini">
-            <span><i style="background:#7dd3fc"></i>到達UU数（左軸）</span>
-            <span><i style="background:#0ea5b7"></i>到達率（右軸）</span>
+            <span><i style="background:#7dd3fc"></i>送信成功数（左軸）</span>
+            <span><i style="background:#0ea5b7"></i>成功率（右軸）</span>
             <span><i style="background:#9aa4b2"></i>KPI 90%</span>
           </div>
-          <div class="cnote">線: 到達UU数 / 線: 到達率 / 破線: KPI 90%</div>
+          <div class="cnote">線: 送信成功数 / 線: 成功率 / 破線: KPI 90%</div>
         </div>
         <div class="chart-card">
-          <h3>クリック数 × クリック率</h3>
+          <h3>CV数（converted）推移</h3>
           <div class="cwrap"><canvas id="chClick"></canvas></div>
           <div class="legend-mini">
-            <span><i style="background:#c4b5fd"></i>クリック数（左軸）</span>
-            <span><i style="background:#7c3aed"></i>クリック率（右軸）</span>
-            <span><i style="background:#9aa4b2"></i>KPI 10%</span>
+            <span><i style="background:#c4b5fd"></i>CV数（left）</span>
           </div>
-          <div class="cnote">線: クリック数 / 線: クリック率 / 破線: KPI 10%</div>
+          <div class="cnote">converted はクリックではなく OneSignal 側のCV指標として表示</div>
         </div>
         <div class="chart-card">
-          <h3>プッシュ経由申込率 推移</h3>
+          <h3>クリック数 推移</h3>
           <div class="cwrap"><canvas id="chApply"></canvas></div>
-          <div class="cnote">申込率は実装後に Push経由申込数 ÷ クリック数 で管理</div>
+          <div class="cnote">raw_json.clicked が未格納のため現時点では未取得</div>
         </div>
       </div>
       <div class="copy-review">
@@ -522,17 +520,17 @@
       <div class="memo">
         <div class="ttl">簡易総括</div>
         <div class="body">
-          <p id="summaryLine1">下流KPIは極端に悪くありません。到達率 86.34%、クリック率 9.32% と、送れた後の反応は一定水準です。</p>
-          <p id="summaryLine2">一方で、配信許可率は 20.74% なので、配信後の文言改善より先に通知可能母数をどう増やすかが最優先です。</p>
-          <p id="summaryLine3">クリック数は取得タイミングによって日次で自然に積み上がるため、同日でも集計時点に応じて差分が出る前提で見ています。</p>
+          <p id="summaryLine1">BigQueryにはスナップショットと通知実績のデータが入っています。</p>
+          <p id="summaryLine2">スナップショット開始日と通知実績日がズレているため、同日JOINでは正しい月次KPIになりません。</p>
+          <p id="summaryLine3">クリック数は現データでは未取得です。converted はクリックとして扱いません。</p>
         </div>
         <div class="defs">
-          <div><b>配信許可率</b> = 配信対象UU数 ÷ OneSignal登録数</div>
-          <div><b>削除・解除率</b> = 削除または解除UU数 ÷ 配信数</div>
-          <div><b>到達率</b> = 到達UU数 ÷ 配信数</div>
-          <div><b>クリック率</b> = クリック数 ÷ 到達UU数</div>
-          <div><b>申込率</b> = 申込数 ÷ クリック数</div>
-          <div><b>配信数</b> = 配信タイミングでのSubscribed</div>
+          <div><b>対象率</b> = 送信対象母数 ÷ OneSignal登録数</div>
+          <div><b>到達不能累計</b> = unsubscribed_at あり または invalid_identifier</div>
+          <div><b>送信成功率</b> = successful ÷ (successful + failed)</div>
+          <div><b>失敗率</b> = failed ÷ (successful + failed)</div>
+          <div><b>クリック数</b> = 現データでは未取得</div>
+          <div><b>CV数</b> = notification.converted</div>
         </div>
       </div>
     </div>
@@ -573,55 +571,64 @@
       date: "2026/05/19",
       osRegistered: 29408,
       subscribed: 6100,
-      delivered: 5367,
-      removedUnsub: 733,
-      reached: 4634,
-      clicks: 415,
+      effectiveTarget: 5367,
+      unreachable: 733,
+      successful: 4634,
+      failed: 733,
+      converted: 432,
+      clicks: null,
       signups: null
     };
 
     function derive(m) {
-      const permitReg = m.osRegistered ? m.subscribed / m.osRegistered : 0;
-      const removeRate = m.delivered ? m.removedUnsub / m.delivered : 0;
-      const reachRate = m.delivered ? m.reached / m.delivered : 0;
-      const clickRate = m.reached ? m.clicks / m.reached : 0;
-      return { ...m, permitReg, removeRate, reachRate, clickRate };
+      const effectiveTarget = m.effectiveTarget ?? m.delivered ?? 0;
+      const successful = m.successful ?? m.reached ?? 0;
+      const failed = m.failed ?? 0;
+      const converted = m.converted ?? 0;
+      const totalSent = successful + failed;
+      const permitReg = m.osRegistered ? effectiveTarget / m.osRegistered : 0;
+      const subscribedRate = m.osRegistered ? m.subscribed / m.osRegistered : 0;
+      const failRate = totalSent ? failed / totalSent : null;
+      const successRate = totalSent ? successful / totalSent : null;
+      const clickRate = null;
+      const applyRate = (m.signups && m.clicks) ? m.signups / m.clicks : null;
+      return { ...m, effectiveTarget, successful, failed, converted, totalSent, permitReg, subscribedRate, failRate, successRate, clickRate, applyRate };
     }
 
     const topSeries = (dashboardData.topSeries || [
-      { month: "2026-03", osRegistered: 28800, subscribed: 5900 },
-      { month: "2026-04", osRegistered: 29100, subscribed: 6000 },
-      { month: "2026-05", osRegistered: 29408, subscribed: 6100 }
+      { month: "2026-03", osRegistered: 28800, subscribed: 5900, effectiveTarget: 5200 },
+      { month: "2026-04", osRegistered: 29100, subscribed: 6000, effectiveTarget: 5280 },
+      { month: "2026-05", osRegistered: 29408, subscribed: 6100, effectiveTarget: 5367 }
     ]).map(derive);
 
     const bottomSeries = (dashboardData.bottomSeries || [
-      { month: "2026-03", delivered: 5200, removedUnsub: 700, reached: 4500, clicks: 410, signups: null },
-      { month: "2026-04", delivered: 5280, removedUnsub: 720, reached: 4580, clicks: 420, signups: null },
-      { month: "2026-05", delivered: 5367, removedUnsub: 733, reached: 4634, clicks: 415, signups: null }
+      { month: "2026-03", successful: 4500, failed: 700, converted: 410, clicks: null, signups: null },
+      { month: "2026-04", successful: 4580, failed: 720, converted: 420, clicks: null, signups: null },
+      { month: "2026-05", successful: 4634, failed: 733, converted: 432, clicks: null, signups: null }
     ]).map(derive);
 
     const m = derive(entry);
 
     const pct = (x, d = 2) => x == null ? " - " : (x * 100).toFixed(d) + "%";
-    const ci = x => Math.round(x || 0).toLocaleString("ja-JP");
+    const ci = x => x == null ? "未取得" : Math.round(x || 0).toLocaleString("ja-JP");
 
     const upperRows = [
       { item: "OneSignal登録数", tgt: null, act: ci(m.osRegistered), cls: "neu", note: "Subscriptionの総数" },
-      { item: "配信対象UU数（通知配信可能な数）", tgt: null, act: ci(m.subscribed), cls: "neu", note: "Subscribedの数" },
-      { item: "配信許可率（OneSignal登録数ベース）", tgt: "22.00%", act: pct(m.permitReg), cls: m.permitReg >= 0.22 ? "ok" : "ng", status: m.permitReg >= 0.22 ? "達成" : "未達", note: "配信対象 ÷ 登録数" }
+      { item: "Subscribed数", tgt: null, act: ci(m.subscribed), cls: "neu", note: "notification_types > 0 の数" },
+      { item: "送信対象母数", tgt: null, act: ci(m.effectiveTarget), cls: "neu", note: "Subscribed かつ invalid/unsubscribed ではない数" },
+      { item: "対象率（OneSignal登録数ベース）", tgt: "22.00%", act: pct(m.permitReg), cls: m.permitReg >= 0.22 ? "ok" : "ng", status: m.permitReg >= 0.22 ? "達成" : "未達", note: "送信対象母数 ÷ 登録数" }
     ];
 
     const lowerTopRows = [
-      { item: "配信数", tgt: null, act: ci(m.delivered), cls: "neu", note: "配信タイミングでのSubscribedの数" },
-      { item: "削除または解除UU数", tgt: null, act: ci(m.removedUnsub), cls: "neu", note: "配信できなくなった数" },
-      { item: "削除・解除率", tgt: "10.00%", act: pct(m.removeRate), cls: m.removeRate <= 0.10 ? "ok" : "ng", status: m.removeRate <= 0.10 ? "達成" : "未達", note: "削除または解除UU数 ÷ 配信数" }
+      { item: "通知件数", tgt: null, act: ci(m.notifications), cls: "neu", note: "completed_at 日の通知数" },
+      { item: "送信成功数", tgt: null, act: ci(m.successful), cls: "neu", note: "notification.successful" },
+      { item: "通知失敗数", tgt: null, act: ci(m.failed), cls: "neu", note: "notification.failed" }
     ];
 
     const lowerBottomRows = [
-      { item: "到達UU数", tgt: null, act: ci(m.reached), cls: "neu", note: "実際に通知が届いた数" },
-      { item: "到達率", tgt: "90.00%", act: pct(m.reachRate), cls: m.reachRate >= 0.90 ? "ok" : "ng", status: m.reachRate >= 0.90 ? "達成" : "未達", note: "到達UU数 ÷ 配信数" },
-      { item: "クリック数", tgt: null, act: ci(m.clicks), cls: "neu", note: "通知クリック数" },
-      { item: "クリック率", tgt: "10.00%", act: pct(m.clickRate), cls: m.clickRate >= 0.10 ? "ok" : "ng", status: m.clickRate >= 0.10 ? "達成" : "未達", note: "クリック数 ÷ 到達UU数" }
+      { item: "送信成功率", tgt: "90.00%", act: pct(m.successRate), cls: m.successRate >= 0.90 ? "ok" : "ng", status: m.successRate >= 0.90 ? "達成" : "未達", note: "successful ÷ (successful + failed)" },
+      { item: "CV数", tgt: null, act: ci(m.converted), cls: "neu", note: "notification.converted" },
+      { item: "クリック数", tgt: null, act: ci(m.clicks), cls: "neu", note: "raw_json.clicked 未格納のため未取得" }
     ];
 
     const copyReview = dashboardData.copyReview || {
@@ -724,9 +731,9 @@
     document.getElementById("reportMonth").textContent = reportMonth;
     document.getElementById("generatedDate").textContent = `generated ${generatedDate}`;
     document.getElementById("updatedDate").textContent = `データ更新日: ${updatedDate}`;
-    document.getElementById("summaryLine1").textContent = `下流KPIは極端に悪くありません。到達率 ${pct(m.reachRate)}、クリック率 ${pct(m.clickRate)} と、送れた後の反応は一定水準です。`;
-    document.getElementById("summaryLine2").textContent = `一方で、配信許可率は ${pct(m.permitReg)} なので、配信後の文言改善より先に通知可能母数をどう増やすかが最優先です。`;
-    document.getElementById("summaryLine3").textContent = dashboardData.summaryNote || "クリック数は取得タイミングによって日次で自然に積み上がるため、同日でも集計時点に応じて差分が出る前提で見ています。";
+    document.getElementById("summaryLine1").textContent = `最新スナップショットの送信対象母数は ${ci(m.effectiveTarget)}、対象率は ${pct(m.permitReg)} です。`;
+    document.getElementById("summaryLine2").textContent = `最新通知実績は ${dashboardData.latestNotificationDate || m.notificationDate || "-"} の successful ${ci(m.successful)}、failed ${ci(m.failed)}、converted ${ci(m.converted)} です。`;
+    document.getElementById("summaryLine3").textContent = dashboardData.summaryNote || "クリック数は現データでは未取得です。converted はクリックとして扱いません。";
 
     function lineChart(id, labels, data, color, target, maxHint, isPct) {
       const datasets = [{
@@ -852,7 +859,7 @@
     dualLineChart(
       "chSubPermit",
       topSeries.map(d => d.month),
-      topSeries.map(d => d.subscribed),
+      topSeries.map(d => d.effectiveTarget),
       topSeries.map(d => +(d.permitReg * 100).toFixed(2)),
       { leftColor: "#d97706", rightColor: "#0f766e", target: 22, leftMax: 6500, rightMax: 25 }
     );
@@ -860,23 +867,25 @@
     dualLineChart(
       "chRemove",
       bottomSeries.map(d => d.month),
-      bottomSeries.map(d => d.removedUnsub),
-      bottomSeries.map(d => +(d.removeRate * 100).toFixed(2)),
+      bottomSeries.map(d => d.failed),
+      bottomSeries.map(d => d.failRate == null ? null : +(d.failRate * 100).toFixed(2)),
       { leftColor: "#f9a8b8", rightColor: "#e11d48", target: 10, leftMax: 800, rightMax: 15 }
     );
     dualLineChart(
       "chReach",
       bottomSeries.map(d => d.month),
-      bottomSeries.map(d => d.reached),
-      bottomSeries.map(d => +(d.reachRate * 100).toFixed(2)),
+      bottomSeries.map(d => d.successful),
+      bottomSeries.map(d => d.successRate == null ? null : +(d.successRate * 100).toFixed(2)),
       { leftColor: "#7dd3fc", rightColor: "#0ea5b7", target: 90, leftMax: 5000, rightMax: 100 }
     );
-    dualLineChart(
+    lineChart(
       "chClick",
       bottomSeries.map(d => d.month),
-      bottomSeries.map(d => d.clicks),
-      bottomSeries.map(d => +(d.clickRate * 100).toFixed(2)),
-      { leftColor: "#c4b5fd", rightColor: "#7c3aed", target: 10, leftMax: 500, rightMax: 12 }
+      bottomSeries.map(d => d.converted),
+      "#7c3aed",
+      null,
+      500,
+      false
     );
   </script>
 </body>

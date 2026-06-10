@@ -21,6 +21,13 @@
 2. `push_notification_dashboard_data.js` などを新しい月の内容に更新
 3. GitHub に push して公開反映
 
+## Current KPI Notes
+
+- スナップショットKPIは `snapshot_date`、通知実績KPIは `completed_at` を基準に分けて反映
+- 有効DL累計は `33,855` をフォールバック値として使用
+- Push 経由 DL 数は未反映
+- クリック数は現データでは未取得。`converted` はクリックではなくCVとして扱う
+
 ## Save Snapshot
 
 更新前に次のコマンドを実行します。

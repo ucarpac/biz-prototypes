@@ -45,7 +45,7 @@ snapshot_kpi AS (
     s.snapshot_date,
     COUNT(1) AS os_registered,
     COUNTIF(notification_types > 0) AS subscribed_count,
-    COUNTIF(unsubscribed_at IS NOT NULL OR invalid_identifier) AS removed_unsub_count,
+    COUNTIF(unsubscribed_at IS NOT NULL OR invalid_identifier) AS unreachable_count,
     COUNTIF(notification_types > 0 AND NOT invalid_identifier AND unsubscribed_at IS NULL) AS effective_target_count
   FROM {subscription} s
   JOIN latest_snapshot l
@@ -55,21 +55,30 @@ snapshot_kpi AS (
 latest_notification AS (
   SELECT
     DATE(completed_at, '{tz}') AS notification_date,
-    successful AS reached_count,
-    COALESCE(SAFE_CAST(JSON_VALUE(raw_json, '$.clicked') AS INT64), 0) AS click_count,
-    name
+    COUNT(1) AS notification_count,
+    SUM(successful) AS successful_count,
+    SUM(failed) AS failed_count,
+    SUM(converted) AS converted_count,
+    CAST(NULL AS INT64) AS click_count,
+    ARRAY_AGG(name ORDER BY completed_at DESC LIMIT 1)[OFFSET(0)] AS name
   FROM {notification}
-  QUALIFY ROW_NUMBER() OVER (ORDER BY completed_at DESC) = 1
+  WHERE completed_at IS NOT NULL
+  GROUP BY notification_date
+  QUALIFY ROW_NUMBER() OVER (ORDER BY notification_date DESC) = 1
 )
 SELECT
   FORMAT_DATE('%Y-%m', sk.snapshot_date) AS report_month,
-  FORMAT_DATE('%Y/%m/%d', ln.notification_date) AS latest_date,
+  FORMAT_DATE('%Y/%m/%d', sk.snapshot_date) AS latest_snapshot_date,
+  FORMAT_DATE('%Y/%m/%d', ln.notification_date) AS latest_notification_date,
   {fallback_dl} AS cumulative_effective_dl,
   sk.os_registered,
   sk.subscribed_count,
-  sk.removed_unsub_count,
+  sk.unreachable_count,
   sk.effective_target_count,
-  ln.reached_count,
+  ln.notification_count,
+  ln.successful_count,
+  ln.failed_count,
+  ln.converted_count,
   ln.click_count,
   ln.name AS notification_name
 FROM snapshot_kpi sk
@@ -92,16 +101,26 @@ monthly AS (
     FORMAT_DATE('%Y-%m', snapshot_date) AS period,
     os_registered,
     subscribed_count,
+    effective_target_count,
     ROW_NUMBER() OVER (
       PARTITION BY FORMAT_DATE('%Y-%m', snapshot_date)
       ORDER BY snapshot_date DESC
     ) AS rn
-  FROM daily
+  FROM (
+    SELECT
+      snapshot_date,
+      COUNT(1) AS os_registered,
+      COUNTIF(notification_types > 0) AS subscribed_count,
+      COUNTIF(notification_types > 0 AND NOT invalid_identifier AND unsubscribed_at IS NULL) AS effective_target_count
+    FROM {subscription}
+    GROUP BY snapshot_date
+  )
 )
 SELECT
   period,
   os_registered,
-  subscribed_count
+  subscribed_count,
+  effective_target_count
 FROM monthly
 WHERE rn = 1
 ORDER BY period DESC
@@ -112,31 +131,23 @@ LIMIT {months}
 WITH notif AS (
   SELECT
     DATE(completed_at, '{tz}') AS notification_date,
-    successful AS reached_count,
-    COALESCE(SAFE_CAST(JSON_VALUE(raw_json, '$.clicked') AS INT64), 0) AS click_count
+    COUNT(1) AS notification_count,
+    SUM(successful) AS successful_count,
+    SUM(failed) AS failed_count,
+    SUM(converted) AS converted_count,
+    CAST(NULL AS INT64) AS click_count
   FROM {notification}
-  QUALIFY ROW_NUMBER() OVER (
-    PARTITION BY DATE(completed_at, '{tz}')
-    ORDER BY completed_at DESC
-  ) = 1
-),
-snapshots AS (
-  SELECT
-    snapshot_date,
-    COUNTIF(unsubscribed_at IS NOT NULL OR invalid_identifier) AS removed_unsub_count,
-    COUNTIF(notification_types > 0 AND NOT invalid_identifier AND unsubscribed_at IS NULL) AS effective_target_count
-  FROM {subscription}
-  GROUP BY snapshot_date
+  WHERE completed_at IS NOT NULL
+  GROUP BY notification_date
 )
 SELECT
   FORMAT_DATE('%Y-%m-%d', n.notification_date) AS period,
-  COALESCE(s.effective_target_count, 0) AS delivered_count,
-  COALESCE(s.removed_unsub_count, 0) AS removed_unsub_count,
-  n.reached_count,
+  n.notification_count,
+  n.successful_count,
+  n.failed_count,
+  n.converted_count,
   n.click_count
 FROM notif n
-LEFT JOIN snapshots s
-  ON s.snapshot_date = n.notification_date
 ORDER BY n.notification_date DESC
 LIMIT {notifications}
 """
@@ -153,14 +164,18 @@ def build_payload(config: dict, current: dict, top_series: list[dict], bottom_se
 
     entry = {
         "month": current.get("report_month") or now[:7],
-        "date": current.get("latest_date") or now.replace("-", "/"),
+        "date": current.get("latest_snapshot_date") or now.replace("-", "/"),
+        "notificationDate": current.get("latest_notification_date"),
         "cumulativeEffectiveDl": int(current.get("cumulative_effective_dl") or config.get("fallback_cumulative_effective_dl", 33855)),
         "osRegistered": int(current.get("os_registered") or 0),
         "subscribed": int(current.get("subscribed_count") or 0),
-        "delivered": int(current.get("effective_target_count") or 0),
-        "removedUnsub": int(current.get("removed_unsub_count") or 0),
-        "reached": int(current.get("reached_count") or 0),
-        "clicks": int(current.get("click_count") or 0),
+        "effectiveTarget": int(current.get("effective_target_count") or 0),
+        "unreachable": int(current.get("unreachable_count") or 0),
+        "notifications": int(current.get("notification_count") or 0),
+        "successful": int(current.get("successful_count") or 0),
+        "failed": int(current.get("failed_count") or 0),
+        "converted": int(current.get("converted_count") or 0),
+        "clicks": None,
         "signups": None,
     }
 
@@ -169,6 +184,7 @@ def build_payload(config: dict, current: dict, top_series: list[dict], bottom_se
             "month": row["period"],
             "osRegistered": int(row.get("os_registered") or 0),
             "subscribed": int(row.get("subscribed_count") or 0),
+            "effectiveTarget": int(row.get("effective_target_count") or 0),
         }
         for row in reversed(top_series)
     ]
@@ -176,10 +192,11 @@ def build_payload(config: dict, current: dict, top_series: list[dict], bottom_se
     bottom = [
         {
             "month": row["period"],
-            "delivered": int(row.get("delivered_count") or 0),
-            "removedUnsub": int(row.get("removed_unsub_count") or 0),
-            "reached": int(row.get("reached_count") or 0),
-            "clicks": int(row.get("click_count") or 0),
+            "notifications": int(row.get("notification_count") or 0),
+            "successful": int(row.get("successful_count") or 0),
+            "failed": int(row.get("failed_count") or 0),
+            "converted": int(row.get("converted_count") or 0),
+            "clicks": None,
             "signups": None,
         }
         for row in reversed(bottom_series)
@@ -188,7 +205,8 @@ def build_payload(config: dict, current: dict, top_series: list[dict], bottom_se
     return {
         "reportMonth": entry["month"],
         "generatedDate": now,
-        "updatedDate": current.get("latest_date", now).replace("/", "-"),
+        "updatedDate": current.get("latest_snapshot_date", now).replace("/", "-"),
+        "latestNotificationDate": (current.get("latest_notification_date") or "").replace("/", "-"),
         "summaryNote": config.get("summary_note", ""),
         "entry": entry,
         "topSeries": top,

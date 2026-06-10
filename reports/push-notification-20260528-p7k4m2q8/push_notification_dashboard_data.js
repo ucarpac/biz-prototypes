@@ -1,30 +1,94 @@
 window.__PUSH_DASHBOARD_DATA__ = {
-  reportMonth: "2026-05",
-  generatedDate: "2026-06-10",
-  updatedDate: "2026-05-19",
-  summaryNote: "数値は「プッシュ通知_配信結果」シートを基準に更新しています。2026/05/19 のクリック数は 415、CTR は 8.96% です。",
-  entry: {
-    month: "2026-05",
-    date: "2026/05/19",
-    cumulativeEffectiveDl: 33855,
-    osRegistered: 29408,
-    subscribed: 6100,
-    delivered: 5367,
-    removedUnsub: 733,
-    reached: 4634,
-    clicks: 415,
-    signups: null
+  "reportMonth": "2026-06",
+  "generatedDate": "2026-06-10",
+  "updatedDate": "2026-06-10",
+  "latestNotificationDate": "2026-05-19",
+  "summaryNote": "クリック数は現データでは未取得です。converted はクリックとして扱いません。",
+  "entry": {
+    "month": "2026-06",
+    "date": "2026/06/10",
+    "notificationDate": "2026/05/19",
+    "cumulativeEffectiveDl": 33855,
+    "osRegistered": 32121,
+    "subscribed": 7073,
+    "effectiveTarget": 5111,
+    "unreachable": 27010,
+    "notifications": 1,
+    "successful": 4634,
+    "failed": 733,
+    "converted": 449,
+    "clicks": null,
+    "signups": null
   },
-  topSeries: [
-    { month: "2026-03", osRegistered: 28800, subscribed: 5900 },
-    { month: "2026-04", osRegistered: 29100, subscribed: 6000 },
-    { month: "2026-05", osRegistered: 29408, subscribed: 6100 }
+  "topSeries": [
+    {
+      "month": "2026-05",
+      "osRegistered": 30651,
+      "subscribed": 6590,
+      "effectiveTarget": 4821
+    },
+    {
+      "month": "2026-06",
+      "osRegistered": 32121,
+      "subscribed": 7073,
+      "effectiveTarget": 5111
+    }
   ],
-  bottomSeries: [
-    { month: "2026-02-16", delivered: 2082, removedUnsub: 412, reached: 1670, clicks: 146, signups: null },
-    { month: "2026-03-13", delivered: 4120, removedUnsub: 730, reached: 3390, clicks: 408, signups: null },
-    { month: "2026-04-20", delivered: 4718, removedUnsub: 936, reached: 3782, clicks: 284, signups: null },
-    { month: "2026-05-19", delivered: 5367, removedUnsub: 733, reached: 4634, clicks: 415, signups: null }
+  "bottomSeries": [
+    {
+      "month": "2026-02-16",
+      "notifications": 1,
+      "successful": 1670,
+      "failed": 412,
+      "converted": 146,
+      "clicks": null,
+      "signups": null
+    },
+    {
+      "month": "2026-03-13",
+      "notifications": 1,
+      "successful": 3390,
+      "failed": 730,
+      "converted": 408,
+      "clicks": null,
+      "signups": null
+    },
+    {
+      "month": "2026-04-17",
+      "notifications": 2,
+      "successful": 1215,
+      "failed": 289,
+      "converted": 90,
+      "clicks": null,
+      "signups": null
+    },
+    {
+      "month": "2026-04-20",
+      "notifications": 1,
+      "successful": 3782,
+      "failed": 936,
+      "converted": 284,
+      "clicks": null,
+      "signups": null
+    },
+    {
+      "month": "2026-05-15",
+      "notifications": 2,
+      "successful": 1437,
+      "failed": 201,
+      "converted": 106,
+      "clicks": null,
+      "signups": null
+    },
+    {
+      "month": "2026-05-19",
+      "notifications": 1,
+      "successful": 4634,
+      "failed": 733,
+      "converted": 449,
+      "clicks": null,
+      "signups": null
+    }
   ],
   copyReview: {
     patterns: [
