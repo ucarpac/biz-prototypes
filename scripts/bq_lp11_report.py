@@ -1508,7 +1508,10 @@ html = f"""<!DOCTYPE html>
 
   <!-- 既存ユーザー施策 OS別 -->
   <div class="chart-card" style="margin-bottom:0;">
-    <div class="chart-title">既存ユーザー施策 OS別（オーガニック含む全体）</div>
+    <div class="chart-title">既存ユーザー施策 OS別（30日超登録・削除含む）</div>
+    <div class="notice" style="margin-bottom:14px; margin-top:0;">
+      ⚠️ 分母: アプリ新規登録から30日超経過した登録ユーザー数（削除/アンインストールは除外しない）｜ 分子: その月に申し込んだ人のうち、登録から30日以上経過していた人数
+    </div>
     <div class="os-pie-wrap">
       <canvas id="chart_old_os_pie"></canvas>
     </div>
@@ -1517,7 +1520,7 @@ html = f"""<!DOCTYPE html>
         <thead>
           <tr>
             <th>OS</th>
-            <th>対象DL</th>
+            <th>30日超登録</th>
             <th>既存申込</th>
             <th>申込率</th>
           </tr>
