@@ -310,8 +310,8 @@ df['gads_android_installs'] = df['bq_gads_android_installs']
 df['gads_ios_installs']     = df['bq_gads_ios_installs']
 
 # 広告費用の按分と手数料追加
-# BQの cost_jpy を total_cost_jpy に置き換え
-df['cost_jpy'] = df['total_cost_jpy'] * 1.2  # 代理店手数料20%追加
+# Googleは代理店手数料20%込み。TikTok / AppleAds は各BQ実績値をそのまま合算する。
+# 以前は cost_jpy がGoogleのみだったため、AppleAds等が上部KPIから漏れていた。
 
 # 共通費(other_cost)をインストール比率で按分
 def distribute_cost(r):
@@ -330,9 +330,22 @@ def distribute_cost(r):
 
 df = df.apply(distribute_cost, axis=1)
 
+df['android_ad_cost_jpy'] = df['gads_android_cost_final'] + df['tiktok_android_cost']
+df['ios_ad_cost_jpy'] = df['gads_ios_cost_final'] + df['tiktok_ios_cost'] + df['apple_ads_ios_cost']
+df['android_ad_installs'] = df['gads_android_installs'] + df['tiktok_android_installs']
+df['ios_ad_installs'] = df['gads_ios_installs'] + df['tiktok_ios_installs'] + df['apple_ads_ios_installs']
+df['cost_jpy'] = df['android_ad_cost_jpy'] + df['ios_ad_cost_jpy']
+df['ad_installs'] = df['android_ad_installs'] + df['ios_ad_installs']
+
 # CPI計算
 df['cpi'] = df.apply(
-    lambda r: round(r['cost_jpy'] / r['installs']) if r['installs'] > 0 and r['cost_jpy'] > 0 else None, axis=1
+    lambda r: round(r['cost_jpy'] / r['ad_installs']) if r['ad_installs'] > 0 and r['cost_jpy'] > 0 else None, axis=1
+)
+df['android_ad_cpi'] = df.apply(
+    lambda r: round(r['android_ad_cost_jpy'] / r['android_ad_installs']) if r['android_ad_installs'] > 0 else None, axis=1
+)
+df['ios_ad_cpi'] = df.apply(
+    lambda r: round(r['ios_ad_cost_jpy'] / r['ios_ad_installs']) if r['ios_ad_installs'] > 0 else None, axis=1
 )
 df['gads_android_cpi'] = df.apply(
     lambda r: round(r['gads_android_cost_final'] / r['gads_android_installs']) if r['gads_android_installs'] > 0 else None, axis=1
@@ -906,10 +919,10 @@ ccpa_diff,  ccpa_cls  = diff_arrow(last_ccpa, prev_ccpa, lower_is_better=True)
 # CPIカード追加 (全体・OS別)
 last_cpi         = kpi(last, 'cpi')
 prev_cpi         = kpi(prev, 'cpi')
-last_cpi_android = kpi(last, 'gads_android_cpi')
-prev_cpi_android = kpi(prev, 'gads_android_cpi')
-last_cpi_ios     = kpi(last, 'gads_ios_cpi')
-prev_cpi_ios     = kpi(prev, 'gads_ios_cpi')
+last_cpi_android = kpi(last, 'android_ad_cpi')
+prev_cpi_android = kpi(prev, 'android_ad_cpi')
+last_cpi_ios     = kpi(last, 'ios_ad_cpi')
+prev_cpi_ios     = kpi(prev, 'ios_ad_cpi')
 
 cpi_diff, cpi_cls = diff_arrow(last_cpi, prev_cpi, lower_is_better=True)
 cpi_and_diff, cpi_and_cls = diff_arrow(last_cpi_android, prev_cpi_android, lower_is_better=True)
@@ -1166,6 +1179,11 @@ html = f"""<!DOCTYPE html>
   .kpi-label {{ font-size: 15px; color: #6b7280; font-weight: 700; margin-bottom: 8px; letter-spacing: .05em; text-transform: uppercase; }}
   .kpi-value {{ font-size: 38px; font-weight: 700; color: #fff; line-height: 1; margin-bottom: 10px; }}
   .kpi-value .unit {{ font-size: 18px; font-weight: 400; margin-left: 2px; color: #9ca3af; }}
+  .kpi-value.os-cpi {{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 28px; line-height: 1.08; }}
+  .os-cpi-item {{ min-width: 0; }}
+  .os-cpi-label {{ display: block; font-size: 12px; color: #a78bfa; font-weight: 800; margin-bottom: 4px; letter-spacing: .04em; }}
+  .kpi-inline-metric {{ margin-top: -2px; margin-bottom: 8px; color: #cbd5e1; font-size: 16px; font-weight: 700; }}
+  .kpi-inline-metric span {{ color: #f59e0b; font-size: 30px; line-height: 1; }}
   .kpi-badge {{
     display: inline-flex; align-items: center; gap: 4px;
     font-size: 11px; font-weight: 600; padding: 3px 8px;
@@ -1198,9 +1216,19 @@ html = f"""<!DOCTYPE html>
   /* 2列チャートレイアウト */
   .charts-2col {{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }}
   .charts-3col {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }}
+  .kpi-follow-charts {{ margin-top: -8px; }}
   @media (max-width: 1024px) {{
     .charts-2col {{ grid-template-columns: 1fr; }}
     .charts-3col {{ grid-template-columns: 1fr; }}
+  }}
+  @media (max-width: 900px) {{
+    .kpi-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); }}
+  }}
+  @media (max-width: 560px) {{
+    body {{ padding: 20px 16px; }}
+    .header-box {{ flex-direction: column; gap: 14px; }}
+    .kpi-grid {{ grid-template-columns: 1fr; }}
+    .kpi-value.os-cpi {{ grid-template-columns: 1fr 1fr; }}
   }}
 
   /* チャートカード */
@@ -1307,7 +1335,7 @@ html = f"""<!DOCTYPE html>
 </div>
 
 <div class="notice">
-  ⚠️ 広告費: Google Ads アプリDL系キャンペーン（GAC001〜005, GS011）の合計 ｜
+  ⚠️ 広告費: Google Ads / TikTok / AppleAds のアプリDL広告費をOS別に合算 ｜
   成約: <code>c2b_deal_passed</code>（送客成立）｜
   利益: <code>deal_c2b.手数料</code>（UCP手数料合計）｜
   直近月は成約タイムラグにより過小の場合あり
@@ -1337,14 +1365,13 @@ html = f"""<!DOCTYPE html>
   </div>
   <div class="kpi-card purple">
     <div class="kpi-label">今月({last_ym}) CPI (And / iOS)</div>
-    <div class="kpi-value" style="font-size: 20px;">
-      <span style="font-size: 14px; color: #a78bfa;">And:</span> {f"¥{int(last_cpi_android):,}" if last_cpi_android else '-'} <br>
-      <span style="font-size: 14px; color: #a78bfa;">iOS:</span> {f"¥{int(last_cpi_ios):,}" if last_cpi_ios else '-'}
+    <div class="kpi-value os-cpi">
+      <div class="os-cpi-item"><span class="os-cpi-label">Android</span>{f"¥{int(last_cpi_android):,}" if last_cpi_android else '-'}</div>
+      <div class="os-cpi-item"><span class="os-cpi-label">iOS</span>{f"¥{int(last_cpi_ios):,}" if last_cpi_ios else '-'}</div>
     </div>
     <div class="kpi-sub" style="margin-top: 10px;">
-      前月({prev_ym}) And: {f"¥{int(prev_cpi_android):,}" if prev_cpi_android else '-'}
-      <br>
-      前月({prev_ym}) iOS: {f"¥{int(prev_cpi_ios):,}" if prev_cpi_ios else '-'}
+      広告経由DL平均CPI（Google/TikTok/AppleAds）
+      <br>前月({prev_ym}) And: {f"¥{int(prev_cpi_android):,}" if prev_cpi_android else '-'} / iOS: {f"¥{int(prev_cpi_ios):,}" if prev_cpi_ios else '-'}
     </div>
   </div>
   <div class="kpi-card amber">
@@ -1352,9 +1379,7 @@ html = f"""<!DOCTYPE html>
     <div class="kpi-value">
       {f"¥{int(last_acpa):,}" if last_acpa else '-'}
     </div>
-    <div style="font-size: 13px; color: #cbd5e1; margin-top: -4px; margin-bottom: 6px;">
-      申込数: <span style="font-weight: 600; color: #f59e0b;">{f"{int(last_apps)}件" if last_apps else "-"}</span>
-    </div>
+    <div class="kpi-inline-metric">申込数 <span>{f"{int(last_apps)}件" if last_apps else "-"}</span></div>
     <div><span class="kpi-badge {acpa_cls}">{acpa_diff if acpa_diff else '比較なし'}</span></div>
     <div class="kpi-sub">前月({prev_ym}) 比 / CPA低いほど良い</div>
   </div>
@@ -1384,6 +1409,21 @@ html = f"""<!DOCTYPE html>
     </div>
     <div><span class="kpi-badge {clear_profit_cls}">{clear_profit_diff if clear_profit_diff else '比較なし'}</span></div>
     <div class="kpi-sub">前月({prev_ym}): {f"¥{prev_clear_profit:,.1f}万" if prev_clear_profit is not None else '-'}</div>
+  </div>
+</div>
+
+<!-- KPI直下: 申込・成約 / 詳細ファネル -->
+<div class="charts-2col kpi-follow-charts">
+  <div class="chart-card">
+    <div class="chart-title">申込数・成約数（月次）</div>
+    <div id="legend-chart1a" class="custom-legend"></div>
+    <canvas id="chart1a"></canvas>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title">詳細ファネル転換率 推移（当月除外）</div>
+    <div id="legend-chart_funnel" class="custom-legend"></div>
+    <canvas id="chart_funnel"></canvas>
   </div>
 </div>
 
@@ -1513,22 +1553,6 @@ html = f"""<!DOCTYPE html>
     <canvas id="chart3"></canvas>
   </div>
 </div>
-
-<!-- Chart 1A: 申込数・成約数 -->
-<div class="chart-card">
-  <div class="chart-title">申込数・成約数（月次）</div>
-  <div id="legend-chart1a" class="custom-legend"></div>
-  <canvas id="chart1a"></canvas>
-</div>
-
-<!-- Chart Funnel: 詳細ファネル転換率 -->
-<div class="chart-card">
-  <div class="chart-title">詳細ファネル転換率 推移（当月除外）</div>
-  <div id="legend-chart_funnel" class="custom-legend"></div>
-  <canvas id="chart_funnel"></canvas>
-</div>
-
-
 
 <!-- データテーブル -->
 <div class="chart-card">
