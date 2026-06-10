@@ -477,6 +477,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <script>
     const dashboardData = window.__PUSH_DASHBOARD_DATA__ || {};
+    const applyChartCard = document.getElementById("chApply")?.closest(".chart-card");
+    if (applyChartCard) applyChartCard.remove();
 
     const entry = dashboardData.entry || {
       month: "2026-05",
@@ -486,7 +488,7 @@
       delivered: 5367,
       removedUnsub: 733,
       reached: 4634,
-      clicks: 432,
+      clicks: 415,
       signups: null
     };
 
@@ -495,8 +497,7 @@
       const removeRate = m.delivered ? m.removedUnsub / m.delivered : 0;
       const reachRate = m.delivered ? m.reached / m.delivered : 0;
       const clickRate = m.reached ? m.clicks / m.reached : 0;
-      const applyRate = (m.signups && m.clicks) ? m.signups / m.clicks : null;
-      return { ...m, permitReg, removeRate, reachRate, clickRate, applyRate };
+      return { ...m, permitReg, removeRate, reachRate, clickRate };
     }
 
     const topSeries = (dashboardData.topSeries || [
@@ -508,7 +509,7 @@
     const bottomSeries = (dashboardData.bottomSeries || [
       { month: "2026-03", delivered: 5200, removedUnsub: 700, reached: 4500, clicks: 410, signups: null },
       { month: "2026-04", delivered: 5280, removedUnsub: 720, reached: 4580, clicks: 420, signups: null },
-      { month: "2026-05", delivered: 5367, removedUnsub: 733, reached: 4634, clicks: 432, signups: null }
+      { month: "2026-05", delivered: 5367, removedUnsub: 733, reached: 4634, clicks: 415, signups: null }
     ]).map(derive);
 
     const m = derive(entry);
@@ -752,7 +753,6 @@
       bottomSeries.map(d => +(d.clickRate * 100).toFixed(2)),
       { leftColor: "#c4b5fd", rightColor: "#7c3aed", target: 10, leftMax: 500, rightMax: 12 }
     );
-    lineChart("chApply", bottomSeries.map(d => d.month), [0, 0, 0], "#94a3b8", null, 10, true);
   </script>
 </body>
 </html>
