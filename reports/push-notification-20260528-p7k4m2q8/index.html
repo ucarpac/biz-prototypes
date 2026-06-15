@@ -567,16 +567,18 @@
     if (applyChartCard) applyChartCard.remove();
 
     const entry = dashboardData.entry || {
-      month: "2026-05",
-      date: "2026/05/19",
-      osRegistered: 29408,
-      subscribed: 6100,
-      effectiveTarget: 5367,
-      unreachable: 733,
-      successful: 4634,
-      failed: 733,
-      converted: 432,
-      clicks: null,
+      month: "2026-06",
+      date: "2026/06/15",
+      notificationDate: "2026/06/11",
+      osRegistered: 33130,
+      subscribed: 6779,
+      effectiveTarget: 4916,
+      unreachable: 28214,
+      notifications: 1,
+      successful: 4957,
+      failed: 433,
+      converted: 537,
+      clicks: 537,
       signups: null
     };
 
@@ -585,26 +587,29 @@
       const successful = m.successful ?? m.reached ?? 0;
       const failed = m.failed ?? 0;
       const converted = m.converted ?? 0;
+      const clicks = m.clicks ?? converted ?? null;
       const totalSent = successful + failed;
       const permitReg = m.osRegistered ? effectiveTarget / m.osRegistered : 0;
       const subscribedRate = m.osRegistered ? m.subscribed / m.osRegistered : 0;
       const failRate = totalSent ? failed / totalSent : null;
       const successRate = totalSent ? successful / totalSent : null;
-      const clickRate = null;
-      const applyRate = (m.signups && m.clicks) ? m.signups / m.clicks : null;
-      return { ...m, effectiveTarget, successful, failed, converted, totalSent, permitReg, subscribedRate, failRate, successRate, clickRate, applyRate };
+      const clickRate = successful ? clicks / successful : null;
+      const applyRate = (m.signups && clicks) ? m.signups / clicks : null;
+      return { ...m, effectiveTarget, successful, failed, converted, clicks, totalSent, permitReg, subscribedRate, failRate, successRate, clickRate, applyRate };
     }
 
     const topSeries = (dashboardData.topSeries || [
-      { month: "2026-03", osRegistered: 28800, subscribed: 5900, effectiveTarget: 5200 },
-      { month: "2026-04", osRegistered: 29100, subscribed: 6000, effectiveTarget: 5280 },
-      { month: "2026-05", osRegistered: 29408, subscribed: 6100, effectiveTarget: 5367 }
+      { month: "2026-05", osRegistered: 30651, subscribed: 6590, effectiveTarget: 4821 },
+      { month: "2026-06", osRegistered: 33130, subscribed: 6779, effectiveTarget: 4916 }
     ]).map(derive);
 
     const bottomSeries = (dashboardData.bottomSeries || [
-      { month: "2026-03", successful: 4500, failed: 700, converted: 410, clicks: null, signups: null },
-      { month: "2026-04", successful: 4580, failed: 720, converted: 420, clicks: null, signups: null },
-      { month: "2026-05", successful: 4634, failed: 733, converted: 432, clicks: null, signups: null }
+      { month: "2026-04-17", notifications: 2, successful: 1215, failed: 289, converted: 90, clicks: 90, signups: null },
+      { month: "2026-04-20", notifications: 1, successful: 3782, failed: 936, converted: 284, clicks: 284, signups: null },
+      { month: "2026-05-15", notifications: 2, successful: 1437, failed: 201, converted: 106, clicks: 106, signups: null },
+      { month: "2026-05-19", notifications: 1, successful: 4634, failed: 733, converted: 449, clicks: 449, signups: null },
+      { month: "2026-06-10", notifications: 2, successful: 1621, failed: 124, converted: 145, clicks: 145, signups: null },
+      { month: "2026-06-11", notifications: 1, successful: 4957, failed: 433, converted: 537, clicks: 537, signups: null }
     ]).map(derive);
 
     const m = derive(entry);
@@ -627,25 +632,25 @@
 
     const lowerBottomRows = [
       { item: "送信成功率", tgt: "90.00%", act: pct(m.successRate), cls: m.successRate >= 0.90 ? "ok" : "ng", status: m.successRate >= 0.90 ? "達成" : "未達", note: "successful ÷ (successful + failed)" },
-      { item: "CV数", tgt: null, act: ci(m.converted), cls: "neu", note: "notification.converted" },
-      { item: "クリック数", tgt: null, act: ci(m.clicks), cls: "neu", note: "raw_json.clicked 未格納のため未取得" }
+      { item: "クリック数", tgt: null, act: ci(m.clicks), cls: "neu", note: "clicked を優先し、空の場合は legacy converted を使用" },
+      { item: "クリック率", tgt: "10.00%", act: pct(m.clickRate), cls: m.clickRate >= 0.10 ? "ok" : "ng", status: m.clickRate >= 0.10 ? "達成" : "未達", note: "clicks ÷ successful" }
     ];
 
     const copyReview = dashboardData.copyReview || {
       patterns: [
         {
           label: "文言A",
-          headline: "📢相場が変動しました：中古車の動きが活発になっています。今の愛車価格をチェック！",
-          meta: "更新月: 2026-05 / 配信日: 2026/05/15 / CTR: 7.95% / 備考: ABテスト"
+          headline: "📢相場が変動しました：6月の査定相場が更新されました。愛車の価格を確認してみませんか？",
+          meta: "更新月: 2026-06 / 配信日: 2026/06/10 / CTR: 8.06% / successful: 831 / failed: 75"
         },
         {
           label: "文言B",
-          headline: "🚗あなたの愛車相場が変動しています：中古車相場が動いています。今の価格を確認してみませんか？",
-          meta: "更新月: 2026-05 / 配信日: 2026/05/15 / CTR: 6.76% / 備考: ABテスト"
+          headline: "🚗愛車の査定相場が変動しました：最新価格を確認してみませんか？",
+          meta: "更新月: 2026-06 / 配信日: 2026/06/10 / CTR: 9.87% / successful: 790 / failed: 49"
         }
       ],
-      winner: "文言Aが優勢",
-      desc: "2026年5月のABテストでは、文言AがCTR 7.95%で文言Bの6.76%を上回りました。冒頭で「相場が変動しました」と状況を端的に伝えたうえで、「今の愛車価格をチェック！」と行動を明確に示した表現のほうが反応を取りやすかったと考えられます。"
+      winner: "文言Bが優勢",
+      desc: "2026年6月のABテストでは、文言Bが CTR 9.87% で文言Aの 8.06% を上回りました。訴求を短く絞り、『愛車の査定相場が変動しました』と価格変動を先に伝えた文言のほうが反応を取りやすかったと見られます。6/11 の本送信でも文言B系の訴求で 537 クリックを獲得しています。"
     };
 
     function renderCards(id, rows) {
@@ -725,15 +730,15 @@
     renderHistory();
 
     const reportMonth = dashboardData.reportMonth || entry.month;
-    const generatedDate = dashboardData.generatedDate || "2026-05-27";
+    const generatedDate = dashboardData.generatedDate || "2026-06-15";
     const updatedDate = dashboardData.updatedDate || generatedDate;
 
     document.getElementById("reportMonth").textContent = reportMonth;
     document.getElementById("generatedDate").textContent = `generated ${generatedDate}`;
     document.getElementById("updatedDate").textContent = `データ更新日: ${updatedDate}`;
     document.getElementById("summaryLine1").textContent = `最新スナップショットの送信対象母数は ${ci(m.effectiveTarget)}、対象率は ${pct(m.permitReg)} です。`;
-    document.getElementById("summaryLine2").textContent = `最新通知実績は ${dashboardData.latestNotificationDate || m.notificationDate || "-"} の successful ${ci(m.successful)}、failed ${ci(m.failed)}、converted ${ci(m.converted)} です。`;
-    document.getElementById("summaryLine3").textContent = dashboardData.summaryNote || "クリック数は現データでは未取得です。converted はクリックとして扱いません。";
+    document.getElementById("summaryLine2").textContent = `最新通知実績は ${dashboardData.latestNotificationDate || m.notificationDate || "-"} の successful ${ci(m.successful)}、failed ${ci(m.failed)}、clicks ${ci(m.clicks)} です。`;
+    document.getElementById("summaryLine3").textContent = dashboardData.summaryNote || "登録・配信可能数は snapshot_date、配信結果は completed_at を基準に表示しています。";
 
     function lineChart(id, labels, data, color, target, maxHint, isPct) {
       const datasets = [{
@@ -881,7 +886,7 @@
     lineChart(
       "chClick",
       bottomSeries.map(d => d.month),
-      bottomSeries.map(d => d.converted),
+      bottomSeries.map(d => d.clicks ?? d.converted),
       "#7c3aed",
       null,
       500,
