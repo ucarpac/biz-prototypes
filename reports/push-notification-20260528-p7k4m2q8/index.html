@@ -537,7 +537,7 @@
       </div>
     </div>
 
-    <div class="sec">
+    <div class="sec" id="historyArchiveSection">
       <div class="sec-h">
         <span class="no">04</span>
         <h2>更新履歴</h2>
@@ -565,6 +565,8 @@
     const dashboardData = window.__PUSH_DASHBOARD_DATA__ || {};
     const historySection = document.getElementById("historySection");
     if (isHistorySnapshot && historySection) historySection.remove();
+    const historyArchiveSection = document.getElementById("historyArchiveSection");
+    if (isHistorySnapshot && historyArchiveSection) historyArchiveSection.remove();
     const applyChartCard = document.getElementById("chApply")?.closest(".chart-card");
     if (applyChartCard) applyChartCard.remove();
 
@@ -640,20 +642,20 @@
 
     const copyReview = dashboardData.copyReview || {
       patterns: [
-        {
-          label: "文言A",
-          headline: "📢相場が変動しました：6月の査定相場が更新されました。愛車の価格を確認してみませんか？",
-          meta: "更新月: 2026-06 / 配信日: 2026/06/10 / CTR: 8.06% / successful: 831 / failed: 75"
-        },
-        {
-          label: "文言B",
-          headline: "🚗愛車の査定相場が変動しました：最新価格を確認してみませんか？",
-          meta: "更新月: 2026-06 / 配信日: 2026/06/10 / CTR: 9.87% / successful: 790 / failed: 49"
-        }
-      ],
-      winner: "文言Bが優勢",
-      desc: "2026年6月のABテストでは、文言Bが CTR 9.87% で文言Aの 8.06% を上回りました。訴求を短く絞り、『愛車の査定相場が変動しました』と価格変動を先に伝えた文言のほうが反応を取りやすかったと見られます。6/11 の本送信でも文言B系の訴求で 537 クリックを獲得しています。"
-    };
+          {
+            label: "文言A",
+            headline: "📢相場が変動しました：6月の査定相場が更新されました。愛車の価格を確認してみませんか？",
+            meta: "更新月: 2026-06 / 配信日: 2026/06/10 / CTR 8.06%（67クリック / 到達UU数831） / failed: 75"
+          },
+          {
+            label: "文言B",
+            headline: "🚗愛車の査定相場が変動しました：愛車の査定相場が変動しました。最新価格を確認してみませんか？",
+            meta: "更新月: 2026-06 / 配信日: 2026/06/10 / CTR 9.87%（78クリック / 到達UU数790） / failed: 49"
+          }
+        ],
+        winner: "文言Bが優勢",
+        desc: "6月ABテストでは、文言BのCTRが 9.87% で文言Aの 8.06% を上回りました。価格変動をそのまま重ねて強く伝える文言のほうが反応を取りやすく、差分は 1.81pt でした。6/11 の本配信でも同系統の訴求で 537クリックを獲得しています。"
+      };
 
     function renderCards(id, rows) {
       let html = "";
@@ -738,8 +740,8 @@
     document.getElementById("reportMonth").textContent = reportMonth;
     document.getElementById("generatedDate").textContent = `generated ${generatedDate}`;
     document.getElementById("updatedDate").textContent = `データ更新日: ${updatedDate}`;
-    document.getElementById("summaryLine1").textContent = `最新スナップショットのSubscribed数は ${ci(m.subscribed)}、配信許可率は ${pct(m.permitReg)} です。`;
-    document.getElementById("summaryLine2").textContent = `最新通知実績は ${dashboardData.latestNotificationDate || m.notificationDate || "-"} の配信数 ${ci(m.totalSent)}、到達UU数 ${ci(m.successful)}、クリック数 ${ci(m.clicks)} です。`;
+    document.getElementById("summaryLine1").textContent = `6月の本配信は、配信数 ${ci(m.totalSent)} に対して 到達UU数 ${ci(m.successful)}、到達率 ${pct(m.successRate)}、クリック数 ${ci(m.clicks)}、クリック率 ${pct(m.clickRate)} でした。主要KPIはおおむねクリアしています。`;
+    document.getElementById("summaryLine2").textContent = `ABテストは文言Bが CTR 9.87%（78/790）で、文言Aの 8.06%（67/831）を上回りました。本配信でも文言B系の訴求を採用しています。`;
     document.getElementById("summaryLine3").textContent = dashboardData.summaryNote || "登録・配信可能数は snapshot_date、配信結果は completed_at を基準に表示しています。";
 
     function lineChart(id, labels, data, color, target, maxHint, isPct) {
