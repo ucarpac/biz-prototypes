@@ -1,22 +1,22 @@
 window.__PUSH_DASHBOARD_DATA__ = {
   "reportMonth": "2026-06",
-  "generatedDate": "2026-06-10",
-  "updatedDate": "2026-06-10",
-  "latestNotificationDate": "2026-05-19",
+  "generatedDate": "2026-06-15",
+  "updatedDate": "2026-06-14",
+  "latestNotificationDate": "2026-06-11",
   "summaryNote": "クリック数は現データでは未取得です。converted はクリックとして扱いません。",
   "entry": {
     "month": "2026-06",
-    "date": "2026/06/10",
-    "notificationDate": "2026/05/19",
+    "date": "2026/06/14",
+    "notificationDate": "2026/06/11",
     "cumulativeEffectiveDl": 33855,
-    "osRegistered": 32121,
-    "subscribed": 7073,
-    "effectiveTarget": 5111,
-    "unreachable": 27010,
+    "osRegistered": 32917,
+    "subscribed": 6726,
+    "effectiveTarget": 4883,
+    "unreachable": 28034,
     "notifications": 1,
-    "successful": 4634,
-    "failed": 733,
-    "converted": 449,
+    "successful": 4957,
+    "failed": 433,
+    "converted": 534,
     "clicks": null,
     "signups": null
   },
@@ -29,30 +29,12 @@ window.__PUSH_DASHBOARD_DATA__ = {
     },
     {
       "month": "2026-06",
-      "osRegistered": 32121,
-      "subscribed": 7073,
-      "effectiveTarget": 5111
+      "osRegistered": 32917,
+      "subscribed": 6726,
+      "effectiveTarget": 4883
     }
   ],
   "bottomSeries": [
-    {
-      "month": "2026-02-16",
-      "notifications": 1,
-      "successful": 1670,
-      "failed": 412,
-      "converted": 146,
-      "clicks": null,
-      "signups": null
-    },
-    {
-      "month": "2026-03-13",
-      "notifications": 1,
-      "successful": 3390,
-      "failed": 730,
-      "converted": 408,
-      "clicks": null,
-      "signups": null
-    },
     {
       "month": "2026-04-17",
       "notifications": 2,
@@ -88,22 +70,40 @@ window.__PUSH_DASHBOARD_DATA__ = {
       "converted": 449,
       "clicks": null,
       "signups": null
+    },
+    {
+      "month": "2026-06-10",
+      "notifications": 4,
+      "successful": 1623,
+      "failed": 124,
+      "converted": 144,
+      "clicks": null,
+      "signups": null
+    },
+    {
+      "month": "2026-06-11",
+      "notifications": 1,
+      "successful": 4957,
+      "failed": 433,
+      "converted": 534,
+      "clicks": null,
+      "signups": null
     }
   ],
-  copyReview: {
-    patterns: [
+  "copyReview": {
+    "patterns": [
       {
-        label: "文言A",
-        headline: "📢相場が変動しました：中古車の動きが活発になっています。今の愛車価格をチェック！",
-        meta: "更新月: 2026-05 / 配信日: 2026/05/15 / CTR: 7.95% / 備考: ABテスト"
+        "label": "文言A",
+        "headline": "📢相場が変動しました：中古車の動きが活発になっています。今の愛車価格をチェック！",
+        "meta": "更新月: 2026-05 / 配信日: 2026/05/15 / CTR: 7.95% / 備考: ABテスト"
       },
       {
-        label: "文言B",
-        headline: "🚗あなたの愛車相場が変動しています：中古車相場が動いています。今の価格を確認してみませんか？",
-        meta: "更新月: 2026-05 / 配信日: 2026/05/15 / CTR: 6.76% / 備考: ABテスト"
+        "label": "文言B",
+        "headline": "🚗あなたの愛車相場が変動しています：中古車相場が動いています。今の価格を確認してみませんか？",
+        "meta": "更新月: 2026-05 / 配信日: 2026/05/15 / CTR: 6.76% / 備考: ABテスト"
       }
     ],
-    winner: "文言Aが優勢",
-    desc: "2026年5月のABテストでは、文言AがCTR 7.95%で文言Bの6.76%を上回りました。冒頭で「相場が変動しました」と状況を端的に伝えたうえで、「今の愛車価格をチェック！」と行動を明確に示した表現のほうが反応を取りやすかったと考えられます。"
+    "winner": "文言Aが優勢",
+    "desc": "2026年5月のABテストでは、文言AがCTR 7.95%で文言Bの6.76%を上回りました。冒頭で「相場が変動しました」と状況を端的に伝えたうえで、「今の愛車価格をチェック！」と行動を明確に示した表現のほうが反応を取りやすかったと考えられます。"
   }
 };
