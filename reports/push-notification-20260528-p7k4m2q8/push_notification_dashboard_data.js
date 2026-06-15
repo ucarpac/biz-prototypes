@@ -3,14 +3,14 @@ window.__PUSH_DASHBOARD_DATA__ = {
   "generatedDate": "2026-06-15",
   "updatedDate": "2026-06-15",
   "latestNotificationDate": "2026-06-11",
-  "summaryNote": "登録・配信可能数は 2026-06-15 の snapshot_date、配信結果は 2026-06-11 の completed_at を基準に表示しています。6月通知行は clicked が空のため、同義の legacy converted をクリック数として使用しています。",
+  "summaryNote": "OneSignal登録数とSubscribed数は 2026-06-15 の snapshot_date、配信結果は 2026-06-11 の completed_at を基準に表示しています。配信数は通知実績の successful + failed を使用しています。配信タイミング時点の厳密な Subscribed 数は BigQuery 内の現行テーブルだけでは一致確認できないため、通知実績ベースで表示しています。6月通知行は clicked が空のため、同義の legacy converted をクリック数として使用しています。",
   "entry": {
     "month": "2026-06",
     "date": "2026/06/15",
     "notificationDate": "2026/06/11",
     "cumulativeEffectiveDl": 33855,
     "osRegistered": 33130,
-    "subscribed": 6779,
+    "subscribed": 4916,
     "effectiveTarget": 4916,
     "unreachable": 28214,
     "notifications": 1,
@@ -24,13 +24,13 @@ window.__PUSH_DASHBOARD_DATA__ = {
     {
       "month": "2026-05",
       "osRegistered": 30651,
-      "subscribed": 6590,
+      "subscribed": 4821,
       "effectiveTarget": 4821
     },
     {
       "month": "2026-06",
       "osRegistered": 33130,
-      "subscribed": 6779,
+      "subscribed": 4916,
       "effectiveTarget": 4916
     }
   ],
