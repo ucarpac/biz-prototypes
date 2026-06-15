@@ -457,14 +457,14 @@
           <div class="cwrap"><canvas id="chReg"></canvas></div>
         </div>
         <div class="chart-card">
-          <h3>Subscribed数 × 配信許可率 推移</h3>
+          <h3>配信対象UU数 × 配信対象率 推移</h3>
           <div class="cwrap"><canvas id="chSubPermit"></canvas></div>
           <div class="legend-mini">
-            <span><i style="background:#d97706"></i>Subscribed数（左軸）</span>
-            <span><i style="background:#0f766e"></i>配信許可率（右軸）</span>
+            <span><i style="background:#d97706"></i>配信対象UU数（左軸）</span>
+            <span><i style="background:#0f766e"></i>配信対象率（右軸）</span>
             <span><i style="background:#9aa4b2"></i>KPI 22%</span>
           </div>
-          <div class="cnote">線: Subscribed数 / 線: 配信許可率 / 破線: KPI 22%</div>
+          <div class="cnote">線: 配信対象UU数 / 線: 配信対象率 / 破線: KPI 22%</div>
         </div>
       </div>
     </div>
@@ -534,7 +534,7 @@
             <p id="summaryLine3">クリック数は clicked を優先し、空の場合だけ legacy converted を使います。</p>
           </div>
           <div class="defs">
-            <div><b>配信許可率</b> = Subscribed数 ÷ OneSignal登録数</div>
+            <div><b>配信対象率</b> = 配信対象UU数 ÷ OneSignal登録数</div>
             <div><b>到達不能累計</b> = unsubscribed_at あり または invalid_identifier</div>
             <div><b>配信数</b> = successful + failed</div>
             <div><b>削除・解除率</b> = failed ÷ 配信数</div>
@@ -585,7 +585,7 @@
       date: "2026/06/15",
       notificationDate: "2026/06/11",
       osRegistered: 33130,
-      subscribed: 4916,
+      subscribed: 6779,
       effectiveTarget: 4916,
       unreachable: 28214,
       notifications: 1,
@@ -613,8 +613,8 @@
     }
 
     const topSeries = (dashboardData.topSeries || [
-      { month: "2026-05", osRegistered: 30651, subscribed: 4821, effectiveTarget: 4821 },
-      { month: "2026-06", osRegistered: 33130, subscribed: 4916, effectiveTarget: 4916 }
+      { month: "2026-05", osRegistered: 30119, subscribed: 6412, effectiveTarget: 4712 },
+      { month: "2026-06", osRegistered: 33130, subscribed: 6779, effectiveTarget: 4916 }
     ]).map(derive);
 
     const bottomSeries = (dashboardData.bottomSeries || [
@@ -633,8 +633,8 @@
 
     const upperRows = [
       { item: "OneSignal登録数", tgt: null, act: ci(m.osRegistered), cls: "neu", note: "Subscriptionの総数" },
-      { item: "Subscribed数", tgt: null, act: ci(m.subscribed), cls: "neu", note: "通知配信可能な subscription 数" },
-      { item: "配信許可率（OneSignal登録数ベース）", tgt: "22.00%", act: pct(m.permitReg), cls: m.permitReg >= 0.22 ? "ok" : "ng", status: m.permitReg >= 0.22 ? "達成" : "未達", note: "Subscribed数 ÷ OneSignal登録数" }
+      { item: "配信対象UU数", tgt: null, act: ci(m.subscribed), cls: "neu", note: "notification_types > 0 の subscription 数" },
+      { item: "配信対象率（OneSignal登録数ベース）", tgt: "22.00%", act: pct(m.permitReg), cls: m.permitReg >= 0.22 ? "ok" : "ng", status: m.permitReg >= 0.22 ? "達成" : "未達", note: "配信対象UU数 ÷ OneSignal登録数" }
     ];
 
     const lowerTopRows = [
@@ -753,9 +753,9 @@
     document.getElementById("reportMonth").textContent = reportMonth;
     document.getElementById("generatedDate").textContent = `generated ${generatedDate}`;
     document.getElementById("updatedDate").textContent = `データ更新日: ${updatedDate}`;
-    document.getElementById("summaryLine1").textContent = `6月の本配信は、配信数 ${ci(m.totalSent)} に対して 到達UU数 ${ci(m.successful)}、到達率 ${pct(m.successRate)}、クリック数 ${ci(m.clicks)}、クリック率 ${pct(m.clickRate)} でした。主要KPIはおおむねクリアしています。`;
+    document.getElementById("summaryLine1").textContent = `6月の配信対象UU数は ${ci(m.subscribed)}、配信対象率は ${pct(m.permitReg)} でした。本配信は、配信数 ${ci(m.totalSent)} に対して 到達UU数 ${ci(m.successful)}、到達率 ${pct(m.successRate)}、クリック数 ${ci(m.clicks)}、クリック率 ${pct(m.clickRate)} です。`;
     document.getElementById("summaryLine2").textContent = `ABテストは文言Bが CTR 9.87%（78/790）で、文言Aの 8.06%（67/831）を上回りました。本配信でも文言B系の訴求を採用しています。`;
-    document.getElementById("summaryLine3").textContent = dashboardData.summaryNote || "登録・配信可能数は snapshot_date、配信結果は completed_at を基準に表示しています。";
+    document.getElementById("summaryLine3").textContent = dashboardData.summaryNote || "登録数と配信対象UU数は snapshot_date、配信結果は completed_at を基準に表示しています。";
 
     function lineChart(id, labels, data, color, target, maxHint, isPct) {
       const datasets = [{
