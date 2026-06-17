@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>出品前案内の短縮方針レポート</title>
+  <style>
+    :root {
+      --ink: #24343a;
+      --muted: #66777d;
+      --brand: #0f6e7d;
+      --brand-dark: #0a5360;
+      --line: #d7e4e7;
+      --tint: #f3f8f9;
+      --warn: #c76d2b;
+      --warn-bg: #fff7ef;
+      --ok: #2b7a50;
+      --white: #fff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #f7fafb;
+      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+      line-height: 1.65;
+    }
+
+    .page {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 24px 56px;
+    }
+
+    header {
+      padding: 28px 30px;
+      color: var(--white);
+      background: var(--brand-dark);
+      border-radius: 8px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      font-size: 13px;
+      letter-spacing: .04em;
+      opacity: .86;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 30px;
+      line-height: 1.35;
+    }
+
+    .lead {
+      margin: 14px 0 0;
+      max-width: 860px;
+      font-size: 16px;
+      opacity: .94;
+    }
+
+    section {
+      margin-top: 22px;
+      padding: 24px 28px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      color: var(--brand-dark);
+      font-size: 21px;
+      line-height: 1.35;
+    }
+
+    h3 {
+      margin: 18px 0 8px;
+      font-size: 16px;
+      color: var(--ink);
+    }
+
+    p {
+      margin: 0 0 12px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .metric {
+      padding: 14px 16px;
+      background: var(--tint);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .metric .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .metric .value {
+      display: block;
+      margin-top: 4px;
+      color: var(--brand-dark);
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .metric .note {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 4px;
+      background: var(--white);
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      color: var(--brand-dark);
+      background: var(--tint);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .num {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .callout {
+      margin: 14px 0 0;
+      padding: 14px 16px;
+      background: var(--warn-bg);
+      border: 1px solid #f0d0b6;
+      border-left: 4px solid var(--warn);
+      border-radius: 6px;
+    }
+
+    .decision {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .panel {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfdfd;
+    }
+
+    .panel h3 {
+      margin-top: 0;
+      color: var(--brand-dark);
+    }
+
+    ul,
+    ol {
+      margin: 8px 0 0 1.3em;
+      padding: 0;
+    }
+
+    li {
+      margin: 5px 0;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      color: var(--ok);
+      background: #eef8f2;
+      border: 1px solid #cfe7d8;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .footer {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 820px) {
+      .page {
+        padding: 20px 14px 40px;
+      }
+
+      header,
+      section {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .summary,
+      .decision {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .page {
+        max-width: none;
+        padding: 12mm;
+      }
+
+      header,
+      section {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script>
+    window.PROTO_AUTH_CONFIG = {
+      title: "出品前案内 効率化提案",
+      subtitle: "出品案内の電話時間短縮と成約後クレーム抑制のバランスを検討する社内向けレポートです。"
+    };
+  </script>
+  <script src="../../auth.js"></script>
+  <main class="page">
+    <header>
+      <p class="eyebrow">UcarPAC 出品前案内 効率化提案</p>
+      <h1>出品案内を短縮しつつ、成約後クレームを増やさない運用案</h1>
+      <p class="lead">現状25〜30分前後かかっている電話案内を、Googleフォームで事前確認したうえで10〜15分前後に短縮する提案です。単純に案内をなくすのではなく、クレーム・BID離れ・口コミ悪化を防ぐために、電話で残すべき確認項目を絞ります。</p>
+    </header>
+
+    <section>
+      <h2>提案の要点</h2>
+      <p>出品案内の効率化は必要ですが、案内を大きく削りすぎると、成約後のクレームが増え、結果として営業・業務・BID側の後処理工数が増える可能性があります。</p>
+      <p>そのため、<strong>事前確認はGoogleフォームへ移し、電話では「成約後キャンセル」と「査定後の車両状態変化」だけを必ず確認する</strong>運用が、工数削減とリスク抑制のバランスがよいと考えます。</p>
+      <div class="summary">
+        <div class="metric">
+          <span class="label">分析対象期間</span>
+          <span class="value">6か月</span>
+          <span class="note">2025年12月〜2026年5月</span>
+        </div>
+        <div class="metric">
+          <span class="label">成約後クレーム</span>
+          <span class="value">93件</span>
+          <span class="note">対象1,195件中、全体の7.8%</span>
+        </div>
+        <div class="metric">
+          <span class="label">最多理由</span>
+          <span class="value">書類系</span>
+          <span class="note">56件、クレーム内60.2%、全体4.7%</span>
+        </div>
+        <div class="metric">
+          <span class="label">電話時間の目標</span>
+          <span class="value">10〜15分</span>
+          <span class="note">Googleフォーム事前確認を前提</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>現状データ: いつまでに、どんなクレームがあったか</h2>
+      <p>業務Gチェック表の読み取り専用コピーをもとに、2025年12月〜2026年5月の6か月分を確認しました。対象1,195件のうち、成約後クレームとして確認できたものは93件で、全体の7.8%です。</p>
+      <table>
+        <thead>
+          <tr>
+            <th>理由</th>
+            <th class="num">件数</th>
+            <th class="num">クレーム内構成比</th>
+            <th class="num">全体比</th>
+            <th>示唆</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>書類・証明書</td>
+            <td class="num">56件</td>
+            <td class="num">60.2%</td>
+            <td class="num">4.7%</td>
+            <td>最も多い。車検証、自賠責、納税証明、印鑑証明、住民票、承諾書など、成約後に不足が判明すると対応が重くなる。</td>
+          </tr>
+          <tr>
+            <td>キャンセル・返却</td>
+            <td class="num">15件</td>
+            <td class="num">16.1%</td>
+            <td class="num">1.3%</td>
+            <td>成約後キャンセル費用の理解不足は、電話で必ず確認したい重要リスク。</td>
+          </tr>
+          <tr>
+            <td>減額</td>
+            <td class="num">7件</td>
+            <td class="num">7.5%</td>
+            <td class="num">0.6%</td>
+            <td>査定後の傷・故障・警告灯・走行距離増加が原因になりやすく、電話で状態変化を確認したい。</td>
+          </tr>
+          <tr>
+            <td>支払・送金</td>
+            <td class="num">6件</td>
+            <td class="num">6.5%</td>
+            <td class="num">0.5%</td>
+            <td>所有者本人以外の口座、承諾書、送金タイミングの理解不足がリスク。フォームで事前に拾える。</td>
+          </tr>
+          <tr>
+            <td>キャンセル・買取移行</td>
+            <td class="num">5件</td>
+            <td class="num">5.4%</td>
+            <td class="num">0.4%</td>
+            <td>引渡し不可、状態差異、BID都合などが買取移行につながる可能性。</td>
+          </tr>
+          <tr>
+            <td>引取・日程調整系</td>
+            <td class="num">4〜7件</td>
+            <td class="num">4.3〜7.5%</td>
+            <td class="num">0.3〜0.6%</td>
+            <td>件数は多くないが、引渡し遅延やBID側の不満に発展しやすい。フォームで候補日を事前取得する。</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        <strong>読み取り:</strong> クレームの中心は「案内を聞いていない」だけではなく、「成約後に必要な書類・状態維持・引渡し条件を、事前に自分ごととして確認できていない」ことにあります。
+      </div>
+    </section>
+
+    <section>
+      <h2>案内をなくした場合の懸念</h2>
+      <p>案内をほぼなくす場合は、現状クレーム93件に対して<strong>半年で+25〜40件</strong>を現実的シナリオ、<strong>半年で+40〜60件</strong>を悪化大シナリオとして見ます。</p>
+      <p>追加工数だけではなく、成約後に売主・BID・社内調整が同時に発生し、売上毀損、BID側の入札控え、リピーター離れ、口コミ悪化につながる点が大きなリスクです。したがって、案内を完全になくすのではなく、Googleフォームで事前確認し、電話は重要リスクだけ残す運用が妥当です。</p>
+      <table>
+        <thead>
+          <tr>
+            <th>シナリオ</th>
+            <th class="num">追加クレーム</th>
+            <th class="num">月あたり</th>
+            <th class="num">クレーム率</th>
+            <th class="num">追加工数</th>
+            <th class="num">売上影響</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>現実的</td>
+            <td class="num">半年+25〜40件</td>
+            <td class="num">+4.2〜6.7件/月</td>
+            <td class="num">9.9〜11.1%</td>
+            <td class="num">6.3〜13.3時間/月</td>
+            <td class="num">約98〜168万円</td>
+          </tr>
+          <tr>
+            <td>悪化大</td>
+            <td class="num">半年+40〜60件</td>
+            <td class="num">+6.7〜10.0件/月</td>
+            <td class="num">11.1〜12.8%</td>
+            <td class="num">10.0〜20.0時間/月</td>
+            <td class="num">約168〜238万円</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="footer">追加工数は重い案件を1件1.5〜2時間で試算。売上影響は、現状クレーム内のキャンセル・買取移行・減額系の比率約29%を追加クレームに掛け、1台あたり14万円で試算。</p>
+      <table>
+        <thead>
+          <tr>
+            <th>懸念</th>
+            <th>内容</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>クレーム増加</td>
+            <td>案内をほぼなくすと、現実的には半年で+25〜40件、悪化大では+40〜60件の追加クレームが出る可能性。</td>
+          </tr>
+          <tr>
+            <td>新たに発生する工数</td>
+            <td>重い案件を1件1.5〜2時間で見ると、現実的には月6.3〜13.3時間、悪化大では月10.0〜20.0時間。工数単体よりも、売上・BID・口コミへの波及影響が判断軸。</td>
+          </tr>
+          <tr>
+            <td>BID・リピーター離れ</td>
+            <td>落札後に書類が揃わない、引き取り調整ができない、引渡しが遅れる、減額交渉やキャンセルになると、BID側の入札意欲やリピート利用に悪影響が出る可能性。</td>
+          </tr>
+          <tr>
+            <td>口コミ悪化</td>
+            <td>「聞いていない」「後から費用が出た」「書類が分かりにくい」と感じられると、口コミが荒れるリスクがある。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>バランスのよい案内設計</h2>
+      <p>目的は、電話をなくすことではなく、電話でしか確認しづらい重要リスクだけを残し、それ以外をGoogleフォームで事前確認することです。</p>
+      <div class="decision">
+        <div class="panel">
+          <h3>Googleフォームで事前確認 <span class="tag">事前入力</span></h3>
+          <ul>
+            <li>車検証・自賠責・保証書・整備記録簿・取扱説明書の有無</li>
+            <li>車検証住所からの引越し有無</li>
+            <li>所有者本人か、本人以外の口座希望があるか</li>
+            <li>自動車税・納税証明・納付書の状況</li>
+            <li>ローン・残債・所有権解除の有無</li>
+            <li>成約後4〜10日以内の引渡し可否、不可日、希望曜日</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>電話で最低限残す確認 <span class="tag">10〜15分</span></h3>
+          <ul>
+            <li><strong>成約後キャンセル費用</strong>: 成約後のキャンセルには費用がかかる点を理解しているか。</li>
+            <li><strong>査定後の車両状態変化</strong>: 傷・故障・警告灯・走行距離の大きな増加がないか。</li>
+            <li>フォーム回答で赤信号がある場合のみ、該当箇所を追加確認する。</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout">
+        フォームで事前に回答をもらっておけば、電話は「説明」ではなく「リスク確認」と「例外対応」にできます。これにより、現在25〜30分前後の案内を10〜15分前後へ短縮できる可能性があります。
+      </div>
+    </section>
+
+    <section>
+      <h2>運用案別の影響見立て</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>運用案</th>
+            <th>電話時間</th>
+            <th>クレーム増加リスク</th>
+            <th>売上影響</th>
+            <th>評価</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>現状通り、電話で広く説明</td>
+            <td>約25〜30分</td>
+            <td>現状維持</td>
+            <td>現状維持</td>
+            <td>品質は安定しやすいが、案内工数が重く、件数が増えるほど負担が大きい。</td>
+          </tr>
+          <tr>
+            <td>電話は成約後キャンセルだけ</td>
+            <td>約3〜5分</td>
+            <td>現実的に半年で+25〜40件、悪化大で+40〜60件</td>
+            <td>半年で約98〜238万円減の見立て</td>
+            <td>短縮効果は大きいが、削りすぎ。BID側の後処理増、口コミ悪化、リピーター離れの懸念が残る。</td>
+          </tr>
+          <tr>
+            <td>フォーム事前確認 + 電話は重要2項目</td>
+            <td>約10〜15分</td>
+            <td>増加を抑制できる可能性</td>
+            <td>限定的</td>
+            <td><strong>推奨。</strong> 工数削減とリスク抑制のバランスがよい。フォーム回答の赤信号だけ追加確認する。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>BID・リピーター・口コミへの影響</h2>
+      <p>BID離れは台数や売上ほど精度高く予測できません。ただし、説明不足で増えるクレームはBID側の落札後工数に直撃し、入札控えやリピート低下につながる可能性があります。</p>
+      <table>
+        <thead>
+          <tr>
+            <th>影響項目</th>
+            <th>予想</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>追加クレーム</td>
+            <td>案内をほぼなくす場合、現実的には半年で+25〜40件、悪化大では+40〜60件</td>
+          </tr>
+          <tr>
+            <td>BID側の後処理に影響しそうなクレーム</td>
+            <td>半年で+15〜35件程度。追加クレームのうち、書類が揃わない、引き取り調整ができない、引渡し遅延、減額交渉、キャンセルなど、BIDが待ち・再調整・交渉に巻き込まれるものを指す。</td>
+          </tr>
+          <tr>
+            <td>起きやすい症状</td>
+            <td>問い合わせ増、書類不備対応増、引き取り調整のやり直し、減額交渉増、引渡し調整の手間増、特定BIDの入札控え、リピーターの利用控え</td>
+          </tr>
+          <tr>
+            <td>口コミリスク</td>
+            <td>売主側が「聞いていない」「分かりにくい」と感じると、口コミが荒れる可能性。特に費用・キャンセル・書類不備は不満化しやすい。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>推奨する電話確認</h2>
+      <p>電話は説明を長くする場ではなく、フォーム回答を見たうえで、成約後に大きなトラブルになりやすい2点を口頭確認する場にします。</p>
+      <ol>
+        <li>成約後キャンセルは費用がかかる点、問題ないですか。</li>
+        <li>査定後に傷・故障・警告灯・走行距離の大きな増加はありませんか。</li>
+      </ol>
+      <div class="callout">
+        フォームで「書類不足」「引越しあり」「所有者違い」「残債あり」「引渡し不可日が多い」などが出た場合だけ、該当項目を追加で電話確認します。
+      </div>
+    </section>
+
+    <section>
+      <h2>提案する進め方</h2>
+      <ul>
+        <li>出品前にGoogleフォームを送付し、書類・税金・所有者・残債・引渡し条件を事前に回答してもらう。</li>
+        <li>電話前にフォーム回答を確認し、赤信号がない場合は電話を10〜15分前後に抑える。</li>
+        <li>電話で必ず確認するのは、成約後キャンセル費用と査定後の車両状態変化の2点に絞る。</li>
+        <li>運用開始後は、電話時間、フォーム未回答率、成約後クレーム率、書類系クレーム件数、BID側トラブル件数を月次で確認する。</li>
+      </ul>
+    </section>
+
+    <section class="footer">
+      <p>参照データ: 業務Gチェック表「データ」タブの読み取り専用コピーから抽出した2025年12月〜2026年5月のクレーム対象93件。元Googleシートは更新していません。</p>
+      <p>作成日: 2026年6月11日</p>
+    </section>
+  </main>
+</body>
+</html>
