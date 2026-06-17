@@ -162,6 +162,13 @@
       line-height: 1;
       font-variant-numeric: tabular-nums;
     }
+    .metric-card .delta {
+      margin-top: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.5;
+      font-variant-numeric: tabular-nums;
+    }
     .metric-card .meta {
       margin-top: auto;
       padding-top: 14px;
@@ -627,27 +634,44 @@
     ]).map(derive);
 
     const m = derive(entry);
+    const previousTop = topSeries.length > 1 ? topSeries[topSeries.length - 2] : null;
+    const previousBottom = [...bottomSeries]
+      .filter(d => String(d.month).slice(0, 7) < String(entry.month))
+      .slice(-1)[0] || (bottomSeries.length > 1 ? bottomSeries[bottomSeries.length - 2] : null);
 
     const pct = (x, d = 2) => x == null ? " - " : (x * 100).toFixed(d) + "%";
     const ci = x => x == null ? "未取得" : Math.round(x || 0).toLocaleString("ja-JP");
+    const ratioDelta = (current, previous) => {
+      if (current == null || previous == null || previous === 0) return null;
+      return (current - previous) / previous;
+    };
+    const deltaText = delta => {
+      if (delta == null) return "前月比 -";
+      const sign = delta > 0 ? "+" : "";
+      return `前月比 ${sign}${(delta * 100).toFixed(1)}%`;
+    };
+    const deltaClass = delta => {
+      if (delta == null || delta === 0) return "neu";
+      return delta > 0 ? "ok" : "ng";
+    };
 
     const upperRows = [
-      { item: "OneSignal登録数", tgt: null, act: ci(m.osRegistered), cls: "neu", note: "Subscriptionの総数" },
-      { item: "配信対象UU数", tgt: null, act: ci(m.subscribed), cls: "neu", note: "notification_types > 0 の subscription 数" },
-      { item: "配信対象率（OneSignal登録数ベース）", tgt: "22.00%", act: pct(m.permitReg), cls: m.permitReg >= 0.22 ? "ok" : "ng", status: m.permitReg >= 0.22 ? "達成" : "未達", note: "配信対象UU数 ÷ OneSignal登録数" }
+      { item: "OneSignal登録数", tgt: null, act: ci(m.osRegistered), cls: "neu", delta: ratioDelta(m.osRegistered, previousTop?.osRegistered), note: "Subscriptionの総数" },
+      { item: "配信対象UU数", tgt: null, act: ci(m.subscribed), cls: "neu", delta: ratioDelta(m.subscribed, previousTop?.subscribed), note: "notification_types > 0 の subscription 数" },
+      { item: "配信対象率（OneSignal登録数ベース）", tgt: "22.00%", act: pct(m.permitReg), cls: m.permitReg >= 0.22 ? "ok" : "ng", delta: ratioDelta(m.permitReg, previousTop?.permitReg), status: m.permitReg >= 0.22 ? "達成" : "未達", note: "配信対象UU数 ÷ OneSignal登録数" }
     ];
 
     const lowerTopRows = [
-      { item: "配信数", tgt: null, act: ci(m.totalSent), cls: "neu", note: "配信タイミングの通知実績 successful + failed" },
-      { item: "削除または解除UU数", tgt: null, act: ci(m.failed), cls: "neu", note: "notification.failed を採用" },
-      { item: "削除・解除率", tgt: "10.00%", act: pct(m.failRate), cls: m.failRate <= 0.10 ? "ok" : "ng", status: m.failRate <= 0.10 ? "達成" : "未達", note: "削除または解除UU数 ÷ 配信数" }
+      { item: "配信数", tgt: null, act: ci(m.totalSent), cls: "neu", delta: ratioDelta(m.totalSent, previousBottom?.totalSent), note: "配信タイミングの通知実績 successful + failed" },
+      { item: "削除または解除UU数", tgt: null, act: ci(m.failed), cls: "neu", delta: ratioDelta(m.failed, previousBottom?.failed), note: "notification.failed を採用" },
+      { item: "削除・解除率", tgt: "10.00%", act: pct(m.failRate), cls: m.failRate <= 0.10 ? "ok" : "ng", delta: ratioDelta(m.failRate, previousBottom?.failRate), status: m.failRate <= 0.10 ? "達成" : "未達", note: "削除または解除UU数 ÷ 配信数" }
     ];
 
     const lowerBottomRows = [
-      { item: "到達UU数", tgt: null, act: ci(m.successful), cls: "neu", note: "notification.successful" },
-      { item: "到達率", tgt: "90.00%", act: pct(m.successRate), cls: m.successRate >= 0.90 ? "ok" : "ng", status: m.successRate >= 0.90 ? "達成" : "未達", note: "到達UU数 ÷ 配信数" },
-      { item: "クリック数", tgt: null, act: ci(m.clicks), cls: "neu", note: "clicked を優先し、空の場合は legacy converted を使用" },
-      { item: "クリック率", tgt: "10.00%", act: pct(m.clickRate), cls: m.clickRate >= 0.10 ? "ok" : "ng", status: m.clickRate >= 0.10 ? "達成" : "未達", note: "クリック数 ÷ 到達UU数" }
+      { item: "到達UU数", tgt: null, act: ci(m.successful), cls: "neu", delta: ratioDelta(m.successful, previousBottom?.successful), note: "notification.successful" },
+      { item: "到達率", tgt: "90.00%", act: pct(m.successRate), cls: m.successRate >= 0.90 ? "ok" : "ng", delta: ratioDelta(m.successRate, previousBottom?.successRate), status: m.successRate >= 0.90 ? "達成" : "未達", note: "到達UU数 ÷ 配信数" },
+      { item: "クリック数", tgt: null, act: ci(m.clicks), cls: "neu", delta: ratioDelta(m.clicks, previousBottom?.clicks), note: "clicked を優先し、空の場合は legacy converted を使用" },
+      { item: "クリック率", tgt: "10.00%", act: pct(m.clickRate), cls: m.clickRate >= 0.10 ? "ok" : "ng", delta: ratioDelta(m.clickRate, previousBottom?.clickRate), status: m.clickRate >= 0.10 ? "達成" : "未達", note: "クリック数 ÷ 到達UU数" }
     ];
 
     const copyReview = dashboardData.copyReview || {
@@ -671,15 +695,17 @@
 
     function renderCards(id, rows) {
       let html = "";
-      rows.forEach(r => {
-        const status = r.status ? `<span class="status ${r.cls}">${r.status}</span>` : "";
-        const kpi = r.tgt ? `<div class="kpi"><b>KPI</b> ${r.tgt}${status}</div>` : "";
-        html += `<div class="metric-card">
-          <div class="item">${r.item}</div>
-          <div class="value ${r.cls}">${r.act}</div>
-          <div class="meta">
-            ${kpi}
-            <div class="note">${r.note}</div>
+        rows.forEach(r => {
+          const status = r.status ? `<span class="status ${r.cls}">${r.status}</span>` : "";
+          const kpi = r.tgt ? `<div class="kpi"><b>KPI</b> ${r.tgt}${status}</div>` : "";
+          const delta = `<div class="delta ${deltaClass(r.delta)}">${deltaText(r.delta)}</div>`;
+          html += `<div class="metric-card">
+            <div class="item">${r.item}</div>
+            <div class="value ${r.cls}">${r.act}</div>
+            ${delta}
+            <div class="meta">
+              ${kpi}
+              <div class="note">${r.note}</div>
           </div>
         </div>`;
       });
