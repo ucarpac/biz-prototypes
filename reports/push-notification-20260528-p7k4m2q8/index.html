@@ -650,8 +650,9 @@
       const sign = delta > 0 ? "+" : "";
       return `前月比 ${sign}${(delta * 100).toFixed(1)}%`;
     };
-    const deltaClass = delta => {
+    const deltaClass = (delta, betterWhenLower = false) => {
       if (delta == null || delta === 0) return "neu";
+      if (betterWhenLower) return delta < 0 ? "ok" : "ng";
       return delta > 0 ? "ok" : "ng";
     };
 
@@ -663,8 +664,8 @@
 
     const lowerTopRows = [
       { item: "配信数", tgt: null, act: ci(m.totalSent), cls: "neu", delta: ratioDelta(m.totalSent, previousBottom?.totalSent), note: "配信タイミングの通知実績 successful + failed" },
-      { item: "削除または解除UU数", tgt: null, act: ci(m.failed), cls: "neu", delta: ratioDelta(m.failed, previousBottom?.failed), note: "notification.failed を採用" },
-      { item: "削除・解除率", tgt: "10.00%", act: pct(m.failRate), cls: m.failRate <= 0.10 ? "ok" : "ng", delta: ratioDelta(m.failRate, previousBottom?.failRate), status: m.failRate <= 0.10 ? "達成" : "未達", note: "削除または解除UU数 ÷ 配信数" }
+      { item: "削除または解除UU数", tgt: null, act: ci(m.failed), cls: "neu", delta: ratioDelta(m.failed, previousBottom?.failed), deltaLowerBetter: true, note: "notification.failed を採用" },
+      { item: "削除・解除率", tgt: "10.00%", act: pct(m.failRate), cls: m.failRate <= 0.10 ? "ok" : "ng", delta: ratioDelta(m.failRate, previousBottom?.failRate), deltaLowerBetter: true, status: m.failRate <= 0.10 ? "達成" : "未達", note: "削除または解除UU数 ÷ 配信数" }
     ];
 
     const lowerBottomRows = [
@@ -698,7 +699,7 @@
         rows.forEach(r => {
           const status = r.status ? `<span class="status ${r.cls}">${r.status}</span>` : "";
           const kpi = r.tgt ? `<div class="kpi"><b>KPI</b> ${r.tgt}${status}</div>` : "";
-          const delta = `<div class="delta ${deltaClass(r.delta)}">${deltaText(r.delta)}</div>`;
+          const delta = `<div class="delta ${deltaClass(r.delta, r.deltaLowerBetter)}">${deltaText(r.delta)}</div>`;
           html += `<div class="metric-card">
             <div class="item">${r.item}</div>
             <div class="value ${r.cls}">${r.act}</div>
