@@ -8,6 +8,7 @@
 - アユダンテの許可ドメインは `ayudante.jp`。
 - Slack共有チャンネルは `#zm05_ayudante` (`C049FPP511Q`)。
 - GCS bucket をActionsで作成する場合は `BIZ_PROTO_CREATE_BUCKET=1` を設定する。
+- private GCS 自動同期を開始するタイミングで `BIZ_PROTO_SYNC_ENABLED=1` を設定する。
 - GitHub Actions のサービスアカウントは `github-push-dashboard@ucarpac-uapp.iam.gserviceaccount.com`。
 
 ## 初回GCP権限
@@ -47,6 +48,7 @@ scripts/deploy_cloud_run.sh
 ```
 
 GitHub Actionsでバケット作成まで行う場合だけ、`BIZ_PROTO_CREATE_BUCKET=1` を repo variable に設定する。
+バケット作成と初回同期が通るまでは `BIZ_PROTO_SYNC_ENABLED` を未設定または `0` のままにする。
 
 ## IAP設定
 
