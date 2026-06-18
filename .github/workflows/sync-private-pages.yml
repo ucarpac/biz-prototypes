@@ -1,0 +1,32 @@
+name: Sync Private Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    if: ${{ vars.BIZ_PROTO_BUCKET != '' }}
+    runs-on: ubuntu-latest
+    env:
+      BIZ_PROTO_BUCKET: ${{ vars.BIZ_PROTO_BUCKET }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: "${{ secrets.GCP_SA_KEY }}"
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Sync pages to private bucket
+        run: scripts/sync_pages_to_gcs.sh
