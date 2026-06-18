@@ -1,7 +1,7 @@
 # biz-prototypes
 
-GitHub Pages で配信する UcarPAC の社内共有ハブです。
-日々のプロトタイプ・分析レポート・運用監視レポートを UCP 内部と代理店共有で管理します。
+private GCS + Cloud Run + IAP で配信する UcarPAC の社内共有ハブです。
+日々のプロトタイプ・分析レポート・運用監視レポートを UCP 内部とアユダンテ共有で管理します。
 
 ---
 
@@ -28,40 +28,39 @@ GitHub Pages で配信する UcarPAC の社内共有ハブです。
 │   ├── auto-kpi/          ← 週次 KPI ダッシュボード
 │   ├── competitor-watch/  ← 競合定点観測
 │   └── appsflyer/         ← AppsFlyer アトリビューション
-└── agency/                ← 代理店共有ハブ（agency パスワードでアクセス可）
+└── agency/                ← 代理店共有ハブ（IAP + アユダンテGoogle認証でアクセス可）
 ```
 
-## 公開 URL
+## 配信 URL
 
 | 対象 | URL |
 |------|-----|
-| TOP ハブ | `https://ucarpac.github.io/biz-prototypes/` |
-| App プロトタイプ一覧 | `https://ucarpac.github.io/biz-prototypes/ucarpac-app/` |
-| App Enhancement 統合ビュー | `https://ucarpac.github.io/biz-prototypes/ucarpac-app/app-enhancement/prototype/index-all.html` |
-| 運用監視ハブ | `https://ucarpac.github.io/biz-prototypes/ops/` |
-| Auto KPI | `https://ucarpac.github.io/biz-prototypes/ops/auto-kpi/` |
-| 競合ウォッチ | `https://ucarpac.github.io/biz-prototypes/ops/competitor-watch/` |
-| 分析レポート一覧 | `https://ucarpac.github.io/biz-prototypes/reports/` |
-| 代理店共有ハブ | `https://ucarpac.github.io/biz-prototypes/agency/` |
+| TOP ハブ | `${BIZ_PROTO_BASE_URL}/` |
+| App プロトタイプ一覧 | `${BIZ_PROTO_BASE_URL}/ucarpac-app/` |
+| App Enhancement 統合ビュー | `${BIZ_PROTO_BASE_URL}/ucarpac-app/app-enhancement/prototype/index-all.html` |
+| 運用監視ハブ | `${BIZ_PROTO_BASE_URL}/ops/` |
+| Auto KPI | `${BIZ_PROTO_BASE_URL}/ops/auto-kpi/` |
+| 競合ウォッチ | `${BIZ_PROTO_BASE_URL}/ops/competitor-watch/` |
+| 分析レポート一覧 | `${BIZ_PROTO_BASE_URL}/reports/` |
+| アユダンテ共有ハブ | `${BIZ_PROTO_BASE_URL}/agency/` |
 
 ---
 
-## 認証の仕組み（auth.js）
+## 認証の仕組み
 
-`auth.js` はクライアントサイドの SHA-256 パスワードゲートです。認証状態は 24 時間 localStorage に保持されます。
+認証の正は Cloud Run + IAP のGoogle認証です。`auth.js` は既存ページの表示制御互換として残し、Cloud Run配信時はviewerが認証済みstateを注入してパスワード入力を省略します。
 
-| レベル | パスワード | 閲覧できるページ |
+| レベル | 許可ドメイン | 閲覧できるページ |
 |--------|-----------|----------------|
-| `full` | ucarpac2026 | 全ページ（UCP 社内向け） |
-| `agency` | agency2026 | 代理店共有に指定したページのみ |
+| `full` | `ucarpac.co.jp` | 全ページ（UCP 社内向け） |
+| `agency` | `ayudante.jp` | アユダンテ共有に指定したページのみ |
 
-### 社内 / 代理店の置き分け（レポートを代理店共有にする）
+### 社内 / アユダンテの置き分け（レポートを代理店共有にする）
 
-レポートを代理店から見えるようにするには、次のどちらか：
+レポートを代理店から見えるようにするには、サーバー側と表示制御側の両方をそろえます。
 
-1. **ページ単位**: そのページの `PROTO_AUTH_CONFIG` に `required: "agency"` を付ける
-2. **パス一括**: `auth.js` 冒頭の `AGENCY_PATH_PREFIXES` にパスを追加（config を触らず共有可。
-   自動生成レポートや「社内 Reports と代理店ハブの両方に出すレポート」向け）
+1. **サーバー側の許可**: `infra/share-index.json` の `rules` に、アユダンテへ見せる prefix を `access: "partner"` / `partner: "ayudante"` で追加する
+2. **既存表示制御の互換**: そのページの `PROTO_AUTH_CONFIG` に `required: "agency"` を付ける、または `auth.js` 冒頭の `AGENCY_PATH_PREFIXES` にパスを追加する
 
 そのうえで **`agency/index.html` にカードを追加**します（アクセス許可とハブ掲載は必ずセット）。
 現状 `ops/auto-kpi/` と `reports/ai-inflow-...` は `AGENCY_PATH_PREFIXES` で共有しています。
@@ -203,10 +202,10 @@ window.PROTO_AUTH_CONFIG = {
 
 ---
 
-## デプロイ（push）
+## デプロイ
 
-GitHub Pages は `main` ブランチから自動配信されます。
-ローカルの作業ブランチは `codex/pages-hub`。
+`main` ブランチ更新後に `sync-private-pages` workflow が private GCS へ同期します。
+Cloud Run viewer の更新は `deploy-cloud-run-viewer` workflow または `scripts/deploy_cloud_run.sh` で行います。
 
 ```bash
 # 必ず最新を取得してから作業
@@ -217,19 +216,28 @@ git rebase origin/main
 git add <変更ファイル>
 git commit -m "Add/Update <内容>"
 
-# main に push → GitHub Pages に即反映（数分以内）
+# main に push → private GCS に同期
 git push origin HEAD:main
+```
+
+初回デプロイまたはviewer更新:
+
+```bash
+PROJECT_ID=ucarpac-uapp \
+REGION=asia-northeast1 \
+BIZ_PROTO_BUCKET=ucarpac-biz-prototypes-pages \
+scripts/deploy_cloud_run.sh
 ```
 
 ---
 
 ## 代理店への共有方法
 
-URL とパスワードをセットで伝えます：
+アユダンテのGoogle WorkspaceアカウントでIAPログインしてもらいます。
 
 ```
-URL: https://ucarpac.github.io/biz-prototypes/agency/
-パスワード: agency2026
+URL: ${BIZ_PROTO_BASE_URL}/agency/
+許可ドメイン: ayudante.jp
 ```
 
 詳細ルールは `AGENTS.md` を参照してください。

@@ -1,6 +1,6 @@
 # Cloud Run Viewer
 
-`biz-prototypes` の GitHub Pages 配信を、private GCS + Cloud Run + IAP に移すための viewer です。
+`biz-prototypes` の配信を、private GCS + Cloud Run direct IAP に移すための viewer です。
 
 ## 認証
 
