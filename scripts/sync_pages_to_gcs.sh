@@ -11,9 +11,9 @@ fi
 
 cd "$ROOT_DIR"
 
-gcloud storage cp infra/share-index.json "gs://${BUCKET}/_config/share-index.json"
-
 gcloud storage rsync . "gs://${BUCKET}" \
   --recursive \
   --delete-unmatched-destination-objects \
-  --exclude '(^|/)(\.git|\.github|cloud-run-viewer|infra|scripts)(/|$)|(^|/)(README\.md|AGENTS\.md|\.gitignore|\.gcloudignore)$'
+  --exclude '(^|/)(\.git|\.github|cloud-run-viewer|infra|scripts)(/|$)|(^|/)(README\.md|AGENTS\.md|\.gitignore|\.gcloudignore|gha-creds-[^/]+\.json)$'
+
+gcloud storage cp infra/share-index.json "gs://${BUCKET}/_config/share-index.json"
