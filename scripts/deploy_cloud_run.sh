@@ -7,17 +7,20 @@ REGION="${REGION:-asia-northeast1}"
 SERVICE="${SERVICE:-biz-prototypes-viewer}"
 BUCKET="${BIZ_PROTO_BUCKET:-ucarpac-biz-prototypes-pages}"
 BUCKET_LOCATION="${BUCKET_LOCATION:-ASIA-NORTHEAST1}"
+ENABLE_SERVICES="${ENABLE_SERVICES:-0}"
 
 cd "$ROOT_DIR"
 
 gcloud config set project "$PROJECT_ID" >/dev/null
 
-gcloud services enable \
-  run.googleapis.com \
-  storage.googleapis.com \
-  cloudbuild.googleapis.com \
-  artifactregistry.googleapis.com \
-  iap.googleapis.com
+if [[ "$ENABLE_SERVICES" == "1" ]]; then
+  gcloud services enable \
+    run.googleapis.com \
+    storage.googleapis.com \
+    cloudbuild.googleapis.com \
+    artifactregistry.googleapis.com \
+    iap.googleapis.com
+fi
 
 if ! gcloud storage buckets describe "gs://${BUCKET}" >/dev/null 2>&1; then
   gcloud storage buckets create "gs://${BUCKET}" \
