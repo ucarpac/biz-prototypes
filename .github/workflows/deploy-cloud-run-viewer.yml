@@ -14,6 +14,10 @@ jobs:
       REGION: ${{ vars.GCP_REGION || 'asia-northeast1' }}
       SERVICE: ${{ vars.BIZ_PROTO_SERVICE || 'biz-prototypes-viewer' }}
       BIZ_PROTO_BUCKET: ${{ vars.BIZ_PROTO_BUCKET || 'ucarpac-biz-prototypes-pages' }}
+      CREATE_BUCKET: ${{ vars.BIZ_PROTO_CREATE_BUCKET || '0' }}
+      USE_IAP: "1"
+      CONFIGURE_IAP_ACCESS: ${{ vars.BIZ_PROTO_CONFIGURE_IAP_ACCESS || '1' }}
+      IAP_MEMBERS: ${{ vars.BIZ_PROTO_IAP_MEMBERS || 'domain:ucarpac.co.jp,domain:ayudante.jp' }}
 
     steps:
       - name: Checkout
@@ -26,6 +30,8 @@ jobs:
 
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
+        with:
+          version: ">= 531.0.0"
 
       - name: Deploy viewer
         run: scripts/deploy_cloud_run.sh

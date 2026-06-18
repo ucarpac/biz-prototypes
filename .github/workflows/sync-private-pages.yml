@@ -11,10 +11,9 @@ permissions:
 
 jobs:
   sync:
-    if: ${{ vars.BIZ_PROTO_BUCKET != '' }}
     runs-on: ubuntu-latest
     env:
-      BIZ_PROTO_BUCKET: ${{ vars.BIZ_PROTO_BUCKET }}
+      BIZ_PROTO_BUCKET: ${{ vars.BIZ_PROTO_BUCKET || 'ucarpac-biz-prototypes-pages' }}
 
     steps:
       - name: Checkout
@@ -27,6 +26,8 @@ jobs:
 
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
+        with:
+          version: ">= 531.0.0"
 
       - name: Sync pages to private bucket
         run: scripts/sync_pages_to_gcs.sh

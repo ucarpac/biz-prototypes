@@ -1,7 +1,7 @@
 # AGENTS.md
 
-このリポジトリは GitHub Pages で社内向けに静的配信する前提で運用する。
-日々のプロトタイプと分析レポートを同じ Pages 配下で管理するため、追加時は以下のルールに従うこと。
+このリポジトリは private GCS + Cloud Run + IAP で社内/代理店向けに静的配信する前提で運用する。
+日々のプロトタイプと分析レポートを同じ配信基盤で管理するため、追加時は以下のルールに従うこと。
 
 ## 目的
 
@@ -20,7 +20,8 @@
 ## 認証ルール
 
 - 公開ページは共通の `auth.js` を読み込む
-- 認証はクライアント側の簡易ゲートであり、機微情報の厳密保護用途ではない
+- 認証の正は Cloud Run + IAP のGoogle認証とし、`auth.js` は既存ページの表示制御互換に使う
+- 社内は `ucarpac.co.jp`、アユダンテ共有は `ayudante.jp` を許可ドメインとする
 - デフォルトは 24 時間保持とする
 - ページごとのタイトルや説明は `window.PROTO_AUTH_CONFIG` で上書きする
 - 新規 HTML を追加するときは、`auth.js` の相対パスが正しいか必ず確認する
@@ -28,8 +29,9 @@
 ## 社内 / 代理店の置き分けルール
 
 - `full`（社内）は全ページ閲覧可。`agency`（代理店）は共有指定ページのみ
-- 代理店共有にするには、ページ単位で `required:"agency"` を付けるか、
-  `auth.js` の `AGENCY_PATH_PREFIXES` にパスを追加する
+- 代理店共有にするには、`infra/share-index.json` の `rules` に対象 prefix を追加する
+- 既存表示制御との互換として、ページ単位で `required:"agency"` を付けるか、
+  `auth.js` の `AGENCY_PATH_PREFIXES` に同じパスを追加する
 - 代理店共有にしたら必ず `agency/index.html` にカードを追加（許可とハブ掲載はセット）
 - 代理店ユーザーのパンくずは自動で `← 代理店ハブ` 起点になる（社内導線は見せない）。
   社内専用ページへの手書きリンクを代理店共有ページに置かないこと
@@ -49,12 +51,13 @@
 - 文字化けして見えても、PowerShell 表示由来の可能性があるため、`Select-String` で実ファイル内容を確認してから直す
 - 内容解釈に誤解が出やすい指標は、公開前にラベルや注記で補正する
 
-## GitHub Pages 運用ルール
+## Cloud Run/IAP 運用ルール
 
 - このリポは自動更新が多いため、作業開始時に最新 `origin/main` を基準にする
 - すでにローカル `main` が古い場合は、そのまま積まずに最新 `origin/main` から作業ブランチを切る
 - `main` へ反映する前に `git fetch origin` と `git rebase origin/main` を行い、fast-forward で push する
-- 公開後は URL の HTTP ステータスが `200` かを確認する
+- 反映後は private GCS 同期と Cloud Run/IAP 配信URLの HTTP ステータスが期待通りかを確認する
+- GCS bucket は private のままにし、`allUsers` / `allAuthenticatedUsers` を付けない
 - 追加ページは一覧ページと個別 URL の両方で反映確認する
 
 ## 確認項目

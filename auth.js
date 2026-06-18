@@ -13,7 +13,8 @@
   const AGENCY_PATH_PREFIXES = [
     "/agency/",
     "/ops/auto-kpi/",
-    "/reports/ai-inflow-20260331-n6x3p8r4k2/"
+    "/reports/ai-inflow-20260331-n6x3p8r4k2/",
+    "/shares/ayudante/"
   ];
   // "full" = UCP内部（全ページ閲覧可）、"agency" = 代理店共有ページのみ閲覧可
   const REQUIRED = CONFIG.required || detectRequiredLevel();
