@@ -214,6 +214,7 @@ def allowed(policy: dict, rule: dict, email: str) -> tuple[bool, str]:
 
 def auth_state_script(level: str) -> bytes:
     state = {
+        "value": "ok",
         "level": "full" if level == "full" else "agency",
         "expiresAt": int((time.time() + 24 * 60 * 60) * 1000)
     }
