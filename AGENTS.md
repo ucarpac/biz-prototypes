@@ -54,7 +54,7 @@
 ## Cloud Run/IAP 運用ルール
 
 - このリポは自動更新が多いため、作業開始時に最新 `origin/main` を基準にする
-- GitHubへpushできる人は、自分でGitHubに追加してpushする
+- GitHubへpushできる人は、自分でGitHubに追加してpushし、URLをゆーちゃんに渡して通知依頼する
 - GitHubへpushしない人は、Slackでゆーちゃんに依頼し、`html-share` 経由で `shares/internal/` または `shares/ayudante/` へアップロードする
 - Codexに作成を頼む場合は、Codexがページ作成、必要なpush、URL返却まで担当する
 - ゆーちゃんはSlack上のページアップ、登録通知、URL再掲、共有範囲案内を担当する
