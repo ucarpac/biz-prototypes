@@ -207,9 +207,10 @@ window.PROTO_AUTH_CONFIG = {
 
 ## ゆーちゃん経由でアップロード
 
-Push君などが作成・push済みのHTMLやレポートを一時共有する場合は、GitHubに直接追加せず、ゆーちゃんの `html-share` に依頼します。
+CodexなどAIが作成したHTMLやレポートを一時共有する場合は、GitHubに直接追加せず、ゆーちゃんの `html-share` に依頼します。
 アップロード先は private GCS で、URL は Cloud Run + IAP のGoogle認証配信になります。
 ゆーちゃんは「これをページにアップ」「これページにして」「アユダンテにも共有」などの依頼で起動します。
+必要なGitHub pushはCodexが担当し、ゆーちゃんはページアップと共有URL返却を担当します。
 
 Slackでの依頼例:
 

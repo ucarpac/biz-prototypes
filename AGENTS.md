@@ -54,7 +54,8 @@
 ## Cloud Run/IAP 運用ルール
 
 - このリポは自動更新が多いため、作業開始時に最新 `origin/main` を基準にする
-- Push君などが作成・push済みのHTMLやレポートの単発共有は、まずゆーちゃんの `html-share` 経由で `shares/internal/` または `shares/ayudante/` へアップロードする
+- CodexなどAIが作成したHTMLやレポートの単発共有は、まずゆーちゃんの `html-share` 経由で `shares/internal/` または `shares/ayudante/` へアップロードする
+- 必要なGitHub pushはCodexが担当し、ゆーちゃんはページアップと共有URL返却を担当する
 - ゆーちゃんは「これをページにアップ」「これページにして」「アユダンテにも共有」などの曖昧なSlack依頼も拾う
 - 恒久的にハブや一覧へ載せるページだけ、GitHub上の `reports/` / `ops/` / `agency/` を更新する
 - すでにローカル `main` が古い場合は、そのまま積まずに最新 `origin/main` から作業ブランチを切る
