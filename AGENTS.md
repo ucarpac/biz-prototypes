@@ -54,9 +54,11 @@
 ## Cloud Run/IAP 運用ルール
 
 - このリポは自動更新が多いため、作業開始時に最新 `origin/main` を基準にする
-- CodexなどAIが作成したHTMLやレポートの単発共有は、まずゆーちゃんの `html-share` 経由で `shares/internal/` または `shares/ayudante/` へアップロードする
-- 必要なGitHub pushはCodexが担当し、ゆーちゃんはページアップと共有URL返却を担当する
-- ゆーちゃんは「これをページにアップ」「これページにして」「アユダンテにも共有」などの曖昧なSlack依頼も拾う
+- GitHubへpushできる人は、自分でGitHubに追加してpushする
+- GitHubへpushしない人は、Slackでゆーちゃんに依頼し、`html-share` 経由で `shares/internal/` または `shares/ayudante/` へアップロードする
+- Codexに作成を頼む場合は、Codexがページ作成、必要なpush、URL返却まで担当する
+- ゆーちゃんはSlack上のページアップ、登録通知、URL再掲、共有範囲案内を担当する
+- ゆーちゃんは「これをページにアップ」「これページにして」「アユダンテにも共有」「このURLを共有して」などの曖昧なSlack依頼も拾う
 - 恒久的にハブや一覧へ載せるページだけ、GitHub上の `reports/` / `ops/` / `agency/` を更新する
 - すでにローカル `main` が古い場合は、そのまま積まずに最新 `origin/main` から作業ブランチを切る
 - `main` へ反映する前に `git fetch origin` と `git rebase origin/main` を行い、fast-forward で push する

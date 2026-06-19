@@ -205,12 +205,18 @@ window.PROTO_AUTH_CONFIG = {
 
 ---
 
-## ゆーちゃん経由でアップロード
+## 共有フロー
 
-CodexなどAIが作成したHTMLやレポートを一時共有する場合は、GitHubに直接追加せず、ゆーちゃんの `html-share` に依頼します。
-アップロード先は private GCS で、URL は Cloud Run + IAP のGoogle認証配信になります。
-ゆーちゃんは「これをページにアップ」「これページにして」「アユダンテにも共有」などの依頼で起動します。
-必要なGitHub pushはCodexが担当し、ゆーちゃんはページアップと共有URL返却を担当します。
+biz-prototypes への登録ルートは、使う人に合わせて2つに分けます。
+
+| 使う人 | 正規ルート | 完了時 |
+|--------|------------|--------|
+| GitHubへpushできる人 | 自分でGitHubに追加してpushする | ゆーちゃんがSlackで登録通知とURL再掲をする |
+| GitHubへpushしない人 | Slackでゆーちゃんに依頼する | ゆーちゃんが `html-share` でアップロードしてURLを返す |
+
+Codexに作成を頼む場合は、Codexがページ作成、必要なpush、URL返却まで行います。
+Slackからの依頼は、ゆーちゃんが添付HTML、リンク、ローカル生成物を受け取り、`shares/internal/` または `shares/ayudante/` へアップロードします。
+どちらのルートでも、URL は Cloud Run + IAP のGoogle認証配信になります。
 
 Slackでの依頼例:
 
@@ -225,6 +231,21 @@ Slackでの依頼例:
 ```text
 ゆーちゃん、これをページにアップして。アユダンテにも共有。
 タイトル: 共有タイトル
+```
+
+GitHubへpushできる人が自分で登録した場合の通知例:
+
+```text
+ゆーちゃん、このページを共有して。
+URL: https://biz-prototypes-viewer-u562wnlrda-an.a.run.app/reports/example/
+共有範囲: 社内
+```
+
+Codexへ作成から共有まで頼む場合の依頼例:
+
+```text
+Codex、この内容をページにして、アップロードして、共有URLを教えて。
+アユダンテにも共有できる形にして。
 ```
 
 配置先:
@@ -247,7 +268,7 @@ python3 scripts/upload_share.py /path/to/report.html \
   --title "共有タイトル"
 ```
 
-ゆーちゃんはアップロード後に共有URLと共有範囲を返します。
+ゆーちゃんはSlack上で、アップロード後または登録通知依頼後に共有URLと共有範囲を返します。
 恒久的にハブへ載せるページだけ、下の通常デプロイ手順でGitHubへ追加します。
 
 ---
