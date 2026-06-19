@@ -54,6 +54,8 @@
 ## Cloud Run/IAP 運用ルール
 
 - このリポは自動更新が多いため、作業開始時に最新 `origin/main` を基準にする
+- Slack依頼やローカル生成物の単発共有は、まずゆーちゃんの `html-share` 経由で `shares/internal/` または `shares/ayudante/` へアップロードする
+- 恒久的にハブや一覧へ載せるページだけ、GitHub上の `reports/` / `ops/` / `agency/` を更新する
 - すでにローカル `main` が古い場合は、そのまま積まずに最新 `origin/main` から作業ブランチを切る
 - `main` へ反映する前に `git fetch origin` と `git rebase origin/main` を行い、fast-forward で push する
 - 反映後は private GCS 同期と Cloud Run/IAP 配信URLの HTTP ステータスが期待通りかを確認する

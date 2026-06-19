@@ -205,6 +205,52 @@ window.PROTO_AUTH_CONFIG = {
 
 ---
 
+## ゆーちゃん経由でアップロード
+
+Slackやローカル生成物を一時共有する場合は、GitHubに直接追加せず、ゆーちゃんの `html-share` に依頼します。
+アップロード先は private GCS で、URL は Cloud Run + IAP のGoogle認証配信になります。
+
+Slackでの依頼例:
+
+```text
+ゆーちゃん、このHTMLをbiz-prototypesにアップして。
+共有範囲: 社内
+タイトル: 共有タイトル
+```
+
+アユダンテ向け:
+
+```text
+ゆーちゃん、このHTMLをbiz-prototypesにアップして。
+共有範囲: アユダンテ
+タイトル: 共有タイトル
+```
+
+配置先:
+
+| 共有範囲 | 配置 prefix | 認証 |
+|---------|------------|------|
+| 社内 | `shares/internal/` | `ucarpac.co.jp` |
+| アユダンテ | `shares/ayudante/` | `ayudante.jp` |
+
+CLI fallback:
+
+```bash
+python3 scripts/upload_share.py /path/to/report.html \
+  --scope internal \
+  --title "共有タイトル"
+
+python3 scripts/upload_share.py /path/to/report.html \
+  --scope agency \
+  --partner ayudante \
+  --title "共有タイトル"
+```
+
+ゆーちゃんはアップロード後に共有URLと共有範囲を返します。
+恒久的にハブへ載せるページだけ、下の通常デプロイ手順でGitHubへ追加します。
+
+---
+
 ## デプロイ
 
 `main` ブランチ更新後に `sync-private-pages` workflow が private GCS へ同期します。
