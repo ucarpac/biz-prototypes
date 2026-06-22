@@ -1,56 +1,47 @@
 window.__PUSH_DASHBOARD_DATA__ = {
   "reportMonth": "2026-06",
-  "generatedDate": "2026-06-15",
-  "updatedDate": "2026-06-15",
-  "latestNotificationDate": "2026-06-11",
+  "generatedDate": "2026-06-22",
+  "updatedDate": "2026-06-21",
+  "latestNotificationDate": "2026-06-17",
   "summaryNote": "OneSignal登録数と配信対象UU数は 2026-06-15 の snapshot_date、配信結果は 2026-06-11 の completed_at を基準に表示しています。配信対象UU数は BigQuery の notification_types > 0 を採用しています。なお、invalid_identifier と unsubscribed_at まで加味した厳しめの到達可能数は別途 4,916 件です。6月通知行は clicked が空のため、同義の legacy converted をクリック数として使用しています。",
   "entry": {
     "month": "2026-06",
-    "date": "2026/06/15",
-    "notificationDate": "2026/06/11",
+    "date": "2026/06/21",
+    "notificationDate": "2026/06/17",
     "cumulativeEffectiveDl": 33855,
-    "osRegistered": 33130,
-    "subscribed": 6779,
-    "effectiveTarget": 4916,
-    "unreachable": 28214,
+    "osRegistered": 34163,
+    "subscribed": 7106,
+    "effectiveTarget": 5135,
+    "unreachable": 29028,
     "notifications": 1,
-    "successful": 4957,
-    "failed": 433,
-    "converted": 537,
-    "clicks": 537,
+    "successful": 1,
+    "failed": 0,
+    "converted": 2,
+    "clicks": null,
     "signups": null
   },
   "topSeries": [
     {
       "month": "2026-05",
       "osRegistered": 30651,
-      "subscribed": 6412,
+      "subscribed": 6590,
       "effectiveTarget": 4821
     },
     {
       "month": "2026-06",
-      "osRegistered": 33130,
-      "subscribed": 6779,
-      "effectiveTarget": 4916
+      "osRegistered": 34163,
+      "subscribed": 7106,
+      "effectiveTarget": 5135
     }
   ],
   "bottomSeries": [
-    {
-      "month": "2026-04-17",
-      "notifications": 2,
-      "successful": 1215,
-      "failed": 289,
-      "converted": 90,
-      "clicks": 90,
-      "signups": null
-    },
     {
       "month": "2026-04-20",
       "notifications": 1,
       "successful": 3782,
       "failed": 936,
       "converted": 284,
-      "clicks": 284,
+      "clicks": null,
       "signups": null
     },
     {
@@ -59,7 +50,7 @@ window.__PUSH_DASHBOARD_DATA__ = {
       "successful": 1437,
       "failed": 201,
       "converted": 106,
-      "clicks": 106,
+      "clicks": null,
       "signups": null
     },
     {
@@ -68,16 +59,16 @@ window.__PUSH_DASHBOARD_DATA__ = {
       "successful": 4634,
       "failed": 733,
       "converted": 449,
-      "clicks": 449,
+      "clicks": null,
       "signups": null
     },
     {
       "month": "2026-06-10",
-      "notifications": 2,
-      "successful": 1621,
+      "notifications": 4,
+      "successful": 1623,
       "failed": 124,
-      "converted": 145,
-      "clicks": 145,
+      "converted": 146,
+      "clicks": null,
       "signups": null
     },
     {
@@ -85,8 +76,17 @@ window.__PUSH_DASHBOARD_DATA__ = {
       "notifications": 1,
       "successful": 4957,
       "failed": 433,
-      "converted": 537,
-      "clicks": 537,
+      "converted": 546,
+      "clicks": null,
+      "signups": null
+    },
+    {
+      "month": "2026-06-17",
+      "notifications": 1,
+      "successful": 1,
+      "failed": 0,
+      "converted": 2,
+      "clicks": null,
       "signups": null
     }
   ],
