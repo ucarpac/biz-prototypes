@@ -38,6 +38,29 @@ jobs:
         with:
           version: ">= 531.0.0"
 
+      - name: Record LP11 update start
+        if: ${{ vars.BIZ_PROTO_BUCKET != '' }}
+        env:
+          BIZ_PROTO_BUCKET: ${{ vars.BIZ_PROTO_BUCKET }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+
+          status = {
+              "status": "running",
+              "message": "LP11レポートの自動更新を実行中です。",
+              "started_at": datetime.now(timezone.utc).isoformat(),
+              "run_url": os.environ["RUN_URL"],
+          }
+          with open("/tmp/lp11-cpa-report-status.json", "w", encoding="utf-8") as f:
+              json.dump(status, f, ensure_ascii=False, indent=2)
+              f.write("\n")
+          PY
+          gcloud storage cp /tmp/lp11-cpa-report-status.json "gs://${BIZ_PROTO_BUCKET}/_status/lp11-cpa-report.json"
+
       - name: Install dependencies
         run: pip install -r requirements-lp11-report.txt
 
@@ -57,3 +80,49 @@ jobs:
         env:
           BIZ_PROTO_BUCKET: ${{ vars.BIZ_PROTO_BUCKET }}
         run: scripts/sync_pages_to_gcs.sh
+
+      - name: Record LP11 update success
+        if: ${{ success() && vars.BIZ_PROTO_SYNC_ENABLED == '1' && vars.BIZ_PROTO_BUCKET != '' }}
+        env:
+          BIZ_PROTO_BUCKET: ${{ vars.BIZ_PROTO_BUCKET }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+
+          status = {
+              "status": "success",
+              "message": "LP11レポートは正常に自動更新され、viewerにも反映済みです。",
+              "updated_at": datetime.now(timezone.utc).isoformat(),
+              "run_url": os.environ["RUN_URL"],
+          }
+          with open("/tmp/lp11-cpa-report-status.json", "w", encoding="utf-8") as f:
+              json.dump(status, f, ensure_ascii=False, indent=2)
+              f.write("\n")
+          PY
+          gcloud storage cp /tmp/lp11-cpa-report-status.json "gs://${BIZ_PROTO_BUCKET}/_status/lp11-cpa-report.json"
+
+      - name: Record LP11 update failure
+        if: ${{ failure() && vars.BIZ_PROTO_BUCKET != '' }}
+        env:
+          BIZ_PROTO_BUCKET: ${{ vars.BIZ_PROTO_BUCKET }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+
+          status = {
+              "status": "failure",
+              "message": "LP11レポートの自動更新に失敗しました。実行ログを確認し、必要なら手動更新を実行してください。",
+              "updated_at": datetime.now(timezone.utc).isoformat(),
+              "run_url": os.environ["RUN_URL"],
+          }
+          with open("/tmp/lp11-cpa-report-status.json", "w", encoding="utf-8") as f:
+              json.dump(status, f, ensure_ascii=False, indent=2)
+              f.write("\n")
+          PY
+          gcloud storage cp /tmp/lp11-cpa-report-status.json "gs://${BIZ_PROTO_BUCKET}/_status/lp11-cpa-report.json"

@@ -52,6 +52,10 @@ deploy_args=(
   --set-env-vars "BIZ_PROTO_BUCKET=${BUCKET},BIZ_PROTO_SHARE_INDEX=_config/share-index.json,BIZ_PROTO_STRIP_PREFIXES=/biz-prototypes/"
 )
 
+if [[ -n "${BIZ_PROTO_GITHUB_TOKEN:-}" ]]; then
+  deploy_args+=(--update-env-vars "BIZ_PROTO_GITHUB_TOKEN=${BIZ_PROTO_GITHUB_TOKEN}")
+fi
+
 if [[ "$USE_IAP" == "1" ]]; then
   deploy_args+=(--iap)
 fi
